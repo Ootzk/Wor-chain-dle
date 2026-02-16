@@ -19,7 +19,9 @@ export const Grid = ({ guesses, currentGuess }: Props) => {
       {guesses.map((guess, i) => (
         <CompletedRow key={i} guess={guess} />
       ))}
-      {guesses.length < CONFIG.tries && <CurrentRow guess={currentGuess} />}
+      {guesses.length < CONFIG.tries && (
+        <CurrentRow guess={currentGuess} guesses={guesses} />
+      )}
       {empties.map((_, i) => (
         <EmptyRow key={i} />
       ))}
