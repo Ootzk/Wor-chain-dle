@@ -1,6 +1,6 @@
 # Wor-chain-dle — Development Guide
 
-Wordle meets word chain — your next guess must start with the last letter of your previous one.
+Wordle meets word chain — guess the word while chaining letters in a snake pattern.
 
 Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game) fork.
 
@@ -61,10 +61,25 @@ docker run -d -p 3000:3000 wor-chain-dle
 - `feature/{contents}`: 기능별 브랜치. release 브랜치에서 생성. 작업 완료 후 release 브랜치로 PR을 만들어서 머지.
 - **PR 머지는 항상 개발자가 직접 수행.** Claude는 PR 생성까지만.
 
+## Snake Chain Rule
+
+2번째 추측부터 이전 추측과 체인으로 연결되어야 함. 연결 위치가 좌우 교대로 바뀌며 뱀 모양을 형성:
+
+- guess 1 → 2: **끝 글자** 일치 (오른쪽 연결)
+- guess 2 → 3: **첫 글자** 일치 (왼쪽 연결)
+- guess 3 → 4: **끝 글자** 일치 (오른쪽 연결)
+- guess 4 → 5: **첫 글자** 일치 (왼쪽 연결)
+- guess 5 → 6: **끝 글자** 일치 (오른쪽 연결)
+
+홀수→짝수: 끝 글자 체인, 짝수→홀수: 첫 글자 체인. (1-indexed 기준)
+
+검증 위치: `App.tsx`의 `onEnter()` — 단어 길이 체크 후, 단어 목록 체크 전에 체인 규칙 검증.
+
 ## Version History
 
 - **v0.1.0** — AnyLanguage-Wordle 포크 초기 세팅. 기본 색상 변경 (purple/orange).
 - **v0.2.0** — 문서 정비, 영어 Wordle 기본 구현, QWERTY 키보드 + 물리 키보드 지원, UI 변경 (타이틀, 타일 색상).
+- **v0.3.0** — Snake chain rule 구현, GitHub Pages 배포.
 
 ## Communication
 
