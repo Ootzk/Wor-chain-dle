@@ -19,14 +19,16 @@ src/
   constants/
     config.ts                    ← 게임 설정 (tries, wordLength, language 등)
     orthography.ts               ← 문자 체계 정의 (유효 문자 집합)
-    wordlist.ts                  ← 정답 단어 목록 (2,314개)
+    wordlist.ts                  ← 정답 단어 목록 (2,315개, 고정 시드 셔플)
     validGuesses.ts              ← 유효 추측 단어 목록 (10,656개, 정답과 중복 없음)
   lib/
-    words.ts                     ← 오늘의 단어 선택, 단어 검증
+    words.ts                     ← 오늘의 단어 선택 (UTC 기반), 단어 검증
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
+    chain.ts                     ← 체인 규칙 유틸 (체인 인덱스, dead end 판정)
+    share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
   components/
-    grid/                        ← 게임 그리드 UI (green=correct, purple=present)
+    grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge)
     keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
     modals/                      ← Info, Stats, About, Translate 모달
 ```
@@ -79,7 +81,7 @@ docker run -d -p 3000:3000 wor-chain-dle
 
 - **v0.1.0** — AnyLanguage-Wordle 포크 초기 세팅. 기본 색상 변경 (purple/orange).
 - **v0.2.0** — 문서 정비, 영어 Wordle 기본 구현, QWERTY 키보드 + 물리 키보드 지원, UI 변경 (타이틀, 타일 색상).
-- **v0.3.0** — Snake chain rule 구현, GitHub Pages 배포.
+- **v1.0.0** — Snake chain rule 구현, 체인 시각화(ChainBridge), dead end 감지, How to Play 리디자인, wordlist 고정 시드 셔플(UTC 리셋), Share 포맷 리디자인(box-drawing 체인 경로), GitHub Pages 배포.
 
 ## Communication
 
