@@ -1,7 +1,7 @@
 {
-    "name": "any-language-word-guessing-game",
-    "version": "0.1.0",
-    "homepage": "https://roedoejet.github.io/AnyLanguage-Word-Guessing-Game",
+    "name": "wor-chain-dle",
+    "version": "0.2.0",
+    "homepage": "https://Ootzk.github.io/Wor-chain-dle",
     "private": true,
     "dependencies": {
         "@bcgov/bc-sans": "^1.0.1",
