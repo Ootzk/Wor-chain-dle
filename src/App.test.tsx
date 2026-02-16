@@ -8,8 +8,8 @@ import chalk from 'chalk'
 
 test('renders game', () => {
   render(<App />)
-  const linkElement = screen.getByText(/gameName/i)
-  expect(linkElement).toBeInTheDocument()
+  const titleElement = screen.getByText(/Wor.*dle/i)
+  expect(titleElement).toBeInTheDocument()
 })
 
 test('no surprise characters', () => {
