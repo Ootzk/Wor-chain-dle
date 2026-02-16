@@ -1,8 +1,8 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v0.2.0-blue)
+![Version](https://img.shields.io/badge/Version-v0.3.0-blue)
 
-Wordle meets word chain — your next guess must start with the last letter of your previous one.
+Wordle meets word chain — guess the word while chaining letters in a snake pattern.
 
 ## How to Play
 
@@ -11,6 +11,15 @@ Wordle meets word chain — your next guess must start with the last letter of y
    - **Green** — The letter is in the correct spot.
    - **Purple** — The letter is in the word but in the wrong spot.
    - **Gray** — The letter is not in the word.
-3. A new word is available every day.
+3. **Snake chain rule:** Starting from the 2nd guess, your word must chain with the previous guess. The chain alternates sides like a snake:
 
-> **Chain rule (coming soon):** Starting from the second guess, your word must begin with the last letter of your previous guess.
+```text
+OOOOX        guess 1: free
+AOOOX  -->   guess 2: last letter must match guess 1's last letter
+AOOOB  <--   guess 3: first letter must match guess 2's first letter
+YOOOB  -->   guess 4: last letter must match guess 3's last letter
+YOOOT  <--   guess 5: first letter must match guess 4's first letter
+OOOOT  -->   guess 6: last letter must match guess 5's last letter
+```
+
+1. A new word is available every day.
