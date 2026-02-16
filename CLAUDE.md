@@ -9,6 +9,7 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 - React 17 + TypeScript + Tailwind CSS 3
 - Create React App (react-scripts 5)
 - i18next (en, es, sw, zh)
+- GoatCounter 애널리틱스 (쿠키 없음, 경량)
 - GitHub Actions → GitHub Pages 자동 배포
 
 ## Project Structure
@@ -82,6 +83,9 @@ docker run -d -p 3000:3000 wor-chain-dle
 - **v0.1.0** — AnyLanguage-Wordle 포크 초기 세팅. 기본 색상 변경 (purple/orange).
 - **v0.2.0** — 문서 정비, 영어 Wordle 기본 구현, QWERTY 키보드 + 물리 키보드 지원, UI 변경 (타이틀, 타일 색상).
 - **v1.0.0** — Snake chain rule 구현, 체인 시각화(ChainBridge), dead end 감지, How to Play 리디자인, wordlist 고정 시드 셔플(UTC 리셋), Share 포맷 리디자인(box-drawing 체인 경로), GitHub Pages 배포.
+- **v1.0.1** — 버전 업데이트, 프로젝트 문서 정비.
+- **v1.0.2** — 탭 타이틀 및 파비콘 Wor🔗dle 브랜딩 적용.
+- **v1.0.3** — GoatCounter 애널리틱스 연동, 문서 업데이트.
 
 ## Communication
 

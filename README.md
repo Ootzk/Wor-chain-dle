@@ -1,6 +1,6 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v1.0.2-blue)
+![Version](https://img.shields.io/badge/Version-v1.0.3-blue)
 
 **Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
 
@@ -92,4 +92,6 @@ npm test           # run tests
 
 ## Credits
 
-Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game). Word list from the [original Wordle](https://www.nytimes.com/games/wordle).
+- Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game)
+- Word list from the [original Wordle](https://www.nytimes.com/games/wordle)
+- Analytics by [GoatCounter](https://www.goatcounter.com)
