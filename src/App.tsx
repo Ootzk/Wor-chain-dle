@@ -17,7 +17,8 @@ import {
 } from './lib/localStorage'
 
 import { CONFIG } from './constants/config'
-import { getChainInfo } from './lib/chain'
+import { getChainInfo, isChainDeadEnd } from './lib/chain'
+import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -49,6 +50,12 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
     }
     if (loaded.guesses.length === CONFIG.tries && !gameWasWon) {
       setIsGameLost(true)
+    }
+    if (!gameWasWon && loaded.guesses.length === CONFIG.tries - 1) {
+      const solutionChars = solution.split(ORTHOGRAPHY_PATTERN).filter((i) => i)
+      if (isChainDeadEnd(loaded.guesses, solutionChars)) {
+        setIsGameLost(true)
+      }
     }
     return loaded.guesses
   })
@@ -133,6 +140,18 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
       if (winningWord) {
         setStats(addStatsForCompletedGame(stats, guesses.length))
         return setIsGameWon(true)
+      }
+
+      if (guesses.length === CONFIG.tries - 2) {
+        const newGuesses = [...guesses, fullGuess]
+        const solutionChars = solution
+          .split(ORTHOGRAPHY_PATTERN)
+          .filter((i) => i)
+        if (isChainDeadEnd(newGuesses, solutionChars)) {
+          setStats(addStatsForCompletedGame(stats, CONFIG.tries))
+          setIsGameLost(true)
+          return
+        }
       }
 
       if (guesses.length === CONFIG.tries - 1) {
