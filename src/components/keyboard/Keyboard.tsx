@@ -2,8 +2,13 @@ import { KeyValue } from '../../lib/keyboard'
 import { getStatuses } from '../../lib/statuses'
 import { Key } from './Key'
 import { useEffect } from 'react'
-import { ORTHOGRAPHY } from '../../constants/orthography'
 import { useTranslation } from 'react-i18next'
+
+const KEYBOARD_ROWS = [
+  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+  ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
+]
 
 type Props = {
   onChar: (value: string) => void
@@ -32,14 +37,10 @@ export const Keyboard = ({ onChar, onDelete, onEnter, guesses }: Props) => {
         onEnter()
       } else if (e.code === 'Backspace') {
         onDelete()
+      } else if (e.code.startsWith('Key')) {
+        const key = e.code.slice(3).toLowerCase()
+        onChar(key)
       }
-      // Take away key event listener for now
-      // else {
-      //   const key = e.key.toUpperCase()
-      //   if (key.length === 1 && key >= 'A' && key <= 'Z') {
-      //     onChar(key)
-      //   }
-      // }
     }
     window.addEventListener('keyup', listener)
     return () => {
@@ -50,22 +51,17 @@ export const Keyboard = ({ onChar, onDelete, onEnter, guesses }: Props) => {
   return (
     <div>
       <div className="flex justify-center mb-1">
-        {ORTHOGRAPHY.slice(0, Math.floor(ORTHOGRAPHY.length * 0.4)).map(
-          (char) => (
-            <Key
-              key={char}
-              value={char}
-              onClick={onClick}
-              status={charStatuses[char]}
-            />
-          )
-        )}
+        {KEYBOARD_ROWS[0].map((char) => (
+          <Key
+            key={char}
+            value={char}
+            onClick={onClick}
+            status={charStatuses[char]}
+          />
+        ))}
       </div>
       <div className="flex justify-center mb-1">
-        {ORTHOGRAPHY.slice(
-          Math.floor(ORTHOGRAPHY.length * 0.4),
-          Math.floor(ORTHOGRAPHY.length * 0.7)
-        ).map((char) => (
+        {KEYBOARD_ROWS[1].map((char) => (
           <Key
             key={char}
             value={char}
@@ -78,10 +74,7 @@ export const Keyboard = ({ onChar, onDelete, onEnter, guesses }: Props) => {
         <Key key="enterKey" width={65.4} value="ENTER" onClick={onClick}>
           {t('enterKey')}
         </Key>
-        {ORTHOGRAPHY.slice(
-          Math.floor(ORTHOGRAPHY.length * 0.7),
-          ORTHOGRAPHY.length
-        ).map((char) => (
+        {KEYBOARD_ROWS[2].map((char) => (
           <Key
             key={char}
             value={char}
