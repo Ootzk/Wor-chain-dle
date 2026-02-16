@@ -68,6 +68,14 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   const [stats, setStats] = useState(() => loadStats())
 
   useEffect(() => {
+    const now = new Date()
+    const yyyy = now.getUTCFullYear()
+    const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
+    const dd = String(now.getUTCDate()).padStart(2, '0')
+    document.title = `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}`
+  }, [])
+
+  useEffect(() => {
     saveGameStateToLocalStorage({ guesses, solution })
   }, [guesses])
 
