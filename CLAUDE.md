@@ -18,16 +18,16 @@ src/
   App.tsx                        ← 게임 메인 로직 (onChar, onDelete, onEnter)
   constants/
     config.ts                    ← 게임 설정 (tries, wordLength, language 등)
-    orthography.ts               ← 문자 체계 (키보드 레이아웃)
-    wordlist.ts                  ← 정답 단어 목록
-    validGuesses.ts              ← 유효 추측 단어 목록
+    orthography.ts               ← 문자 체계 정의 (유효 문자 집합)
+    wordlist.ts                  ← 정답 단어 목록 (2,314개)
+    validGuesses.ts              ← 유효 추측 단어 목록 (10,656개, 정답과 중복 없음)
   lib/
     words.ts                     ← 오늘의 단어 선택, 단어 검증
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
   components/
-    grid/                        ← 게임 그리드 UI
-    keyboard/                    ← 키보드 UI
+    grid/                        ← 게임 그리드 UI (green=correct, purple=present)
+    keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
     modals/                      ← Info, Stats, About, Translate 모달
 ```
 
@@ -64,7 +64,7 @@ docker run -d -p 3000:3000 wor-chain-dle
 ## Version History
 
 - **v0.1.0** — AnyLanguage-Wordle 포크 초기 세팅. 기본 색상 변경 (purple/orange).
-- **v0.2.0** — 문서 정비, 영어 Wordle 기본 구현.
+- **v0.2.0** — 문서 정비, 영어 Wordle 기본 구현, QWERTY 키보드 + 물리 키보드 지원, UI 변경 (타이틀, 타일 색상).
 
 ## Communication
 
