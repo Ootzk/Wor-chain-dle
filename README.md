@@ -8,8 +8,8 @@ Wordle meets word chain — your next guess must start with the last letter of y
 
 1. Guess the hidden 5-letter word in 6 tries.
 2. After each guess, the color of the tiles will change to show how close your guess was to the word.
-   - **Purple** — The letter is in the correct spot.
-   - **Orange** — The letter is in the word but in the wrong spot.
+   - **Green** — The letter is in the correct spot.
+   - **Purple** — The letter is in the word but in the wrong spot.
    - **Gray** — The letter is not in the word.
 3. A new word is available every day.
 
