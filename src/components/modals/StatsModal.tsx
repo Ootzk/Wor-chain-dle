@@ -7,6 +7,8 @@ import { tomorrow } from '../../lib/words'
 import { BaseModal } from './BaseModal'
 import { useTranslation } from 'react-i18next'
 
+export type GameMode = 'daily' | 'practice'
+
 type Props = {
   isOpen: boolean
   handleClose: () => void
@@ -15,6 +17,8 @@ type Props = {
   isGameLost: boolean
   isGameWon: boolean
   handleShare: () => void
+  mode: GameMode
+  solution: string
 }
 
 export const StatsModal = ({
@@ -25,8 +29,33 @@ export const StatsModal = ({
   isGameLost,
   isGameWon,
   handleShare,
+  mode,
+  solution,
 }: Props) => {
   const { t } = useTranslation()
+
+  if (mode === 'practice') {
+    return (
+      <BaseModal
+        title={t('statistics')}
+        isOpen={isOpen}
+        handleClose={handleClose}
+      >
+        {(isGameLost || isGameWon) && (
+          <div className="mt-5 sm:mt-6 flex justify-center">
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              onClick={() => window.location.reload()}
+            >
+              {t('playAgain')}
+            </button>
+          </div>
+        )}
+      </BaseModal>
+    )
+  }
+
   if (gameStats.totalGames <= 0) {
     return (
       <BaseModal
@@ -63,7 +92,7 @@ export const StatsModal = ({
             type="button"
             className="mt-2 w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
             onClick={() => {
-              shareStatus(guesses, isGameLost)
+              shareStatus(guesses, isGameLost, solution)
               handleShare()
             }}
           >

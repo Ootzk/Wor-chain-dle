@@ -6,6 +6,7 @@ import { CharStatus, getGuessStatuses } from '../../lib/statuses'
 type Props = {
   guess: string[]
   guesses: string[][]
+  solution: string
   chainTopIndex?: number
   chainBottomIndex?: number
 }
@@ -13,6 +14,7 @@ type Props = {
 export const CurrentRow = ({
   guess,
   guesses,
+  solution,
   chainTopIndex,
   chainBottomIndex,
 }: Props) => {
@@ -21,7 +23,7 @@ export const CurrentRow = ({
   let chainStatus: CharStatus | undefined
   if (chainInfo) {
     const prev = guesses[guesses.length - 1]
-    const prevStatuses = getGuessStatuses(prev)
+    const prevStatuses = getGuessStatuses(prev, solution)
     const chainPos =
       chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
     chainStatus = prevStatuses[chainPos]

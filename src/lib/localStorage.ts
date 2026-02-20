@@ -33,3 +33,28 @@ export const loadStatsFromLocalStorage = () => {
   const stats = localStorage.getItem(gameStatKey)
   return stats ? (JSON.parse(stats) as GameStats) : null
 }
+
+const settingsKey = 'settings'
+
+export type Settings = {
+  isUppercase: boolean
+}
+
+export const saveSettings = (settings: Settings) => {
+  localStorage.setItem(settingsKey, JSON.stringify(settings))
+}
+
+export const loadSettings = (): Settings => {
+  const settings = localStorage.getItem(settingsKey)
+  return settings ? (JSON.parse(settings) as Settings) : { isUppercase: false }
+}
+
+const seenPatchNotesVersionKey = 'seenPatchNotesVersion'
+
+export const loadSeenPatchNotesVersion = (): string | null => {
+  return localStorage.getItem(seenPatchNotesVersionKey)
+}
+
+export const saveSeenPatchNotesVersion = (version: string) => {
+  localStorage.setItem(seenPatchNotesVersionKey, version)
+}

@@ -1,4 +1,3 @@
-import { solution } from './words'
 import { ORTHOGRAPHY } from '../constants/orthography'
 import { ORTHOGRAPHY_PATTERN } from './tokenizer'
 
@@ -7,7 +6,8 @@ export type CharStatus = 'absent' | 'present' | 'correct'
 export type CharValue = typeof ORTHOGRAPHY[number]
 
 export const getStatuses = (
-  guesses: string[][]
+  guesses: string[][],
+  solution: string
 ): { [key: string]: CharStatus } => {
   const charObj: { [key: string]: CharStatus } = {}
   const solutionChars = solution.split(ORTHOGRAPHY_PATTERN).filter((i) => i)
@@ -33,7 +33,10 @@ export const getStatuses = (
   return charObj
 }
 
-export const getGuessStatuses = (guess: string[]): CharStatus[] => {
+export const getGuessStatuses = (
+  guess: string[],
+  solution: string
+): CharStatus[] => {
   const splitSolution = solution.split(ORTHOGRAPHY_PATTERN).filter((i) => i)
   const splitGuess = guess
 

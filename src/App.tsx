@@ -1,22 +1,32 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
+import { CogIcon } from '@heroicons/react/outline'
+import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { TranslateIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
 import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
-import { StatsModal } from './components/modals/StatsModal'
+import { DonateModal } from './components/modals/DonateModal'
+import { PatchNotesModal } from './components/modals/PatchNotesModal'
+import { SettingsModal } from './components/modals/SettingsModal'
+import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
-import { isWordInWordList, isWinningWord, solution } from './lib/words'
+import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
+  loadSettings,
+  saveSettings,
+  loadSeenPatchNotesVersion,
+  saveSeenPatchNotesVersion,
 } from './lib/localStorage'
 
-import { CONFIG } from './constants/config'
+import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
 import { getChainInfo, isChainDeadEnd } from './lib/chain'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import ReactGA from 'react-ga'
@@ -26,7 +36,19 @@ import { withTranslation, WithTranslation } from 'react-i18next'
 
 const ALERT_TIME_MS = 2000
 
-const App: React.FC<WithTranslation> = ({ t, i18n }) => {
+type AppOwnProps = {
+  mode: GameMode
+  solution: string
+}
+
+const App: React.FC<WithTranslation & AppOwnProps> = ({
+  t,
+  i18n,
+  mode,
+  solution,
+}) => {
+  const isDaily = mode === 'daily'
+
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
@@ -34,10 +56,19 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
+  const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
+    () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
+  )
+  const [isUppercase, setIsUppercase] = useState(
+    () => loadSettings().isUppercase
+  )
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
   const [guesses, setGuesses] = useState<string[][]>(() => {
+    if (!isDaily) return []
     const loaded = loadGameStateFromLocalStorage()
     if (loaded?.solution !== solution) {
       return []
@@ -68,16 +99,26 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   const [stats, setStats] = useState(() => loadStats())
 
   useEffect(() => {
-    const now = new Date()
-    const yyyy = now.getUTCFullYear()
-    const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
-    const dd = String(now.getUTCDate()).padStart(2, '0')
-    document.title = `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}`
-  }, [])
+    if (isDaily) {
+      const now = new Date()
+      const yyyy = now.getUTCFullYear()
+      const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
+      const dd = String(now.getUTCDate()).padStart(2, '0')
+      document.title = `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}`
+    } else {
+      document.title = `Wor\u{1F517}dle Practice`
+    }
+  }, [isDaily])
 
   useEffect(() => {
-    saveGameStateToLocalStorage({ guesses, solution })
-  }, [guesses])
+    if (isDaily) {
+      saveGameStateToLocalStorage({ guesses, solution })
+    }
+  }, [guesses, isDaily, solution])
+
+  useEffect(() => {
+    saveSettings({ isUppercase })
+  }, [isUppercase])
 
   useEffect(() => {
     if (isGameWon) {
@@ -139,14 +180,16 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
         setIsWordNotFoundAlertOpen(false)
       }, ALERT_TIME_MS)
     }
-    const winningWord = isWinningWord(fullGuess.join(''))
+    const winningWord = isWinningWord(fullGuess.join(''), solution)
 
     if (guesses.length < CONFIG.tries && !isGameWon) {
       setCurrentGuess([])
       setGuesses([...guesses, fullGuess])
 
       if (winningWord) {
-        setStats(addStatsForCompletedGame(stats, guesses.length))
+        if (isDaily) {
+          setStats(addStatsForCompletedGame(stats, guesses.length))
+        }
         return setIsGameWon(true)
       }
 
@@ -156,14 +199,18 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
           .split(ORTHOGRAPHY_PATTERN)
           .filter((i) => i)
         if (isChainDeadEnd(newGuesses, solutionChars)) {
-          setStats(addStatsForCompletedGame(stats, CONFIG.tries))
+          if (isDaily) {
+            setStats(addStatsForCompletedGame(stats, CONFIG.tries))
+          }
           setIsGameLost(true)
           return
         }
       }
 
       if (guesses.length === CONFIG.tries - 1) {
-        setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+        if (isDaily) {
+          setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+        }
         setIsGameLost(true)
       }
     }
@@ -181,26 +228,46 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div className="flex w-80 mx-auto items-center mb-8">
-        <h1 className="text-xl grow font-bold">
-          Wor&#x1F517;dle {new Date().toLocaleDateString('en-CA')}
-        </h1>
+        <div className="grow">
+          <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
+          <p className="text-sm text-gray-500">
+            {isDaily ? new Date().toLocaleDateString('en-CA') : t('practice')}
+          </p>
+        </div>
         {translateElement}
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
         />
-        <ChartBarIcon
+        {isDaily && (
+          <ChartBarIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => setIsStatsModalOpen(true)}
+          />
+        )}
+        <CogIcon
           className="h-6 w-6 cursor-pointer"
-          onClick={() => setIsStatsModalOpen(true)}
+          onClick={() => setIsSettingsModalOpen(true)}
+        />
+        <CurrencyDollarIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsDonateModalOpen(true)}
         />
       </div>
-      <Grid guesses={guesses} currentGuess={currentGuess} />
-      <Keyboard
-        onChar={onChar}
-        onDelete={onDelete}
-        onEnter={onEnter}
-        guesses={guesses}
-      />
+      <div className={isUppercase ? 'uppercase' : ''}>
+        <Grid
+          guesses={guesses}
+          currentGuess={currentGuess}
+          solution={solution}
+        />
+        <Keyboard
+          onChar={onChar}
+          onDelete={onDelete}
+          onEnter={onEnter}
+          guesses={guesses}
+          solution={solution}
+        />
+      </div>
       <TranslateModal
         isOpen={isI18nModalOpen}
         handleClose={() => setIsI18nModalOpen(false)}
@@ -220,19 +287,46 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
           setSuccessAlert(t('gameCopied'))
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
+        mode={mode}
+        solution={solution}
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        handleClose={() => setIsSettingsModalOpen(false)}
+        isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
+      />
+      <DonateModal
+        isOpen={isDonateModalOpen}
+        handleClose={() => setIsDonateModalOpen(false)}
+      />
+      <PatchNotesModal
+        isOpen={isPatchNotesModalOpen}
+        handleClose={() => {
+          saveSeenPatchNotesVersion(PATCH_NOTES_VERSION)
+          setIsPatchNotesModalOpen(false)
+        }}
       />
       <AboutModal
         isOpen={isAboutModalOpen}
         handleClose={() => setIsAboutModalOpen(false)}
       />
 
-      <button
-        type="button"
-        className="mx-auto mt-8 flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
-        onClick={() => setIsAboutModalOpen(true)}
-      >
-        {t('about')}
-      </button>
+      <div className="mx-auto mt-8 flex items-center justify-center gap-2">
+        <button
+          type="button"
+          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+          onClick={() => setIsAboutModalOpen(true)}
+        >
+          {t('about')}
+        </button>
+        <Link
+          to={isDaily ? '/practice' : '/'}
+          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+        >
+          {isDaily ? t('practice') : t('daily')}
+        </Link>
+      </div>
 
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
       <Alert message={t('wordNotFound')} isOpen={isWordNotFoundAlertOpen} />

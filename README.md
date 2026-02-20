@@ -1,6 +1,6 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v1.0.3-blue)
+![Version](https://img.shields.io/badge/Version-v1.1.0-blue)
 
 **Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
 
@@ -9,6 +9,8 @@ A new word every day at [ootzk.github.io/Wor-chain-dle](https://ootzk.github.io/
 <p align="center">
   <img src="assets/empty-board.png" alt="Wor-chain-dle game board" width="300" />
 </p>
+
+---
 
 ## How to Play
 
@@ -26,16 +28,16 @@ Guess the hidden 5-letter word in 6 tries. After each guess, tiles change color 
 
 Here's the twist. Starting from your **2nd guess**, a letter **chains** from your previous word. The chained letter is auto-filled and locked — you can't change it.
 
-Your first guess is free. Let's say you start with **build**:
+Your first guess is free. Let's say you start with **SHAKE**:
 
 <p align="center">
-  <img src="assets/first-guess.png" alt="First guess: BUILD" width="300" />
+  <img src="assets/first-guess.png" alt="First guess: SHAKE" width="300" />
 </p>
 
-Now the last letter **d** chains down to your second guess. It's already locked in — your next word must end (or start) with that letter.
+The last letter **E** chains down to your second guess. It's already locked in — your next word must end with that letter. You enter **DRAKE**:
 
 <p align="center">
-  <img src="assets/second-guess.png" alt="Second guess: SPEED chains from D" width="300" />
+  <img src="assets/second-guess.png" alt="Second guess: DRAKE chains from E" width="300" />
 </p>
 
 The chain alternates sides like a snake:
@@ -61,7 +63,7 @@ Guess 5 → 6:  last letter chains   (right side)
 Solve the chain and you'll be rewarded:
 
 <p align="center">
-  <img src="assets/success.png" alt="Solved! UNCUT" width="300" />
+  <img src="assets/success.png" alt="Victory!" width="300" />
 </p>
 
 Track your stats and share your results with friends:
@@ -80,6 +82,52 @@ Wor🔗dle 2026/02/16 6/6
 ─🟩🟩🟩🟩🟩┘  
 
 ootzk.github.io/Wor-chain-dle/
+
+---
+
+## Features
+
+New features are introduced through a one-time "What's New" popup on your first visit after an update.
+
+<p align="center">
+  <img src="assets/patch-note.png" alt="What's New in v1.1.0" width="300" />
+</p>
+
+### Practice Mode
+
+Done with today's word? Tap "Practice" at the bottom to play unlimited games with random words — no waiting until tomorrow.
+
+<p align="center">
+  <img src="assets/practice-mode.png" alt="Practice Mode" width="300" />
+</p>
+
+### Multi-Language Support
+
+Available in 6 languages. Tap the translate icon in the header to switch.
+
+<p align="center">
+  <img src="assets/language-select-kor.png" alt="Language selection" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/how-to-play-kor.png" alt="How to Play in Korean" width="300" />
+</p>
+
+### Settings
+
+Toggle uppercase letters on or off from the settings menu.
+
+<p align="center">
+  <img src="assets/uppercase.png" alt="Uppercase Letters setting" width="300" />
+</p>
+
+### Support the Developer
+
+If you enjoy the game, consider buying the developer a drink!
+
+<p align="center">
+  <img src="assets/donation.png" alt="Donate" width="300" />
+</p>
+
+---
 
 ## Development
 

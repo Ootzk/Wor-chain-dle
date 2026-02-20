@@ -1,3 +1,5 @@
+export const PATCH_NOTES_VERSION = '1.1.0'
+
 export const CONFIG = {
   tries: 6,
   language: 'English',
@@ -10,6 +12,6 @@ export const CONFIG = {
   normalization: 'NFC',
   startDate: 'February 16, 2026 00:00:00 UTC',
   defaultLang: 'en',
-  availableLangs: ['en'],
+  availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh'],
   escapeSpecialCharacters: true,
 }
