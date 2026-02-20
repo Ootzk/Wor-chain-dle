@@ -75,8 +75,9 @@ docker run -d -p 3000:3000 wor-chain-dle
 코드 내 버전 정보가 있는 곳:
 - `package.json` → `"version"` 필드
 - `src/constants/config.ts` → `PATCH_NOTES_VERSION` 상수
+- `README.md` → 버전 뱃지
 
-`release/{version}` 브랜치를 `main`으로 PR할 때 위 두 값이 해당 버전과 반드시 일치해야 한다. `/bump-version` 스킬로 일괄 업데이트 가능.
+`release/{version}` 브랜치를 `main`으로 PR할 때 위 값들이 해당 버전과 반드시 일치해야 한다. `/bump-version` 스킬로 일괄 업데이트 가능.
 
 ## Snake Chain Rule
 
