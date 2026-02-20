@@ -23,6 +23,9 @@
   "share": "Gawana",
   "settings": "Mipangilio",
   "uppercaseLabel": "Herufi kubwa",
+  "practice": "Mazoezi",
+  "daily": "Kila siku",
+  "playAgain": "Cheza tena",
   "winMessages": ["Hongera!", "Makofi", "Pongezi!"],
   "firstExampleWord": [
     {

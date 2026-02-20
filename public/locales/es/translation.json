@@ -23,6 +23,9 @@
   "share": "Compartir",
   "settings": "Configuración",
   "uppercaseLabel": "Letras mayúsculas",
+  "practice": "Práctica",
+  "daily": "Diario",
+  "playAgain": "Jugar de nuevo",
   "winMessages": ["¡Gran trabajo!", "Increíble", "¡Bien hecho!"],
   "firstExampleWord": [
     {

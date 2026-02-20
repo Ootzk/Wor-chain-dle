@@ -27,6 +27,9 @@
     "share": "Share",
     "settings": "Settings",
     "uppercaseLabel": "Uppercase Letters",
+    "practice": "Practice",
+    "daily": "Daily",
+    "playAgain": "Play Again",
     "winMessages": [
         "Great Job!",
         "Awesome",
