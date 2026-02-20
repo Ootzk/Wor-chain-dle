@@ -115,6 +115,8 @@
     "patchNote_donate_desc": "If you enjoy the game, consider buying the developer a drink!",
     "languages": {
         "en": "English",
+        "ko": "한국어",
+        "ja": "日本語",
         "es": "Español",
         "sw": "Kiswahili",
         "zh": "中文"
