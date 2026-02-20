@@ -111,10 +111,14 @@
     "patchNote_settings_desc": "A new settings menu is now available from the header.",
     "patchNote_uppercase_title": "Uppercase Display",
     "patchNote_uppercase_desc": "Toggle uppercase letters on or off in Settings.",
+    "patchNote_i18n_title": "Multi-Language Support",
+    "patchNote_i18n_desc": "The game is now available in 6 languages!\nTap the translate icon in the header to switch.",
     "patchNote_donate_title": "Support the Developer",
     "patchNote_donate_desc": "If you enjoy the game, consider buying the developer a drink!",
     "languages": {
         "en": "English",
+        "ko": "한국어",
+        "ja": "日本語",
         "es": "Español",
         "sw": "Kiswahili",
         "zh": "中文"

@@ -106,10 +106,14 @@
   "patchNote_settings_desc": "Menyu mpya ya mipangilio inapatikana kwenye kichwa cha ukurasa.",
   "patchNote_uppercase_title": "Herufi Kubwa",
   "patchNote_uppercase_desc": "Washa au zima herufi kubwa katika Mipangilio.",
+  "patchNote_i18n_title": "Lugha Nyingi",
+  "patchNote_i18n_desc": "Mchezo sasa unapatikana katika lugha 6!\nBonyeza ikoni ya kutafsiri kwenye kichwa cha ukurasa kubadilisha.",
   "patchNote_donate_title": "Saidia Msanidi",
   "patchNote_donate_desc": "Ukipenda mchezo huu, fikiria kumnunulia msanidi kinywaji!",
   "languages": {
     "en": "English",
+    "ko": "한국어",
+    "ja": "日本語",
     "es": "Español",
     "sw": "Kiswahili",
     "zh": "中文"
