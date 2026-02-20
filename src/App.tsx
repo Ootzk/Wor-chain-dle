@@ -1,6 +1,7 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
+import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { TranslateIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
@@ -9,6 +10,7 @@ import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
 import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
+import { DonateModal } from './components/modals/DonateModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
@@ -52,6 +54,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
@@ -241,6 +244,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsSettingsModalOpen(true)}
         />
+        <CurrencyDollarIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsDonateModalOpen(true)}
+        />
       </div>
       <div className={isUppercase ? 'uppercase' : ''}>
         <Grid
@@ -283,6 +290,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+      />
+      <DonateModal
+        isOpen={isDonateModalOpen}
+        handleClose={() => setIsDonateModalOpen(false)}
       />
       <AboutModal
         isOpen={isAboutModalOpen}
