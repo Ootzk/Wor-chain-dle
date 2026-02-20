@@ -87,6 +87,12 @@ ootzk.github.io/Wor-chain-dle/
 
 ## Features
 
+New features are introduced through a one-time "What's New" popup on your first visit after an update.
+
+<p align="center">
+  <img src="assets/patch-note.png" alt="What's New in v1.1.0" width="300" />
+</p>
+
 ### Practice Mode
 
 Done with today's word? Tap "Practice" at the bottom to play unlimited games with random words — no waiting until tomorrow.
