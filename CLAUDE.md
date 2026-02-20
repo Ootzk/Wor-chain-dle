@@ -8,7 +8,7 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 
 - React 17 + TypeScript + Tailwind CSS 3
 - Create React App (react-scripts 5)
-- i18next (en, es, sw, zh)
+- i18next (en, ko, ja, es, sw, zh)
 - GoatCounter 애널리틱스 (쿠키 없음, 경량)
 - GitHub Actions → GitHub Pages 자동 배포
 
@@ -57,12 +57,26 @@ docker run -d -p 3000:3000 wor-chain-dle
 - `main` 브랜치에 push 시 GitHub Actions가 `gh-pages` 브랜치로 자동 배포.
 - 수동 배포: `npm run deploy`
 
+## Project Management
+
+- **GitHub Project Board**: https://github.com/users/Ootzk/projects/3 에서 작업 관리.
+- 작업 단위는 보드의 이슈로 추적하되, 즉흥적으로 개발하는 경우도 있음. 그 경우에도 연관 작업끼리 PR 단위로 묶어 보드에 연동.
+
 ## Git Branching Strategy
 
 - `main`: 항상 배포 가능한 상태. 머지될 때마다 버전 태그 등록.
 - `release/{version}`: 다음 버전 개발 브랜치. main에서 생성. 해당 버전이 어느 정도 완성되면 main으로 PR을 보내서 머지.
 - `feature/{contents}`: 기능별 브랜치. release 브랜치에서 생성. 작업 완료 후 release 브랜치로 PR을 만들어서 머지.
 - **PR 머지는 항상 개발자가 직접 수행.** Claude는 PR 생성까지만.
+- **PR 생성 시 반드시 `--repo Ootzk/Wor-chain-dle`을 명시한다.** 이 프로젝트는 fork 기반이므로, `--repo` 없이 `gh pr create`를 실행하면 upstream(원본 저장소)으로 PR이 올라갈 수 있다.
+
+## Version Management
+
+코드 내 버전 정보가 있는 곳:
+- `package.json` → `"version"` 필드
+- `src/constants/config.ts` → `PATCH_NOTES_VERSION` 상수
+
+`release/{version}` 브랜치를 `main`으로 PR할 때 위 두 값이 해당 버전과 반드시 일치해야 한다. `/bump-version` 스킬로 일괄 업데이트 가능.
 
 ## Snake Chain Rule
 
