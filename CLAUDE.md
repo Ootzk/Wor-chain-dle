@@ -101,6 +101,7 @@ docker run -d -p 3000:3000 wor-chain-dle
 - **v1.0.1** — 버전 업데이트, 프로젝트 문서 정비.
 - **v1.0.2** — 탭 타이틀 및 파비콘 Wor🔗dle 브랜딩 적용.
 - **v1.0.3** — GoatCounter 애널리틱스 연동, 문서 업데이트.
+- **v1.1.0** — Practice 모드, Settings(대문자 토글), 다국어 지원(6개 언어), 후원 모달, 패치노트 팝업, README 전면 개편.
 
 ## Communication
 
