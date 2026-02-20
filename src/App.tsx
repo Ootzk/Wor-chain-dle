@@ -1,5 +1,6 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
+import { CogIcon } from '@heroicons/react/outline'
 import { TranslateIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
 import { Alert } from './components/alerts/Alert'
@@ -7,6 +8,7 @@ import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
 import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
+import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
 import { isWordInWordList, isWinningWord, solution } from './lib/words'
@@ -34,6 +36,7 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -193,6 +196,10 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsStatsModalOpen(true)}
         />
+        <CogIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsSettingsModalOpen(true)}
+        />
       </div>
       <Grid guesses={guesses} currentGuess={currentGuess} />
       <Keyboard
@@ -220,6 +227,10 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
           setSuccessAlert(t('gameCopied'))
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        handleClose={() => setIsSettingsModalOpen(false)}
       />
       <AboutModal
         isOpen={isAboutModalOpen}
