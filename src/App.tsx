@@ -16,6 +16,8 @@ import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
+  loadSettings,
+  saveSettings,
 } from './lib/localStorage'
 
 import { CONFIG } from './constants/config'
@@ -37,6 +39,9 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isUppercase, setIsUppercase] = useState(
+    () => loadSettings().isUppercase
+  )
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -81,6 +86,10 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
   useEffect(() => {
     saveGameStateToLocalStorage({ guesses, solution })
   }, [guesses])
+
+  useEffect(() => {
+    saveSettings({ isUppercase })
+  }, [isUppercase])
 
   useEffect(() => {
     if (isGameWon) {
@@ -201,13 +210,15 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
           onClick={() => setIsSettingsModalOpen(true)}
         />
       </div>
-      <Grid guesses={guesses} currentGuess={currentGuess} />
-      <Keyboard
-        onChar={onChar}
-        onDelete={onDelete}
-        onEnter={onEnter}
-        guesses={guesses}
-      />
+      <div className={isUppercase ? 'uppercase' : ''}>
+        <Grid guesses={guesses} currentGuess={currentGuess} />
+        <Keyboard
+          onChar={onChar}
+          onDelete={onDelete}
+          onEnter={onEnter}
+          guesses={guesses}
+        />
+      </div>
       <TranslateModal
         isOpen={isI18nModalOpen}
         handleClose={() => setIsI18nModalOpen(false)}
@@ -231,6 +242,8 @@ const App: React.FC<WithTranslation> = ({ t, i18n }) => {
       <SettingsModal
         isOpen={isSettingsModalOpen}
         handleClose={() => setIsSettingsModalOpen(false)}
+        isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
       />
       <AboutModal
         isOpen={isAboutModalOpen}
