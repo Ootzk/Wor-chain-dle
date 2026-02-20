@@ -65,6 +65,8 @@
     "patchNote_settings_desc": "ヘッダーから新しい設定メニューを利用できます。",
     "patchNote_uppercase_title": "大文字表示",
     "patchNote_uppercase_desc": "設定で大文字表示のオン・オフを切り替えられます。",
+    "patchNote_i18n_title": "多言語対応",
+    "patchNote_i18n_desc": "ゲームが6つの言語に対応しました！\nヘッダーの翻訳アイコンをタップして切り替えましょう。",
     "patchNote_donate_title": "開発者を応援",
     "patchNote_donate_desc": "ゲームを楽しんでいただけたら、開発者にドリンクをおごってください！",
     "languages": {

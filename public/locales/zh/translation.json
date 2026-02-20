@@ -105,6 +105,8 @@
   "patchNote_settings_desc": "新的設定選單已加入頂部列。",
   "patchNote_uppercase_title": "大寫顯示",
   "patchNote_uppercase_desc": "在設定中開啟或關閉大寫字母顯示。",
+  "patchNote_i18n_title": "多語言支持",
+  "patchNote_i18n_desc": "遊戲現已支持6種語言！\n點擊頂部的翻譯圖標即可切換。",
   "patchNote_donate_title": "支持開發者",
   "patchNote_donate_desc": "如果您喜歡這款遊戲，請考慮請開發者喝杯飲料！",
   "languages": {

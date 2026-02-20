@@ -65,6 +65,8 @@
     "patchNote_settings_desc": "상단 헤더에서 새로운 설정 메뉴를 이용할 수 있습니다.",
     "patchNote_uppercase_title": "대문자 표시",
     "patchNote_uppercase_desc": "설정에서 대문자 표시를 켜거나 끌 수 있습니다.",
+    "patchNote_i18n_title": "다국어 지원",
+    "patchNote_i18n_desc": "이제 6개 언어로 게임을 즐길 수 있습니다!\n헤더의 번역 아이콘을 눌러 언어를 변경하세요.",
     "patchNote_donate_title": "개발자 후원",
     "patchNote_donate_desc": "게임이 재미있으셨다면, 개발자에게 음료수 한 잔 사주세요!",
     "languages": {

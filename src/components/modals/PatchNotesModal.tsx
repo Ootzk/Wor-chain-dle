@@ -33,6 +33,11 @@ const features: Feature[] = [
     ],
   },
   {
+    icon: '\u{1F310}',
+    titleKey: 'patchNote_i18n_title',
+    descKey: 'patchNote_i18n_desc',
+  },
+  {
     icon: '\u{2615}',
     titleKey: 'patchNote_donate_title',
     descKey: 'patchNote_donate_desc',
