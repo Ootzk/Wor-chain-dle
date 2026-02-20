@@ -228,13 +228,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div className="flex w-80 mx-auto items-center mb-8">
-        <h1 className="text-xl grow font-bold">
-          {isDaily ? (
-            <>Wor&#x1F517;dle {new Date().toLocaleDateString('en-CA')}</>
-          ) : (
-            <>Wor&#x1F517;dle Practice</>
-          )}
-        </h1>
+        <div className="grow">
+          <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
+          <p className="text-sm text-gray-500">
+            {isDaily ? new Date().toLocaleDateString('en-CA') : t('practice')}
+          </p>
+        </div>
         {translateElement}
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
