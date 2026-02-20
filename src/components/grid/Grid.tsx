@@ -8,6 +8,7 @@ import React from 'react'
 type Props = {
   guesses: string[][]
   currentGuess: string[]
+  solution: string
 }
 
 function getChainPositions(rowIndex: number) {
@@ -30,7 +31,7 @@ function getBridgeChainIndex(rowIndex: number) {
   return rowIndex % 2 === 0 ? CONFIG.wordLength - 1 : 0
 }
 
-export const Grid = ({ guesses, currentGuess }: Props) => {
+export const Grid = ({ guesses, currentGuess, solution }: Props) => {
   const elements: React.ReactNode[] = []
 
   for (let i = 0; i < CONFIG.tries; i++) {
@@ -41,6 +42,7 @@ export const Grid = ({ guesses, currentGuess }: Props) => {
         <CompletedRow
           key={`row-${i}`}
           guess={guesses[i]}
+          solution={solution}
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
         />
@@ -51,6 +53,7 @@ export const Grid = ({ guesses, currentGuess }: Props) => {
           key={`row-${i}`}
           guess={currentGuess}
           guesses={guesses}
+          solution={solution}
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
         />

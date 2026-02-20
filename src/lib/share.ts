@@ -1,7 +1,11 @@
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
 
-export const shareStatus = (guesses: string[][], lost: boolean) => {
+export const shareStatus = (
+  guesses: string[][],
+  lost: boolean,
+  solution: string
+) => {
   const now = new Date()
   const yyyy = now.getUTCFullYear()
   const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
@@ -14,17 +18,20 @@ export const shareStatus = (guesses: string[][], lost: boolean) => {
     '/' +
     CONFIG.tries.toString() +
     '\n\n' +
-    generateEmojiGrid(guesses) +
+    generateEmojiGrid(guesses, solution) +
     '\n\n' +
     window.location.href.replace(`${window.location.protocol}//`, '')
 
   navigator.clipboard.writeText(shareText)
 }
 
-export const generateEmojiGrid = (guesses: string[][]) => {
+export const generateEmojiGrid = (
+  guesses: string[][],
+  solution: string
+) => {
   return guesses
     .map((guess, gi) => {
-      const status = getGuessStatuses(guess)
+      const status = getGuessStatuses(guess, solution)
       const row = guess
         .map((_, i) => {
           switch (status[i]) {

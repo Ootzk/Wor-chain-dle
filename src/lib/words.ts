@@ -6,8 +6,12 @@ export const isWordInWordList = (word: string) => {
   return WORDS.includes(word) || VALIDGUESSES.includes(word)
 }
 
-export const isWinningWord = (word: string) => {
-  return solution === word
+export const isWinningWord = (word: string, sol: string) => {
+  return sol === word
+}
+
+export const getRandomWord = () => {
+  return WORDS[Math.floor(Math.random() * WORDS.length)]
 }
 
 export const getWordOfDay = () => {
