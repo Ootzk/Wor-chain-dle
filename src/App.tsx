@@ -11,6 +11,7 @@ import { Keyboard } from './components/keyboard/Keyboard'
 import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
+import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
@@ -21,9 +22,11 @@ import {
   saveGameStateToLocalStorage,
   loadSettings,
   saveSettings,
+  loadSeenPatchNotesVersion,
+  saveSeenPatchNotesVersion,
 } from './lib/localStorage'
 
-import { CONFIG } from './constants/config'
+import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
 import { getChainInfo, isChainDeadEnd } from './lib/chain'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import ReactGA from 'react-ga'
@@ -55,6 +58,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
+  const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
+    () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
+  )
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
@@ -294,6 +300,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <DonateModal
         isOpen={isDonateModalOpen}
         handleClose={() => setIsDonateModalOpen(false)}
+      />
+      <PatchNotesModal
+        isOpen={isPatchNotesModalOpen}
+        handleClose={() => {
+          saveSeenPatchNotesVersion(PATCH_NOTES_VERSION)
+          setIsPatchNotesModalOpen(false)
+        }}
       />
       <AboutModal
         isOpen={isAboutModalOpen}

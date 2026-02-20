@@ -1,3 +1,5 @@
+export const PATCH_NOTES_VERSION = '1.1.0'
+
 export const CONFIG = {
   tries: 6,
   language: 'English',
