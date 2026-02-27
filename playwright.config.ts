@@ -34,12 +34,12 @@ export default defineConfig({
     },
   ],
 
-  ...(!process.env.CI && {
-    webServer: {
-      command: 'npm run build && npx serve -s build -l 3000',
-      url: 'http://localhost:3000',
-      reuseExistingServer: true,
-      timeout: 120_000,
-    },
-  }),
+  webServer: {
+    command: process.env.CI
+      ? 'npx serve -s build -l 3000'
+      : 'npm run build && npx serve -s build -l 3000',
+    url: 'http://localhost:3000',
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
 })
