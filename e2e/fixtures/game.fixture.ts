@@ -1,4 +1,5 @@
 import { test as base, expect, Page } from '@playwright/test'
+import { PATCH_NOTES_VERSION } from '../../src/constants/config'
 
 /** Encode a custom puzzle URL (mirrors src/lib/customPuzzle.ts) */
 export function encodeCustomPuzzle(word: string, questioner: string): string {
@@ -26,8 +27,8 @@ type GameFixtures = {
  */
 export const test = base.extend<GameFixtures>({
   gamePage: async ({ page }, use) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('seenPatchNotesVersion', '1.1.0')
+    await page.addInitScript((version) => {
+      localStorage.setItem('seenPatchNotesVersion', version)
       localStorage.setItem('i18nextLng', 'en')
       // Prevent Backspace from triggering browser back navigation (Safari/WebKit)
       window.addEventListener('keydown', (e) => {
@@ -40,7 +41,7 @@ export const test = base.extend<GameFixtures>({
           e.preventDefault()
         }
       })
-    })
+    }, PATCH_NOTES_VERSION)
     await use(page)
   },
 })
