@@ -11,13 +11,12 @@ test.describe('Modals', () => {
     // Click info icon (InformationCircleIcon)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
-    await expect(gamePage.locator('text=How to play')).toBeVisible()
-    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
     await screenshot(gamePage, '01-info-modal-open')
 
     // Close via X button
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('text=How to play')).not.toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).not.toBeVisible()
     await screenshot(gamePage, '02-info-modal-closed')
   })
 
@@ -135,8 +134,10 @@ test.describe('Modals', () => {
     // Open info modal (daily mode)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
-    await expect(gamePage.getByRole('heading', { name: 'About this game' })).toBeVisible()
-    await screenshot(gamePage, '01-about-in-info-modal')
+    // Click "About this game" tab
+    await gamePage.locator('button', { hasText: 'About this game' }).click()
+    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await screenshot(gamePage, '01-about-tab-in-info-modal')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()

@@ -1,5 +1,6 @@
 {
     "about": "このゲームについて",
+    "information": "情報",
     "gameName": "単語当てゲーム - {{language}}",
     "enterKey": "入力",
     "deleteKey": "削除",
