@@ -124,6 +124,7 @@
   "createPuzzleReady": "Bonyeza ENTER kunakili URL",
   "createPuzzleCopied": "Imenakiliwa!",
   "createPuzzleTryIt": "Jaribu",
+  "customPuzzleBy": "Wor🔗dle ya {{name}}",
   "languages": {
     "en": "English",
     "ko": "한국어",

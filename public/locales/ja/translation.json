@@ -83,6 +83,7 @@
     "createPuzzleReady": "ENTERでURLをコピー",
     "createPuzzleCopied": "コピーしました！",
     "createPuzzleTryIt": "試す",
+    "customPuzzleBy": "{{name}}のWor🔗dle",
     "languages": {
         "en": "English",
         "ko": "한국어",

@@ -123,6 +123,7 @@
   "createPuzzleReady": "按 ENTER 复制链接",
   "createPuzzleCopied": "已复制！",
   "createPuzzleTryIt": "试玩",
+  "customPuzzleBy": "{{name}}的Wor🔗dle",
   "languages": {
     "en": "English",
     "ko": "한국어",

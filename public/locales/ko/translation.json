@@ -83,6 +83,7 @@
     "createPuzzleReady": "ENTER를 눌러 URL 복사",
     "createPuzzleCopied": "복사 완료!",
     "createPuzzleTryIt": "바로가기",
+    "customPuzzleBy": "{{name}}의 Wor🔗dle",
     "languages": {
         "en": "English",
         "ko": "한국어",

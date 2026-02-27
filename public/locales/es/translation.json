@@ -124,6 +124,7 @@
   "createPuzzleReady": "Pulsa ENTER para copiar URL",
   "createPuzzleCopied": "¡Copiado!",
   "createPuzzleTryIt": "Probar",
+  "customPuzzleBy": "Wor🔗dle de {{name}}",
   "languages": {
     "en": "English",
     "ko": "한국어",

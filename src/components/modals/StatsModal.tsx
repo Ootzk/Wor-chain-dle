@@ -65,6 +65,11 @@ export const StatsModal = ({
         isOpen={isOpen}
         handleClose={handleClose}
       >
+        {questioner && (
+          <p className="text-sm text-gray-500 text-center mb-4">
+            {t('customPuzzleBy', { name: questioner })}
+          </p>
+        )}
         <StatBar gameStats={gameStats} />
         {gameStats.totalGames > 0 && (
           <>
