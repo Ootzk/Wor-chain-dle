@@ -8,6 +8,15 @@ type Props = {
   handleClose: () => void
 }
 
+const langFlags: Record<string, string> = {
+  en: '🇺🇸🇬🇧',
+  ko: '🇰🇷',
+  ja: '🇯🇵',
+  es: '🇪🇸',
+  sw: '🇹🇿🇰🇪',
+  zh: '🇨🇳',
+}
+
 export const TranslateModal = ({ isOpen, handleClose }: Props) => {
   const { t, i18n } = useTranslation()
   const onChangeValue = (event: any) => {
@@ -18,7 +27,7 @@ export const TranslateModal = ({ isOpen, handleClose }: Props) => {
   const createOption = (code: string, text: string) => {
     return (
       <div key={code}>
-        <label>{text}</label>
+        <label>{langFlags[code]} {text}</label>
         <input
           className="m-2"
           checked={
@@ -40,7 +49,7 @@ export const TranslateModal = ({ isOpen, handleClose }: Props) => {
       handleClose={handleClose}
     >
       <div
-        className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8"
+        className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8 min-w-[200px]"
         onChange={onChangeValue}
       >
         {CONFIG.availableLangs.map((x) => createOption(x, t(`languages.${x}`)))}

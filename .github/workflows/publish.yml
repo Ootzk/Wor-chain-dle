@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +20,10 @@ jobs:
         run: npm run build
 
   deploy:
-    needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Install
@@ -33,3 +35,19 @@ jobs:
         with:
           branch: gh-pages
           folder: build
+      - name: Get version
+        id: version
+        run: echo "version=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Get release PR body
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_BODY=$(gh pr list --state merged --base main --limit 1 --json body --jq '.[0].body')
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$PR_BODY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ steps.version.outputs.version }}" --title "${{ steps.version.outputs.version }}" --notes "${{ steps.pr.outputs.body }}"

@@ -10,7 +10,8 @@ import { CONFIG } from '../constants/config'
 
 export const addStatsForCompletedGame = (
   gameStats: GameStats,
-  count: number
+  count: number,
+  storageKey?: string
 ) => {
   // Count is number of incorrect guesses before end.
   const stats = { ...gameStats }
@@ -32,7 +33,7 @@ export const addStatsForCompletedGame = (
 
   stats.successRate = getSuccessRate(stats)
 
-  saveStatsToLocalStorage(stats)
+  saveStatsToLocalStorage(stats, storageKey)
   return stats
 }
 
@@ -45,8 +46,8 @@ const defaultStats: GameStats = {
   successRate: 0,
 }
 
-export const loadStats = () => {
-  return loadStatsFromLocalStorage() || defaultStats
+export const loadStats = (storageKey?: string) => {
+  return loadStatsFromLocalStorage(storageKey) || defaultStats
 }
 
 const getSuccessRate = (gameStats: GameStats) => {

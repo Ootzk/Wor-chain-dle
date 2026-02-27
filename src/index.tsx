@@ -1,10 +1,18 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
-import { HashRouter, Route, Switch } from 'react-router-dom'
+import {
+  HashRouter,
+  Redirect,
+  Route,
+  RouteComponentProps,
+  Switch,
+} from 'react-router-dom'
 import './index.css'
 import App from './App'
-import { solution as dailySolution } from './lib/words'
+import { solution as dailySolution, isWordInWordList } from './lib/words'
 import { getRandomWord } from './lib/words'
+import { decodeCustomPuzzle } from './lib/customPuzzle'
+import { CreatePuzzlePage } from './components/pages/CreatePuzzlePage'
 import reportWebVitals from './reportWebVitals'
 
 const DailyPage = () => <App mode="daily" solution={dailySolution} />
@@ -14,12 +22,26 @@ const PracticePage = () => {
   return <App mode="practice" solution={practiceSolution} />
 }
 
+const CustomPage = ({ match }: RouteComponentProps<{ code: string }>) => {
+  const puzzle = decodeCustomPuzzle(match.params.code)
+
+  if (!puzzle || !isWordInWordList(puzzle.word)) {
+    return <Redirect to="/" />
+  }
+
+  return (
+    <App mode="custom" solution={puzzle.word} questioner={puzzle.questioner} />
+  )
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <HashRouter>
       <Switch>
         <Route exact path="/" component={DailyPage} />
         <Route path="/practice" component={PracticePage} />
+        <Route path="/create" component={CreatePuzzlePage} />
+        <Route path="/custom/:code" component={CustomPage} />
       </Switch>
     </HashRouter>
   </React.StrictMode>,

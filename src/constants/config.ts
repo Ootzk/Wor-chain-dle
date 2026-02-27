@@ -1,4 +1,10 @@
-export const PATCH_NOTES_VERSION = '1.1.0'
+export const PATCH_NOTES_VERSION = '1.2.0'
+
+export const KAKAOPAY_PAYMENT_URL =
+  'https://qr.kakaopay.com/FE0rjwVWj41a00262'
+
+export const TOSS_PAYMENT_URL =
+  'supertoss://send?bank=%EC%B9%B4%EC%B9%B4%EC%98%A4%EB%B1%85%ED%81%AC&accountNo=3333260839723&amount=2100'
 
 export const CONFIG = {
   tries: 6,

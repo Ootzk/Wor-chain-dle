@@ -1,6 +1,26 @@
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
 
+export const shareCustomStatus = (
+  guesses: string[][],
+  lost: boolean,
+  solution: string,
+  questioner: string
+) => {
+  const shareText =
+    `Wor\u{1F517}dle Custom/${questioner}` +
+    ' ' +
+    `${lost ? 'X' : guesses.length}` +
+    '/' +
+    CONFIG.tries.toString() +
+    '\n\n' +
+    generateEmojiGrid(guesses, solution) +
+    '\n\n' +
+    window.location.href.replace(`${window.location.protocol}//`, '')
+
+  navigator.clipboard.writeText(shareText)
+}
+
 export const shareStatus = (
   guesses: string[][],
   lost: boolean,

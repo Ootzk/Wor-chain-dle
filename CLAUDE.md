@@ -8,7 +8,9 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 
 - React 17 + TypeScript + Tailwind CSS 3
 - Create React App (react-scripts 5)
+- React Router v5 (HashRouter)
 - i18next (en, ko, ja, es, sw, zh)
+- Playwright (E2E 테스트 — Chromium, WebKit, iPhone 13, Pixel 5)
 - GoatCounter 애널리틱스 (쿠키 없음, 경량)
 - GitHub Actions → GitHub Pages 자동 배포
 
@@ -16,9 +18,10 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 
 ```text
 src/
+  index.tsx                      ← HashRouter 라우팅 (/, /practice, /create, /custom/:code)
   App.tsx                        ← 게임 메인 로직 (onChar, onDelete, onEnter)
   constants/
-    config.ts                    ← 게임 설정 (tries, wordLength, language 등)
+    config.ts                    ← 게임 설정 (tries, wordLength, language, 결제 URL 등)
     orthography.ts               ← 문자 체계 정의 (유효 문자 집합)
     wordlist.ts                  ← 정답 단어 목록 (2,315개, 고정 시드 셔플)
     validGuesses.ts              ← 유효 추측 단어 목록 (10,656개, 정답과 중복 없음)
@@ -27,22 +30,37 @@ src/
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
     chain.ts                     ← 체인 규칙 유틸 (체인 인덱스, dead end 판정)
     share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로)
+    customPuzzle.ts              ← Custom 퍼즐 인코딩/디코딩 (URL-safe Base64)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
   components/
     grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge)
     keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
-    modals/                      ← Info, Stats, About, Translate 모달
+    modals/                      ← Info, Stats, Settings, Donate, PatchNotes, Translate 모달
+    pages/
+      CreatePuzzlePage.tsx       ← 문제 출제 페이지 (단어 입력 + URL 생성)
+e2e/
+  fixtures/game.fixture.ts       ← Playwright 테스트 픽스처 (gamePage, typeWord, submitWord 등)
+  *.spec.ts                      ← E2E 테스트 (game-flow, chain-rule, keyboard, mobile, modals, navigation)
+scripts/
+  generate-readme-screenshots.spec.ts  ← README 스크린샷 자동 생성
+  readme-screenshots.config.ts         ← 스크린샷 Playwright 설정
+  shuffle-wordlist.js                  ← 단어 목록 셔플 스크립트
 ```
 
 ## Development
 
 ```bash
 npm install
-npm start          # 로컬 개발 서버 (http://localhost:3000)
-npm run build      # 프로덕션 빌드
-npm test           # 테스트
-npm run lint       # prettier 체크
-npm run fix        # prettier 자동 포맷
+npm start              # 로컬 개발 서버 (http://localhost:3000)
+npm run build          # 프로덕션 빌드
+npm test               # 단위 테스트
+npm run test:e2e       # Playwright E2E 테스트 (빌드 후 serve)
+npm run test:e2e:ui    # Playwright UI 모드 (디버깅용)
+npm run test:e2e:headed    # 브라우저 창 표시하며 E2E 실행
+npm run test:e2e:mobile    # 모바일 디바이스만 E2E 실행
+npm run readme:screenshots # README 스크린샷 자동 생성 (GENERATE_SCREENSHOTS=1)
+npm run lint           # prettier 체크
+npm run fix            # prettier 자동 포맷
 ```
 
 Docker:
@@ -54,18 +72,21 @@ docker run -d -p 3000:3000 wor-chain-dle
 
 ## Deployment
 
-- `main` 브랜치에 push 시 GitHub Actions가 `gh-pages` 브랜치로 자동 배포.
+- PR 시: `test` 실행 (모든 PR), `e2e` 추가 실행 (main 대상 PR만).
+- `main` 브랜치에 push 시: GitHub Actions가 `gh-pages` 브랜치로 자동 배포 + `package.json` 버전으로 Git 태그 생성 + GitHub Release 생성 (머지된 PR body 사용).
+- E2E 아티팩트: Playwright HTML 리포트 30일 보관.
 - 수동 배포: `npm run deploy`
 
 ## Project Management
 
 - **GitHub Project Board**: https://github.com/users/Ootzk/projects/3 에서 작업 관리.
 - 작업 단위는 보드의 이슈로 추적하되, 즉흥적으로 개발하는 경우도 있음. 그 경우에도 연관 작업끼리 PR 단위로 묶어 보드에 연동.
+- 즉흥 PR의 경우, milestone을 머지 대상 release 버전으로 설정하여 버전별 작업 추적을 유지.
 
 ## Git Branching Strategy
 
 - `main`: 항상 배포 가능한 상태. 머지될 때마다 버전 태그 등록.
-- `release/{version}`: 다음 버전 개발 브랜치. main에서 생성. 해당 버전이 어느 정도 완성되면 main으로 PR을 보내서 머지.
+- `release/{version}`: 다음 버전 개발 브랜치. main에서 생성. 해당 버전이 어느 정도 완성되면 main으로 PR을 보내서 머지. **PR 제목은 반드시 `Release v{version}` 형식** (예: `Release v1.2.0`). 이 PR의 body가 GitHub Release 본문으로 자동 사용됨.
 - `feature/{contents}`: 기능별 브랜치. release 브랜치에서 생성. 작업 완료 후 release 브랜치로 PR을 만들어서 머지.
 - **PR 머지는 항상 개발자가 직접 수행.** Claude는 PR 생성까지만.
 - **PR 생성 시 반드시 `--repo Ootzk/Wor-chain-dle`을 명시한다.** 이 프로젝트는 fork 기반이므로, `--repo` 없이 `gh pr create`를 실행하면 upstream(원본 저장소)으로 PR이 올라갈 수 있다.
@@ -73,11 +94,74 @@ docker run -d -p 3000:3000 wor-chain-dle
 ## Version Management
 
 코드 내 버전 정보가 있는 곳:
+
 - `package.json` → `"version"` 필드
 - `src/constants/config.ts` → `PATCH_NOTES_VERSION` 상수
 - `README.md` → 버전 뱃지
 
 `release/{version}` 브랜치를 `main`으로 PR할 때 위 값들이 해당 버전과 반드시 일치해야 한다. `/bump-version` 스킬로 일괄 업데이트 가능.
+
+## Game Modes
+
+| 항목 | Daily | Practice | Custom |
+| ------ | ------- | ---------- | -------- |
+| 정답 출처 | WORDS (매일 UTC 리셋) | WORDS (랜덤) | 출제자 지정 (WORDS + VALIDGUESSES) |
+| 통계 저장 | `gameStats` | X | `customGameStats` |
+| 게임 상태 저장 | O | X | X |
+| Share 버튼 | O | X | O (Custom 포맷) |
+| URL | `/#/` | `/#/` (Practice 버튼) | `/#/custom/:code` |
+
+- **Custom URL 인코딩**: `btoa("word_questioner")` → URL-safe Base64 (`+`→`-`, `/`→`_`, `=` 제거)
+- **출제 페이지**: `/#/create` — Keyboard 컴포넌트 재사용, 셀은 readOnly (모바일 가상 키보드 억제)
+- **출제자 이름**: 최대 10자 제한 (오버레이 깨짐 방지)
+
+## Routing
+
+HashRouter 기반 라우팅 (`src/index.tsx`):
+
+| 경로 | 컴포넌트 | 모드 | 설명 |
+| --- | --- | --- | --- |
+| `/#/` | DailyPage | daily | UTC 기반 매일 고정 정답 |
+| `/#/practice` | PracticePage | practice | 랜덤 단어 (매 접속마다 새로 생성) |
+| `/#/create` | CreatePuzzlePage | — | 커스텀 퍼즐 출제 페이지 |
+| `/#/custom/:code` | CustomPage | custom | Base64 디코딩 후 단어 검증, 실패 시 `/`로 리다이렉트 |
+
+## E2E Testing (Playwright)
+
+**설정**: `playwright.config.ts` — 4개 프로젝트(Desktop Chrome, Desktop Safari, iPhone 13, Pixel 5).
+
+**테스트 픽스처** (`e2e/fixtures/game.fixture.ts`):
+
+- `gamePage` 픽스처: 패치노트 모달 자동 억제 (localStorage에 `seenPatchNotesVersion` 설정)
+- 헬퍼: `typeWord()`, `submitWord()`, `getRowCells()`, `waitForGameReady()`, `screenshot()`
+- Custom 퍼즐 인코딩 로직을 테스트용으로 미러링
+
+**테스트 카테고리** (`e2e/`):
+
+- `game-flow.spec.ts` — 승리/패배, 검증 알림, 색상 정확도
+- `chain-rule.spec.ts` — 체인 연결 검증, dead end, 턴 패턴
+- `keyboard-input.spec.ts` — 물리 키보드, IME 호환성
+- `mobile-responsive.spec.ts` — 반응형 레이아웃, 터치 인터랙션
+- `modals.spec.ts` — 전체 모달 테스트 (모드별)
+- `navigation.spec.ts` — 라우트 전환, 페이지 네비게이션
+
+**서버**: `npm run build && npx serve -s build -l 3000` (CI에서 매번 빌드, 로컬은 기존 서버 재사용).
+
+## README Screenshot Automation
+
+`scripts/generate-readme-screenshots.spec.ts` — Playwright로 README용 스크린샷을 자동 생성.
+
+- **실행**: `GENERATE_SCREENSHOTS=1 npm run readme:screenshots` (환경변수 없으면 skip)
+- **설정**: `scripts/readme-screenshots.config.ts` — 모바일 최적화 뷰포트 (526×750 @2x), Chromium 단일 프로젝트
+- **출력**: `assets/` 디렉토리에 PNG 저장
+- **픽스처 재사용**: `e2e/fixtures/game.fixture.ts`의 `encodeCustomPuzzle`, `typeWord`, `submitWord` 등 활용
+
+## Modal Architecture
+
+- **InfoModal**: 탭 기반 모드별 콘텐츠 (`daily`, `practice`, `custom`, `create`). 각 모드에 맞는 How to Play 표시.
+- **PatchNotesModal**: `seenPatchNotesVersion` (localStorage) < `PATCH_NOTES_VERSION` (config.ts) 이면 자동 표시. 첫 방문 시 새 기능 안내.
+- **DonateModal**: 탭 기반 결제 수단 선택 (KakaoPay QR + Toss Pay). 결제 URL은 `config.ts`에 상수로 관리.
+- **StatsModal**: 모드별 분리 저장 — Daily는 `gameStats`, Custom은 `customGameStats` 키 사용. `loadStats(storageKey?)`, `addStatsForCompletedGame(storageKey?)`.
 
 ## Snake Chain Rule
 
@@ -102,6 +186,7 @@ docker run -d -p 3000:3000 wor-chain-dle
 - **v1.0.2** — 탭 타이틀 및 파비콘 Wor🔗dle 브랜딩 적용.
 - **v1.0.3** — GoatCounter 애널리틱스 연동, 문서 업데이트.
 - **v1.1.0** — Practice 모드, Settings(대문자 토글), 다국어 지원(6개 언어), 후원 모달, 패치노트 팝업, README 전면 개편.
+- **v1.2.0** — Custom 퍼즐 출제/공유, Playwright E2E 테스트 인프라, 모드별 InfoModal 탭 UI, 후원 결제수단(KakaoPay/Toss), README 스크린샷 자동화, CI에 E2E 추가.
 
 ## Communication
 

@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
-import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
@@ -39,20 +38,25 @@ const ALERT_TIME_MS = 2000
 type AppOwnProps = {
   mode: GameMode
   solution: string
+  questioner?: string
 }
+
+const CUSTOM_STATS_KEY = 'customGameStats'
 
 const App: React.FC<WithTranslation & AppOwnProps> = ({
   t,
   i18n,
   mode,
   solution,
+  questioner,
 }) => {
   const isDaily = mode === 'daily'
+  const isCustom = mode === 'custom'
+  const statsKey = isCustom ? CUSTOM_STATS_KEY : undefined
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
-  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
@@ -96,7 +100,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     ReactGA.initialize(TRACKING_ID)
     ReactGA.pageview(window.location.pathname)
   }
-  const [stats, setStats] = useState(() => loadStats())
+  const [stats, setStats] = useState(() => loadStats(statsKey))
 
   useEffect(() => {
     if (isDaily) {
@@ -104,11 +108,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const yyyy = now.getUTCFullYear()
       const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
       const dd = String(now.getUTCDate()).padStart(2, '0')
-      document.title = `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}`
+      document.title = `Wor\u{1F517}dle Daily | ${yyyy}-${mm}-${dd}`
+    } else if (isCustom) {
+      document.title = `Wor\u{1F517}dle Custom | ${questioner}`
     } else {
       document.title = `Wor\u{1F517}dle Practice`
     }
-  }, [isDaily])
+  }, [isDaily, isCustom, questioner])
 
   useEffect(() => {
     if (isDaily) {
@@ -187,8 +193,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       setGuesses([...guesses, fullGuess])
 
       if (winningWord) {
-        if (isDaily) {
-          setStats(addStatsForCompletedGame(stats, guesses.length))
+        if (isDaily || isCustom) {
+          setStats(addStatsForCompletedGame(stats, guesses.length, statsKey))
         }
         return setIsGameWon(true)
       }
@@ -199,8 +205,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           .split(ORTHOGRAPHY_PATTERN)
           .filter((i) => i)
         if (isChainDeadEnd(newGuesses, solutionChars)) {
-          if (isDaily) {
-            setStats(addStatsForCompletedGame(stats, CONFIG.tries))
+          if (isDaily || isCustom) {
+            setStats(addStatsForCompletedGame(stats, CONFIG.tries, statsKey))
           }
           setIsGameLost(true)
           return
@@ -208,8 +214,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       }
 
       if (guesses.length === CONFIG.tries - 1) {
-        if (isDaily) {
-          setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+        if (isDaily || isCustom) {
+          setStats(
+            addStatsForCompletedGame(stats, guesses.length + 1, statsKey)
+          )
         }
         setIsGameLost(true)
       }
@@ -231,7 +239,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-gray-500">
-            {isDaily ? new Date().toLocaleDateString('en-CA') : t('practice')}
+            {isDaily ? (
+              <>Daily | {new Date().toLocaleDateString('en-CA')}</>
+            ) : isCustom ? (
+              <>
+                <span className="text-green-500">Custom</span> | {questioner}
+              </>
+            ) : (
+              <span className="text-purple-500">{t('practice')}</span>
+            )}
           </p>
         </div>
         {translateElement}
@@ -239,7 +255,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
         />
-        {isDaily && (
+        {(isDaily || isCustom) && (
           <ChartBarIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
@@ -275,6 +291,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
+        mode={mode}
+        questioner={questioner}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -289,6 +307,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }}
         mode={mode}
         solution={solution}
+        questioner={questioner}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
@@ -307,25 +326,21 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setIsPatchNotesModalOpen(false)
         }}
       />
-      <AboutModal
-        isOpen={isAboutModalOpen}
-        handleClose={() => setIsAboutModalOpen(false)}
-      />
-
       <div className="mx-auto mt-8 flex items-center justify-center gap-2">
-        <button
-          type="button"
-          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
-          onClick={() => setIsAboutModalOpen(true)}
-        >
-          {t('about')}
-        </button>
         <Link
           to={isDaily ? '/practice' : '/'}
           className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
         >
           {isDaily ? t('practice') : t('daily')}
         </Link>
+        {isDaily && (
+          <Link
+            to="/create"
+            className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+          >
+            {t('createPuzzleNav')}
+          </Link>
+        )}
       </div>
 
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
