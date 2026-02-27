@@ -81,6 +81,7 @@
     "createPuzzleHint": "出題する単語を入力してください",
     "createPuzzleReady": "ENTERでURLをコピー",
     "createPuzzleCopied": "コピーしました！",
+    "createPuzzleTryIt": "試す",
     "languages": {
         "en": "English",
         "ko": "한국어",

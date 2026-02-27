@@ -122,6 +122,7 @@
   "createPuzzleHint": "Escribe la palabra a adivinar",
   "createPuzzleReady": "Pulsa ENTER para copiar URL",
   "createPuzzleCopied": "¡Copiado!",
+  "createPuzzleTryIt": "Probar",
   "languages": {
     "en": "English",
     "ko": "한국어",

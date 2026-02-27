@@ -127,6 +127,7 @@
     "createPuzzleHint": "Type the word to guess",
     "createPuzzleReady": "Press ENTER to copy URL",
     "createPuzzleCopied": "Copied!",
+    "createPuzzleTryIt": "Try it",
     "languages": {
         "en": "English",
         "ko": "한국어",

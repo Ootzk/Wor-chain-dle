@@ -17,6 +17,7 @@ export const CreatePuzzlePage = () => {
   const [letters, setLetters] = useState<string[]>(emptyLetters)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [copiedUrl, setCopiedUrl] = useState('')
   const [isUppercase] = useState(() => loadSettings().isUppercase)
 
   const fallbackCopy = (text: string) => {
@@ -57,17 +58,23 @@ export const CreatePuzzlePage = () => {
 
     const code = encodeCustomPuzzle(word, questioner.trim())
     const url = `${window.location.origin}${window.location.pathname}#/custom/${code}`
+    const onCopy = () => {
+      setCopied(true)
+      setCopiedUrl(url)
+    }
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(
-          () => setCopied(true),
-          () => fallbackCopy(url)
-        )
+        navigator.clipboard.writeText(url).then(onCopy, () => {
+          fallbackCopy(url)
+          setCopiedUrl(url)
+        })
       } else {
         fallbackCopy(url)
+        setCopiedUrl(url)
       }
     } catch {
       fallbackCopy(url)
+      setCopiedUrl(url)
     }
   }, [questioner, isFilled, getWord, t])
 
@@ -200,7 +207,15 @@ export const CreatePuzzlePage = () => {
               {error
                 ? error
                 : copied
-                  ? t('createPuzzleCopied')
+                  ? <>
+                      {t('createPuzzleCopied')}{' '}
+                      <a
+                        href={copiedUrl}
+                        className="underline"
+                      >
+                        ({t('createPuzzleTryIt')})
+                      </a>
+                    </>
                   : isFilled
                     ? t('createPuzzleReady')
                     : t('createPuzzleHint')}

@@ -81,6 +81,7 @@
     "createPuzzleHint": "출제할 단어를 입력하세요",
     "createPuzzleReady": "ENTER를 눌러 URL 복사",
     "createPuzzleCopied": "복사 완료!",
+    "createPuzzleTryIt": "바로가기",
     "languages": {
         "en": "English",
         "ko": "한국어",
