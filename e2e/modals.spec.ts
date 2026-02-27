@@ -72,14 +72,20 @@ test.describe('Modals', () => {
 
     await expect(gamePage.locator('text=Donate')).toBeVisible()
 
-    // QR image and payment link button should both be visible
+    // KakaoPay tab (default): QR image and payment link button
     await expect(gamePage.locator('img[alt="KakaoPay QR"]')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Pay with KakaoPay")')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Pay with KakaoPay")')).toHaveAttribute(
+    await expect(gamePage.locator('a:has-text("Donate via KakaoPay")')).toBeVisible()
+    await expect(gamePage.locator('a:has-text("Donate via KakaoPay")')).toHaveAttribute(
       'href',
       'https://qr.kakaopay.com/FE0rjwVWj41a00262'
     )
-    await screenshot(gamePage, '01-donate-modal-open')
+    await screenshot(gamePage, '01-donate-modal-kakaopay')
+
+    // Switch to Toss tab
+    await gamePage.locator('button:has-text("Toss")').click()
+    await expect(gamePage.locator('img[alt="Toss QR"]')).toBeVisible()
+    await expect(gamePage.locator('a:has-text("Donate via Toss")')).toBeVisible()
+    await screenshot(gamePage, '02-donate-modal-toss')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
