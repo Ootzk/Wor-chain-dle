@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { InformationCircleIcon } from '@heroicons/react/outline'
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { loadSettings } from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
+import { InfoModal } from '../modals/InfoModal'
 import { CONFIG } from '../../constants/config'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
@@ -19,6 +21,7 @@ export const CreatePuzzlePage = () => {
   const [copied, setCopied] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState('')
   const [isUppercase] = useState(() => loadSettings().isUppercase)
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -133,6 +136,10 @@ export const CreatePuzzlePage = () => {
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-green-500">{t('createPuzzle')}</p>
         </div>
+        <InformationCircleIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsInfoModalOpen(true)}
+        />
       </div>
 
       <div className={isUppercase ? 'uppercase' : ''}>
@@ -232,6 +239,12 @@ export const CreatePuzzlePage = () => {
           solution={copied ? getWord().toLowerCase() : ''}
         />
       </div>
+
+      <InfoModal
+        isOpen={isInfoModalOpen}
+        handleClose={() => setIsInfoModalOpen(false)}
+        mode="create"
+      />
 
       <div className="mx-auto mt-4 flex items-center justify-center gap-2">
         <Link

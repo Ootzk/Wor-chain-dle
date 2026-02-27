@@ -1,5 +1,6 @@
 {
     "about": "このゲームについて",
+    "information": "情報",
     "gameName": "単語当てゲーム - {{language}}",
     "enterKey": "入力",
     "deleteKey": "削除",
@@ -86,6 +87,15 @@
     "createPuzzleCopied": "コピーしました！",
     "createPuzzleTryIt": "試す",
     "customPuzzleBy": "{{name}}のWor🔗dle",
+    "dailyModeTitle": "デイリーモード",
+    "dailyModeDesc": "毎日深夜0時（UTC）に新しい問題が出題されます。\nすべてのプレイヤーが同じ単語を解きます。\nゲーム結果は統計に記録され、共有できます。",
+    "practiceModeTitle": "練習モード",
+    "practiceModeDesc": "ランダムな単語で無制限にプレイできます。\n統計に記録されず、共有機能は利用できません。\n「もう一度」ボタンで新しいゲームを始められます。",
+    "practiceModeWarning": "ページをリロードすると進行中のゲームが消え、新しい単語で最初からやり直しになります。",
+    "customModeTitle": "カスタムモード",
+    "customModeDesc": "{{questioner}}さんが作成した問題をプレイしています。\nカスタムゲームの統計はデイリー統計とは別に記録されます。\nゲーム結果を共有できます。",
+    "howToCreate": "出題方法",
+    "createModeDesc": "出題者名を入力し、キーボードで出題する単語を入力してください。\n単語はゲームの単語リストに含まれる{{length}}文字の英単語でなければなりません。\nENTERを押すとパズルURLがクリップボードにコピーされます。\nコピーしたURLを友達に共有すると、あなたの問題を解いてもらえます。",
     "languages": {
         "en": "English",
         "ko": "한국어",

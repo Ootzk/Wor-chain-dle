@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
-import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
@@ -58,7 +57,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
-  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
@@ -293,6 +291,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
+        mode={mode}
+        questioner={questioner}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -326,19 +326,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setIsPatchNotesModalOpen(false)
         }}
       />
-      <AboutModal
-        isOpen={isAboutModalOpen}
-        handleClose={() => setIsAboutModalOpen(false)}
-      />
-
       <div className="mx-auto mt-8 flex items-center justify-center gap-2">
-        <button
-          type="button"
-          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
-          onClick={() => setIsAboutModalOpen(true)}
-        >
-          {t('about')}
-        </button>
         <Link
           to={isDaily ? '/practice' : '/'}
           className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"

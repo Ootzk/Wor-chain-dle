@@ -1,5 +1,6 @@
 {
   "about": "Habari ya mchezo huu",
+  "information": "Taarifa",
   "gameName": "Si Word-Guessing-Game - {{language}}",
   "enterKey": "Ingiza",
   "deleteKey": "Futa",
@@ -127,6 +128,15 @@
   "createPuzzleCopied": "Imenakiliwa!",
   "createPuzzleTryIt": "Jaribu",
   "customPuzzleBy": "Wor🔗dle ya {{name}}",
+  "dailyModeTitle": "Hali ya Kila Siku",
+  "dailyModeDesc": "Fumbo jipya linatokea kila siku saa sita usiku (UTC).\nWachezaji wote wanatatua neno moja.\nMatokeo yako yanahifadhiwa katika takwimu na yanaweza kushirikiwa.",
+  "practiceModeTitle": "Hali ya Mazoezi",
+  "practiceModeDesc": "Cheza michezo isiyo na kikomo na maneno ya nasibu.\nTakwimu hazihifadhiwi na kugawana hakupatikani.\nBonyeza \"Cheza tena\" kuanza mchezo mpya.",
+  "practiceModeWarning": "Ukionyesha tena ukurasa, mchezo wako wa sasa utapotea na utaanza na neno jipya tangu mwanzo.",
+  "customModeTitle": "Hali Maalum",
+  "customModeDesc": "Unacheza fumbo lililotengenezwa na {{questioner}}.\nTakwimu za michezo maalum zinarekodiwa kando na za kila siku.\nUnaweza kushiriki matokeo yako.",
+  "howToCreate": "Jinsi ya kuunda",
+  "createModeDesc": "Ingiza jina lako na andika neno la kubahatisha kwa kibodi.\nNeno lazima liwe neno la Kiingereza la herufi {{length}} kutoka orodha.\nBonyeza ENTER kunakili URL ya fumbo kwenye ubao wa kunakili.\nShiriki URL na marafiki ili watatue fumbo lako!",
   "languages": {
     "en": "English",
     "ko": "한국어",

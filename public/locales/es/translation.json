@@ -1,5 +1,6 @@
 {
   "about": "Acerca de este juego",
+  "information": "Información",
   "gameName": "No Word-Guessing-Game - {{language}}",
   "enterKey": "Enviar",
   "deleteKey": "Eliminar",
@@ -127,6 +128,15 @@
   "createPuzzleCopied": "¡Copiado!",
   "createPuzzleTryIt": "Probar",
   "customPuzzleBy": "Wor🔗dle de {{name}}",
+  "dailyModeTitle": "Modo Diario",
+  "dailyModeDesc": "Un nuevo puzzle se publica cada día a medianoche (UTC).\nTodos los jugadores resuelven la misma palabra.\nTus resultados se guardan en las estadísticas y se pueden compartir.",
+  "practiceModeTitle": "Modo Práctica",
+  "practiceModeDesc": "Juega partidas ilimitadas con palabras aleatorias.\nLas estadísticas no se guardan y la función de compartir no está disponible.\nToca \"Jugar de nuevo\" para empezar una nueva partida.",
+  "practiceModeWarning": "Al actualizar la página, se perderá tu partida actual y comenzarás con una nueva palabra desde cero.",
+  "customModeTitle": "Modo Personalizado",
+  "customModeDesc": "Estás jugando un puzzle creado por {{questioner}}.\nLas estadísticas de juegos personalizados se registran por separado de las diarias.\nPuedes compartir tus resultados.",
+  "howToCreate": "Cómo crear",
+  "createModeDesc": "Ingresa tu nombre y escribe la palabra a adivinar usando el teclado.\nLa palabra debe ser una palabra en inglés de {{length}} letras de la lista.\nPulsa ENTER para copiar la URL del puzzle al portapapeles.\n¡Comparte la URL con tus amigos para que resuelvan tu puzzle!",
   "languages": {
     "en": "English",
     "ko": "한국어",

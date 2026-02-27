@@ -1,13 +1,18 @@
+import { useState } from 'react'
 import { Cell } from '../grid/Cell'
 import { ChainBridge } from '../grid/ChainBridge'
 import { BaseModal } from './BaseModal'
 import { CONFIG } from '../../constants/config'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import 'i18next'
+
+type GameMode = 'daily' | 'practice' | 'custom' | 'create'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
+  mode: GameMode
+  questioner?: string
 }
 
 interface Letter {
@@ -15,7 +20,60 @@ interface Letter {
   highlight: boolean
 }
 
-export const InfoModal = ({ isOpen, handleClose }: Props) => {
+const MODE_TITLE_KEY: Record<GameMode, string> = {
+  daily: 'dailyModeTitle',
+  practice: 'practiceModeTitle',
+  custom: 'customModeTitle',
+  create: 'howToCreate',
+}
+
+const ModeContent = ({
+  mode,
+  questioner,
+}: {
+  mode: GameMode
+  questioner?: string
+}) => {
+  const { t } = useTranslation()
+
+  if (mode === 'create') {
+    return (
+      <p className="text-sm text-gray-500 whitespace-pre-line">
+        {t('createModeDesc', { length: CONFIG.wordLength })}
+      </p>
+    )
+  }
+
+  if (mode === 'daily') {
+    return (
+      <p className="text-sm text-gray-500 whitespace-pre-line">
+        {t('dailyModeDesc')}
+      </p>
+    )
+  }
+
+  if (mode === 'practice') {
+    return (
+      <>
+        <p className="text-sm text-gray-500 whitespace-pre-line">
+          {t('practiceModeDesc')}
+        </p>
+        <p className="text-sm text-amber-600 mt-2">
+          ⚠️ {t('practiceModeWarning')}
+        </p>
+      </>
+    )
+  }
+
+  // custom
+  return (
+    <p className="text-sm text-gray-500 whitespace-pre-line">
+      {t('customModeDesc', { questioner })}
+    </p>
+  )
+}
+
+const HowToPlayContent = () => {
   const { t } = useTranslation()
   const firstExampleWord: Letter[] = t('firstExampleWord', {
     returnObjects: true,
@@ -26,8 +84,9 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
   const thirdExampleWord: Letter[] = t('thirdExampleWord', {
     returnObjects: true,
   })
+
   return (
-    <BaseModal title={t('howToPlay')} isOpen={isOpen} handleClose={handleClose}>
+    <>
       <p className="text-sm text-gray-500">
         {t('instructions', { tries: CONFIG.tries })}
       </p>
@@ -103,6 +162,95 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
       <p className="text-sm text-gray-500 mt-2">
         ⚠️ {t('chainDeadEndInstructions')}
       </p>
+    </>
+  )
+}
+
+const AboutContent = () => {
+  return (
+    <p className="text-sm text-gray-500">
+      <Trans
+        i18nKey="aboutAuthorSentence"
+        values={{ language: CONFIG.language, author: CONFIG.author }}
+      >
+        This is an open source word guessing game adapted to
+        {CONFIG.language} by
+        <a href={CONFIG.authorWebsite} className="underline font-bold">
+          {CONFIG.author}
+        </a>{' '}
+      </Trans>
+      <Trans i18nKey="aboutCodeSentence">
+        Have a look at
+        <a
+          href="https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game"
+          className="underline font-bold"
+        >
+          Aidan Pine's fork
+        </a>
+        and customize it for another language!
+      </Trans>
+      <Trans
+        i18nKey="aboutDataSentence"
+        values={{ wordListSource: CONFIG.wordListSource }}
+      >
+        The words for this game were sourced from
+        <a href={CONFIG.wordListSourceLink} className="underline font-bold">
+          {CONFIG.wordListSource}
+        </a>
+        .
+      </Trans>
+      <Trans i18nKey="aboutOriginalSentence">
+        You can also
+        <a
+          href="https://www.powerlanguage.co.uk/wordle/"
+          className="underline font-bold"
+        >
+          play the original here
+        </a>
+      </Trans>
+    </p>
+  )
+}
+
+export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
+  const { t } = useTranslation()
+  const [activeTab, setActiveTab] = useState('mode')
+
+  const tabs = [
+    { id: 'mode', label: t(MODE_TITLE_KEY[mode]) },
+    { id: 'howToPlay', label: t('howToPlay') },
+    { id: 'about', label: t('about') },
+  ]
+
+  return (
+    <BaseModal
+      title={t('information')}
+      isOpen={isOpen}
+      handleClose={handleClose}
+    >
+      <div className="flex border-b border-gray-200 mb-4">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === tab.id
+                ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'mode' && (
+        <ModeContent mode={mode} questioner={questioner} />
+      )}
+
+      {activeTab === 'howToPlay' && <HowToPlayContent />}
+
+      {activeTab === 'about' && <AboutContent />}
     </BaseModal>
   )
 }
