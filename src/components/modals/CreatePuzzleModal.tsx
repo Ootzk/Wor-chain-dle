@@ -1,41 +1,41 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Cell } from '../grid/Cell'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { CONFIG } from '../../constants/config'
 
+const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
+
 export const CreatePuzzlePage = () => {
   const { t } = useTranslation()
   const nameInputRef = useRef<HTMLInputElement>(null)
+  const cellRefs = useRef<(HTMLInputElement | null)[]>([])
   const [questioner, setQuestioner] = useState('')
-  const [word, setWord] = useState('')
+  const [letters, setLetters] = useState<string[]>(emptyLetters)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement === nameInputRef.current) return
+  const fallbackCopy = (text: string) => {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    setCopied(true)
+  }
 
-      if (e.key === 'Backspace') {
-        setWord((prev) => prev.slice(0, -1))
-        setCopied(false)
-        setError('')
-      } else if (/^[a-zA-Z]$/.test(e.key)) {
-        setWord((prev) =>
-          prev.length >= CONFIG.wordLength ? prev : prev + e.key
-        )
-        setCopied(false)
-        setError('')
-      }
-    }
+  const getWord = useCallback(
+    () => letters.join(''),
+    [letters]
+  )
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  const isFilled = letters.every((l) => l !== '')
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     setError('')
     setCopied(false)
 
@@ -43,22 +43,94 @@ export const CreatePuzzlePage = () => {
       setError(t('createPuzzleErrorNoName'))
       return
     }
-    if (word.length !== CONFIG.wordLength) {
+    if (!isFilled) {
       setError(
         t('createPuzzleErrorWordLength', { length: CONFIG.wordLength })
       )
       return
     }
-    const lowerWord = word.toLowerCase()
-    if (!isWordInWordList(lowerWord)) {
+    const word = getWord().toLowerCase()
+    if (!isWordInWordList(word)) {
       setError(t('createPuzzleErrorInvalidWord'))
       return
     }
 
-    const code = encodeCustomPuzzle(lowerWord, questioner.trim())
+    const code = encodeCustomPuzzle(word, questioner.trim())
     const url = `${window.location.origin}${window.location.pathname}#/custom/${code}`
-    navigator.clipboard.writeText(url)
-    setCopied(true)
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(
+          () => setCopied(true),
+          () => fallbackCopy(url)
+        )
+      } else {
+        fallbackCopy(url)
+      }
+    } catch {
+      fallbackCopy(url)
+    }
+  }, [questioner, isFilled, getWord, t])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCellFocused = cellRefs.current.some(
+        (ref) => ref === document.activeElement
+      )
+
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        if (document.activeElement === nameInputRef.current) {
+          cellRefs.current[0]?.focus()
+        } else {
+          handleCreate()
+        }
+        return
+      }
+
+      if (
+        document.activeElement === nameInputRef.current ||
+        isCellFocused
+      )
+        return
+
+      if (e.key === 'Backspace') {
+        setLetters((prev) => {
+          let last = -1
+          for (let j = prev.length - 1; j >= 0; j--) {
+            if (prev[j] !== '') { last = j; break }
+          }
+          if (last === -1) return prev
+          const next = [...prev]
+          next[last] = ''
+          return next
+        })
+        setCopied(false)
+        setError('')
+      } else if (/^[a-zA-Z]$/.test(e.key)) {
+        setLetters((prev) => {
+          const first = prev.indexOf('')
+          if (first === -1) return prev
+          const next = [...prev]
+          next[first] = e.key
+          return next
+        })
+        setCopied(false)
+        setError('')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleCreate])
+
+  const updateCell = (i: number, ch: string) => {
+    setLetters((prev) => {
+      const next = [...prev]
+      next[i] = ch
+      return next
+    })
+    setCopied(false)
+    setError('')
   }
 
   return (
@@ -89,7 +161,7 @@ export const CreatePuzzlePage = () => {
               setError('')
             }}
             maxLength={20}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none sm:text-sm border px-3 py-2"
             placeholder={t('createPuzzleNamePlaceholder')}
           />
         </div>
@@ -99,11 +171,59 @@ export const CreatePuzzlePage = () => {
             {t('createPuzzleWordLabel')}
           </label>
           <div className="flex justify-center">
-            {Array.from({ length: CONFIG.wordLength }).map((_, i) => (
-              <Cell
+            {letters.map((letter, i) => (
+              <input
                 key={i}
-                value={word[i] || ''}
-                status={word[i] ? (copied ? 'correct' : undefined) : undefined}
+                ref={(el) => {
+                  cellRefs.current[i] = el
+                }}
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                autoCapitalize="off"
+                maxLength={1}
+                value={letter}
+                onChange={(e) => {
+                  const ch = e.target.value
+                    .replace(/[^a-zA-Z]/g, '')
+                    .slice(-1)
+                  if (!ch) return
+                  updateCell(i, ch)
+                  if (i < CONFIG.wordLength - 1) {
+                    cellRefs.current[i + 1]?.focus()
+                  } else {
+                    cellRefs.current[i]?.blur()
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Backspace') {
+                    e.preventDefault()
+                    if (letter) {
+                      updateCell(i, '')
+                    } else if (i > 0) {
+                      updateCell(i - 1, '')
+                      cellRefs.current[i - 1]?.focus()
+                    }
+                  } else if (e.key === 'ArrowLeft' && i > 0) {
+                    cellRefs.current[i - 1]?.focus()
+                  } else if (
+                    e.key === 'ArrowRight' &&
+                    i < CONFIG.wordLength - 1
+                  ) {
+                    cellRefs.current[i + 1]?.focus()
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleCreate()
+                  }
+                }}
+                onFocus={(e) => e.target.select()}
+                className={`w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center uppercase outline-none ${
+                  copied && letter
+                    ? 'bg-green-500 text-white border-green-500'
+                    : letter
+                      ? 'bg-white border-black focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                      : 'bg-white border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                }`}
               />
             ))}
           </div>
