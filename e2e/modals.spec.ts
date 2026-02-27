@@ -71,6 +71,14 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
 
     await expect(gamePage.locator('text=Donate')).toBeVisible()
+
+    // QR image and payment link button should both be visible
+    await expect(gamePage.locator('img[alt="KakaoPay QR"]')).toBeVisible()
+    await expect(gamePage.locator('a:has-text("Pay with KakaoPay")')).toBeVisible()
+    await expect(gamePage.locator('a:has-text("Pay with KakaoPay")')).toHaveAttribute(
+      'href',
+      'https://qr.kakaopay.com/FE0rjwVWj41a00262'
+    )
     await screenshot(gamePage, '01-donate-modal-open')
 
     // Close

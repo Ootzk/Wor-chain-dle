@@ -1,5 +1,8 @@
 export const PATCH_NOTES_VERSION = '1.1.0'
 
+export const KAKAOPAY_PAYMENT_URL =
+  'https://qr.kakaopay.com/FE0rjwVWj41a00262'
+
 export const CONFIG = {
   tries: 6,
   language: 'English',
