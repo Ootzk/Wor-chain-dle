@@ -11,7 +11,7 @@ import {
 test.skip(() => !process.env.GENERATE_SCREENSHOTS, 'Set GENERATE_SCREENSHOTS=1 to run')
 
 const ASSETS = path.resolve(__dirname, '..', 'assets')
-const HYDRO_PATH = `/#/custom/${encodeCustomPuzzle('hydro', 'readme')}`
+const HYDRO_PATH = `/#/custom/${encodeCustomPuzzle('hydro', 'ootzk')}`
 
 // ── Helpers ──
 
@@ -217,4 +217,37 @@ test('donate modal', async ({ page }) => {
   await page.locator('h3:has-text("Donate")').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'donation')
+})
+
+// ── Create & Custom Puzzle Screenshots ──
+
+test('create puzzle — copied state', async ({ page }) => {
+  await initPage(page)
+  await page.goto('/#/create')
+  await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+
+  // Enter questioner name
+  await page.locator('input[placeholder]').fill('ootzk')
+  // Blur name input so keyboard goes to cells
+  await page.locator('input[placeholder]').blur()
+
+  // Type word via on-screen keyboard
+  await typeWord(page, 'hydro')
+
+  // Press Enter to copy URL
+  await page.keyboard.press('Enter')
+  await page.locator('.bg-green-100').waitFor({ state: 'visible' })
+  await page.waitForTimeout(500)
+  await save(page, 'create-puzzle')
+})
+
+test('custom puzzle — playing', async ({ page }) => {
+  await initPage(page)
+  await page.goto(HYDRO_PATH)
+  await waitForGameReady(page)
+
+  // Submit first guess to show chain visualization
+  await submitWord(page, 'shake')
+  await page.waitForTimeout(300)
+  await save(page, 'custom-puzzle')
 })

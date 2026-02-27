@@ -93,6 +93,20 @@ New features are introduced through a one-time "What's New" popup on your first 
   <img src="assets/patch-note.png" alt="What's New in v1.1.0" width="300" />
 </p>
 
+### Create & Share Custom Puzzles
+
+Create your own puzzle and challenge your friends! Tap "Create" at the bottom, enter your name and a 5-letter word, then press Enter to copy a shareable link.
+
+<p align="center">
+  <img src="assets/create-puzzle.png" alt="Create Puzzle — URL copied" width="300" />
+</p>
+
+Your friend opens the link and plays your custom puzzle with the full chain rule:
+
+<p align="center">
+  <img src="assets/custom-puzzle.png" alt="Playing a custom puzzle" width="300" />
+</p>
+
 ### Practice Mode
 
 Done with today's word? Tap "Practice" at the bottom to play unlimited games with random words — no waiting until tomorrow.
