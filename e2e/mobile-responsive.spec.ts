@@ -105,11 +105,9 @@ test.describe('Mobile Responsive', () => {
     await gamePage.goto('/')
     await waitForGameReady(gamePage)
 
-    const aboutBtn = gamePage.locator('button', { hasText: 'About this game' })
     const practiceLink = gamePage.locator('a', { hasText: 'Practice' })
     const createLink = gamePage.locator('a', { hasText: 'Create' })
 
-    await expect(aboutBtn).toBeVisible()
     await expect(practiceLink).toBeVisible()
     await expect(createLink).toBeVisible()
     await screenshot(gamePage, '01-mobile-bottom-nav')

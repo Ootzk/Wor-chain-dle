@@ -131,11 +131,12 @@ test.describe('Modals', () => {
     expect(overlap, `Title overlaps close button by ${overlap}px`).toBeLessThanOrEqual(0)
   })
 
-  test('about modal opens via bottom button', async ({ gamePage }) => {
-    await gamePage.locator('button', { hasText: 'About this game' }).click()
+  test('about section shows in daily info modal', async ({ gamePage }) => {
+    // Open info modal (daily mode)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
-    await expect(gamePage.locator('h3:has-text("About")')).toBeVisible()
-    await screenshot(gamePage, '01-about-modal-open')
+    await expect(gamePage.getByRole('heading', { name: 'About this game' })).toBeVisible()
+    await screenshot(gamePage, '01-about-in-info-modal')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
