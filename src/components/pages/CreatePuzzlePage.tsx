@@ -161,7 +161,7 @@ export const CreatePuzzlePage = () => {
                     nameInputRef.current?.blur()
                   }
                 }}
-                maxLength={20}
+                maxLength={10}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none sm:text-sm border px-3 py-2 normal-case"
                 placeholder={t('createPuzzleNamePlaceholder')}
               />
