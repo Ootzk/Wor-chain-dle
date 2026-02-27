@@ -22,12 +22,12 @@ jobs:
   e2e:
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: npm install
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium webkit
       - name: Build
         run: npm run build
       - name: Start server
@@ -41,6 +41,8 @@ jobs:
           echo "Server failed to start" && exit 1
       - name: Run Playwright tests
         run: npx playwright test
+        env:
+          HOME: /root
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
