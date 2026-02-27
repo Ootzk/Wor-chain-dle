@@ -31,6 +31,7 @@
     "donateMonsterDrink": "개발자에게 음료수 한 잔 사주세요!",
     "practice": "연습",
     "daily": "오늘의 문제",
+    "createPuzzleNav": "출제",
     "playAgain": "다시 하기",
     "winMessages": ["대단해요!", "훌륭합니다!", "잘했어요!"],
     "firstExampleWord": [
