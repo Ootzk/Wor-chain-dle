@@ -72,8 +72,8 @@ docker run -d -p 3000:3000 wor-chain-dle
 
 ## Deployment
 
-- `main` 브랜치에 push 시 GitHub Actions가 `gh-pages` 브랜치로 자동 배포.
-- CI 파이프라인: `test` + `e2e` 통과 후 `deploy` 실행 (의존 관계).
+- PR 시: `test` 실행 (모든 PR), `e2e` 추가 실행 (main 대상 PR만).
+- `main` 브랜치에 push 시: GitHub Actions가 `gh-pages` 브랜치로 자동 배포 + `package.json` 버전으로 Git 태그 생성 + GitHub Release 생성 (머지된 PR body 사용).
 - E2E 아티팩트: Playwright HTML 리포트 30일 보관.
 - 수동 배포: `npm run deploy`
 
@@ -86,7 +86,7 @@ docker run -d -p 3000:3000 wor-chain-dle
 ## Git Branching Strategy
 
 - `main`: 항상 배포 가능한 상태. 머지될 때마다 버전 태그 등록.
-- `release/{version}`: 다음 버전 개발 브랜치. main에서 생성. 해당 버전이 어느 정도 완성되면 main으로 PR을 보내서 머지.
+- `release/{version}`: 다음 버전 개발 브랜치. main에서 생성. 해당 버전이 어느 정도 완성되면 main으로 PR을 보내서 머지. **PR 제목은 반드시 `Release v{version}` 형식** (예: `Release v1.2.0`). 이 PR의 body가 GitHub Release 본문으로 자동 사용됨.
 - `feature/{contents}`: 기능별 브랜치. release 브랜치에서 생성. 작업 완료 후 release 브랜치로 PR을 만들어서 머지.
 - **PR 머지는 항상 개발자가 직접 수행.** Claude는 PR 생성까지만.
 - **PR 생성 시 반드시 `--repo Ootzk/Wor-chain-dle`을 명시한다.** 이 프로젝트는 fork 기반이므로, `--repo` 없이 `gh pr create`를 실행하면 upstream(원본 저장소)으로 PR이 올라갈 수 있다.
