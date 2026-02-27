@@ -128,85 +128,85 @@ export const CreatePuzzlePage = () => {
         </div>
       </div>
 
-      <div className="w-80 mx-auto space-y-6">
-        <blockquote className="border-l-4 border-gray-300 pl-4 py-2 text-sm text-gray-500 italic whitespace-pre-line">
-          {t('createPuzzleDescription')}
-        </blockquote>
+      <div className={isUppercase ? 'uppercase' : ''}>
+        <div className="pb-6 min-h-[24rem]">
+          <div className="w-80 mx-auto space-y-6">
+            <blockquote className="border-l-4 border-gray-300 pl-4 py-2 text-sm text-gray-500 italic whitespace-pre-line">
+              {t('createPuzzleDescription')}
+            </blockquote>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            {t('createPuzzleNameLabel')}
-          </label>
-          <input
-            ref={nameInputRef}
-            type="text"
-            value={questioner}
-            onChange={(e) => {
-              setQuestioner(e.target.value)
-              setCopied(false)
-              setError('')
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                nameInputRef.current?.blur()
-              }
-            }}
-            maxLength={20}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none sm:text-sm border px-3 py-2"
-            placeholder={t('createPuzzleNamePlaceholder')}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('createPuzzleWordLabel')}
-          </label>
-          <div className="flex justify-center">
-            {letters.map((letter, i) => (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 normal-case">
+                {t('createPuzzleNameLabel')}
+              </label>
               <input
-                key={i}
+                ref={nameInputRef}
                 type="text"
-                readOnly
-                inputMode="none"
-                tabIndex={-1}
-                value={letter}
-                className={classnames(
-                  'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center outline-none',
-                  { uppercase: isUppercase },
-                  {
-                    'bg-green-500 text-white border-green-500':
-                      copied && letter,
-                    'bg-white border-black': !copied && letter,
-                    'bg-white border-slate-200': !letter,
+                value={questioner}
+                onChange={(e) => {
+                  setQuestioner(e.target.value)
+                  setCopied(false)
+                  setError('')
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    nameInputRef.current?.blur()
                   }
-                )}
+                }}
+                maxLength={20}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none sm:text-sm border px-3 py-2 normal-case"
+                placeholder={t('createPuzzleNamePlaceholder')}
               />
-            ))}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 normal-case">
+                {t('createPuzzleWordLabel')}
+              </label>
+              <div className="flex justify-center">
+                {letters.map((letter, i) => (
+                  <input
+                    key={i}
+                    type="text"
+                    readOnly
+                    inputMode="none"
+                    tabIndex={-1}
+                    value={letter}
+                    className={classnames(
+                      'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center outline-none',
+                      {
+                        'bg-green-500 text-white border-green-500':
+                          copied && letter,
+                        'bg-white border-black': !copied && letter,
+                        'bg-white border-slate-200': !letter,
+                      }
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className={classnames(
+                'w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm normal-case',
+                {
+                  'bg-red-600 hover:bg-red-700 focus:ring-red-500': error,
+                  'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500':
+                    !error,
+                }
+              )}
+              onClick={handleCreate}
+            >
+              {error
+                ? error
+                : copied
+                  ? t('createPuzzleCopied')
+                  : t('createPuzzleCopyUrl')}
+            </button>
           </div>
         </div>
-
-        <button
-          type="button"
-          className={classnames(
-            'w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm',
-            {
-              'bg-red-600 hover:bg-red-700 focus:ring-red-500': error,
-              'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500':
-                !error,
-            }
-          )}
-          onClick={handleCreate}
-        >
-          {error
-            ? error
-            : copied
-              ? t('createPuzzleCopied')
-              : t('createPuzzleCopyUrl')}
-        </button>
-      </div>
-
-      <div className={classnames('mt-4', { uppercase: isUppercase })}>
         <Keyboard
           onChar={onChar}
           onDelete={onDelete}
