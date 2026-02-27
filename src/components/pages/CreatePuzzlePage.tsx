@@ -1,13 +1,21 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { InformationCircleIcon } from '@heroicons/react/outline'
+import {
+  InformationCircleIcon,
+  CogIcon,
+  CurrencyDollarIcon,
+  TranslateIcon,
+} from '@heroicons/react/outline'
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
-import { loadSettings } from '../../lib/localStorage'
+import { loadSettings, saveSettings } from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
 import { InfoModal } from '../modals/InfoModal'
+import { SettingsModal } from '../modals/SettingsModal'
+import { DonateModal } from '../modals/DonateModal'
+import { TranslateModal } from '../modals/TranslateModal'
 import { CONFIG } from '../../constants/config'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
@@ -20,8 +28,15 @@ export const CreatePuzzlePage = () => {
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState('')
-  const [isUppercase] = useState(() => loadSettings().isUppercase)
+  const [isUppercase, setIsUppercase] = useState(() => loadSettings().isUppercase)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
+  const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
+
+  useEffect(() => {
+    saveSettings({ isUppercase })
+  }, [isUppercase])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -136,16 +151,30 @@ export const CreatePuzzlePage = () => {
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-green-500">{t('createPuzzle')}</p>
         </div>
+        {CONFIG.availableLangs.length > 1 && (
+          <TranslateIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => setIsI18nModalOpen(true)}
+          />
+        )}
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
+        />
+        <CogIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsSettingsModalOpen(true)}
+        />
+        <CurrencyDollarIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsDonateModalOpen(true)}
         />
       </div>
 
       <div className={isUppercase ? 'uppercase' : ''}>
         <div className="pb-6 min-h-[24rem]">
           <div className="w-80 mx-auto space-y-6">
-            <blockquote className="border-l-4 border-gray-300 pl-4 py-2 text-sm text-gray-500 italic whitespace-pre-line">
+            <blockquote className="border-l-4 border-gray-300 pl-4 py-2 text-sm text-gray-500 italic whitespace-pre-line normal-case">
               {t('createPuzzleDescription')}
             </blockquote>
 
@@ -190,6 +219,7 @@ export const CreatePuzzlePage = () => {
                     className={classnames(
                       'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center outline-none',
                       {
+                        'uppercase': isUppercase,
                         'bg-green-500 text-white border-green-500':
                           copied && letter,
                         'bg-white border-black': !copied && letter,
@@ -240,10 +270,24 @@ export const CreatePuzzlePage = () => {
         />
       </div>
 
+      <TranslateModal
+        isOpen={isI18nModalOpen}
+        handleClose={() => setIsI18nModalOpen(false)}
+      />
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
         mode="create"
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        handleClose={() => setIsSettingsModalOpen(false)}
+        isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
+      />
+      <DonateModal
+        isOpen={isDonateModalOpen}
+        handleClose={() => setIsDonateModalOpen(false)}
       />
 
       <div className="mx-auto mt-4 flex items-center justify-center gap-2">
