@@ -25,12 +25,15 @@ export type GameStats = {
   successRate: number
 }
 
-export const saveStatsToLocalStorage = (gameStats: GameStats) => {
-  localStorage.setItem(gameStatKey, JSON.stringify(gameStats))
+export const saveStatsToLocalStorage = (
+  gameStats: GameStats,
+  key: string = gameStatKey
+) => {
+  localStorage.setItem(key, JSON.stringify(gameStats))
 }
 
-export const loadStatsFromLocalStorage = () => {
-  const stats = localStorage.getItem(gameStatKey)
+export const loadStatsFromLocalStorage = (key: string = gameStatKey) => {
+  const stats = localStorage.getItem(key)
   return stats ? (JSON.parse(stats) as GameStats) : null
 }
 
