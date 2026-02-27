@@ -81,6 +81,7 @@ docker run -d -p 3000:3000 wor-chain-dle
 
 - **GitHub Project Board**: https://github.com/users/Ootzk/projects/3 에서 작업 관리.
 - 작업 단위는 보드의 이슈로 추적하되, 즉흥적으로 개발하는 경우도 있음. 그 경우에도 연관 작업끼리 PR 단위로 묶어 보드에 연동.
+- 즉흥 PR의 경우, milestone을 머지 대상 release 버전으로 설정하여 버전별 작업 추적을 유지.
 
 ## Git Branching Strategy
 
