@@ -6,6 +6,7 @@ import {
   submitWord,
   waitForGameReady,
 } from '../e2e/fixtures/game.fixture'
+import { PATCH_NOTES_VERSION } from '../src/constants/config'
 
 // Skip unless explicitly opted in via: GENERATE_SCREENSHOTS=1 npm run readme:screenshots
 test.skip(() => !process.env.GENERATE_SCREENSHOTS, 'Set GENERATE_SCREENSHOTS=1 to run')
@@ -29,8 +30,8 @@ async function disguiseAsDaily(page: Page) {
 }
 
 async function initPage(page: Page) {
-  await page.addInitScript(() => {
-    localStorage.setItem('seenPatchNotesVersion', '1.1.0')
+  await page.addInitScript((version) => {
+    localStorage.setItem('seenPatchNotesVersion', version)
     localStorage.setItem('i18nextLng', 'en')
     window.addEventListener('keydown', (e) => {
       if (
@@ -42,7 +43,7 @@ async function initPage(page: Page) {
         e.preventDefault()
       }
     })
-  })
+  }, PATCH_NOTES_VERSION)
 }
 
 // ── Game Flow Screenshots ──
@@ -137,10 +138,10 @@ test('how-to-play modal (English)', async ({ page }) => {
 })
 
 test('how-to-play modal (Korean)', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('seenPatchNotesVersion', '1.1.0')
+  await page.addInitScript((version) => {
+    localStorage.setItem('seenPatchNotesVersion', version)
     localStorage.setItem('i18nextLng', 'ko')
-  })
+  }, PATCH_NOTES_VERSION)
   await page.goto('/')
   // Korean Enter = "입력" → use language-agnostic wait
   await page.locator('button:text-is("q")').waitFor({ state: 'visible' })
@@ -155,10 +156,10 @@ test('how-to-play modal (Korean)', async ({ page }) => {
 })
 
 test('language selector (Korean)', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('seenPatchNotesVersion', '1.1.0')
+  await page.addInitScript((version) => {
+    localStorage.setItem('seenPatchNotesVersion', version)
     localStorage.setItem('i18nextLng', 'ko')
-  })
+  }, PATCH_NOTES_VERSION)
   await page.goto('/')
   await page.locator('button:text-is("q")').waitFor({ state: 'visible' })
 
