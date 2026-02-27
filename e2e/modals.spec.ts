@@ -83,8 +83,8 @@ test.describe('Modals', () => {
     await gamePage.goto('/#/create')
     await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
 
-    // Create page has info icon as first svg icon
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').first().click()
+    // Create page icons: translate(0), info(1), settings(2), donate(3)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
 
     // Tab 1: How to Create (default)
