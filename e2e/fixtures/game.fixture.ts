@@ -79,6 +79,8 @@ export async function waitForGameReady(page: Page) {
 
 /** Attach a named screenshot to the test report */
 export async function screenshot(page: Page, name: string) {
+  // Wait for modal transition animations to complete
+  await page.waitForTimeout(300)
   const body = await page.screenshot()
   await test.info().attach(name, { body, contentType: 'image/png' })
 }
