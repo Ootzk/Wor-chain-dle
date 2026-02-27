@@ -77,6 +77,7 @@
     "createPuzzleErrorNoName": "이름을 입력해주세요",
     "createPuzzleErrorWordLength": "단어는 {{length}}글자여야 합니다",
     "createPuzzleErrorInvalidWord": "단어 목록에 없는 단어입니다",
+    "createPuzzleErrorEnglishOnly": "영문 알파벳만 입력할 수 있습니다",
     "createPuzzleCopyUrl": "문제 URL 복사",
     "createPuzzleCopied": "복사 완료!",
     "languages": {

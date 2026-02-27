@@ -117,6 +117,7 @@
   "createPuzzleErrorNoName": "请输入你的名字",
   "createPuzzleErrorWordLength": "单词必须为{{length}}个字母",
   "createPuzzleErrorInvalidWord": "该单词不在单词列表中",
+  "createPuzzleErrorEnglishOnly": "请只输入英文字母",
   "createPuzzleCopyUrl": "复制题目链接",
   "createPuzzleCopied": "已复制！",
   "languages": {

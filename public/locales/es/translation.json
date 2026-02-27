@@ -118,6 +118,7 @@
   "createPuzzleErrorNoName": "Por favor ingresa tu nombre",
   "createPuzzleErrorWordLength": "La palabra debe tener {{length}} letras",
   "createPuzzleErrorInvalidWord": "La palabra no está en la lista",
+  "createPuzzleErrorEnglishOnly": "Solo se permiten letras en inglés",
   "createPuzzleCopyUrl": "Copiar URL del puzzle",
   "createPuzzleCopied": "¡Copiado!",
   "languages": {

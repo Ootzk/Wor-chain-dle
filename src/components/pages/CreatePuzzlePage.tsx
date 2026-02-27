@@ -187,7 +187,13 @@ export const CreatePuzzlePage = () => {
                 maxLength={1}
                 value={letter}
                 onChange={(e) => {
-                  const ch = e.target.value
+                  const raw = e.target.value
+                  if (raw && !/[a-zA-Z]/.test(raw)) {
+                    setError(t('createPuzzleErrorEnglishOnly'))
+                    e.target.value = letter
+                    return
+                  }
+                  const ch = raw
                     .replace(/[^a-zA-Z]/g, '')
                     .slice(-1)
                   if (!ch) return

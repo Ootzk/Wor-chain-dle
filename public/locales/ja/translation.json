@@ -77,6 +77,7 @@
     "createPuzzleErrorNoName": "名前を入力してください",
     "createPuzzleErrorWordLength": "単語は{{length}}文字でなければなりません",
     "createPuzzleErrorInvalidWord": "単語リストにない単語です",
+    "createPuzzleErrorEnglishOnly": "英字のみ入力できます",
     "createPuzzleCopyUrl": "問題URLをコピー",
     "createPuzzleCopied": "コピーしました！",
     "languages": {
