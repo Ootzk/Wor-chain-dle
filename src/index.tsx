@@ -12,7 +12,7 @@ import App from './App'
 import { solution as dailySolution, isWordInWordList } from './lib/words'
 import { getRandomWord } from './lib/words'
 import { decodeCustomPuzzle } from './lib/customPuzzle'
-import { CreatePuzzlePage } from './components/modals/CreatePuzzleModal'
+import { CreatePuzzlePage } from './components/pages/CreatePuzzlePage'
 import reportWebVitals from './reportWebVitals'
 
 const DailyPage = () => <App mode="daily" solution={dailySolution} />

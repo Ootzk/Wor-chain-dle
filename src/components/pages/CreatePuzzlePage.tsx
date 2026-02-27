@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { CONFIG } from '../../constants/config'
@@ -28,10 +29,7 @@ export const CreatePuzzlePage = () => {
     setCopied(true)
   }
 
-  const getWord = useCallback(
-    () => letters.join(''),
-    [letters]
-  )
+  const getWord = useCallback(() => letters.join(''), [letters])
 
   const isFilled = letters.every((l) => l !== '')
 
@@ -97,7 +95,10 @@ export const CreatePuzzlePage = () => {
         setLetters((prev) => {
           let last = -1
           for (let j = prev.length - 1; j >= 0; j--) {
-            if (prev[j] !== '') { last = j; break }
+            if (prev[j] !== '') {
+              last = j
+              break
+            }
           }
           if (last === -1) return prev
           const next = [...prev]
@@ -217,13 +218,17 @@ export const CreatePuzzlePage = () => {
                   }
                 }}
                 onFocus={(e) => e.target.select()}
-                className={`w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center uppercase outline-none ${
-                  copied && letter
-                    ? 'bg-green-500 text-white border-green-500'
-                    : letter
-                      ? 'bg-white border-black focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
-                      : 'bg-white border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
-                }`}
+                className={classnames(
+                  'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center uppercase outline-none',
+                  {
+                    'bg-green-500 text-white border-green-500':
+                      copied && letter,
+                    'bg-white border-black focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500':
+                      !copied && letter,
+                    'bg-white border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500':
+                      !letter,
+                  }
+                )}
               />
             ))}
           </div>
@@ -231,11 +236,14 @@ export const CreatePuzzlePage = () => {
 
         <button
           type="button"
-          className={`w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm ${
-            error
-              ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-              : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
-          }`}
+          className={classnames(
+            'w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm',
+            {
+              'bg-red-600 hover:bg-red-700 focus:ring-red-500': error,
+              'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500':
+                !error,
+            }
+          )}
           onClick={handleCreate}
         >
           {error
