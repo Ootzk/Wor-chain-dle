@@ -39,7 +39,7 @@ export default defineConfig({
       ? 'npx serve -s build -l 3000'
       : 'npm run build && npx serve -s build -l 3000',
     url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
 })
