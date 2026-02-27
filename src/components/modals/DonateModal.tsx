@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BaseModal } from './BaseModal'
 import { useTranslation } from 'react-i18next'
+import { KAKAOPAY_PAYMENT_URL } from '../../constants/config'
 
 type Tab = {
   id: string
@@ -49,6 +50,14 @@ export const DonateModal = ({ isOpen, handleClose }: Props) => {
             alt="KakaoPay QR"
             className="w-48 mb-3"
           />
+          <a
+            href={KAKAOPAY_PAYMENT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-6 py-3 mb-3 text-base font-medium rounded-md text-gray-900 bg-yellow-400 hover:bg-yellow-500 shadow-sm focus:outline-none"
+          >
+            {t('donateKakaoPay')}
+          </a>
           <p className="text-sm font-medium text-gray-700">
             {t('donateMonsterDrink')}
           </p>
