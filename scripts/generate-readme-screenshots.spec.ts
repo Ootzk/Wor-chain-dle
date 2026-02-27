@@ -7,6 +7,9 @@ import {
   waitForGameReady,
 } from '../e2e/fixtures/game.fixture'
 
+// Skip unless explicitly opted in via: GENERATE_SCREENSHOTS=1 npm run readme:screenshots
+test.skip(() => !process.env.GENERATE_SCREENSHOTS, 'Set GENERATE_SCREENSHOTS=1 to run')
+
 const ASSETS = path.resolve(__dirname, '..', 'assets')
 const HYDRO_PATH = `/#/custom/${encodeCustomPuzzle('hydro', 'readme')}`
 
