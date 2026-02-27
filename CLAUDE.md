@@ -27,11 +27,14 @@ src/
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
     chain.ts                     ← 체인 규칙 유틸 (체인 인덱스, dead end 판정)
     share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로)
+    customPuzzle.ts              ← Custom 퍼즐 인코딩/디코딩 (URL-safe Base64)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
   components/
     grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge)
     keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
     modals/                      ← Info, Stats, About, Translate 모달
+    pages/
+      CreatePuzzlePage.tsx       ← 문제 출제 페이지 (단어 입력 + URL 생성)
 ```
 
 ## Development
@@ -78,6 +81,20 @@ docker run -d -p 3000:3000 wor-chain-dle
 - `README.md` → 버전 뱃지
 
 `release/{version}` 브랜치를 `main`으로 PR할 때 위 값들이 해당 버전과 반드시 일치해야 한다. `/bump-version` 스킬로 일괄 업데이트 가능.
+
+## Game Modes
+
+| 항목 | Daily | Practice | Custom |
+| ------ | ------- | ---------- | -------- |
+| 정답 출처 | WORDS (매일 UTC 리셋) | WORDS (랜덤) | 출제자 지정 (WORDS + VALIDGUESSES) |
+| 통계 저장 | `gameStats` | X | `customGameStats` |
+| 게임 상태 저장 | O | X | X |
+| Share 버튼 | O | X | O (Custom 포맷) |
+| URL | `/#/` | `/#/` (Practice 버튼) | `/#/custom/:code` |
+
+- **Custom URL 인코딩**: `btoa("word_questioner")` → URL-safe Base64 (`+`→`-`, `/`→`_`, `=` 제거)
+- **출제 페이지**: `/#/create` — Keyboard 컴포넌트 재사용, 셀은 readOnly (모바일 가상 키보드 억제)
+- **출제자 이름**: 최대 10자 제한 (오버레이 깨짐 방지)
 
 ## Snake Chain Rule
 
