@@ -110,9 +110,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const yyyy = now.getUTCFullYear()
       const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
       const dd = String(now.getUTCDate()).padStart(2, '0')
-      document.title = `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}`
+      document.title = `Wor\u{1F517}dle Daily | ${yyyy}-${mm}-${dd}`
     } else if (isCustom) {
-      document.title = `Wor\u{1F517}dle Custom/${questioner}`
+      document.title = `Wor\u{1F517}dle Custom | ${questioner}`
     } else {
       document.title = `Wor\u{1F517}dle Practice`
     }
@@ -241,11 +241,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-gray-500">
-            {isDaily
-              ? new Date().toLocaleDateString('en-CA')
-              : isCustom
-              ? `Custom/${questioner}`
-              : t('practice')}
+            {isDaily ? (
+              <>Daily | {new Date().toLocaleDateString('en-CA')}</>
+            ) : isCustom ? (
+              <>
+                <span className="text-green-500">Custom</span> | {questioner}
+              </>
+            ) : (
+              <span className="text-purple-500">{t('practice')}</span>
+            )}
           </p>
         </div>
         {translateElement}
