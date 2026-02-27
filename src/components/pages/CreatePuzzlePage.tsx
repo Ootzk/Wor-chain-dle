@@ -146,9 +146,9 @@ export const CreatePuzzlePage = () => {
       </div>
 
       <div className="w-80 mx-auto space-y-6">
-        <p className="text-center text-gray-600 text-sm">
+        <blockquote className="border-l-4 border-gray-300 pl-4 py-2 text-sm text-gray-500 italic whitespace-pre-line">
           {t('createPuzzleDescription')}
-        </p>
+        </blockquote>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
