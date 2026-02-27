@@ -149,6 +149,52 @@ test.describe('Modals', () => {
     await screenshot(gamePage, '05-uppercase-removed-from-page')
   })
 
+  test('uppercase setting persists across page navigation', async ({ gamePage }) => {
+    // Daily: enable uppercase via settings (settings = 4th icon)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    await gamePage.locator('button[role="switch"]').click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
+    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await screenshot(gamePage, '01-daily-uppercase-on')
+
+    // Daily → Practice
+    await gamePage.locator('a', { hasText: 'Practice' }).click()
+    await waitForGameReady(gamePage)
+    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await screenshot(gamePage, '02-practice-uppercase-persisted')
+
+    // Practice → Daily
+    await gamePage.locator('a', { hasText: 'Daily' }).click()
+    await waitForGameReady(gamePage)
+    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await screenshot(gamePage, '03-daily-uppercase-still-on')
+
+    // Daily → Create
+    await gamePage.locator('a', { hasText: 'Create' }).click()
+    await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await screenshot(gamePage, '04-create-uppercase-persisted')
+
+    // Toggle off on Create page (settings = 3rd icon: translate, info, settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    await gamePage.locator('button[role="switch"]').click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
+    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await screenshot(gamePage, '05-create-uppercase-off')
+
+    // Create → Daily
+    await gamePage.locator('a', { hasText: 'Daily' }).click()
+    await waitForGameReady(gamePage)
+    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await screenshot(gamePage, '06-daily-uppercase-off-persisted')
+
+    // Daily → Custom
+    await gamePage.goto(customPuzzlePath('crane', 'Alice'))
+    await waitForGameReady(gamePage)
+    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await screenshot(gamePage, '07-custom-uppercase-off-persisted')
+  })
+
   test('donate modal opens and closes', async ({ gamePage }) => {
     // Click donate icon (CurrencyDollarIcon) — 5th icon
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
