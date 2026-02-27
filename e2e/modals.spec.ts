@@ -1,4 +1,4 @@
-import { test, expect, waitForGameReady, screenshot } from './fixtures/game.fixture'
+import { test, expect, customPuzzlePath, waitForGameReady, screenshot } from './fixtures/game.fixture'
 import { test as baseTest } from '@playwright/test'
 
 test.describe('Modals', () => {
@@ -7,17 +7,101 @@ test.describe('Modals', () => {
     await waitForGameReady(gamePage)
   })
 
-  test('info modal opens and closes', async ({ gamePage }) => {
-    // Click info icon (InformationCircleIcon)
+  test('info modal — daily mode tabs', async ({ gamePage }) => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
-    await screenshot(gamePage, '01-info-modal-open')
 
-    // Close via X button
+    // Tab 1: Daily Mode (default)
+    await expect(gamePage.locator('text=Daily Mode')).toBeVisible()
+    await screenshot(gamePage, '01-daily-tab-mode')
+
+    // Tab 2: How to Play
+    await gamePage.locator('button', { hasText: 'How to play' }).click()
+    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await screenshot(gamePage, '02-daily-tab-how-to-play')
+
+    // Tab 3: About this game
+    await gamePage.locator('button', { hasText: 'About this game' }).click()
+    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await screenshot(gamePage, '03-daily-tab-about')
+
+    // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).not.toBeVisible()
-    await screenshot(gamePage, '02-info-modal-closed')
+  })
+
+  test('info modal — practice mode tabs', async ({ gamePage }) => {
+    await gamePage.goto('/#/practice')
+    await waitForGameReady(gamePage)
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+
+    // Tab 1: Practice Mode (default)
+    await expect(gamePage.locator('text=Practice Mode')).toBeVisible()
+    await screenshot(gamePage, '01-practice-tab-mode')
+
+    // Tab 2: How to Play
+    await gamePage.locator('button', { hasText: 'How to play' }).click()
+    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await screenshot(gamePage, '02-practice-tab-how-to-play')
+
+    // Tab 3: About this game
+    await gamePage.locator('button', { hasText: 'About this game' }).click()
+    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await screenshot(gamePage, '03-practice-tab-about')
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
+  })
+
+  test('info modal — custom mode tabs', async ({ gamePage }) => {
+    await gamePage.goto(customPuzzlePath('crane', 'Alice'))
+    await waitForGameReady(gamePage)
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+
+    // Tab 1: Custom Mode (default) — shows questioner name
+    await expect(gamePage.locator('text=Custom Mode')).toBeVisible()
+    await expect(gamePage.locator('text=puzzle created by Alice')).toBeVisible()
+    await screenshot(gamePage, '01-custom-tab-mode')
+
+    // Tab 2: How to Play
+    await gamePage.locator('button', { hasText: 'How to play' }).click()
+    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await screenshot(gamePage, '02-custom-tab-how-to-play')
+
+    // Tab 3: About this game
+    await gamePage.locator('button', { hasText: 'About this game' }).click()
+    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await screenshot(gamePage, '03-custom-tab-about')
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
+  })
+
+  test('info modal — create mode tabs', async ({ gamePage }) => {
+    await gamePage.goto('/#/create')
+    await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+
+    // Create page has info icon as first svg icon
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').first().click()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+
+    // Tab 1: How to Create (default)
+    await expect(gamePage.locator('text=How to create')).toBeVisible()
+    await screenshot(gamePage, '01-create-tab-mode')
+
+    // Tab 2: How to Play
+    await gamePage.locator('button', { hasText: 'How to play' }).click()
+    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await screenshot(gamePage, '02-create-tab-how-to-play')
+
+    // Tab 3: About this game
+    await gamePage.locator('button', { hasText: 'About this game' }).click()
+    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await screenshot(gamePage, '03-create-tab-about')
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
   })
 
   test('stats modal opens and closes', async ({ gamePage }) => {
@@ -130,28 +214,15 @@ test.describe('Modals', () => {
     expect(overlap, `Title overlaps close button by ${overlap}px`).toBeLessThanOrEqual(0)
   })
 
-  test('about section shows in daily info modal', async ({ gamePage }) => {
-    // Open info modal (daily mode)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-
-    // Click "About this game" tab
-    await gamePage.locator('button', { hasText: 'About this game' }).click()
-    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
-    await screenshot(gamePage, '01-about-tab-in-info-modal')
-
-    // Close
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-  })
-
   test('modal closes on Escape key', async ({ gamePage }) => {
     // Open info modal
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-    await expect(gamePage.locator('text=How to play')).toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
     await screenshot(gamePage, '01-modal-open-before-escape')
 
     // Press Escape to close (HeadlessUI Dialog handles this natively)
     await gamePage.keyboard.press('Escape')
-    await expect(gamePage.locator('text=How to play')).not.toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Information' })).not.toBeVisible()
     await screenshot(gamePage, '02-modal-closed-after-escape')
   })
 })
