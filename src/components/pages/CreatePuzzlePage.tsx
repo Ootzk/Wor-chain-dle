@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
+import { loadSettings } from '../../lib/localStorage'
 import { CONFIG } from '../../constants/config'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
@@ -16,6 +17,7 @@ export const CreatePuzzlePage = () => {
   const [letters, setLetters] = useState<string[]>(emptyLetters)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [isUppercase] = useState(() => loadSettings().isUppercase)
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -219,7 +221,8 @@ export const CreatePuzzlePage = () => {
                 }}
                 onFocus={(e) => e.target.select()}
                 className={classnames(
-                  'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center uppercase outline-none',
+                  'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center outline-none',
+                  { uppercase: isUppercase },
                   {
                     'bg-green-500 text-white border-green-500':
                       copied && letter,
