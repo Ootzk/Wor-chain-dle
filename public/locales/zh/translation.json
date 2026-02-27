@@ -132,7 +132,7 @@
   "practiceModeDesc": "使用随机单词无限畅玩。\n不保存统计数据，也不提供分享功能。\n点击"再玩一次"开始新游戏。",
   "practiceModeWarning": "刷新页面将丢失当前游戏进度，并从新单词重新开始。",
   "customModeTitle": "自定义模式",
-  "customModeDesc": "您正在玩其他人出的题目。\n自定义游戏统计与每日统计分开记录。\n您可以分享游戏结果。",
+  "customModeDesc": "您正在玩{{questioner}}出的题目。\n自定义游戏统计与每日统计分开记录。\n您可以分享游戏结果。",
   "howToCreate": "如何出题",
   "createModeDesc": "输入你的名字，然后用键盘输入要出题的单词。\n单词必须是单词列表中的{{length}}个字母的英文单词。\n按 ENTER 将谜题链接复制到剪贴板。\n将链接分享给朋友，让他们来解答你的谜题！",
   "languages": {

@@ -292,6 +292,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
         mode={mode}
+        questioner={questioner}
       />
       <StatsModal
         isOpen={isStatsModalOpen}

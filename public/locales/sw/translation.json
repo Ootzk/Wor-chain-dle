@@ -133,7 +133,7 @@
   "practiceModeDesc": "Cheza michezo isiyo na kikomo na maneno ya nasibu.\nTakwimu hazihifadhiwi na kugawana hakupatikani.\nBonyeza \"Cheza tena\" kuanza mchezo mpya.",
   "practiceModeWarning": "Ukionyesha tena ukurasa, mchezo wako wa sasa utapotea na utaanza na neno jipya tangu mwanzo.",
   "customModeTitle": "Hali Maalum",
-  "customModeDesc": "Unacheza fumbo lililotengenezwa na mtu mwingine.\nTakwimu za michezo maalum zinarekodiwa kando na za kila siku.\nUnaweza kushiriki matokeo yako.",
+  "customModeDesc": "Unacheza fumbo lililotengenezwa na {{questioner}}.\nTakwimu za michezo maalum zinarekodiwa kando na za kila siku.\nUnaweza kushiriki matokeo yako.",
   "howToCreate": "Jinsi ya kuunda",
   "createModeDesc": "Ingiza jina lako na andika neno la kubahatisha kwa kibodi.\nNeno lazima liwe neno la Kiingereza la herufi {{length}} kutoka orodha.\nBonyeza ENTER kunakili URL ya fumbo kwenye ubao wa kunakili.\nShiriki URL na marafiki ili watatue fumbo lako!",
   "languages": {

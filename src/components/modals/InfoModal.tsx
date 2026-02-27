@@ -11,6 +11,7 @@ type Props = {
   isOpen: boolean
   handleClose: () => void
   mode: GameMode
+  questioner?: string
 }
 
 interface Letter {
@@ -190,7 +191,7 @@ const CreateContent = () => {
   )
 }
 
-export const InfoModal = ({ isOpen, handleClose, mode }: Props) => {
+export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
   const { t } = useTranslation()
 
   const isCreate = mode === 'create'
@@ -225,7 +226,7 @@ export const InfoModal = ({ isOpen, handleClose, mode }: Props) => {
           {mode === 'custom' && (
             <ModeSection
               title={t('customModeTitle')}
-              description={t('customModeDesc')}
+              description={t('customModeDesc', { questioner })}
             />
           )}
         </>
