@@ -49,7 +49,7 @@ export const TranslateModal = ({ isOpen, handleClose }: Props) => {
       handleClose={handleClose}
     >
       <div
-        className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8"
+        className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8 min-w-[200px]"
         onChange={onChangeValue}
       >
         {CONFIG.availableLangs.map((x) => createOption(x, t(`languages.${x}`)))}

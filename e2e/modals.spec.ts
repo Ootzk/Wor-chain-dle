@@ -92,6 +92,45 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('h3:has-text("Donate")')).not.toBeVisible()
   })
 
+  test('translate modal opens with flag emojis', async ({ gamePage }) => {
+    // Click translate icon (first icon)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
+
+    await expect(gamePage.locator('h3:has-text("language")')).toBeVisible()
+    await expect(gamePage.locator('text=English')).toBeVisible()
+    await screenshot(gamePage, '01-translate-modal-open')
+
+    // Close
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
+    await expect(gamePage.locator('h3:has-text("language")')).not.toBeVisible()
+  })
+
+  test('translate modal title does not overlap close button', async ({ gamePage }, testInfo) => {
+    test.skip(!testInfo.project.name.startsWith('mobile'), 'Mobile-only')
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
+    await gamePage.waitForTimeout(300)
+
+    // Measure actual text width using Range API
+    const titleTextRight = await gamePage.evaluate(() => {
+      const h3 = document.querySelector('h3')
+      if (!h3) return null
+      const range = document.createRange()
+      range.selectNodeContents(h3)
+      return range.getBoundingClientRect().right
+    })
+    expect(titleTextRight).toBeTruthy()
+
+    const closeBtn = gamePage.locator('.inline-block.align-bottom svg.h-6.w-6.cursor-pointer')
+    const closeBtnBox = await closeBtn.boundingBox()
+    expect(closeBtnBox).toBeTruthy()
+
+    await screenshot(gamePage, '01-translate-modal-no-overlap')
+
+    const overlap = titleTextRight! - closeBtnBox!.x
+    expect(overlap, `Title overlaps close button by ${overlap}px`).toBeLessThanOrEqual(0)
+  })
+
   test('about modal opens via bottom button', async ({ gamePage }) => {
     await gamePage.locator('button', { hasText: 'About this game' }).click()
 
