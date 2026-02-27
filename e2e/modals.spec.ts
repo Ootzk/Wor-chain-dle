@@ -70,7 +70,7 @@ test.describe('Modals', () => {
     // Click donate icon (CurrencyDollarIcon) — 5th icon
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
 
-    await expect(gamePage.locator('text=Donate')).toBeVisible()
+    await expect(gamePage.locator('h3:has-text("Donate")')).toBeVisible()
 
     // KakaoPay tab (default): QR image and payment link button
     await expect(gamePage.locator('img[alt="KakaoPay QR"]')).toBeVisible()
@@ -89,7 +89,7 @@ test.describe('Modals', () => {
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('text=Donate')).not.toBeVisible()
+    await expect(gamePage.locator('h3:has-text("Donate")')).not.toBeVisible()
   })
 
   test('about modal opens via bottom button', async ({ gamePage }) => {
