@@ -147,6 +147,15 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 
 **서버**: `npm run build && npx serve -s build -l 3000` (CI에서 매번 빌드, 로컬은 기존 서버 재사용).
 
+## README Screenshot Automation
+
+`scripts/generate-readme-screenshots.spec.ts` — Playwright로 README용 스크린샷을 자동 생성.
+
+- **실행**: `GENERATE_SCREENSHOTS=1 npm run readme:screenshots` (환경변수 없으면 skip)
+- **설정**: `scripts/readme-screenshots.config.ts` — 모바일 최적화 뷰포트 (526×750 @2x), Chromium 단일 프로젝트
+- **출력**: `assets/` 디렉토리에 PNG 저장
+- **픽스처 재사용**: `e2e/fixtures/game.fixture.ts`의 `encodeCustomPuzzle`, `typeWord`, `submitWord` 등 활용
+
 ## Modal Architecture
 
 - **InfoModal**: 탭 기반 모드별 콘텐츠 (`daily`, `practice`, `custom`, `create`). 각 모드에 맞는 How to Play 표시.
