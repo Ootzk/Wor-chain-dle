@@ -119,7 +119,8 @@
   "createPuzzleErrorWordLength": "Neno lazima liwe na herufi {{length}}",
   "createPuzzleErrorInvalidWord": "Neno haliko kwenye orodha",
   "createPuzzleErrorEnglishOnly": "Tafadhali tumia herufi za Kiingereza pekee",
-  "createPuzzleCopyUrl": "Nakili URL ya fumbo",
+  "createPuzzleHint": "Andika neno la kubahatisha",
+  "createPuzzleReady": "Bonyeza ENTER kunakili URL",
   "createPuzzleCopied": "Imenakiliwa!",
   "languages": {
     "en": "English",

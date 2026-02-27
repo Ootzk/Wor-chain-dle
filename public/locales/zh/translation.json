@@ -118,7 +118,8 @@
   "createPuzzleErrorWordLength": "单词必须为{{length}}个字母",
   "createPuzzleErrorInvalidWord": "该单词不在单词列表中",
   "createPuzzleErrorEnglishOnly": "请只输入英文字母",
-  "createPuzzleCopyUrl": "复制题目链接",
+  "createPuzzleHint": "输入要出题的单词",
+  "createPuzzleReady": "按 ENTER 复制链接",
   "createPuzzleCopied": "已复制！",
   "languages": {
     "en": "English",

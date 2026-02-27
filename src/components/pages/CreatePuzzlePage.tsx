@@ -187,24 +187,24 @@ export const CreatePuzzlePage = () => {
               </div>
             </div>
 
-            <button
-              type="button"
+            <div
               className={classnames(
-                'w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm normal-case',
+                'w-full rounded-md px-4 py-2 text-base font-medium text-center sm:text-sm normal-case',
                 {
-                  'bg-red-600 hover:bg-red-700 focus:ring-red-500': error,
-                  'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500':
-                    !error,
+                  'bg-purple-100 text-purple-700': error,
+                  'bg-green-100 text-green-700': copied,
+                  'bg-gray-100 text-gray-500': !error && !copied,
                 }
               )}
-              onClick={handleCreate}
             >
               {error
                 ? error
                 : copied
                   ? t('createPuzzleCopied')
-                  : t('createPuzzleCopyUrl')}
-            </button>
+                  : isFilled
+                    ? t('createPuzzleReady')
+                    : t('createPuzzleHint')}
+            </div>
           </div>
         </div>
         <Keyboard

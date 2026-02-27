@@ -119,7 +119,8 @@
   "createPuzzleErrorWordLength": "La palabra debe tener {{length}} letras",
   "createPuzzleErrorInvalidWord": "La palabra no está en la lista",
   "createPuzzleErrorEnglishOnly": "Solo se permiten letras en inglés",
-  "createPuzzleCopyUrl": "Copiar URL del puzzle",
+  "createPuzzleHint": "Escribe la palabra a adivinar",
+  "createPuzzleReady": "Pulsa ENTER para copiar URL",
   "createPuzzleCopied": "¡Copiado!",
   "languages": {
     "en": "English",

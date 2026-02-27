@@ -124,7 +124,8 @@
     "createPuzzleErrorWordLength": "Word must be {{length}} letters",
     "createPuzzleErrorInvalidWord": "Word not in word list",
     "createPuzzleErrorEnglishOnly": "Please use English letters only",
-    "createPuzzleCopyUrl": "Copy Puzzle URL",
+    "createPuzzleHint": "Type the word to guess",
+    "createPuzzleReady": "Press ENTER to copy URL",
     "createPuzzleCopied": "Copied!",
     "languages": {
         "en": "English",
