@@ -130,7 +130,7 @@ test.describe('Calendar', () => {
 
     // Enable weekStartsOnMonday in settings (2nd toggle)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(SETTINGS_ICON).click()
-    await expect(gamePage.locator('text=Week Starts on Monday')).toBeVisible()
+    await expect(gamePage.locator('text=Start Week on Monday')).toBeVisible()
     await gamePage.locator('button[role="switch"]').nth(1).click()
     await gamePage.keyboard.press('Escape')
 
