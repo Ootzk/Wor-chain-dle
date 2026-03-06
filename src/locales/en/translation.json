@@ -156,6 +156,10 @@
     "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
     "patchNote_calendar_title": "Monthly Calendar",
     "patchNote_calendar_desc": "View your daily records at a glance on a monthly calendar.\nTrack your streaks and share your monthly results!",
+    "patchNote_settings_title": "New Settings Options",
+    "patchNote_settings_desc": "Added toggles for starting the week on Monday and excluding URL when sharing.",
+    "patchNote_i18nFix_title": "Bug Fix",
+    "patchNote_i18nFix_desc": "Fixed an issue where translation keys were briefly shown instead of text when opening the app in a background tab.",
     "languages": {
         "en": "English",
         "ko": "한국어",

@@ -92,7 +92,7 @@ ootzk.github.io/Wor-chain-dle
 New features are introduced through a one-time "What's New" popup on your first visit after an update.
 
 <p align="center">
-  <img src="assets/patch-note.png" alt="What's New in v1.1.0" width="300" />
+  <img src="assets/patch-note.png" alt="What's New in v1.3.0" width="300" />
 </p>
 
 ### Create & Share Custom Puzzles

@@ -150,6 +150,10 @@
   "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
   "patchNote_calendar_title": "月度日历",
   "patchNote_calendar_desc": "在月度日历上一目了然地查看每日记录。\n追踪连续记录并分享月度成果！",
+  "patchNote_settings_title": "新设置选项",
+  "patchNote_settings_desc": "新增了以周一作为每周起始日和分享时排除URL的开关。",
+  "patchNote_i18nFix_title": "错误修复",
+  "patchNote_i18nFix_desc": "修复了在后台标签页打开应用时翻译键短暂显示的问题。",
   "languages": {
     "en": "English",
     "ko": "한국어",
