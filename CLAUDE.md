@@ -121,6 +121,19 @@ docker run -d -p 3000:3000 wor-chain-dle
 - **출제 페이지**: `/#/create` — Keyboard 컴포넌트 재사용, 셀은 readOnly (모바일 가상 키보드 억제)
 - **출제자 이름**: 최대 10자 제한 (오버레이 깨짐 방지)
 
+## UTC 기준 시간
+
+게임 전체가 UTC 기준으로 동작한다. 로컬 타임을 사용하면 안 됨.
+
+- **단어 선택**: `solutionIndex`가 `CONFIG.startDate` epoch부터 UTC 자정 기준으로 계산
+- **Daily subtitle**: `App.tsx`에서 `getUTCFullYear/Month/Date`로 표시 (로컬 `toLocaleDateString` 사용 금지)
+- **document.title**: 동일하게 UTC 기반
+- **달력 today 판정**: `Calendar.tsx`에서 `getUTCDate()`로 오늘 날짜 결정
+- **dailyHistory 인덱스**: UTC 기반 `dateToSolutionIndex`로 저장/조회
+- **공유 텍스트**: `share.ts`에서 `getUTCFullYear/Month/Date`로 날짜 생성
+
+로컬 타임을 쓰면 subtitle과 달력 today가 불일치하고, dailyHistory 인덱스와 달력 셀 매핑이 어긋남.
+
 ## Routing
 
 HashRouter 기반 라우팅 (`src/index.tsx`):
