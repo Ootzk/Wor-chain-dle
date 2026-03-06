@@ -205,18 +205,17 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       </div>
 
       {/* Share button */}
-      {hasAnyData && (
-        <button
-          type="button"
-          className="mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-          onClick={() => {
-            shareCalendar(year, month, history, displayStreak)
-            handleShare()
-          }}
-        >
-          {t('shareMonth')}
-        </button>
-      )}
+      <button
+        type="button"
+        disabled={!hasAnyData}
+        className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
+        onClick={() => {
+          shareCalendar(year, month, history, displayStreak)
+          handleShare()
+        }}
+      >
+        {t('shareMonth')}
+      </button>
     </div>
   )
 }
