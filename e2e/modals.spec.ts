@@ -123,7 +123,7 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
 
     await expect(gamePage.locator('text=Settings')).toBeVisible()
-    await expect(gamePage.locator('text=Uppercase Letters')).toBeVisible()
+    await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
     await screenshot(gamePage, '01-settings-modal-open')
 
     // Toggle uppercase on (first switch = uppercase, second = week start)
@@ -135,7 +135,7 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
 
     // Grid and keyboard should have uppercase class
-    await expect(gamePage.locator('.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase')).toBeVisible()
     await screenshot(gamePage, '03-uppercase-applied-to-page')
 
     // Reopen settings and toggle off
@@ -145,7 +145,7 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
 
     // Uppercase class should be gone
-    await expect(gamePage.locator('.uppercase')).not.toBeVisible()
+    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
     await screenshot(gamePage, '05-uppercase-removed-from-page')
   })
 

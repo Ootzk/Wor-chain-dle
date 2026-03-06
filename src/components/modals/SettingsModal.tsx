@@ -50,11 +50,7 @@ export const SettingsModal = ({
 
   return (
     <BaseModal title={t('settings')} isOpen={isOpen} handleClose={handleClose}>
-      {/* Visual */}
       <div className="mt-2">
-        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
-          {t('settingsVisual')}
-        </h4>
         <div className="flex items-center justify-between py-3">
           <span className="text-sm font-medium text-gray-700">
             {t('uppercaseLabel')}
@@ -67,13 +63,6 @@ export const SettingsModal = ({
           </span>
           <Toggle checked={weekStartsOnMonday} onClick={onToggleWeekStart} />
         </div>
-      </div>
-
-      {/* Share */}
-      <div className="mt-4">
-        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
-          {t('settingsShare')}
-        </h4>
         <div className="flex items-center justify-between py-3">
           <span className="text-sm font-medium text-gray-700">
             {t('excludeUrlLabel')}
