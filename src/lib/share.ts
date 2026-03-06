@@ -79,11 +79,6 @@ export const shareCalendar = (
   // Build grid rows
   let row: string[] = []
 
-  // Leading placeholders
-  for (let i = 0; i < firstDayOfWeek; i++) {
-    row.push('⬜')
-  }
-
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(Date.UTC(year, month, d))
     const index = dateToSolutionIndex(date)
@@ -114,11 +109,8 @@ export const shareCalendar = (
     }
   }
 
-  // Trailing placeholders
+  // Flush remaining days (no trailing padding)
   if (row.length > 0) {
-    while (row.length < 7) {
-      row.push('⬜')
-    }
     lines.push(row.join(' '))
   }
 
