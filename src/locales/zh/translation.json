@@ -138,7 +138,7 @@
   "dailyModeTitle": "每日模式",
   "dailyModeDesc": "每天午夜（UTC）发布新谜题。\n所有玩家解答同一个单词。\n游戏结果将保存到统计数据中，并可分享。",
   "practiceModeTitle": "练习模式",
-  "practiceModeDesc": "使用随机单词无限畅玩。\n不保存统计数据，也不提供分享功能。\n点击"再玩一次"开始新游戏。",
+  "practiceModeDesc": "使用随机单词无限畅玩。\n不保存统计数据，也不提供分享功能。\n点击\"再玩一次\"开始新游戏。",
   "practiceModeWarning": "刷新页面将丢失当前游戏进度，并从新单词重新开始。",
   "customModeTitle": "自定义模式",
   "customModeDesc": "您正在玩{{questioner}}出的题目。\n自定义游戏统计与每日统计分开记录。\n您可以分享游戏结果。",
