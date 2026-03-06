@@ -18,11 +18,7 @@ import { TranslateModal } from './components/modals/TranslateModal'
 import { CalendarModal } from './components/modals/CalendarModal'
 import { isWordInWordList, isWinningWord, solutionIndex } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
-import {
-  saveDailyResult,
-  getMonthResults,
-  initDailyHistoryStartIndex,
-} from './lib/dailyHistory'
+import { saveDailyResult, initDailyHistoryStartIndex } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
@@ -70,9 +66,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
-  const [calendarInitialMonth, setCalendarInitialMonth] = useState<
-    { year: number; month: number } | undefined
-  >(undefined)
   const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
     () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
   )
@@ -140,29 +133,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   useEffect(() => {
     saveSettings({ isUppercase, weekStartsOnMonday })
   }, [isUppercase, weekStartsOnMonday])
-
-  // Calendar suggestion: auto-open to last month in first 7 days of new month
-  useEffect(() => {
-    if (!isDaily) return
-    const now = new Date()
-    const dayOfMonth = now.getUTCDate()
-    if (dayOfMonth > 7) return
-
-    const lastShared = localStorage.getItem('lastSharedCalendarMonth')
-    const prevMonth = now.getUTCMonth() === 0 ? 11 : now.getUTCMonth() - 1
-    const prevYear =
-      now.getUTCMonth() === 0 ? now.getUTCFullYear() - 1 : now.getUTCFullYear()
-    const prevMonthKey = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`
-
-    if (lastShared === prevMonthKey) return
-
-    const prevResults = getMonthResults(prevYear, prevMonth)
-    const hasData = prevResults.some((r) => r !== null)
-    if (!hasData) return
-
-    setCalendarInitialMonth({ year: prevYear, month: prevMonth })
-    setIsCalendarModalOpen(true)
-  }, [isDaily])
 
   useEffect(() => {
     if (isGameWon) {
@@ -311,10 +281,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         {isDaily && (
           <CalendarIcon
             className="h-6 w-6 cursor-pointer"
-            onClick={() => {
-              setCalendarInitialMonth(undefined)
-              setIsCalendarModalOpen(true)
-            }}
+            onClick={() => setIsCalendarModalOpen(true)}
           />
         )}
         <CogIcon
@@ -382,19 +349,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsCalendarModalOpen(false)}
         gameStats={stats}
         handleShare={() => {
-          const now = new Date()
-          const m = calendarInitialMonth ?? {
-            year: now.getUTCFullYear(),
-            month: now.getUTCMonth(),
-          }
-          localStorage.setItem(
-            'lastSharedCalendarMonth',
-            `${m.year}-${String(m.month + 1).padStart(2, '0')}`
-          )
           setSuccessAlert(t('calendarCopied'))
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
-        initialMonth={calendarInitialMonth}
         weekStartsOnMonday={weekStartsOnMonday}
       />
       <PatchNotesModal

@@ -20,18 +20,17 @@ const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 type Props = {
   gameStats: GameStats
   handleShare: () => void
-  initialMonth?: { year: number; month: number }
   weekStartsOnMonday: boolean
 }
 
-export const Calendar = ({ gameStats, handleShare, initialMonth, weekStartsOnMonday }: Props) => {
+export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday }: Props) => {
   const { t } = useTranslation()
   const now = new Date()
   const currentUTCYear = now.getUTCFullYear()
   const currentUTCMonth = now.getUTCMonth()
 
-  const [year, setYear] = useState(initialMonth?.year ?? currentUTCYear)
-  const [month, setMonth] = useState(initialMonth?.month ?? currentUTCMonth)
+  const [year, setYear] = useState(currentUTCYear)
+  const [month, setMonth] = useState(currentUTCMonth)
 
   const epochDate = new Date(CONFIG.startDate)
 
