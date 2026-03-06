@@ -7,7 +7,7 @@ export const shareCustomStatus = (
   lost: boolean,
   solution: string,
   questioner: string,
-  shareWithUrl: boolean = true
+  excludeUrl: boolean = false
 ) => {
   const shareText =
     `Wor\u{1F517}dle Custom/${questioner}` +
@@ -17,10 +17,10 @@ export const shareCustomStatus = (
     CONFIG.tries.toString() +
     '\n\n' +
     generateEmojiGrid(guesses, solution) +
-    (shareWithUrl
-      ? '\n\n' +
-        window.location.href.replace(`${window.location.protocol}//`, '')
-      : '')
+    (excludeUrl
+      ? ''
+      : '\n\n' +
+        window.location.href.replace(`${window.location.protocol}//`, ''))
 
   navigator.clipboard.writeText(shareText)
 }
@@ -29,7 +29,7 @@ export const shareStatus = (
   guesses: string[][],
   lost: boolean,
   solution: string,
-  shareWithUrl: boolean = true
+  excludeUrl: boolean = false
 ) => {
   const now = new Date()
   const yyyy = now.getUTCFullYear()
@@ -44,10 +44,10 @@ export const shareStatus = (
     CONFIG.tries.toString() +
     '\n\n' +
     generateEmojiGrid(guesses, solution) +
-    (shareWithUrl
-      ? '\n\n' +
-        window.location.href.replace(`${window.location.protocol}//`, '')
-      : '')
+    (excludeUrl
+      ? ''
+      : '\n\n' +
+        window.location.href.replace(`${window.location.protocol}//`, ''))
 
   navigator.clipboard.writeText(shareText)
 }
@@ -61,7 +61,7 @@ export const shareCalendar = (
   dailyHistory: DailyHistory,
   streak: number,
   weekStartsOnMonday: boolean = false,
-  shareWithUrl: boolean = true
+  excludeUrl: boolean = false
 ) => {
   const mm = String(month + 1).padStart(2, '0')
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
@@ -123,7 +123,7 @@ export const shareCalendar = (
     lines.push(row.join(' '))
   }
 
-  if (shareWithUrl) {
+  if (!excludeUrl) {
     lines.push('')
     lines.push(
       window.location.href

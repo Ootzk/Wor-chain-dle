@@ -27,7 +27,7 @@
   "weekStartLabel": "週一為每週起始日",
   "settingsVisual": "显示",
   "settingsShare": "分享",
-  "shareWithUrlLabel": "包含URL",
+  "excludeUrlLabel": "排除URL",
   "donate": "捐贈",
   "donateMonsterDrink": "请给开发者买一罐Monster Energy！",
   "donateKakaoPay": "通过KakaoPay捐赠",

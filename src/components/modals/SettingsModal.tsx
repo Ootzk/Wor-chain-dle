@@ -8,8 +8,8 @@ type Props = {
   onToggleUppercase: () => void
   weekStartsOnMonday: boolean
   onToggleWeekStart: () => void
-  shareWithUrl: boolean
-  onToggleShareWithUrl: () => void
+  excludeUrl: boolean
+  onToggleExcludeUrl: () => void
 }
 
 const Toggle = ({
@@ -43,8 +43,8 @@ export const SettingsModal = ({
   onToggleUppercase,
   weekStartsOnMonday,
   onToggleWeekStart,
-  shareWithUrl,
-  onToggleShareWithUrl,
+  excludeUrl,
+  onToggleExcludeUrl,
 }: Props) => {
   const { t } = useTranslation()
 
@@ -76,9 +76,9 @@ export const SettingsModal = ({
         </h4>
         <div className="flex items-center justify-between py-3">
           <span className="text-sm font-medium text-gray-700">
-            {t('shareWithUrlLabel')}
+            {t('excludeUrlLabel')}
           </span>
-          <Toggle checked={shareWithUrl} onClick={onToggleShareWithUrl} />
+          <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
         </div>
       </div>
     </BaseModal>

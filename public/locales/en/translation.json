@@ -31,7 +31,7 @@
     "weekStartLabel": "Week Starts on Monday",
     "settingsVisual": "Visual",
     "settingsShare": "Share",
-    "shareWithUrlLabel": "Include URL",
+    "excludeUrlLabel": "Exclude URL",
     "donate": "Donate",
     "donateMonsterDrink": "Buy the developer a Monster Energy!",
     "donateKakaoPay": "Donate via KakaoPay",

@@ -31,7 +31,7 @@
     "weekStartLabel": "週の始まりを月曜日に",
     "settingsVisual": "表示",
     "settingsShare": "共有",
-    "shareWithUrlLabel": "URLを含む",
+    "excludeUrlLabel": "URLを除外",
     "donate": "寄付",
     "donateMonsterDrink": "開発者にモンスターエナジーを1本おごってください！",
     "donateKakaoPay": "KakaoPayで寄付",

@@ -9,7 +9,7 @@ type Props = {
   gameStats: GameStats
   handleShare: () => void
   weekStartsOnMonday: boolean
-  shareWithUrl: boolean
+  excludeUrl: boolean
 }
 
 export const CalendarModal = ({
@@ -18,7 +18,7 @@ export const CalendarModal = ({
   gameStats,
   handleShare,
   weekStartsOnMonday,
-  shareWithUrl,
+  excludeUrl,
 }: Props) => {
   const { t } = useTranslation()
 
@@ -32,7 +32,7 @@ export const CalendarModal = ({
         gameStats={gameStats}
         handleShare={handleShare}
         weekStartsOnMonday={weekStartsOnMonday}
-        shareWithUrl={shareWithUrl}
+        excludeUrl={excludeUrl}
       />
     </BaseModal>
   )

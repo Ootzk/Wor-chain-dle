@@ -75,9 +75,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
     () => loadSettings().weekStartsOnMonday
   )
-  const [shareWithUrl, setShareWithUrl] = useState(
-    () => loadSettings().shareWithUrl
-  )
+  const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -134,8 +132,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday, shareWithUrl })
-  }, [isUppercase, weekStartsOnMonday, shareWithUrl])
+    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
+  }, [isUppercase, weekStartsOnMonday, excludeUrl])
 
   useEffect(() => {
     if (isGameWon) {
@@ -334,7 +332,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode={mode}
         solution={solution}
         questioner={questioner}
-        shareWithUrl={shareWithUrl}
+        excludeUrl={excludeUrl}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
@@ -343,8 +341,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
-        shareWithUrl={shareWithUrl}
-        onToggleShareWithUrl={() => setShareWithUrl(!shareWithUrl)}
+        excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
@@ -359,7 +357,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
         weekStartsOnMonday={weekStartsOnMonday}
-        shareWithUrl={shareWithUrl}
+        excludeUrl={excludeUrl}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}

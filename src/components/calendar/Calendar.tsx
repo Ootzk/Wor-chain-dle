@@ -21,10 +21,10 @@ type Props = {
   gameStats: GameStats
   handleShare: () => void
   weekStartsOnMonday: boolean
-  shareWithUrl: boolean
+  excludeUrl: boolean
 }
 
-export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, shareWithUrl }: Props) => {
+export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUrl }: Props) => {
   const { t } = useTranslation()
   const now = new Date()
   const currentUTCYear = now.getUTCFullYear()
@@ -233,7 +233,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, shareWith
         disabled={!hasAnyData}
         className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
         onClick={() => {
-          shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, shareWithUrl)
+          shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
           handleShare()
         }}
       >

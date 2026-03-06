@@ -31,7 +31,7 @@
     "weekStartLabel": "월요일부터 시작",
     "settingsVisual": "화면",
     "settingsShare": "공유",
-    "shareWithUrlLabel": "URL 포함",
+    "excludeUrlLabel": "URL 제외",
     "donate": "후원",
     "donateMonsterDrink": "개발자에게 몬스터 에너지 한 캔 사주세요!",
     "donateKakaoPay": "카카오페이로 후원",
