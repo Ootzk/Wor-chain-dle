@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/outline'
+import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CalendarDay } from './CalendarDay'
 import { GameStats } from '../../lib/localStorage'
@@ -157,21 +157,30 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
   return (
     <div className="flex flex-col items-center">
       {/* Month navigation */}
-      <div className="flex items-center justify-between w-full mb-3">
+      <div className="flex items-center w-full mb-3">
         <button
           onClick={goBack}
-          disabled={!canGoBack}
-          className={`p-1 rounded ${canGoBack ? 'hover:bg-gray-100 cursor-pointer' : 'opacity-30 cursor-default'}`}
+          className="p-1 rounded hover:bg-gray-100 cursor-pointer"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        <span className="text-base font-semibold text-gray-900">
+        <span className="flex-1 text-center text-base font-semibold text-gray-900 -mr-7">
           {monthLabel}
         </span>
         <button
+          onClick={() => {
+            setYear(currentUTCYear)
+            setMonth(currentUTCMonth)
+          }}
+          disabled={year === currentUTCYear && month === currentUTCMonth}
+          className={`p-1 rounded ${year === currentUTCYear && month === currentUTCMonth ? 'opacity-30 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}`}
+          title="Today"
+        >
+          <RefreshIcon className="h-5 w-5" />
+        </button>
+        <button
           onClick={goForward}
-          disabled={!canGoForward}
-          className={`p-1 rounded ${canGoForward ? 'hover:bg-gray-100 cursor-pointer' : 'opacity-30 cursor-default'}`}
+          className="p-1 rounded hover:bg-gray-100 cursor-pointer"
         >
           <ChevronRightIcon className="h-5 w-5" />
         </button>
