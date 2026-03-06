@@ -119,15 +119,15 @@ test.describe('Modals', () => {
   })
 
   test('settings modal with uppercase toggle', async ({ gamePage }) => {
-    // Click settings icon (CogIcon) — 4th icon
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    // Click settings icon (CogIcon) — 5th icon (0:translate, 1:info, 2:stats, 3:calendar, 4:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
 
     await expect(gamePage.locator('text=Settings')).toBeVisible()
-    await expect(gamePage.locator('text=Uppercase Letters')).toBeVisible()
+    await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
     await screenshot(gamePage, '01-settings-modal-open')
 
-    // Toggle uppercase on
-    const toggle = gamePage.locator('button[role="switch"]')
+    // Toggle uppercase on (first switch = uppercase, second = week start)
+    const toggle = gamePage.locator('button[role="switch"]').first()
     await toggle.click()
     await screenshot(gamePage, '02-uppercase-toggle-on')
 
@@ -135,24 +135,24 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
 
     // Grid and keyboard should have uppercase class
-    await expect(gamePage.locator('.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase')).toBeVisible()
     await screenshot(gamePage, '03-uppercase-applied-to-page')
 
     // Reopen settings and toggle off
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
-    await gamePage.locator('button[role="switch"]').click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    await gamePage.locator('button[role="switch"]').first().click()
     await screenshot(gamePage, '04-uppercase-toggle-off')
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
 
     // Uppercase class should be gone
-    await expect(gamePage.locator('.uppercase')).not.toBeVisible()
+    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
     await screenshot(gamePage, '05-uppercase-removed-from-page')
   })
 
   test('uppercase setting persists across page navigation', async ({ gamePage }) => {
-    // Daily: enable uppercase via settings (settings = 4th icon)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
-    await gamePage.locator('button[role="switch"]').click()
+    // Daily: enable uppercase via settings (settings = 5th icon)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase')).toBeVisible()
     await screenshot(gamePage, '01-daily-uppercase-on')
@@ -177,7 +177,7 @@ test.describe('Modals', () => {
 
     // Toggle off on Create page (settings = 3rd icon: translate, info, settings)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-    await gamePage.locator('button[role="switch"]').click()
+    await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
     await screenshot(gamePage, '05-create-uppercase-off')
@@ -196,8 +196,8 @@ test.describe('Modals', () => {
   })
 
   test('donate modal opens and closes', async ({ gamePage }) => {
-    // Click donate icon (CurrencyDollarIcon) — 5th icon
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    // Click donate icon (CurrencyDollarIcon) — 6th icon (0:translate, 1:info, 2:stats, 3:calendar, 4:settings, 5:donate)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(5).click()
 
     await expect(gamePage.locator('h3:has-text("Donate")')).toBeVisible()
 

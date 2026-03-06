@@ -41,6 +41,8 @@ const settingsKey = 'settings'
 
 export type Settings = {
   isUppercase: boolean
+  weekStartsOnMonday: boolean
+  excludeUrl: boolean
 }
 
 export const saveSettings = (settings: Settings) => {
@@ -49,7 +51,9 @@ export const saveSettings = (settings: Settings) => {
 
 export const loadSettings = (): Settings => {
   const settings = localStorage.getItem(settingsKey)
-  return settings ? (JSON.parse(settings) as Settings) : { isUppercase: false }
+  return settings
+    ? { isUppercase: false, weekStartsOnMonday: false, excludeUrl: false, ...(JSON.parse(settings) as Partial<Settings>) }
+    : { isUppercase: false, weekStartsOnMonday: false, excludeUrl: false }
 }
 
 const seenPatchNotesVersionKey = 'seenPatchNotesVersion'

@@ -9,7 +9,7 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 - React 17 + TypeScript + Tailwind CSS 3
 - Create React App (react-scripts 5)
 - React Router v5 (HashRouter)
-- i18next (en, ko, ja, es, sw, zh)
+- i18next (en, ko, ja, es, sw, zh — 번역 리소스 JS 번들 인라인)
 - Playwright (E2E 테스트 — Chromium, WebKit, iPhone 13, Pixel 5)
 - GoatCounter 애널리틱스 (쿠키 없음, 경량)
 - GitHub Actions → GitHub Pages 자동 배포
@@ -20,6 +20,8 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 src/
   index.tsx                      ← HashRouter 라우팅 (/, /practice, /create, /custom/:code)
   App.tsx                        ← 게임 메인 로직 (onChar, onDelete, onEnter)
+  i18n.ts                        ← i18next 설정 (번역 리소스 인라인 번들링)
+  locales/{lang}/translation.json ← 번역 리소스 (en, ko, ja, es, sw, zh)
   constants/
     config.ts                    ← 게임 설정 (tries, wordLength, language, 결제 URL 등)
     orthography.ts               ← 문자 체계 정의 (유효 문자 집합)
@@ -29,18 +31,20 @@ src/
     words.ts                     ← 오늘의 단어 선택 (UTC 기반), 단어 검증
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
     chain.ts                     ← 체인 규칙 유틸 (체인 인덱스, dead end 판정)
-    share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로)
+    share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로 + 달력 월별 공유)
+    dailyHistory.ts              ← 날짜별 게임 결과 기록 (Daily 전용, localStorage)
     customPuzzle.ts              ← Custom 퍼즐 인코딩/디코딩 (URL-safe Base64)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
   components/
     grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge)
     keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
-    modals/                      ← Info, Stats, Settings, Donate, PatchNotes, Translate 모달
+    calendar/                    ← 월별 달력 UI (CalendarDay 셀, 월 네비게이션, 공유)
+    modals/                      ← Info, Stats, Settings, Calendar, Donate, PatchNotes, Translate 모달
     pages/
       CreatePuzzlePage.tsx       ← 문제 출제 페이지 (단어 입력 + URL 생성)
 e2e/
   fixtures/game.fixture.ts       ← Playwright 테스트 픽스처 (gamePage, typeWord, submitWord 등)
-  *.spec.ts                      ← E2E 테스트 (game-flow, chain-rule, keyboard, mobile, modals, navigation)
+  *.spec.ts                      ← E2E 테스트 (game-flow, chain-rule, keyboard, mobile, modals, navigation, calendar, share-exclude-url)
 scripts/
   generate-readme-screenshots.spec.ts  ← README 스크린샷 자동 생성
   readme-screenshots.config.ts         ← 스크린샷 Playwright 설정
@@ -107,13 +111,28 @@ docker run -d -p 3000:3000 wor-chain-dle
 | ------ | ------- | ---------- | -------- |
 | 정답 출처 | WORDS (매일 UTC 리셋) | WORDS (랜덤) | 출제자 지정 (WORDS + VALIDGUESSES) |
 | 통계 저장 | `gameStats` | X | `customGameStats` |
+| 날짜별 기록 | `dailyHistory` | X | X |
 | 게임 상태 저장 | O | X | X |
 | Share 버튼 | O | X | O (Custom 포맷) |
+| 달력 | O (CalendarIcon) | X | X |
 | URL | `/#/` | `/#/` (Practice 버튼) | `/#/custom/:code` |
 
 - **Custom URL 인코딩**: `btoa("word_questioner")` → URL-safe Base64 (`+`→`-`, `/`→`_`, `=` 제거)
 - **출제 페이지**: `/#/create` — Keyboard 컴포넌트 재사용, 셀은 readOnly (모바일 가상 키보드 억제)
 - **출제자 이름**: 최대 10자 제한 (오버레이 깨짐 방지)
+
+## UTC 기준 시간
+
+게임 전체가 UTC 기준으로 동작한다. 로컬 타임을 사용하면 안 됨.
+
+- **단어 선택**: `solutionIndex`가 `CONFIG.startDate` epoch부터 UTC 자정 기준으로 계산
+- **Daily subtitle**: `App.tsx`에서 `getUTCFullYear/Month/Date`로 표시 (로컬 `toLocaleDateString` 사용 금지)
+- **document.title**: 동일하게 UTC 기반
+- **달력 today 판정**: `Calendar.tsx`에서 `getUTCDate()`로 오늘 날짜 결정
+- **dailyHistory 인덱스**: UTC 기반 `dateToSolutionIndex`로 저장/조회
+- **공유 텍스트**: `share.ts`에서 `getUTCFullYear/Month/Date`로 날짜 생성
+
+로컬 타임을 쓰면 subtitle과 달력 today가 불일치하고, dailyHistory 인덱스와 달력 셀 매핑이 어긋남.
 
 ## Routing
 
@@ -143,9 +162,11 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 - `keyboard-input.spec.ts` — 물리 키보드, IME 호환성
 - `mobile-responsive.spec.ts` — 반응형 레이아웃, 터치 인터랙션
 - `modals.spec.ts` — 전체 모달 테스트 (모드별)
+- `calendar.spec.ts` — 달력 모달, 월 네비게이션, 승패 인디케이터, 주 시작 설정, 공유
+- `share-exclude-url.spec.ts` — 공유 시 URL 제외 설정 테스트
 - `navigation.spec.ts` — 라우트 전환, 페이지 네비게이션
 
-**서버**: `npm run build && npx serve -s build -l 3000` (CI에서 매번 빌드, 로컬은 기존 서버 재사용).
+**서버**: CI는 사전 빌드된 아티팩트 사용 (`npx serve -s build -l 3000`), 로컬은 빌드 후 서브 (`npm run build && npx serve -s build -l 3000`). CI 워커 수: 1 (직렬 실행).
 
 ## README Screenshot Automation
 
@@ -162,6 +183,51 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 - **PatchNotesModal**: `seenPatchNotesVersion` (localStorage) < `PATCH_NOTES_VERSION` (config.ts) 이면 자동 표시. 첫 방문 시 새 기능 안내.
 - **DonateModal**: 탭 기반 결제 수단 선택 (KakaoPay QR + Toss Pay). 결제 URL은 `config.ts`에 상수로 관리.
 - **StatsModal**: 모드별 분리 저장 — Daily는 `gameStats`, Custom은 `customGameStats` 키 사용. `loadStats(storageKey?)`, `addStatsForCompletedGame(storageKey?)`.
+- **SettingsModal**: 플랫 리스트 형태의 토글 3개 — 대문자 표시(`uppercaseLabel`), 주 시작 요일(`weekStartLabel`), 공유 시 URL 제외(`excludeUrlLabel`). 섹션 구분 없이 Toggle 컴포넌트 사용.
+- **CalendarModal**: Daily 전용. 월별 달력 그리드로 게임 결과 시각화 (승리=초록, 패배=보라, 미참여=회색). 월 네비게이션, 스트릭 표시, 월별 이모지 공유 기능.
+
+## Calendar & Daily History
+
+Daily 모드 게임 완료 시 `dailyHistory` (localStorage)에 날짜별 결과 기록. 기존 `gameStats` 집계 통계와 독립적으로 동작.
+
+**데이터 구조** (`src/lib/dailyHistory.ts`):
+
+- `DayResult = { guessCount: number, won: boolean }` — 각 날짜의 게임 결과
+- `DailyHistory = Record<number, DayResult>` — key는 solutionIndex (CONFIG.startDate epoch 기준 일수)
+- localStorage 키: `dailyHistory` (결과), `dailyHistoryStartIndex` (달력 추적 시작 인덱스)
+
+**달력 UI** (`src/components/calendar/`):
+
+- `Calendar.tsx` — 42셀 그리드 (6행×7열), 월 네비게이션, 요일 헤더, 스트릭 표시, 월별 공유
+- `CalendarDay.tsx` — 개별 셀: 승리(초록+횟수), 패배(보라), 미참여(회색), 미래/epoch 이전(비활성)
+- 특수 날짜: Feb 16 = 🎂 (생일), calendarEpoch = 📅 (추적 시작일)
+
+**설정**: `weekStartsOnMonday` (Settings 토글) — 요일 헤더 및 그리드 배치, 공유 텍스트에 반영.
+
+**월별 공유** (`shareCalendar` in `share.ts`):
+
+- 포맷: `Wor🔗dle 2026-03 (🔥 5)` + 요일 헤더 + 이모지 그리드 (🟩=승, 🟪=패, ⬜=미참여, ⚪=비활성)
+
+## i18n (Internationalization)
+
+번역 리소스를 JS 번들에 인라인하여 HTTP 백엔드 로딩 없이 동작 (`src/i18n.ts`).
+
+- **리소스 위치**: `src/locales/{lang}/translation.json` (빌드 시 번들에 포함)
+- **지원 언어**: en, ko, ja, es, sw, zh
+- **로딩 방식**: `i18next.init({ resources: { ... } })` — HTTP 백엔드 미사용
+- **언어 감지**: `i18next-browser-languagedetector` (localStorage `i18nextLng` 키 확인, 없으면 `CONFIG.defaultLang`)
+
+이전에는 `public/locales/`에서 HTTP로 비동기 로딩했으나, 백그라운드 탭에서 번역 키가 노출되는 버그를 수정하기 위해 인라인 번들링으로 전환 (PR #78).
+
+## Share Format
+
+공유 텍스트 생성 (`src/lib/share.ts`):
+
+- **Daily**: `Wor🔗dle yyyy-mm-dd N/6` (ISO 8601 날짜 포맷). URL에서 해시(`/#/`) 제거.
+- **Custom**: `Wor🔗dle Custom/{questioner} N/6`. URL은 해시 포함 유지 (전체 경로 필요).
+- **Calendar**: `Wor🔗dle yyyy-mm (🔥 streak)` + 요일 헤더 + 이모지 그리드. 현재 월일 때만 스트릭 표시.
+- **URL 제외**: `excludeUrl` 설정이 켜져 있으면 공유 텍스트에서 URL 라인 생략.
+- **이모지 그리드**: 🟩=correct, 🟪=present, ⬜=absent. box-drawing 문자로 체인 경로 표시 (`└`, `┐`, `┌`, `┘`).
 
 ## Snake Chain Rule
 
@@ -187,6 +253,7 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 - **v1.0.3** — GoatCounter 애널리틱스 연동, 문서 업데이트.
 - **v1.1.0** — Practice 모드, Settings(대문자 토글), 다국어 지원(6개 언어), 후원 모달, 패치노트 팝업, README 전면 개편.
 - **v1.2.0** — Custom 퍼즐 출제/공유, Playwright E2E 테스트 인프라, 모드별 InfoModal 탭 UI, 후원 결제수단(KakaoPay/Toss), README 스크린샷 자동화, CI에 E2E 추가.
+- **v1.3.0** — 월별 달력 (Daily 기록 시각화, 월 네비게이션, 이모지 공유), 주 시작 요일 설정 (일/월), 공유 시 URL 제외 설정, Daily 공유 날짜 ISO 8601 포맷, 공유 URL 해시 정리, Settings 모달 리팩토링 (섹션 제거), 번역 리소스 인라인 번들링 (백그라운드 탭 번역 키 노출 버그 수정), CI E2E 테스트 복원, 달력·공유 E2E 테스트.
 
 ## Communication
 

@@ -1,5 +1,6 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
+import { CalendarIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { TranslateIcon } from '@heroicons/react/outline'
@@ -14,8 +15,10 @@ import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
-import { isWordInWordList, isWinningWord } from './lib/words'
+import { CalendarModal } from './components/modals/CalendarModal'
+import { isWordInWordList, isWinningWord, solutionIndex } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
+import { saveDailyResult, initDailyHistoryStartIndex } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
@@ -62,12 +65,17 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
   const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
     () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
   )
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
+  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
+    () => loadSettings().weekStartsOnMonday
+  )
+  const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -104,6 +112,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (isDaily) {
+      initDailyHistoryStartIndex(solutionIndex)
       const now = new Date()
       const yyyy = now.getUTCFullYear()
       const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
@@ -123,8 +132,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase })
-  }, [isUppercase])
+    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
+  }, [isUppercase, weekStartsOnMonday, excludeUrl])
 
   useEffect(() => {
     if (isGameWon) {
@@ -196,6 +205,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         if (isDaily || isCustom) {
           setStats(addStatsForCompletedGame(stats, guesses.length, statsKey))
         }
+        if (isDaily) {
+          saveDailyResult(solutionIndex, guesses.length + 1, true)
+        }
         return setIsGameWon(true)
       }
 
@@ -208,6 +220,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           if (isDaily || isCustom) {
             setStats(addStatsForCompletedGame(stats, CONFIG.tries, statsKey))
           }
+          if (isDaily) {
+            saveDailyResult(solutionIndex, CONFIG.tries, false)
+          }
           setIsGameLost(true)
           return
         }
@@ -219,10 +234,21 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             addStatsForCompletedGame(stats, guesses.length + 1, statsKey)
           )
         }
+        if (isDaily) {
+          saveDailyResult(solutionIndex, guesses.length + 1, false)
+        }
         setIsGameLost(true)
       }
     }
   }
+  const utcDateStr = (() => {
+    const n = new Date()
+    const y = n.getUTCFullYear()
+    const m = String(n.getUTCMonth() + 1).padStart(2, '0')
+    const d = String(n.getUTCDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  })()
+
   let translateElement = <div></div>
   if (CONFIG.availableLangs.length > 1) {
     translateElement = (
@@ -240,7 +266,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-gray-500">
             {isDaily ? (
-              <>Daily | {new Date().toLocaleDateString('en-CA')}</>
+              <>Daily | {utcDateStr}</>
             ) : isCustom ? (
               <>
                 <span className="text-green-500">Custom</span> | {questioner}
@@ -259,6 +285,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <ChartBarIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
+          />
+        )}
+        {isDaily && (
+          <CalendarIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => setIsCalendarModalOpen(true)}
           />
         )}
         <CogIcon
@@ -308,16 +340,32 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode={mode}
         solution={solution}
         questioner={questioner}
+        excludeUrl={excludeUrl}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        weekStartsOnMonday={weekStartsOnMonday}
+        onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
+        excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
         handleClose={() => setIsDonateModalOpen(false)}
+      />
+      <CalendarModal
+        isOpen={isCalendarModalOpen}
+        handleClose={() => setIsCalendarModalOpen(false)}
+        gameStats={stats}
+        handleShare={() => {
+          setSuccessAlert(t('calendarCopied'))
+          return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
+        }}
+        weekStartsOnMonday={weekStartsOnMonday}
+        excludeUrl={excludeUrl}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}

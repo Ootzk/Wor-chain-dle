@@ -1,6 +1,6 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v1.2.0-blue)
+![Version](https://img.shields.io/badge/Version-v1.3.0-blue)
 
 **Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
 
@@ -72,16 +72,18 @@ Track your stats and share your results with friends:
   <img src="assets/statistics.png" alt="Statistics and Share" width="300" />
 </p>
 
-Wor🔗dle 2026/02/16 6/6
+<pre>
+Wor🔗dle 2026-03-06 6/6
 
-─⬜🟪⬜⬜⬜┐  
-┌⬜⬜⬜⬜⬜┘  
-└⬜🟪🟪⬜⬜┐  
-┌⬜⬜⬜⬜⬜┘  
-└⬜⬜🟪⬜🟩┐  
-─🟩🟩🟩🟩🟩┘  
+─⬜🟪⬜⬜⬜┐
+┌⬜⬜⬜⬜⬜┘
+└⬜🟪🟪⬜⬜┐
+┌⬜⬜⬜⬜⬜┘
+└⬜⬜🟪⬜🟩┐
+─🟩🟩🟩🟩🟩┘
 
-ootzk.github.io/Wor-chain-dle/
+ootzk.github.io/Wor-chain-dle
+</pre>
 
 ---
 
@@ -90,7 +92,7 @@ ootzk.github.io/Wor-chain-dle/
 New features are introduced through a one-time "What's New" popup on your first visit after an update.
 
 <p align="center">
-  <img src="assets/patch-note.png" alt="What's New in v1.1.0" width="300" />
+  <img src="assets/patch-note.png" alt="What's New in v1.3.0" width="300" />
 </p>
 
 ### Create & Share Custom Puzzles
@@ -125,12 +127,37 @@ Available in 6 languages. Tap the translate icon in the header to switch.
   <img src="assets/how-to-play-kor.png" alt="How to Play in Korean" width="300" />
 </p>
 
-### Settings
+### Monthly Calendar
 
-Toggle uppercase letters on or off from the settings menu.
+Track your daily results on a monthly calendar. Tap the calendar icon in the header (Daily mode only) to see your history at a glance — green cells for wins, purple for losses. Navigate between months, check your current streak, and share your monthly results as an emoji grid.
 
 <p align="center">
-  <img src="assets/uppercase.png" alt="Uppercase Letters setting" width="300" />
+  <img src="assets/calendar.png" alt="Monthly Calendar" width="300" />
+</p>
+
+<pre>
+Wor🔗dle 2026-03 (🔥 0)
+
+Su Mo Tu We Th Fr Sa
+🟩 🟩 🟩 🟩 🟪 ⬜ ⚪
+⚪ ⚪ ⚪ ⚪ ⚪ ⚪ ⚪
+⚪ ⚪ ⚪ ⚪ ⚪ ⚪ ⚪
+⚪ ⚪ ⚪ ⚪ ⚪ ⚪ ⚪
+⚪ ⚪ ⚪
+
+ootzk.github.io/Wor-chain-dle
+</pre>
+
+### Settings
+
+Customize your experience with three toggles:
+
+- **Uppercase Letters** — Display letters in uppercase.
+- **Start Week on Monday** — Change the calendar's week start day.
+- **Exclude URL when Sharing** — Omit the game URL from share text.
+
+<p align="center">
+  <img src="assets/settings.png" alt="Settings" width="300" />
 </p>
 
 ### Support the Developer

@@ -16,48 +16,19 @@ type Feature = {
 
 const features: Feature[] = [
   {
-    icon: '\u{1F9E9}',
-    titleKey: 'patchNote_customPuzzle_title',
-    descKey: 'patchNote_customPuzzle_desc',
+    icon: '\u{1F4C5}',
+    titleKey: 'patchNote_calendar_title',
+    descKey: 'patchNote_calendar_desc',
   },
   {
-    icon: '\u{2615}',
-    titleKey: 'patchNote_donations_title',
-    descKey: 'patchNote_donations_desc',
-    sub: [
-      {
-        icon: '',
-        titleKey: 'patchNote_kakaopay_title',
-        descKey: 'patchNote_kakaopay_desc',
-      },
-      {
-        icon: '',
-        titleKey: 'patchNote_tosspay_title',
-        descKey: 'patchNote_tosspay_desc',
-      },
-    ],
+    icon: '\u{2699}\u{FE0F}',
+    titleKey: 'patchNote_settings_title',
+    descKey: 'patchNote_settings_desc',
   },
   {
-    icon: '\u{1F4D6}',
-    titleKey: 'patchNote_infoModal_title',
-    descKey: 'patchNote_infoModal_desc',
-  },
-  {
-    icon: '\u{2728}',
-    titleKey: 'patchNote_ui_title',
-    descKey: 'patchNote_ui_desc',
-    sub: [
-      {
-        icon: '\u{1F3A8}',
-        titleKey: 'patchNote_subtitle_title',
-        descKey: 'patchNote_subtitle_desc',
-      },
-      {
-        icon: '\u{1F6A9}',
-        titleKey: 'patchNote_flags_title',
-        descKey: 'patchNote_flags_desc',
-      },
-    ],
+    icon: '\u{1F527}',
+    titleKey: 'patchNote_i18nFix_title',
+    descKey: 'patchNote_i18nFix_desc',
   },
 ]
 
