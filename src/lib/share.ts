@@ -33,7 +33,7 @@ export const shareStatus = (
   const dd = String(now.getUTCDate()).padStart(2, '0')
 
   const shareText =
-    `Wor\u{1F517}dle ${yyyy}/${mm}/${dd}` +
+    `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}` +
     ' ' +
     `${lost ? 'X' : guesses.length}` +
     '/' +
