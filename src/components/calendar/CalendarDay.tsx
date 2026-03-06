@@ -7,6 +7,7 @@ type Props = {
   isFuture: boolean
   isBeforeEpoch: boolean
   isPreRecording: boolean // before dailyHistory started recording
+  isBirthday: boolean // Feb 16 — Wor-chain-dle birthday
 }
 
 export const CalendarDay = ({
@@ -16,6 +17,7 @@ export const CalendarDay = ({
   isFuture,
   isBeforeEpoch,
   isPreRecording,
+  isBirthday,
 }: Props) => {
   if (day === null) {
     return <div className="w-10 h-12" />
@@ -58,7 +60,7 @@ export const CalendarDay = ({
       <span
         className={`text-xs leading-tight ${inactive ? 'text-gray-300' : 'text-gray-500'}`}
       >
-        {day}
+        {isBirthday ? '🎂' : day}
       </span>
       <div className={isToday ? 'ring-2 ring-indigo-500 rounded-full' : ''}>
         {renderIndicator()}

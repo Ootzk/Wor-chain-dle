@@ -82,6 +82,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
     isFuture: boolean
     isBeforeEpoch: boolean
     isPreRecording: boolean
+    isBirthday: boolean
   }
 
   const cells: CellData[] = []
@@ -94,6 +95,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       isFuture: false,
       isBeforeEpoch: false,
       isPreRecording: false,
+      isBirthday: false,
     })
   }
 
@@ -119,6 +121,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       isFuture,
       isBeforeEpoch,
       isPreRecording,
+      isBirthday: month === 1 && d === 16, // Feb 16 — Wor-chain-dle birthday
     })
   }
 
@@ -130,6 +133,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       isFuture: false,
       isBeforeEpoch: false,
       isPreRecording: false,
+      isBirthday: false,
     })
   }
 
@@ -192,6 +196,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
             isFuture={cell.isFuture}
             isBeforeEpoch={cell.isBeforeEpoch}
             isPreRecording={cell.isPreRecording}
+            isBirthday={cell.isBirthday}
           />
         ))}
       </div>
