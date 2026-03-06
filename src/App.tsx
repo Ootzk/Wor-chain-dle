@@ -1,5 +1,6 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
+import { CalendarIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { TranslateIcon } from '@heroicons/react/outline'
@@ -14,8 +15,14 @@ import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
-import { isWordInWordList, isWinningWord } from './lib/words'
+import { CalendarModal } from './components/modals/CalendarModal'
+import { isWordInWordList, isWinningWord, solutionIndex } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
+import {
+  saveDailyResult,
+  getMonthResults,
+  initDailyHistoryStartIndex,
+} from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
@@ -62,6 +69,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
+  const [calendarInitialMonth, setCalendarInitialMonth] = useState<
+    { year: number; month: number } | undefined
+  >(undefined)
   const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
     () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
   )
@@ -104,6 +115,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (isDaily) {
+      initDailyHistoryStartIndex(solutionIndex)
       const now = new Date()
       const yyyy = now.getUTCFullYear()
       const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
@@ -125,6 +137,29 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   useEffect(() => {
     saveSettings({ isUppercase })
   }, [isUppercase])
+
+  // Calendar suggestion: auto-open to last month in first 7 days of new month
+  useEffect(() => {
+    if (!isDaily) return
+    const now = new Date()
+    const dayOfMonth = now.getUTCDate()
+    if (dayOfMonth > 7) return
+
+    const lastShared = localStorage.getItem('lastSharedCalendarMonth')
+    const prevMonth = now.getUTCMonth() === 0 ? 11 : now.getUTCMonth() - 1
+    const prevYear =
+      now.getUTCMonth() === 0 ? now.getUTCFullYear() - 1 : now.getUTCFullYear()
+    const prevMonthKey = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`
+
+    if (lastShared === prevMonthKey) return
+
+    const prevResults = getMonthResults(prevYear, prevMonth)
+    const hasData = prevResults.some((r) => r !== null)
+    if (!hasData) return
+
+    setCalendarInitialMonth({ year: prevYear, month: prevMonth })
+    setIsCalendarModalOpen(true)
+  }, [isDaily])
 
   useEffect(() => {
     if (isGameWon) {
@@ -196,6 +231,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         if (isDaily || isCustom) {
           setStats(addStatsForCompletedGame(stats, guesses.length, statsKey))
         }
+        if (isDaily) {
+          saveDailyResult(solutionIndex, guesses.length + 1, true)
+        }
         return setIsGameWon(true)
       }
 
@@ -208,6 +246,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           if (isDaily || isCustom) {
             setStats(addStatsForCompletedGame(stats, CONFIG.tries, statsKey))
           }
+          if (isDaily) {
+            saveDailyResult(solutionIndex, CONFIG.tries, false)
+          }
           setIsGameLost(true)
           return
         }
@@ -218,6 +259,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setStats(
             addStatsForCompletedGame(stats, guesses.length + 1, statsKey)
           )
+        }
+        if (isDaily) {
+          saveDailyResult(solutionIndex, guesses.length + 1, false)
         }
         setIsGameLost(true)
       }
@@ -259,6 +303,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <ChartBarIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
+          />
+        )}
+        {isDaily && (
+          <CalendarIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => {
+              setCalendarInitialMonth(undefined)
+              setIsCalendarModalOpen(true)
+            }}
           />
         )}
         <CogIcon
@@ -318,6 +371,25 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <DonateModal
         isOpen={isDonateModalOpen}
         handleClose={() => setIsDonateModalOpen(false)}
+      />
+      <CalendarModal
+        isOpen={isCalendarModalOpen}
+        handleClose={() => setIsCalendarModalOpen(false)}
+        gameStats={stats}
+        handleShare={() => {
+          const now = new Date()
+          const m = calendarInitialMonth ?? {
+            year: now.getUTCFullYear(),
+            month: now.getUTCMonth(),
+          }
+          localStorage.setItem(
+            'lastSharedCalendarMonth',
+            `${m.year}-${String(m.month + 1).padStart(2, '0')}`
+          )
+          setSuccessAlert(t('calendarCopied'))
+          return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
+        }}
+        initialMonth={calendarInitialMonth}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}

@@ -143,6 +143,12 @@
   "customModeDesc": "Estás jugando un puzzle creado por {{questioner}}.\nLas estadísticas de juegos personalizados se registran por separado de las diarias.\nPuedes compartir tus resultados.",
   "howToCreate": "Cómo crear",
   "createModeDesc": "Ingresa tu nombre y escribe la palabra a adivinar usando el teclado.\nLa palabra debe ser una palabra en inglés de {{length}} letras de la lista.\nPulsa ENTER para copiar la URL del puzzle al portapapeles.\n¡Comparte la URL con tus amigos para que resuelvan tu puzzle!",
+  "calendar": "Calendario",
+  "shareMonth": "Compartir mes",
+  "calendarCopied": "Calendario copiado al portapapeles",
+  "weekdays": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"],
+  "patchNote_calendar_title": "Calendario mensual",
+  "patchNote_calendar_desc": "Consulta tus registros diarios de un vistazo en el calendario mensual.\n¡Sigue tus rachas y comparte tus resultados mensuales!",
   "languages": {
     "en": "English",
     "ko": "한국어",
