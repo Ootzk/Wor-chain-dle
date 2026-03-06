@@ -75,6 +75,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
     () => loadSettings().weekStartsOnMonday
   )
+  const [shareWithUrl, setShareWithUrl] = useState(
+    () => loadSettings().shareWithUrl
+  )
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -131,8 +134,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday })
-  }, [isUppercase, weekStartsOnMonday])
+    saveSettings({ isUppercase, weekStartsOnMonday, shareWithUrl })
+  }, [isUppercase, weekStartsOnMonday, shareWithUrl])
 
   useEffect(() => {
     if (isGameWon) {
@@ -331,6 +334,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode={mode}
         solution={solution}
         questioner={questioner}
+        shareWithUrl={shareWithUrl}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
@@ -339,6 +343,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
+        shareWithUrl={shareWithUrl}
+        onToggleShareWithUrl={() => setShareWithUrl(!shareWithUrl)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
@@ -353,6 +359,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
         weekStartsOnMonday={weekStartsOnMonday}
+        shareWithUrl={shareWithUrl}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}
