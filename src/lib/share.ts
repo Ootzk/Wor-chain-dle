@@ -71,8 +71,8 @@ export const shareCalendar = (
   const isCurrentMonth = year === todayYear && month === todayMonth
   const lines: string[] = []
   const header = isCurrentMonth
-    ? `\u{1F4C5} Wor\u{1F517}dle ${year}/${mm} (\u{1F525} ${streak})`
-    : `\u{1F4C5} Wor\u{1F517}dle ${year}/${mm}`
+    ? `Wor\u{1F517}dle ${year}-${mm} (\u{1F525} ${streak})`
+    : `Wor\u{1F517}dle ${year}-${mm}`
   lines.push(header)
   lines.push('')
   lines.push((weekStartsOnMonday ? WEEKDAY_LABELS_MON : WEEKDAY_LABELS_SUN).join(' '))
