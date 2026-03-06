@@ -20,6 +20,16 @@ const features: Feature[] = [
     titleKey: 'patchNote_calendar_title',
     descKey: 'patchNote_calendar_desc',
   },
+  {
+    icon: '\u{2699}\u{FE0F}',
+    titleKey: 'patchNote_settings_title',
+    descKey: 'patchNote_settings_desc',
+  },
+  {
+    icon: '\u{1F527}',
+    titleKey: 'patchNote_i18nFix_title',
+    descKey: 'patchNote_i18nFix_desc',
+  },
 ]
 
 export const PatchNotesModal = ({ isOpen, handleClose }: Props) => {

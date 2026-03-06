@@ -151,6 +151,10 @@
   "weekdays": ["Jpi", "Jtt", "Jnn", "Jtn", "Alh", "Iju", "Jmo"],
   "patchNote_calendar_title": "Kalenda ya Mwezi",
   "patchNote_calendar_desc": "Angalia rekodi zako za kila siku kwenye kalenda ya mwezi.\nFuatilia mfululizo wako na ushiriki matokeo yako ya mwezi!",
+  "patchNote_settings_title": "Chaguo Mpya za Mipangilio",
+  "patchNote_settings_desc": "Vibadilishaji vya kuanza wiki siku ya Jumatatu na kuondoa URL wakati wa kushiriki vimeongezwa.",
+  "patchNote_i18nFix_title": "Utatuzi wa Hitilafu",
+  "patchNote_i18nFix_desc": "Imetatuliwa tatizo ambapo funguo za tafsiri zilionekana kwa muda mfupi badala ya maandishi wakati wa kufungua programu kwenye kichupo cha nyuma.",
   "languages": {
     "en": "English",
     "ko": "한국어",

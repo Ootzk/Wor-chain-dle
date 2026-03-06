@@ -22,7 +22,7 @@ async function save(page: Page, name: string) {
 
 async function disguiseAsDaily(page: Page) {
   const d = new Date()
-  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const today = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
   await page.evaluate((date) => {
     const el = document.querySelector('p.text-sm.text-gray-500')
     if (el) el.innerHTML = `Daily | ${date}`
@@ -120,6 +120,53 @@ test('dead end scenario', async ({ page }) => {
   await save(page, 'dead-end')
 })
 
+// ── Calendar Screenshot ──
+
+test('monthly calendar with history', async ({ page }) => {
+  await initPage(page)
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  // Inject daily history for current month
+  const START_MS = Date.UTC(2026, 1, 16) // CONFIG.startDate
+  const DAY_MS = 86400000
+  const toIndex = (y: number, m: number, d: number) =>
+    Math.floor((Date.UTC(y, m, d) - START_MS) / DAY_MS)
+
+  const now = new Date()
+  const y = now.getUTCFullYear()
+  const m = now.getUTCMonth()
+  const today = now.getUTCDate()
+
+  // Generate history: wins and losses for days before today
+  const history: Record<number, { guessCount: number; won: boolean }> = {}
+  let minIndex = Infinity
+  for (let d = 1; d < today; d++) {
+    const idx = toIndex(y, m, d)
+    if (idx < 0) continue // skip dates before epoch
+    // Alternate: most wins, occasional losses
+    const won = d % 5 !== 0
+    history[idx] = { guessCount: won ? ((d % 4) + 2) : 6, won }
+    if (idx < minIndex) minIndex = idx
+  }
+
+  await page.evaluate(
+    ({ h, si }) => {
+      localStorage.setItem('dailyHistory', JSON.stringify(h))
+      localStorage.setItem('dailyHistoryStartIndex', si.toString())
+    },
+    { h: history, si: minIndex }
+  )
+  await page.reload()
+  await waitForGameReady(page)
+
+  // Open calendar modal (Daily mode: icon index 3)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+  await page.locator('h3').waitFor({ state: 'visible' })
+  await page.waitForTimeout(500)
+  await save(page, 'calendar')
+})
+
 // ── Modal & Feature Screenshots ──
 
 test('how-to-play modal (English)', async ({ page }) => {
@@ -188,24 +235,16 @@ test('practice mode', async ({ page }) => {
   await save(page, 'practice-mode')
 })
 
-test('uppercase setting', async ({ page }) => {
+test('settings modal with all toggles', async ({ page }) => {
   await initPage(page)
-  await page.goto(HYDRO_PATH)
+  await page.goto('/')
   await waitForGameReady(page)
 
-  // Type some letters first so uppercase is visible on grid
-  await typeWord(page, 'shake')
-
-  // Open settings (4th icon)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+  // Open settings (Daily mode: icon index 4)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
   await page.locator('text=Settings').waitFor({ state: 'visible' })
-
-  // Toggle uppercase on — keep modal open to show toggle + uppercase effect together
-  await page.locator('button[role="switch"]').click()
   await page.waitForTimeout(300)
-
-  await disguiseAsDaily(page)
-  await save(page, 'uppercase')
+  await save(page, 'settings')
 })
 
 test('donate modal', async ({ page }) => {
@@ -213,8 +252,8 @@ test('donate modal', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Click donate icon (5th icon)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+  // Click donate icon (Daily mode: icon index 5)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(5).click()
   await page.locator('h3:has-text("Donate")').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'donation')

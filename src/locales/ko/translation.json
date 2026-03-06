@@ -110,6 +110,10 @@
     "weekdays": ["일", "월", "화", "수", "목", "금", "토"],
     "patchNote_calendar_title": "월간 달력",
     "patchNote_calendar_desc": "한 달 동안의 기록을 달력으로 한눈에 확인하세요.\n연속 기록을 추적하고 월간 결과를 공유할 수 있습니다!",
+    "patchNote_settings_title": "새로운 설정 옵션",
+    "patchNote_settings_desc": "주 시작 요일(월요일) 변경, 공유 시 URL 제외 토글이 추가되었습니다.",
+    "patchNote_i18nFix_title": "버그 수정",
+    "patchNote_i18nFix_desc": "백그라운드 탭에서 앱을 열 때 번역 키가 잠시 노출되던 문제를 수정했습니다.",
     "languages": {
         "en": "English",
         "ko": "한국어",
