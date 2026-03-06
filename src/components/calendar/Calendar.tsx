@@ -122,18 +122,15 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
     })
   }
 
-  // Trailing empty cells to fill last row
-  const remainder = cells.length % 7
-  if (remainder > 0) {
-    for (let i = 0; i < 7 - remainder; i++) {
-      cells.push({
-        day: null,
-        isToday: false,
-        isFuture: false,
-        isBeforeEpoch: false,
-        isPreRecording: false,
-      })
-    }
+  // Trailing empty cells to always fill 6 rows (42 cells)
+  while (cells.length < 42) {
+    cells.push({
+      day: null,
+      isToday: false,
+      isFuture: false,
+      isBeforeEpoch: false,
+      isPreRecording: false,
+    })
   }
 
   const monthLabel = new Date(Date.UTC(year, month, 1)).toLocaleDateString(
