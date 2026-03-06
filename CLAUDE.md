@@ -29,13 +29,15 @@ src/
     words.ts                     ← 오늘의 단어 선택 (UTC 기반), 단어 검증
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
     chain.ts                     ← 체인 규칙 유틸 (체인 인덱스, dead end 판정)
-    share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로)
+    share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로 + 달력 월별 공유)
+    dailyHistory.ts              ← 날짜별 게임 결과 기록 (Daily 전용, localStorage)
     customPuzzle.ts              ← Custom 퍼즐 인코딩/디코딩 (URL-safe Base64)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
   components/
     grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge)
     keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
-    modals/                      ← Info, Stats, Settings, Donate, PatchNotes, Translate 모달
+    calendar/                    ← 월별 달력 UI (CalendarDay 셀, 월 네비게이션, 공유)
+    modals/                      ← Info, Stats, Settings, Calendar, Donate, PatchNotes, Translate 모달
     pages/
       CreatePuzzlePage.tsx       ← 문제 출제 페이지 (단어 입력 + URL 생성)
 e2e/
@@ -107,8 +109,10 @@ docker run -d -p 3000:3000 wor-chain-dle
 | ------ | ------- | ---------- | -------- |
 | 정답 출처 | WORDS (매일 UTC 리셋) | WORDS (랜덤) | 출제자 지정 (WORDS + VALIDGUESSES) |
 | 통계 저장 | `gameStats` | X | `customGameStats` |
+| 날짜별 기록 | `dailyHistory` | X | X |
 | 게임 상태 저장 | O | X | X |
 | Share 버튼 | O | X | O (Custom 포맷) |
+| 달력 | O (CalendarIcon) | X | X |
 | URL | `/#/` | `/#/` (Practice 버튼) | `/#/custom/:code` |
 
 - **Custom URL 인코딩**: `btoa("word_questioner")` → URL-safe Base64 (`+`→`-`, `/`→`_`, `=` 제거)
@@ -143,6 +147,7 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 - `keyboard-input.spec.ts` — 물리 키보드, IME 호환성
 - `mobile-responsive.spec.ts` — 반응형 레이아웃, 터치 인터랙션
 - `modals.spec.ts` — 전체 모달 테스트 (모드별)
+- `calendar.spec.ts` — 달력 모달, 월 네비게이션, 승패 인디케이터, 주 시작 설정, 공유
 - `navigation.spec.ts` — 라우트 전환, 페이지 네비게이션
 
 **서버**: `npm run build && npx serve -s build -l 3000` (CI에서 매번 빌드, 로컬은 기존 서버 재사용).
@@ -162,6 +167,29 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 - **PatchNotesModal**: `seenPatchNotesVersion` (localStorage) < `PATCH_NOTES_VERSION` (config.ts) 이면 자동 표시. 첫 방문 시 새 기능 안내.
 - **DonateModal**: 탭 기반 결제 수단 선택 (KakaoPay QR + Toss Pay). 결제 URL은 `config.ts`에 상수로 관리.
 - **StatsModal**: 모드별 분리 저장 — Daily는 `gameStats`, Custom은 `customGameStats` 키 사용. `loadStats(storageKey?)`, `addStatsForCompletedGame(storageKey?)`.
+- **CalendarModal**: Daily 전용. 월별 달력 그리드로 게임 결과 시각화 (승리=초록, 패배=보라, 미참여=회색). 월 네비게이션, 스트릭 표시, 월별 이모지 공유 기능.
+
+## Calendar & Daily History
+
+Daily 모드 게임 완료 시 `dailyHistory` (localStorage)에 날짜별 결과 기록. 기존 `gameStats` 집계 통계와 독립적으로 동작.
+
+**데이터 구조** (`src/lib/dailyHistory.ts`):
+
+- `DayResult = { guessCount: number, won: boolean }` — 각 날짜의 게임 결과
+- `DailyHistory = Record<number, DayResult>` — key는 solutionIndex (CONFIG.startDate epoch 기준 일수)
+- localStorage 키: `dailyHistory` (결과), `dailyHistoryStartIndex` (달력 추적 시작 인덱스)
+
+**달력 UI** (`src/components/calendar/`):
+
+- `Calendar.tsx` — 42셀 그리드 (6행×7열), 월 네비게이션, 요일 헤더, 스트릭 표시, 월별 공유
+- `CalendarDay.tsx` — 개별 셀: 승리(초록+횟수), 패배(보라), 미참여(회색), 미래/epoch 이전(비활성)
+- 특수 날짜: Feb 16 = 🎂 (생일), calendarEpoch = 📅 (추적 시작일)
+
+**설정**: `weekStartsOnMonday` (Settings 토글) — 요일 헤더 및 그리드 배치, 공유 텍스트에 반영.
+
+**월별 공유** (`shareCalendar` in `share.ts`):
+
+- 포맷: `Wor🔗dle 2026-03 (🔥 5)` + 요일 헤더 + 이모지 그리드 (🟩=승, 🟪=패, ⬜=미참여, ⚪=비활성)
 
 ## Snake Chain Rule
 
@@ -187,6 +215,7 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 - **v1.0.3** — GoatCounter 애널리틱스 연동, 문서 업데이트.
 - **v1.1.0** — Practice 모드, Settings(대문자 토글), 다국어 지원(6개 언어), 후원 모달, 패치노트 팝업, README 전면 개편.
 - **v1.2.0** — Custom 퍼즐 출제/공유, Playwright E2E 테스트 인프라, 모드별 InfoModal 탭 UI, 후원 결제수단(KakaoPay/Toss), README 스크린샷 자동화, CI에 E2E 추가.
+- **v1.3.0** — 월별 달력 (Daily 기록 시각화, 월 네비게이션, 이모지 공유), 주 시작 요일 설정 (일/월), 달력 E2E 테스트.
 
 ## Communication
 
