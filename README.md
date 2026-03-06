@@ -73,7 +73,7 @@ Track your stats and share your results with friends:
 </p>
 
 <pre>
-Wor🔗dle 2026-02-16 6/6
+Wor🔗dle 2026-03-06 6/6
 
 ─⬜🟪⬜⬜⬜┐
 ┌⬜⬜⬜⬜⬜┘

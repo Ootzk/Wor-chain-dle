@@ -241,6 +241,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       }
     }
   }
+  const utcDateStr = (() => {
+    const n = new Date()
+    const y = n.getUTCFullYear()
+    const m = String(n.getUTCMonth() + 1).padStart(2, '0')
+    const d = String(n.getUTCDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  })()
+
   let translateElement = <div></div>
   if (CONFIG.availableLangs.length > 1) {
     translateElement = (
@@ -258,7 +266,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-gray-500">
             {isDaily ? (
-              <>Daily | {new Date().toLocaleDateString('en-CA')}</>
+              <>Daily | {utcDateStr}</>
             ) : isCustom ? (
               <>
                 <span className="text-green-500">Custom</span> | {questioner}

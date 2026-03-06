@@ -22,7 +22,7 @@ async function save(page: Page, name: string) {
 
 async function disguiseAsDaily(page: Page) {
   const d = new Date()
-  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const today = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
   await page.evaluate((date) => {
     const el = document.querySelector('p.text-sm.text-gray-500')
     if (el) el.innerHTML = `Daily | ${date}`
