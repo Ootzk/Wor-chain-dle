@@ -6,8 +6,8 @@ type Props = {
   isToday: boolean
   isFuture: boolean
   isBeforeEpoch: boolean
-  isPreRecording: boolean // before dailyHistory started recording
   isBirthday: boolean // Feb 16 — Wor-chain-dle birthday
+  isCalendarEpoch: boolean // day calendar tracking started
 }
 
 export const CalendarDay = ({
@@ -16,8 +16,8 @@ export const CalendarDay = ({
   isToday,
   isFuture,
   isBeforeEpoch,
-  isPreRecording,
   isBirthday,
+  isCalendarEpoch,
 }: Props) => {
   if (day === null) {
     return <div className="w-10 h-12" />
@@ -42,25 +42,18 @@ export const CalendarDay = ({
       return <div className="w-7 h-7 rounded-full bg-purple-500" />
     }
 
-    // No result: distinguish pre-recording vs not played
-    if (isPreRecording) {
-      return (
-        <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center">
-          <span className="text-white text-xs font-bold">?</span>
-        </div>
-      )
-    }
-
-    // Not played (after recording started)
+    // Not played
     return <div className="w-7 h-7 rounded-full bg-gray-200" />
   }
+
+  const dayLabel = isBirthday ? '🎂' : isCalendarEpoch ? '📅' : day
 
   return (
     <div className="w-10 h-12 flex flex-col items-center">
       <span
         className={`text-xs leading-tight ${inactive ? 'text-gray-300' : 'text-gray-500'}`}
       >
-        {isBirthday ? '🎂' : day}
+        {dayLabel}
       </span>
       <div className={isToday ? 'ring-2 ring-indigo-500 rounded-full' : ''}>
         {renderIndicator()}

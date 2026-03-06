@@ -88,14 +88,15 @@ export const shareCalendar = (
       (year === todayYear && month === todayMonth && d > todayDate)
     const isBeforeEpoch = index < epochIndex
 
-    if (isFuture || isBeforeEpoch) {
-      row.push('⚪') // invalid date (future / before epoch)
+    const isPreCalendarEpoch =
+      historyStartIndex !== null && index < historyStartIndex
+
+    if (isFuture || isBeforeEpoch || isPreCalendarEpoch) {
+      row.push('⚪') // inactive (future / before epoch / pre-calendar)
     } else {
       const result = dailyHistory[index]
-      const isPreRecording =
-        historyStartIndex !== null && index < historyStartIndex
       if (!result) {
-        row.push(isPreRecording ? '⬛' : '⬜') // pre-recording / not played
+        row.push('⬜') // not played
       } else if (result.won) {
         row.push('🟩') // won
       } else {

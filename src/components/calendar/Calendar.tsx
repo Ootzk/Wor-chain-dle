@@ -7,6 +7,7 @@ import {
   DayResult,
   loadDailyHistory,
   dateToSolutionIndex,
+  solutionIndexToDate,
   getMonthResults,
   getDailyHistoryStartIndex,
 } from '../../lib/dailyHistory'
@@ -71,14 +72,21 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
   const epochSolutionIndex = dateToSolutionIndex(epochDate)
   const historyStartIndex = getDailyHistoryStartIndex()
 
+  const calendarEpochDate = historyStartIndex !== null
+    ? solutionIndexToDate(historyStartIndex)
+    : null
+  const calendarEpochYear = calendarEpochDate?.getUTCFullYear() ?? null
+  const calendarEpochMonth = calendarEpochDate?.getUTCMonth() ?? null
+  const calendarEpochDay = calendarEpochDate?.getUTCDate() ?? null
+
   type CellData = {
     day: number | null
     result?: DayResult | null
     isToday: boolean
     isFuture: boolean
     isBeforeEpoch: boolean
-    isPreRecording: boolean
     isBirthday: boolean
+    isCalendarEpoch: boolean
   }
 
   const cells: CellData[] = []
@@ -90,8 +98,8 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       isToday: false,
       isFuture: false,
       isBeforeEpoch: false,
-      isPreRecording: false,
       isBirthday: false,
+      isCalendarEpoch: false,
     })
   }
 
@@ -106,9 +114,10 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
     const daySolutionIndex = dateToSolutionIndex(
       new Date(Date.UTC(year, month, d))
     )
-    const isBeforeEpoch = daySolutionIndex < epochSolutionIndex
-    const isPreRecording =
-      historyStartIndex !== null && daySolutionIndex < historyStartIndex
+    const isBeforeEpoch = daySolutionIndex < epochSolutionIndex ||
+      (historyStartIndex !== null && daySolutionIndex < historyStartIndex)
+    const isCalendarEpoch =
+      year === calendarEpochYear && month === calendarEpochMonth && d === calendarEpochDay
 
     cells.push({
       day: d,
@@ -116,8 +125,8 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       isToday,
       isFuture,
       isBeforeEpoch,
-      isPreRecording,
       isBirthday: month === 1 && d === 16, // Feb 16 — Wor-chain-dle birthday
+      isCalendarEpoch,
     })
   }
 
@@ -128,8 +137,8 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       isToday: false,
       isFuture: false,
       isBeforeEpoch: false,
-      isPreRecording: false,
       isBirthday: false,
+      isCalendarEpoch: false,
     })
   }
 
@@ -191,8 +200,8 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
             isToday={cell.isToday}
             isFuture={cell.isFuture}
             isBeforeEpoch={cell.isBeforeEpoch}
-            isPreRecording={cell.isPreRecording}
             isBirthday={cell.isBirthday}
+            isCalendarEpoch={cell.isCalendarEpoch}
           />
         ))}
       </div>
