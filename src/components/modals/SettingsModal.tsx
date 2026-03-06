@@ -6,6 +6,8 @@ type Props = {
   handleClose: () => void
   isUppercase: boolean
   onToggleUppercase: () => void
+  weekStartsOnMonday: boolean
+  onToggleWeekStart: () => void
 }
 
 export const SettingsModal = ({
@@ -13,6 +15,8 @@ export const SettingsModal = ({
   handleClose,
   isUppercase,
   onToggleUppercase,
+  weekStartsOnMonday,
+  onToggleWeekStart,
 }: Props) => {
   const { t } = useTranslation()
   return (
@@ -33,6 +37,26 @@ export const SettingsModal = ({
           <span
             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
               isUppercase ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
+      <div className="flex items-center justify-between py-3">
+        <span className="text-sm font-medium text-gray-700">
+          {t('weekStartLabel')}
+        </span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={weekStartsOnMonday}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            weekStartsOnMonday ? 'bg-green-500' : 'bg-gray-300'
+          }`}
+          onClick={onToggleWeekStart}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              weekStartsOnMonday ? 'translate-x-6' : 'translate-x-1'
             }`}
           />
         </button>

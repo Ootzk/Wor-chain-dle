@@ -1,5 +1,6 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
+import { CalendarIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { TranslateIcon } from '@heroicons/react/outline'
@@ -14,8 +15,10 @@ import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
-import { isWordInWordList, isWinningWord } from './lib/words'
+import { CalendarModal } from './components/modals/CalendarModal'
+import { isWordInWordList, isWinningWord, solutionIndex } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
+import { saveDailyResult, initDailyHistoryStartIndex } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
@@ -62,11 +65,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
   const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
     () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
   )
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
+  )
+  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
+    () => loadSettings().weekStartsOnMonday
   )
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
@@ -104,6 +111,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (isDaily) {
+      initDailyHistoryStartIndex(solutionIndex)
       const now = new Date()
       const yyyy = now.getUTCFullYear()
       const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
@@ -123,8 +131,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase })
-  }, [isUppercase])
+    saveSettings({ isUppercase, weekStartsOnMonday })
+  }, [isUppercase, weekStartsOnMonday])
 
   useEffect(() => {
     if (isGameWon) {
@@ -196,6 +204,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         if (isDaily || isCustom) {
           setStats(addStatsForCompletedGame(stats, guesses.length, statsKey))
         }
+        if (isDaily) {
+          saveDailyResult(solutionIndex, guesses.length + 1, true)
+        }
         return setIsGameWon(true)
       }
 
@@ -208,6 +219,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           if (isDaily || isCustom) {
             setStats(addStatsForCompletedGame(stats, CONFIG.tries, statsKey))
           }
+          if (isDaily) {
+            saveDailyResult(solutionIndex, CONFIG.tries, false)
+          }
           setIsGameLost(true)
           return
         }
@@ -218,6 +232,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setStats(
             addStatsForCompletedGame(stats, guesses.length + 1, statsKey)
           )
+        }
+        if (isDaily) {
+          saveDailyResult(solutionIndex, guesses.length + 1, false)
         }
         setIsGameLost(true)
       }
@@ -259,6 +276,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <ChartBarIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
+          />
+        )}
+        {isDaily && (
+          <CalendarIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => setIsCalendarModalOpen(true)}
           />
         )}
         <CogIcon
@@ -314,10 +337,22 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        weekStartsOnMonday={weekStartsOnMonday}
+        onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
         handleClose={() => setIsDonateModalOpen(false)}
+      />
+      <CalendarModal
+        isOpen={isCalendarModalOpen}
+        handleClose={() => setIsCalendarModalOpen(false)}
+        gameStats={stats}
+        handleShare={() => {
+          setSuccessAlert(t('calendarCopied'))
+          return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
+        }}
+        weekStartsOnMonday={weekStartsOnMonday}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}
