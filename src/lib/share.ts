@@ -20,9 +20,7 @@ export const shareCustomStatus = (
     (excludeUrl
       ? ''
       : '\n\n' +
-        window.location.href
-          .replace(`${window.location.protocol}//`, '')
-          .replace(/#.*$/, ''))
+        window.location.href.replace(`${window.location.protocol}//`, ''))
 
   navigator.clipboard.writeText(shareText)
 }
