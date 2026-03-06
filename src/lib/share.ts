@@ -46,17 +46,18 @@ export const shareStatus = (
   navigator.clipboard.writeText(shareText)
 }
 
-const WEEKDAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const WEEKDAY_LABELS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const WEEKDAY_LABELS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 export const shareCalendar = (
   year: number,
   month: number, // 0-indexed
   dailyHistory: DailyHistory,
-  streak: number
+  streak: number,
+  weekStartsOnMonday: boolean = false
 ) => {
   const mm = String(month + 1).padStart(2, '0')
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
-  const firstDayOfWeek = new Date(Date.UTC(year, month, 1)).getUTCDay()
 
   const now = new Date()
   const todayYear = now.getUTCFullYear()
@@ -74,7 +75,7 @@ export const shareCalendar = (
     : `\u{1F4C5} Wor\u{1F517}dle ${year}/${mm}`
   lines.push(header)
   lines.push('')
-  lines.push(WEEKDAY_LABELS.join(' '))
+  lines.push((weekStartsOnMonday ? WEEKDAY_LABELS_MON : WEEKDAY_LABELS_SUN).join(' '))
 
   // Build grid rows
   let row: string[] = []

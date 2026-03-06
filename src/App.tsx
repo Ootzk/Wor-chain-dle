@@ -79,6 +79,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
+  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
+    () => loadSettings().weekStartsOnMonday
+  )
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -135,8 +138,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase })
-  }, [isUppercase])
+    saveSettings({ isUppercase, weekStartsOnMonday })
+  }, [isUppercase, weekStartsOnMonday])
 
   // Calendar suggestion: auto-open to last month in first 7 days of new month
   useEffect(() => {
@@ -367,6 +370,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        weekStartsOnMonday={weekStartsOnMonday}
+        onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
@@ -390,6 +395,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
         initialMonth={calendarInitialMonth}
+        weekStartsOnMonday={weekStartsOnMonday}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}

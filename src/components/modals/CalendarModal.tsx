@@ -9,6 +9,7 @@ type Props = {
   gameStats: GameStats
   handleShare: () => void
   initialMonth?: { year: number; month: number }
+  weekStartsOnMonday: boolean
 }
 
 export const CalendarModal = ({
@@ -17,6 +18,7 @@ export const CalendarModal = ({
   gameStats,
   handleShare,
   initialMonth,
+  weekStartsOnMonday,
 }: Props) => {
   const { t } = useTranslation()
 
@@ -30,6 +32,7 @@ export const CalendarModal = ({
         gameStats={gameStats}
         handleShare={handleShare}
         initialMonth={initialMonth}
+        weekStartsOnMonday={weekStartsOnMonday}
       />
     </BaseModal>
   )

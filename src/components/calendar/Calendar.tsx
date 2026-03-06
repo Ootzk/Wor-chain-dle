@@ -14,15 +14,17 @@ import {
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
 
-const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 type Props = {
   gameStats: GameStats
   handleShare: () => void
   initialMonth?: { year: number; month: number }
+  weekStartsOnMonday: boolean
 }
 
-export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
+export const Calendar = ({ gameStats, handleShare, initialMonth, weekStartsOnMonday }: Props) => {
   const { t } = useTranslation()
   const now = new Date()
   const currentUTCYear = now.getUTCFullYear()
@@ -32,8 +34,6 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
   const [month, setMonth] = useState(initialMonth?.month ?? currentUTCMonth)
 
   const epochDate = new Date(CONFIG.startDate)
-  const epochYear = epochDate.getUTCFullYear()
-  const epochMonth = epochDate.getUTCMonth()
 
   const canGoBack = true
   const canGoForward = true
@@ -62,7 +62,10 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
   const history = loadDailyHistory()
 
   // Build calendar grid
-  const firstDayOfWeek = new Date(Date.UTC(year, month, 1)).getUTCDay() // 0=Sun
+  const rawDayOfWeek = new Date(Date.UTC(year, month, 1)).getUTCDay() // 0=Sun
+  const firstDayOfWeek = weekStartsOnMonday
+    ? (rawDayOfWeek + 6) % 7 // Mon=0, Tue=1, ..., Sun=6
+    : rawDayOfWeek
   const daysInMonth = monthResults.length
   const todayUTCDate = now.getUTCDate()
 
@@ -144,11 +147,16 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
     { year: 'numeric', month: 'long', timeZone: 'UTC' }
   )
 
+  const fallbackWeekdays = weekStartsOnMonday ? WEEKDAYS_MON : WEEKDAYS_SUN
   const weekdayKeys = t('weekdays', { returnObjects: true }) as string[]
-  const displayWeekdays =
+  const i18nWeekdays =
     Array.isArray(weekdayKeys) && weekdayKeys.length === 7
       ? weekdayKeys
-      : WEEKDAYS
+      : fallbackWeekdays
+  // i18n weekdays are Sun-first; rotate if Monday start
+  const displayWeekdays = weekStartsOnMonday
+    ? [...i18nWeekdays.slice(1), i18nWeekdays[0]]
+    : i18nWeekdays
 
   const hasAnyData = cells.some(
     (c) => c.day !== null && !c.isFuture && !c.isBeforeEpoch && c.result != null
@@ -225,7 +233,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
         disabled={!hasAnyData}
         className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
         onClick={() => {
-          shareCalendar(year, month, history, gameStats.currentStreak)
+          shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday)
           handleShare()
         }}
       >
