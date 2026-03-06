@@ -68,9 +68,12 @@ export const shareCalendar = (
   const epochIndex = dateToSolutionIndex(epochDate)
   const historyStartIndex = getDailyHistoryStartIndex()
 
+  const isCurrentMonth = year === todayYear && month === todayMonth
   const lines: string[] = []
-  lines.push(`\u{1F4C5} Wor\u{1F517}dle ${year}/${mm}`)
-  lines.push(`\u{1F525} ${streak}`)
+  const header = isCurrentMonth
+    ? `\u{1F4C5} Wor\u{1F517}dle ${year}/${mm} (\u{1F525} ${streak})`
+    : `\u{1F4C5} Wor\u{1F517}dle ${year}/${mm}`
+  lines.push(header)
   lines.push('')
   lines.push(WEEKDAY_LABELS.join(' '))
 
