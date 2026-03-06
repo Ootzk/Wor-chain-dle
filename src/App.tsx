@@ -75,6 +75,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
     () => loadSettings().weekStartsOnMonday
   )
+  const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -131,8 +132,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday })
-  }, [isUppercase, weekStartsOnMonday])
+    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
+  }, [isUppercase, weekStartsOnMonday, excludeUrl])
 
   useEffect(() => {
     if (isGameWon) {
@@ -331,6 +332,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode={mode}
         solution={solution}
         questioner={questioner}
+        excludeUrl={excludeUrl}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
@@ -339,6 +341,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
+        excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
@@ -353,6 +357,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
         weekStartsOnMonday={weekStartsOnMonday}
+        excludeUrl={excludeUrl}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}

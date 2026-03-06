@@ -8,7 +8,33 @@ type Props = {
   onToggleUppercase: () => void
   weekStartsOnMonday: boolean
   onToggleWeekStart: () => void
+  excludeUrl: boolean
+  onToggleExcludeUrl: () => void
 }
+
+const Toggle = ({
+  checked,
+  onClick,
+}: {
+  checked: boolean
+  onClick: () => void
+}) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+      checked ? 'bg-green-500' : 'bg-gray-300'
+    }`}
+    onClick={onClick}
+  >
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+        checked ? 'translate-x-6' : 'translate-x-1'
+      }`}
+    />
+  </button>
+)
 
 export const SettingsModal = ({
   isOpen,
@@ -17,49 +43,43 @@ export const SettingsModal = ({
   onToggleUppercase,
   weekStartsOnMonday,
   onToggleWeekStart,
+  excludeUrl,
+  onToggleExcludeUrl,
 }: Props) => {
   const { t } = useTranslation()
+
   return (
     <BaseModal title={t('settings')} isOpen={isOpen} handleClose={handleClose}>
-      <div className="flex items-center justify-between py-3">
-        <span className="text-sm font-medium text-gray-700">
-          {t('uppercaseLabel')}
-        </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isUppercase}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            isUppercase ? 'bg-green-500' : 'bg-gray-300'
-          }`}
-          onClick={onToggleUppercase}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              isUppercase ? 'translate-x-6' : 'translate-x-1'
-            }`}
-          />
-        </button>
+      {/* Visual */}
+      <div className="mt-2">
+        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+          {t('settingsVisual')}
+        </h4>
+        <div className="flex items-center justify-between py-3">
+          <span className="text-sm font-medium text-gray-700">
+            {t('uppercaseLabel')}
+          </span>
+          <Toggle checked={isUppercase} onClick={onToggleUppercase} />
+        </div>
+        <div className="flex items-center justify-between py-3">
+          <span className="text-sm font-medium text-gray-700">
+            {t('weekStartLabel')}
+          </span>
+          <Toggle checked={weekStartsOnMonday} onClick={onToggleWeekStart} />
+        </div>
       </div>
-      <div className="flex items-center justify-between py-3">
-        <span className="text-sm font-medium text-gray-700">
-          {t('weekStartLabel')}
-        </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={weekStartsOnMonday}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            weekStartsOnMonday ? 'bg-green-500' : 'bg-gray-300'
-          }`}
-          onClick={onToggleWeekStart}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              weekStartsOnMonday ? 'translate-x-6' : 'translate-x-1'
-            }`}
-          />
-        </button>
+
+      {/* Share */}
+      <div className="mt-4">
+        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+          {t('settingsShare')}
+        </h4>
+        <div className="flex items-center justify-between py-3">
+          <span className="text-sm font-medium text-gray-700">
+            {t('excludeUrlLabel')}
+          </span>
+          <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
+        </div>
       </div>
     </BaseModal>
   )
