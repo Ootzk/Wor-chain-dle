@@ -46,7 +46,6 @@ export const shareStatus = (
   navigator.clipboard.writeText(shareText)
 }
 
-const NUMBER_EMOJIS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣']
 const WEEKDAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 export const shareCalendar = (
@@ -95,17 +94,17 @@ export const shareCalendar = (
     const isBeforeEpoch = index < epochIndex
 
     if (isFuture || isBeforeEpoch) {
-      row.push('⬜')
+      row.push('⚪') // invalid date (future / before epoch)
     } else {
       const result = dailyHistory[index]
       const isPreRecording =
         historyStartIndex !== null && index < historyStartIndex
       if (!result) {
-        row.push(isPreRecording ? '⬛' : '⚪')
+        row.push(isPreRecording ? '⬛' : '⬜') // pre-recording / not played
       } else if (result.won) {
-        row.push(NUMBER_EMOJIS[result.guessCount - 1] || '🟢')
+        row.push('🟩') // won
       } else {
-        row.push('🟣')
+        row.push('🟪') // lost
       }
     }
 
