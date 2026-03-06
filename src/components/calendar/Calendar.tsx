@@ -35,11 +35,8 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
   const epochYear = epochDate.getUTCFullYear()
   const epochMonth = epochDate.getUTCMonth()
 
-  const canGoBack =
-    year > epochYear || (year === epochYear && month > epochMonth)
-  const canGoForward =
-    year < currentUTCYear ||
-    (year === currentUTCYear && month < currentUTCMonth)
+  const canGoBack = true
+  const canGoForward = true
 
   const goBack = () => {
     if (!canGoBack) return
@@ -153,7 +150,9 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
       ? weekdayKeys
       : WEEKDAYS
 
-  const hasAnyData = monthResults.some((r) => r !== null)
+  const hasAnyData = cells.some(
+    (c) => c.day !== null && !c.isFuture && !c.isBeforeEpoch && c.result != null
+  )
 
   return (
     <div className="flex flex-col items-center">
