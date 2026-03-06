@@ -74,16 +74,3 @@ export const getMonthResults = (
 
   return results
 }
-
-export const computeStreakFromHistory = (
-  history: DailyHistory,
-  currentIndex: number
-): number => {
-  let streak = 0
-  let idx = currentIndex
-  while (history[idx]?.won) {
-    streak++
-    idx--
-  }
-  return streak
-}

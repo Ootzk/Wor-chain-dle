@@ -7,11 +7,9 @@ import {
   DayResult,
   loadDailyHistory,
   dateToSolutionIndex,
-  computeStreakFromHistory,
   getMonthResults,
   getDailyHistoryStartIndex,
 } from '../../lib/dailyHistory'
-import { solutionIndex as todaySolutionIndex } from '../../lib/words'
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
 
@@ -64,8 +62,6 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
 
   const monthResults = getMonthResults(year, month)
   const history = loadDailyHistory()
-  const historyStreak = computeStreakFromHistory(history, todaySolutionIndex)
-  const displayStreak = Math.max(historyStreak, gameStats.currentStreak)
 
   // Build calendar grid
   const firstDayOfWeek = new Date(Date.UTC(year, month, 1)).getUTCDay() // 0=Sun
@@ -203,7 +199,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
 
       {/* Streak */}
       <div className="mt-3 text-lg font-semibold text-gray-900">
-        🔥 {displayStreak}
+        🔥 {gameStats.currentStreak}
       </div>
 
       {/* Share button */}
@@ -212,7 +208,7 @@ export const Calendar = ({ gameStats, handleShare, initialMonth }: Props) => {
         disabled={!hasAnyData}
         className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
         onClick={() => {
-          shareCalendar(year, month, history, displayStreak)
+          shareCalendar(year, month, history, gameStats.currentStreak)
           handleShare()
         }}
       >
