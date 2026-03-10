@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill'
 import { test, expect, waitForGameReady, screenshot } from './fixtures/game.fixture'
 import { Page } from '@playwright/test'
 
@@ -44,9 +45,9 @@ test.describe('Calendar', () => {
     await expect(gamePage.getByRole('heading', { name: 'Calendar' })).toBeVisible()
 
     // Current month label (e.g. "March 2026") — uses local time
-    const now = new Date()
-    const monthLabel = new Date(now.getFullYear(), now.getMonth(), 1)
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    const today = Temporal.Now.plainDateISO()
+    const firstOfMonth = today.with({ day: 1 })
+    const monthLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     await expect(gamePage.locator(`text=${monthLabel}`)).toBeVisible()
 
     // Weekday header — Sunday start by default
@@ -69,9 +70,9 @@ test.describe('Calendar', () => {
   })
 
   test('displays win and loss indicators', async ({ gamePage }) => {
-    const now = new Date()
-    const y = now.getFullYear()
-    const m = now.getMonth()
+    const today = Temporal.Now.plainDateISO()
+    const y = today.year
+    const m = today.month - 1 // 0-indexed for toDateKey
 
     await injectHistory(gamePage, [
       { y, m, d: 1, guessCount: 3, won: true },
@@ -96,9 +97,9 @@ test.describe('Calendar', () => {
   test('month navigation', async ({ gamePage }) => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
 
-    const now = new Date()
-    const currentLabel = new Date(now.getFullYear(), now.getMonth(), 1)
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    const today = Temporal.Now.plainDateISO()
+    const firstOfMonth = today.with({ day: 1 })
+    const currentLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     await expect(gamePage.locator(`text=${currentLabel}`)).toBeVisible()
 
     // Today button disabled on current month
@@ -150,9 +151,9 @@ test.describe('Calendar', () => {
     await gamePage.keyboard.press('Escape')
 
     // Inject data and reopen
-    const now = new Date()
+    const today = Temporal.Now.plainDateISO()
     await injectHistory(gamePage, [
-      { y: now.getFullYear(), m: now.getMonth(), d: 1, guessCount: 4, won: true },
+      { y: today.year, m: today.month - 1, d: 1, guessCount: 4, won: true },
     ])
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
 
