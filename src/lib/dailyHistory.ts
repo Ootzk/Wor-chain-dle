@@ -19,6 +19,7 @@ export const getDailyHistoryStartDate = (): string | null => {
 }
 
 export const initDailyHistoryStartDate = (dateKey: string): void => {
+  migrateDailyHistory()
   if (localStorage.getItem(START_DATE_KEY) === null) {
     localStorage.setItem(START_DATE_KEY, dateKey)
   }
