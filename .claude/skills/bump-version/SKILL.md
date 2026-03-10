@@ -1,7 +1,6 @@
 ---
 name: bump-version
 description: 프로젝트 내 모든 버전 정보를 일괄 업데이트합니다.
-allowed-tools: Read, Edit, Bash(npm version *)
 argument-hint: <version> (e.g. 1.1.0)
 ---
 

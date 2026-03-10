@@ -91,9 +91,33 @@ docker run -d -p 3000:3000 wor-chain-dle
 
 - `main`: 항상 배포 가능한 상태. 머지될 때마다 버전 태그 등록.
 - `release/{version}`: 다음 버전 개발 브랜치. main에서 생성. 해당 버전이 어느 정도 완성되면 main으로 PR을 보내서 머지. **PR 제목은 반드시 `Release v{version}` 형식** (예: `Release v1.2.0`). 이 PR의 body가 GitHub Release 본문으로 자동 사용됨.
-- `feature/{contents}`: 기능별 브랜치. release 브랜치에서 생성. 작업 완료 후 release 브랜치로 PR을 만들어서 머지.
+- 기능별 브랜치: release 브랜치에서 생성. 작업 완료 후 release 브랜치로 PR을 만들어서 머지. 이름은 자유 (예: `feature/calendar`, `improve-e2e`, `fix-share-bug` 등). `main`과 `release/*`가 아닌 브랜치는 모두 기능 브랜치로 간주.
 - **PR 머지는 항상 개발자가 직접 수행.** Claude는 PR 생성까지만.
 - **PR 생성 시 반드시 `--repo Ootzk/Wor-chain-dle`을 명시한다.** 이 프로젝트는 fork 기반이므로, `--repo` 없이 `gh pr create`를 실행하면 upstream(원본 저장소)으로 PR이 올라갈 수 있다.
+
+### PR 생성 시 필수 설정
+
+PR을 만들 때 아래 항목을 반드시 설정한다:
+
+- **Label**: 내용에 맞는 라벨을 `--label`로 지정. 복수 가능. 사용 가능한 라벨:
+  - `✨ enhancement` — 새 기능
+  - `🐛 bug` — 버그 수정
+  - `📝 documentation` — 문서
+  - `🎨 UI/UX` — 디자인/UI 개선
+  - `💰 donation` — 후원 관련
+  - `🔖 versioning` — release → main PR 전용
+  - `🧑‍💻 devops` — 개발 환경/CI/테스트
+  - `💥 breaking change` — 호환성 깨지는 변경
+  - `browser: chrome`, `browser: safari` — 브라우저 한정
+  - `platform: PC`, `platform: mobile` — 플랫폼 한정
+- **Assignee**: `--assignee Ootzk`
+- **Milestone**: 머지 대상 release 버전을 `--milestone`으로 지정 (예: `v1.4.0`). milestone이 아직 없으면 먼저 생성.
+
+### PR-Issue 연결 (Development sidebar)
+
+- **feature PR → release 브랜치**: body에 `Closes #이슈번호`를 작성하되, 타겟이 main이 아니므로 Development sidebar 자동 연결은 안 됨. 참조 용도.
+- **release PR → main**: body에 `Closes #이슈번호`를 나열하면 Development sidebar 자동 연결 + 이슈 자동 close. 해당 release에서 해결된 모든 이슈를 포함할 것.
+- GitHub API 한계로 feature PR의 Development sidebar 연결은 수동으로만 가능.
 
 ## Version Management
 
