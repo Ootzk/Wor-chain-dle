@@ -1,7 +1,6 @@
 ---
 name: pr
 description: 현재 브랜치의 PR을 생성합니다 (label, assignee, milestone, development 자동 설정).
-allowed-tools: Bash(git *), Bash(gh *), Read, Grep
 ---
 
 # PR 생성
@@ -14,9 +13,9 @@ allowed-tools: Bash(git *), Bash(gh *), Read, Grep
 ## 절차
 
 1. **브랜치 유형 판별**
-   - 현재 브랜치가 `feature/*`이면 → feature PR 흐름
    - 현재 브랜치가 `release/*`이면 → release PR 흐름
-   - 둘 다 아니면 중단하고 사용자에게 안내
+   - 현재 브랜치가 `main`이면 → 중단하고 사용자에게 안내
+   - 그 외 모든 브랜치 → feature PR 흐름
 
 2. **사전 확인**
    - `git log`로 base 브랜치 대비 커밋 목록 확인.
