@@ -71,7 +71,7 @@ test.describe('Calendar', () => {
 
     // Close via Escape
     await gamePage.keyboard.press('Escape')
-    await expect(gamePage.getByRole('heading', { name: 'Statistics' })).not.toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Records' })).not.toBeVisible()
   })
 
   test('displays win and loss indicators', async ({ gamePage }) => {

@@ -26,7 +26,7 @@ test.describe('Share — Exclude URL setting', () => {
   /** Win the game by typing the correct word, wait for stats modal */
   async function winGame(gamePage: import('@playwright/test').Page) {
     await submitWord(gamePage, 'crane')
-    await expect(gamePage.locator('text=Statistics')).toBeVisible({ timeout: 5000 })
+    await expect(gamePage.getByRole('heading', { name: 'Records' })).toBeVisible({ timeout: 5000 })
   }
 
   /** Click the Share button in the stats modal and read clipboard */

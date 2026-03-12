@@ -108,14 +108,14 @@ test.describe('Modals', () => {
     // Click stats icon (ChartBarIcon) — 2nd icon in daily mode
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
-    await expect(gamePage.getByRole('heading', { name: 'Statistics' })).toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Records' })).toBeVisible()
     await expect(gamePage.locator('text=Total tries')).toBeVisible()
     await expect(gamePage.locator('text=Success rate')).toBeVisible()
     await screenshot(gamePage, '01-stats-modal-open')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.getByRole('heading', { name: 'Statistics' })).not.toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Records' })).not.toBeVisible()
   })
 
   test('settings modal with uppercase toggle', async ({ gamePage }) => {

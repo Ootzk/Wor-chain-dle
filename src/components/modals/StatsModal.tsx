@@ -54,7 +54,7 @@ export const StatsModal = ({
   if (mode === 'practice') {
     return (
       <BaseModal
-        title={t('statistics')}
+        title={t('records')}
         icon={<ChartBarIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
@@ -84,7 +84,7 @@ export const StatsModal = ({
 
     return (
       <BaseModal
-        title={t('statistics')}
+        title={t('records')}
         icon={<ChartBarIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
@@ -133,7 +133,7 @@ export const StatsModal = ({
 
   return (
     <BaseModal
-      title={t('statistics')}
+      title={t('records')}
       icon={<ChartBarIcon />}
       isOpen={isOpen}
       handleClose={handleClose}

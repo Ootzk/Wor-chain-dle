@@ -19,6 +19,7 @@
     "chainPatternInstructions": "チェインの方向は 右 → 左 → 右 → 左 → 右 の順で交互に切り替わり、蛇のような形になります。",
     "chainDeadEndInstructions": "チェインされた文字が答えの位置と一致しない場合、ゲームは早期終了します。",
     "guessDistribution": "推測の分布",
+    "records": "記録",
     "statistics": "統計",
     "totalTries": "総ゲーム数",
     "successRate": "成功率",
