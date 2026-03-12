@@ -216,6 +216,16 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('a:has-text("Donate via Toss")')).toBeVisible()
     await screenshot(gamePage, '02-donate-modal-toss')
 
+    // Switch to GitHub tab
+    await gamePage.locator('button:has-text("GitHub")').click()
+    await expect(gamePage.locator('iframe[title="Sponsor Ootzk"]')).toBeVisible()
+    await expect(gamePage.locator('a:has-text("Donate via GitHub")')).toBeVisible()
+    await expect(gamePage.locator('a:has-text("Donate via GitHub")')).toHaveAttribute(
+      'href',
+      'https://github.com/sponsors/Ootzk'
+    )
+    await screenshot(gamePage, '03-donate-modal-github')
+
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('h3:has-text("Donate")')).not.toBeVisible()
