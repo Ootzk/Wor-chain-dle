@@ -16,9 +16,14 @@ import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
 import { TranslateModal } from './components/modals/TranslateModal'
 import { CalendarModal } from './components/modals/CalendarModal'
-import { isWordInWordList, isWinningWord, solutionIndex } from './lib/words'
+import { Temporal } from 'temporal-polyfill'
+import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
-import { saveDailyResult, initDailyHistoryStartIndex } from './lib/dailyHistory'
+import {
+  saveDailyResult,
+  initDailyHistoryStartDate,
+  dateToKey,
+} from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
@@ -112,12 +117,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (isDaily) {
-      initDailyHistoryStartIndex(solutionIndex)
-      const now = new Date()
-      const yyyy = now.getUTCFullYear()
-      const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
-      const dd = String(now.getUTCDate()).padStart(2, '0')
-      document.title = `Wor\u{1F517}dle Daily | ${yyyy}-${mm}-${dd}`
+      const today = Temporal.Now.plainDateISO()
+      const todayKey = dateToKey(today)
+      initDailyHistoryStartDate(todayKey)
+      document.title = `Wor\u{1F517}dle Daily | ${todayKey}`
     } else if (isCustom) {
       document.title = `Wor\u{1F517}dle Custom | ${questioner}`
     } else {
@@ -201,12 +204,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       setCurrentGuess([])
       setGuesses([...guesses, fullGuess])
 
+      const todayKey = dateToKey(Temporal.Now.plainDateISO())
+
       if (winningWord) {
         if (isDaily || isCustom) {
           setStats(addStatsForCompletedGame(stats, guesses.length, statsKey))
         }
         if (isDaily) {
-          saveDailyResult(solutionIndex, guesses.length + 1, true)
+          saveDailyResult(todayKey, guesses.length + 1, true)
         }
         return setIsGameWon(true)
       }
@@ -221,7 +226,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             setStats(addStatsForCompletedGame(stats, CONFIG.tries, statsKey))
           }
           if (isDaily) {
-            saveDailyResult(solutionIndex, CONFIG.tries, false)
+            saveDailyResult(todayKey, CONFIG.tries, false)
           }
           setIsGameLost(true)
           return
@@ -235,19 +240,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           )
         }
         if (isDaily) {
-          saveDailyResult(solutionIndex, guesses.length + 1, false)
+          saveDailyResult(todayKey, guesses.length + 1, false)
         }
         setIsGameLost(true)
       }
     }
   }
-  const utcDateStr = (() => {
-    const n = new Date()
-    const y = n.getUTCFullYear()
-    const m = String(n.getUTCMonth() + 1).padStart(2, '0')
-    const d = String(n.getUTCDate()).padStart(2, '0')
-    return `${y}-${m}-${d}`
-  })()
+  const localDateStr = dateToKey(Temporal.Now.plainDateISO())
 
   let translateElement = <div></div>
   if (CONFIG.availableLangs.length > 1) {
@@ -266,7 +265,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-gray-500">
             {isDaily ? (
-              <>Daily | {utcDateStr}</>
+              <>Daily | {localDateStr}</>
             ) : isCustom ? (
               <>
                 <span className="text-green-500">Custom</span> | {questioner}

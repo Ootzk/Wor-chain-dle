@@ -16,7 +16,7 @@ export const CONFIG = {
   wordListSourceLink: 'https://www.nytimes.com/games/wordle',
   googleAnalytics: '',
   normalization: 'NFC',
-  startDate: 'February 16, 2026 00:00:00 UTC',
+  startDate: '2026-02-16',
   defaultLang: 'en',
   availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh'],
   escapeSpecialCharacters: true,

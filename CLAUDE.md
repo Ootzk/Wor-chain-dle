@@ -9,6 +9,7 @@ Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLangua
 - React 17 + TypeScript + Tailwind CSS 3
 - Create React App (react-scripts 5)
 - React Router v5 (HashRouter)
+- Temporal API (`temporal-polyfill`) — DST-safe 날짜 계산, Date 완전 대체
 - i18next (en, ko, ja, es, sw, zh — 번역 리소스 JS 번들 인라인)
 - Playwright (E2E 테스트 — Chromium, WebKit, iPhone 13, Pixel 5)
 - GoatCounter 애널리틱스 (쿠키 없음, 경량)
@@ -28,7 +29,7 @@ src/
     wordlist.ts                  ← 정답 단어 목록 (2,315개, 고정 시드 셔플)
     validGuesses.ts              ← 유효 추측 단어 목록 (10,656개, 정답과 중복 없음)
   lib/
-    words.ts                     ← 오늘의 단어 선택 (UTC 기반), 단어 검증
+    words.ts                     ← 오늘의 단어 선택 (로컬 타임존 기반, Temporal API), 단어 검증
     statuses.ts                  ← 글자 상태 판정 (correct/present/absent)
     chain.ts                     ← 체인 규칙 유틸 (체인 인덱스, dead end 판정)
     share.ts                     ← 공유 텍스트 생성 (이모지 그리드 + box-drawing 체인 경로 + 달력 월별 공유)
@@ -133,7 +134,7 @@ PR을 만들 때 아래 항목을 반드시 설정한다:
 
 | 항목 | Daily | Practice | Custom |
 | ------ | ------- | ---------- | -------- |
-| 정답 출처 | WORDS (매일 UTC 리셋) | WORDS (랜덤) | 출제자 지정 (WORDS + VALIDGUESSES) |
+| 정답 출처 | WORDS (매일 로컬 자정 리셋) | WORDS (랜덤) | 출제자 지정 (WORDS + VALIDGUESSES) |
 | 통계 저장 | `gameStats` | X | `customGameStats` |
 | 날짜별 기록 | `dailyHistory` | X | X |
 | 게임 상태 저장 | O | X | X |
@@ -145,18 +146,18 @@ PR을 만들 때 아래 항목을 반드시 설정한다:
 - **출제 페이지**: `/#/create` — Keyboard 컴포넌트 재사용, 셀은 readOnly (모바일 가상 키보드 억제)
 - **출제자 이름**: 최대 10자 제한 (오버레이 깨짐 방지)
 
-## UTC 기준 시간
+## 로컬 타임존 기반 시간
 
-게임 전체가 UTC 기준으로 동작한다. 로컬 타임을 사용하면 안 됨.
+게임 전체가 디바이스 로컬 타임존 기준으로 동작한다. `Date` 객체 대신 `Temporal` API (`temporal-polyfill`)를 사용.
 
-- **단어 선택**: `solutionIndex`가 `CONFIG.startDate` epoch부터 UTC 자정 기준으로 계산
-- **Daily subtitle**: `App.tsx`에서 `getUTCFullYear/Month/Date`로 표시 (로컬 `toLocaleDateString` 사용 금지)
-- **document.title**: 동일하게 UTC 기반
-- **달력 today 판정**: `Calendar.tsx`에서 `getUTCDate()`로 오늘 날짜 결정
-- **dailyHistory 인덱스**: UTC 기반 `dateToSolutionIndex`로 저장/조회
-- **공유 텍스트**: `share.ts`에서 `getUTCFullYear/Month/Date`로 날짜 생성
+- **단어 선택**: `Temporal.Now.plainDateISO()`로 오늘 날짜 취득, `today.since(epoch).days`로 solutionIndex 계산 (DST 무관)
+- **Daily subtitle / document.title**: `dateToKey(Temporal.Now.plainDateISO())`로 표시
+- **달력 today 판정**: `Temporal.PlainDate.compare()`로 오늘/미래/과거 결정
+- **dailyHistory 키**: `"yyyy-mm-dd"` 날짜 문자열 (구버전 정수 key는 앱 로드 시 자동 마이그레이션)
+- **공유 텍스트**: `Temporal.Now.plainDateISO().toString()`으로 날짜 생성
+- **카운트다운 타이머**: `Temporal.ZonedDateTime.epochMilliseconds`로 다음 날 로컬 자정 밀리초 계산
 
-로컬 타임을 쓰면 subtitle과 달력 today가 불일치하고, dailyHistory 인덱스와 달력 셀 매핑이 어긋남.
+`Date` 객체는 앱 런타임에서 사용하지 않는다. 마이그레이션 로직에서도 `Temporal.PlainDate`만 사용.
 
 ## Routing
 
@@ -164,7 +165,7 @@ HashRouter 기반 라우팅 (`src/index.tsx`):
 
 | 경로 | 컴포넌트 | 모드 | 설명 |
 | --- | --- | --- | --- |
-| `/#/` | DailyPage | daily | UTC 기반 매일 고정 정답 |
+| `/#/` | DailyPage | daily | 로컬 자정 기반 매일 고정 정답 |
 | `/#/practice` | PracticePage | practice | 랜덤 단어 (매 접속마다 새로 생성) |
 | `/#/create` | CreatePuzzlePage | — | 커스텀 퍼즐 출제 페이지 |
 | `/#/custom/:code` | CustomPage | custom | Base64 디코딩 후 단어 검증, 실패 시 `/`로 리다이렉트 |
@@ -217,8 +218,9 @@ Daily 모드 게임 완료 시 `dailyHistory` (localStorage)에 날짜별 결과
 **데이터 구조** (`src/lib/dailyHistory.ts`):
 
 - `DayResult = { guessCount: number, won: boolean }` — 각 날짜의 게임 결과
-- `DailyHistory = Record<number, DayResult>` — key는 solutionIndex (CONFIG.startDate epoch 기준 일수)
-- localStorage 키: `dailyHistory` (결과), `dailyHistoryStartIndex` (달력 추적 시작 인덱스)
+- `DailyHistory = Record<string, DayResult>` — key는 `"yyyy-mm-dd"` ISO 날짜 문자열
+- localStorage 키: `dailyHistory` (결과), `dailyHistoryStartDate` (달력 추적 시작 날짜, `"yyyy-mm-dd"`)
+- 마이그레이션: 구버전 정수 key → 날짜 key 자동 변환 (`migrateDailyHistory()`, 앱 로드 시 1회)
 
 **달력 UI** (`src/components/calendar/`):
 

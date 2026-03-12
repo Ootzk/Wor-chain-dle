@@ -1,30 +1,29 @@
+import { Temporal } from 'temporal-polyfill'
 import { test, expect, waitForGameReady, screenshot } from './fixtures/game.fixture'
 import { Page } from '@playwright/test'
 
-// Mirrors CONFIG.startDate and dailyHistory.ts index calculation
-const START_MS = Date.UTC(2026, 1, 16) // Feb 16, 2026
-const DAY_MS = 86400000
-const toIndex = (y: number, m: number, d: number) =>
-  Math.floor((Date.UTC(y, m, d) - START_MS) / DAY_MS)
+/** Format a date key as "yyyy-mm-dd" */
+const toDateKey = (y: number, m: number, d: number) =>
+  `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
 
 /** Inject fake dailyHistory into localStorage and reload */
 async function injectHistory(
   page: Page,
   entries: { y: number; m: number; d: number; guessCount: number; won: boolean }[]
 ) {
-  const history: Record<number, { guessCount: number; won: boolean }> = {}
-  let minIndex = Infinity
+  const history: Record<string, { guessCount: number; won: boolean }> = {}
+  let minKey = ''
   for (const e of entries) {
-    const idx = toIndex(e.y, e.m, e.d)
-    history[idx] = { guessCount: e.guessCount, won: e.won }
-    if (idx < minIndex) minIndex = idx
+    const key = toDateKey(e.y, e.m, e.d)
+    history[key] = { guessCount: e.guessCount, won: e.won }
+    if (!minKey || key < minKey) minKey = key
   }
   await page.evaluate(
-    ({ h, si }) => {
+    ({ h, sd }) => {
       localStorage.setItem('dailyHistory', JSON.stringify(h))
-      localStorage.setItem('dailyHistoryStartIndex', si.toString())
+      localStorage.setItem('dailyHistoryStartDate', sd)
     },
-    { h: history, si: minIndex }
+    { h: history, sd: minKey }
   )
   await page.reload()
   await waitForGameReady(page)
@@ -45,10 +44,10 @@ test.describe('Calendar', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
     await expect(gamePage.getByRole('heading', { name: 'Calendar' })).toBeVisible()
 
-    // Current month label (e.g. "March 2026")
-    const now = new Date()
-    const monthLabel = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    // Current month label (e.g. "March 2026") — uses local time
+    const today = Temporal.Now.plainDateISO()
+    const firstOfMonth = today.with({ day: 1 })
+    const monthLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     await expect(gamePage.locator(`text=${monthLabel}`)).toBeVisible()
 
     // Weekday header — Sunday start by default
@@ -71,9 +70,9 @@ test.describe('Calendar', () => {
   })
 
   test('displays win and loss indicators', async ({ gamePage }) => {
-    const now = new Date()
-    const y = now.getUTCFullYear()
-    const m = now.getUTCMonth()
+    const today = Temporal.Now.plainDateISO()
+    const y = today.year
+    const m = today.month - 1 // 0-indexed for toDateKey
 
     await injectHistory(gamePage, [
       { y, m, d: 1, guessCount: 3, won: true },
@@ -98,9 +97,9 @@ test.describe('Calendar', () => {
   test('month navigation', async ({ gamePage }) => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
 
-    const now = new Date()
-    const currentLabel = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    const today = Temporal.Now.plainDateISO()
+    const firstOfMonth = today.with({ day: 1 })
+    const currentLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     await expect(gamePage.locator(`text=${currentLabel}`)).toBeVisible()
 
     // Today button disabled on current month
@@ -152,9 +151,9 @@ test.describe('Calendar', () => {
     await gamePage.keyboard.press('Escape')
 
     // Inject data and reopen
-    const now = new Date()
+    const today = Temporal.Now.plainDateISO()
     await injectHistory(gamePage, [
-      { y: now.getUTCFullYear(), m: now.getUTCMonth(), d: 1, guessCount: 4, won: true },
+      { y: today.year, m: today.month - 1, d: 1, guessCount: 4, won: true },
     ])
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
 
