@@ -8,7 +8,7 @@ test.describe('Modals', () => {
   })
 
   test('info modal — daily mode tabs', async ({ gamePage }) => {
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
 
     // Tab 1: Daily Mode (default)
@@ -34,7 +34,7 @@ test.describe('Modals', () => {
     await gamePage.goto('/#/practice')
     await waitForGameReady(gamePage)
 
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
 
     // Tab 1: Practice Mode (default)
@@ -58,7 +58,7 @@ test.describe('Modals', () => {
     await gamePage.goto(customPuzzlePath('crane', 'Alice'))
     await waitForGameReady(gamePage)
 
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
 
     // Tab 1: Custom Mode (default) — shows questioner name
@@ -83,8 +83,8 @@ test.describe('Modals', () => {
     await gamePage.goto('/#/create')
     await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
 
-    // Create page icons: translate(0), info(1), settings(2), donate(3)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    // Create page icons: info(0), settings(1), donate(2)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
 
     // Tab 1: How to Create (default)
@@ -105,8 +105,8 @@ test.describe('Modals', () => {
   })
 
   test('stats modal opens and closes', async ({ gamePage }) => {
-    // Click stats icon (ChartBarIcon) — 3rd icon in daily mode
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    // Click stats icon (ChartBarIcon) — 2nd icon in daily mode
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
     await expect(gamePage.locator('text=Statistics')).toBeVisible()
     await expect(gamePage.locator('text=Total tries')).toBeVisible()
@@ -119,8 +119,8 @@ test.describe('Modals', () => {
   })
 
   test('settings modal with uppercase toggle', async ({ gamePage }) => {
-    // Click settings icon (CogIcon) — 5th icon (0:translate, 1:info, 2:stats, 3:calendar, 4:settings)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    // Click settings icon (CogIcon) — 4th icon (0:info, 1:stats, 2:calendar, 3:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
 
     await expect(gamePage.locator('text=Settings')).toBeVisible()
     await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
@@ -139,7 +139,7 @@ test.describe('Modals', () => {
     await screenshot(gamePage, '03-uppercase-applied-to-page')
 
     // Reopen settings and toggle off
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await screenshot(gamePage, '04-uppercase-toggle-off')
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -150,8 +150,8 @@ test.describe('Modals', () => {
   })
 
   test('uppercase setting persists across page navigation', async ({ gamePage }) => {
-    // Daily: enable uppercase via settings (settings = 5th icon)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    // Daily: enable uppercase via settings (settings = 4th icon)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase')).toBeVisible()
@@ -175,8 +175,8 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('div.uppercase')).toBeVisible()
     await screenshot(gamePage, '04-create-uppercase-persisted')
 
-    // Toggle off on Create page (settings = 3rd icon: translate, info, settings)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    // Toggle off on Create page (settings = 2nd icon: info, settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
@@ -196,8 +196,8 @@ test.describe('Modals', () => {
   })
 
   test('donate modal opens and closes', async ({ gamePage }) => {
-    // Click donate icon (CurrencyDollarIcon) — 6th icon (0:translate, 1:info, 2:stats, 3:calendar, 4:settings, 5:donate)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(5).click()
+    // Click donate icon (CurrencyDollarIcon) — 5th icon (0:info, 1:stats, 2:calendar, 3:settings, 4:donate)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
 
     await expect(gamePage.locator('h3:has-text("Donate")')).toBeVisible()
 
@@ -221,48 +221,26 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('h3:has-text("Donate")')).not.toBeVisible()
   })
 
-  test('translate modal opens with flag emojis', async ({ gamePage }) => {
-    // Click translate icon (first icon)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
+  test('language selector in settings modal', async ({ gamePage }) => {
+    // Open settings (0:info, 1:stats, 2:calendar, 3:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    await expect(gamePage.locator('text=Settings')).toBeVisible()
 
-    await expect(gamePage.locator('h3:has-text("language")')).toBeVisible()
-    await expect(gamePage.locator('text=English')).toBeVisible()
-    await screenshot(gamePage, '01-translate-modal-open')
+    // Language dropdown should be visible with current language selected
+    const langSelect = gamePage.locator('select')
+    await expect(langSelect).toBeVisible()
+    await expect(langSelect).toHaveValue('en')
 
-    // Close
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('h3:has-text("language")')).not.toBeVisible()
-  })
+    // All language options should be available
+    const options = langSelect.locator('option')
+    await expect(options).toHaveCount(6)
 
-  test('translate modal title does not overlap close button', async ({ gamePage }, testInfo) => {
-    test.skip(!testInfo.project.name.startsWith('mobile'), 'Mobile-only')
-
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
-    await gamePage.waitForTimeout(300)
-
-    // Measure actual text width using Range API
-    const titleTextRight = await gamePage.evaluate(() => {
-      const h3 = document.querySelector('h3')
-      if (!h3) return null
-      const range = document.createRange()
-      range.selectNodeContents(h3)
-      return range.getBoundingClientRect().right
-    })
-    expect(titleTextRight).toBeTruthy()
-
-    const closeBtn = gamePage.locator('.inline-block.align-bottom svg.h-6.w-6.cursor-pointer')
-    const closeBtnBox = await closeBtn.boundingBox()
-    expect(closeBtnBox).toBeTruthy()
-
-    await screenshot(gamePage, '01-translate-modal-no-overlap')
-
-    const overlap = titleTextRight! - closeBtnBox!.x
-    expect(overlap, `Title overlaps close button by ${overlap}px`).toBeLessThanOrEqual(0)
+    await screenshot(gamePage, '01-settings-language-dropdown')
   })
 
   test('modal closes on Escape key', async ({ gamePage }) => {
     // Open info modal
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
     await screenshot(gamePage, '01-modal-open-before-escape')
 

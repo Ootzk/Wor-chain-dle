@@ -1,6 +1,17 @@
 import { BaseModal } from './BaseModal'
 import { CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
+import { CONFIG } from '../../constants/config'
+import { localeLanguageKey } from '../../i18n'
+
+const langFlags: Record<string, string> = {
+  en: '🇺🇸🇬🇧',
+  ko: '🇰🇷',
+  ja: '🇯🇵',
+  es: '🇪🇸',
+  sw: '🇹🇿🇰🇪',
+  zh: '🇨🇳',
+}
 
 type Props = {
   isOpen: boolean
@@ -47,7 +58,7 @@ export const SettingsModal = ({
   excludeUrl,
   onToggleExcludeUrl,
 }: Props) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   return (
     <BaseModal title={t('settings')} icon={<CogIcon />} isOpen={isOpen} handleClose={handleClose}>
@@ -70,6 +81,27 @@ export const SettingsModal = ({
           </span>
           <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
         </div>
+        {CONFIG.availableLangs.length > 1 && (
+          <div className="flex items-center justify-between py-3">
+            <span className="text-sm font-medium text-gray-700">
+              {t('pickYourLanguage')}
+            </span>
+            <select
+              className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={i18n.language?.split('-')[0]}
+              onChange={(e) => {
+                i18n.changeLanguage(e.target.value)
+                localStorage.setItem(localeLanguageKey, e.target.value)
+              }}
+            >
+              {CONFIG.availableLangs.map((lang) => (
+                <option key={lang} value={lang}>
+                  {langFlags[lang]} {t(`languages.${lang}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     </BaseModal>
   )

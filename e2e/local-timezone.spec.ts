@@ -12,7 +12,7 @@ import { waitForGameReady, screenshot } from './fixtures/game.fixture'
 // Bare test without gamePage fixture — we need custom browser contexts
 const test = base
 
-const CALENDAR_ICON = 3
+const CALENDAR_ICON = 2
 
 /** Common initScript to suppress patch notes and set English */
 function addGameInitScript(page: Page) {

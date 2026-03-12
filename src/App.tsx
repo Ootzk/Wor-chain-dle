@@ -3,7 +3,6 @@ import { ChartBarIcon } from '@heroicons/react/outline'
 import { CalendarIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
-import { TranslateIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
@@ -14,7 +13,6 @@ import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
-import { TranslateModal } from './components/modals/TranslateModal'
 import { CalendarModal } from './components/modals/CalendarModal'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
@@ -67,7 +65,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
-  const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
+
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
@@ -248,16 +246,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
 
-  let translateElement = <div></div>
-  if (CONFIG.availableLangs.length > 1) {
-    translateElement = (
-      <TranslateIcon
-        className="h-6 w-6 cursor-pointer"
-        onClick={() => setIsI18nModalOpen(true)}
-      />
-    )
-  }
-
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div className="flex w-80 mx-auto items-center mb-8">
@@ -275,7 +263,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             )}
           </p>
         </div>
-        {translateElement}
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
@@ -315,10 +302,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           solution={solution}
         />
       </div>
-      <TranslateModal
-        isOpen={isI18nModalOpen}
-        handleClose={() => setIsI18nModalOpen(false)}
-      />
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}

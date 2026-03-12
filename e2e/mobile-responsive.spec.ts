@@ -67,7 +67,7 @@ test.describe('Mobile Responsive', () => {
     await waitForGameReady(gamePage)
 
     // Open info modal
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(gamePage.locator('text=How to play')).toBeVisible()
 
     // Modal panel should not overflow horizontally
