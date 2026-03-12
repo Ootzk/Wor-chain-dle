@@ -35,7 +35,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Run Playwright tests
-        run: npx playwright test navigation.spec.ts --project=chromium
+        run: npx playwright test --project=chromium --grep "daily page renders" --retries=0
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
