@@ -152,7 +152,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   )
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-between min-h-[26rem]">
       {/* Month navigation */}
       <div className="flex items-center w-full mb-3">
         <button
@@ -183,51 +183,51 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
         </button>
       </div>
 
-      {/* Weekday header */}
-      <div className="grid grid-cols-7 gap-0 mb-1">
-        {displayWeekdays.map((wd, i) => (
-          <div
-            key={i}
-            className="w-10 text-center text-xs font-medium text-gray-400"
-          >
-            {wd}
-          </div>
-        ))}
+      {/* Weekday header + Day grid */}
+      <div>
+        <div className="grid grid-cols-7 gap-0 mb-1">
+          {displayWeekdays.map((wd, i) => (
+            <div
+              key={i}
+              className="w-10 text-center text-xs font-medium text-gray-400"
+            >
+              {wd}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-0">
+          {cells.map((cell, i) => (
+            <CalendarDay
+              key={i}
+              day={cell.day}
+              result={cell.result}
+              isToday={cell.isToday}
+              isFuture={cell.isFuture}
+              isBeforeEpoch={cell.isBeforeEpoch}
+              isBirthday={cell.isBirthday}
+              isCalendarEpoch={cell.isCalendarEpoch}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Day grid */}
-      <div className="grid grid-cols-7 gap-0">
-        {cells.map((cell, i) => (
-          <CalendarDay
-            key={i}
-            day={cell.day}
-            result={cell.result}
-            isToday={cell.isToday}
-            isFuture={cell.isFuture}
-            isBeforeEpoch={cell.isBeforeEpoch}
-            isBirthday={cell.isBirthday}
-            isCalendarEpoch={cell.isCalendarEpoch}
-          />
-        ))}
+      {/* Streak + Share button */}
+      <div className="w-full flex flex-col items-center">
+        <div className="text-lg font-semibold text-gray-900">
+          🔥 {gameStats.currentStreak}
+        </div>
+        <button
+          type="button"
+          disabled={!hasAnyData}
+          className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
+          onClick={() => {
+            shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
+            handleShare()
+          }}
+        >
+          {t('shareMonth')}
+        </button>
       </div>
-
-      {/* Streak */}
-      <div className="mt-3 text-lg font-semibold text-gray-900">
-        🔥 {gameStats.currentStreak}
-      </div>
-
-      {/* Share button */}
-      <button
-        type="button"
-        disabled={!hasAnyData}
-        className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
-        onClick={() => {
-          shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
-          handleShare()
-        }}
-      >
-        {t('shareMonth')}
-      </button>
     </div>
   )
 }
