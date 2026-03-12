@@ -31,7 +31,7 @@ test.describe('Share — Exclude URL setting', () => {
 
   /** Click the Share button in the stats modal and read clipboard */
   async function clickShareAndReadClipboard(gamePage: import('@playwright/test').Page): Promise<string> {
-    await gamePage.locator('button', { hasText: 'Share' }).click()
+    await gamePage.getByRole('button', { name: 'Share My Result' }).click()
     await expect(gamePage.locator('text=Game copied to clipboard')).toBeVisible({ timeout: 3000 })
     return gamePage.evaluate(() => navigator.clipboard.readText())
   }
