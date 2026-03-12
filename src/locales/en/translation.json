@@ -37,6 +37,7 @@
     "donateMonsterDrink": "Buy the developer a Monster Energy!",
     "donateKakaoPay": "Donate via KakaoPay",
     "donateToss": "Donate via Toss",
+    "donateGithub": "Donate via GitHub",
     "practice": "Practice",
     "daily": "Daily",
     "createPuzzleNav": "Create",
@@ -163,6 +164,8 @@
     "patchNote_settings_desc": "Added toggles for starting the week on Monday and excluding URL when sharing.",
     "patchNote_i18nFix_title": "Bug Fix",
     "patchNote_i18nFix_desc": "Fixed an issue where translation keys were briefly shown instead of text when opening the app in a background tab.",
+    "patchNote_sponsors_title": "GitHub Sponsors",
+    "patchNote_sponsors_desc": "You can now donate via GitHub Sponsors in the donation menu.",
     "languages": {
         "en": "English",
         "ko": "한국어",

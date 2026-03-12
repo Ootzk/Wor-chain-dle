@@ -37,6 +37,7 @@
     "donateMonsterDrink": "개발자에게 몬스터 에너지 한 캔 사주세요!",
     "donateKakaoPay": "카카오페이로 후원",
     "donateToss": "토스로 후원",
+    "donateGithub": "GitHub으로 후원",
     "practice": "연습",
     "daily": "오늘의 문제",
     "createPuzzleNav": "출제",
@@ -117,6 +118,8 @@
     "patchNote_settings_desc": "주 시작 요일(월요일) 변경, 공유 시 URL 제외 토글이 추가되었습니다.",
     "patchNote_i18nFix_title": "버그 수정",
     "patchNote_i18nFix_desc": "백그라운드 탭에서 앱을 열 때 번역 키가 잠시 노출되던 문제를 수정했습니다.",
+    "patchNote_sponsors_title": "GitHub Sponsors",
+    "patchNote_sponsors_desc": "후원 메뉴에서 GitHub Sponsors로 후원할 수 있습니다.",
     "languages": {
         "en": "English",
         "ko": "한국어",

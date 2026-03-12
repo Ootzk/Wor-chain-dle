@@ -37,6 +37,7 @@
     "donateMonsterDrink": "開発者にモンスターエナジーを1本おごってください！",
     "donateKakaoPay": "KakaoPayで寄付",
     "donateToss": "Tossで寄付",
+    "donateGithub": "GitHubで寄付",
     "practice": "練習",
     "daily": "今日の問題",
     "createPuzzleNav": "出題",
@@ -117,6 +118,8 @@
     "patchNote_settings_desc": "週の始まりを月曜日に変更、共有時にURLを除外するトグルが追加されました。",
     "patchNote_i18nFix_title": "バグ修正",
     "patchNote_i18nFix_desc": "バックグラウンドタブでアプリを開いた際に翻訳キーが一瞬表示される問題を修正しました。",
+    "patchNote_sponsors_title": "GitHub Sponsors",
+    "patchNote_sponsors_desc": "寄付メニューからGitHub Sponsorsで寄付できるようになりました。",
     "languages": {
         "en": "English",
         "ko": "한국어",

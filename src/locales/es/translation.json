@@ -33,6 +33,7 @@
   "donateMonsterDrink": "¡Cómprale una lata de Monster Energy al desarrollador!",
   "donateKakaoPay": "Donar con KakaoPay",
   "donateToss": "Donar con Toss",
+  "donateGithub": "Donar con GitHub",
   "practice": "Práctica",
   "daily": "Diario",
   "createPuzzleNav": "Crear",
@@ -158,6 +159,8 @@
   "patchNote_settings_desc": "Se añadieron opciones para empezar la semana el lunes y excluir la URL al compartir.",
   "patchNote_i18nFix_title": "Corrección de error",
   "patchNote_i18nFix_desc": "Se corrigió un problema donde las claves de traducción aparecían brevemente en lugar del texto al abrir la app en una pestaña en segundo plano.",
+  "patchNote_sponsors_title": "GitHub Sponsors",
+  "patchNote_sponsors_desc": "Ahora puedes donar a través de GitHub Sponsors en el menú de donaciones.",
   "languages": {
     "en": "English",
     "ko": "한국어",

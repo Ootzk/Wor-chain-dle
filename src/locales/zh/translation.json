@@ -33,6 +33,7 @@
   "donateMonsterDrink": "请给开发者买一罐Monster Energy！",
   "donateKakaoPay": "通过KakaoPay捐赠",
   "donateToss": "通过Toss捐赠",
+  "donateGithub": "通过 GitHub 捐赠",
   "practice": "練習",
   "daily": "每日挑戰",
   "createPuzzleNav": "出题",
@@ -157,6 +158,8 @@
   "patchNote_settings_desc": "新增了以周一作为每周起始日和分享时排除URL的开关。",
   "patchNote_i18nFix_title": "错误修复",
   "patchNote_i18nFix_desc": "修复了在后台标签页打开应用时翻译键短暂显示的问题。",
+  "patchNote_sponsors_title": "GitHub Sponsors",
+  "patchNote_sponsors_desc": "现在可以通过捐赠菜单中的 GitHub Sponsors 进行捐赠。",
   "languages": {
     "en": "English",
     "ko": "한국어",

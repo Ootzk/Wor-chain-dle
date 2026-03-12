@@ -33,6 +33,7 @@
   "donateMonsterDrink": "Mnunulie msanidi kopo la Monster Energy!",
   "donateKakaoPay": "Changia kupitia KakaoPay",
   "donateToss": "Changia kupitia Toss",
+  "donateGithub": "Changia kupitia GitHub",
   "practice": "Mazoezi",
   "daily": "Kila siku",
   "createPuzzleNav": "Unda",
@@ -158,6 +159,8 @@
   "patchNote_settings_desc": "Vibadilishaji vya kuanza wiki siku ya Jumatatu na kuondoa URL wakati wa kushiriki vimeongezwa.",
   "patchNote_i18nFix_title": "Utatuzi wa Hitilafu",
   "patchNote_i18nFix_desc": "Imetatuliwa tatizo ambapo funguo za tafsiri zilionekana kwa muda mfupi badala ya maandishi wakati wa kufungua programu kwenye kichupo cha nyuma.",
+  "patchNote_sponsors_title": "GitHub Sponsors",
+  "patchNote_sponsors_desc": "Sasa unaweza kuchangia kupitia GitHub Sponsors kwenye menyu ya michango.",
   "languages": {
     "en": "English",
     "ko": "한국어",
