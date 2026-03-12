@@ -31,15 +31,15 @@ test.describe('Share — Exclude URL setting', () => {
 
   /** Click the Share button in the stats modal and read clipboard */
   async function clickShareAndReadClipboard(gamePage: import('@playwright/test').Page): Promise<string> {
-    await gamePage.locator('button', { hasText: 'Share' }).click()
+    await gamePage.getByRole('button', { name: 'Share My Result' }).click()
     await expect(gamePage.locator('text=Game copied to clipboard')).toBeVisible({ timeout: 3000 })
     return gamePage.evaluate(() => navigator.clipboard.readText())
   }
 
   /** Toggle the Exclude URL setting on/off */
   async function toggleExcludeUrl(gamePage: import('@playwright/test').Page) {
-    // Custom mode: 0:info, 1:stats, 2:settings
-    const settingsIndex = 2
+    // Custom mode: 0:info, 1:settings, 2:donate
+    const settingsIndex = 1
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(settingsIndex).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
     // Exclude URL is the 3rd toggle (0:uppercase, 1:weekStart, 2:excludeUrl)

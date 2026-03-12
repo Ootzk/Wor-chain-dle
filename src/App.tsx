@@ -47,8 +47,6 @@ type AppOwnProps = {
   questioner?: string
 }
 
-const CUSTOM_STATS_KEY = 'customGameStats'
-
 const App: React.FC<WithTranslation & AppOwnProps> = ({
   t,
   i18n,
@@ -58,7 +56,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 }) => {
   const isDaily = mode === 'daily'
   const isCustom = mode === 'custom'
-  const statsKey = isCustom ? CUSTOM_STATS_KEY : undefined
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
@@ -111,7 +108,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     ReactGA.initialize(TRACKING_ID)
     ReactGA.pageview(window.location.pathname)
   }
-  const [stats, setStats] = useState(() => loadStats(statsKey))
+  const [stats, setStats] = useState(() => loadStats())
 
   useEffect(() => {
     if (isDaily) {
@@ -205,8 +202,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const todayKey = dateToKey(Temporal.Now.plainDateISO())
 
       if (winningWord) {
-        if (isDaily || isCustom) {
-          setStats(addStatsForCompletedGame(stats, guesses.length, statsKey))
+        if (isDaily) {
+          setStats(addStatsForCompletedGame(stats, guesses.length))
         }
         if (isDaily) {
           saveDailyResult(todayKey, guesses.length + 1, true)
@@ -220,8 +217,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           .split(ORTHOGRAPHY_PATTERN)
           .filter((i) => i)
         if (isChainDeadEnd(newGuesses, solutionChars)) {
-          if (isDaily || isCustom) {
-            setStats(addStatsForCompletedGame(stats, CONFIG.tries, statsKey))
+          if (isDaily) {
+            setStats(addStatsForCompletedGame(stats, CONFIG.tries))
           }
           if (isDaily) {
             saveDailyResult(todayKey, CONFIG.tries, false)
@@ -232,10 +229,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       }
 
       if (guesses.length === CONFIG.tries - 1) {
-        if (isDaily || isCustom) {
-          setStats(
-            addStatsForCompletedGame(stats, guesses.length + 1, statsKey)
-          )
+        if (isDaily) {
+          setStats(addStatsForCompletedGame(stats, guesses.length + 1))
         }
         if (isDaily) {
           saveDailyResult(todayKey, guesses.length + 1, false)
@@ -267,7 +262,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
         />
-        {(isDaily || isCustom) && (
+        {isDaily && (
           <ChartBarIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}

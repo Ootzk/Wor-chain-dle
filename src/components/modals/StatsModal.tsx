@@ -3,6 +3,7 @@ import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { GameStats } from '../../lib/localStorage'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
+import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { tomorrow } from '../../lib/words'
 import { BaseModal } from './BaseModal'
 import { ChartBarIcon } from '@heroicons/react/outline'
@@ -63,6 +64,13 @@ export const StatsModal = ({
   }
 
   if (mode === 'custom') {
+    const copyGameUrl = () => {
+      const code = encodeCustomPuzzle(solution, questioner!)
+      const url = `${window.location.origin}${window.location.pathname}#/custom/${code}`
+      navigator.clipboard.writeText(url)
+      handleShare()
+    }
+
     return (
       <BaseModal
         title={t('statistics')}
@@ -75,20 +83,11 @@ export const StatsModal = ({
             {t('customPuzzleBy', { name: questioner })}
           </p>
         )}
-        <StatBar gameStats={gameStats} />
-        {gameStats.totalGames > 0 && (
-          <>
-            <h4 className="text-lg leading-6 font-medium text-gray-900">
-              {t('guessDistribution')}
-            </h4>
-            <Histogram gameStats={gameStats} />
-          </>
-        )}
         {(isGameLost || isGameWon) && (
-          <div className="mt-5 sm:mt-6 flex justify-center">
+          <div className="mt-5 sm:mt-6 space-y-2">
             <button
               type="button"
-              className="mt-2 w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
               onClick={() => {
                 shareCustomStatus(
                   guesses,
@@ -100,7 +99,14 @@ export const StatsModal = ({
                 handleShare()
               }}
             >
-              {t('share')}
+              {t('shareResult')}
+            </button>
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm"
+              onClick={copyGameUrl}
+            >
+              {t('shareGameUrl')}
             </button>
           </div>
         )}
