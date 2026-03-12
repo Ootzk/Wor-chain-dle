@@ -32,19 +32,10 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      - name: Build
+      - name: Build for E2E
         run: npm run build
-      - name: Verify build output
-        run: |
-          ls -la build/
-          head -50 build/index.html
-      - name: Smoke test server
-        run: |
-          npx serve -s build -l 3000 &
-          sleep 3
-          curl -s http://localhost:3000 | head -30
-          curl -s -o /dev/null -w "HTTP %{http_code}" http://localhost:3000
-          kill %1 || true
+        env:
+          PUBLIC_URL: /
       - name: Run Playwright tests
         run: npx playwright test --project=chromium --grep "daily page renders" --retries=0
       - uses: actions/upload-artifact@v4
