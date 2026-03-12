@@ -1,6 +1,5 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
-import { CalendarIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
@@ -13,7 +12,6 @@ import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal, GameMode } from './components/modals/StatsModal'
-import { CalendarModal } from './components/modals/CalendarModal'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
@@ -65,7 +63,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
-  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
   const [isPatchNotesModalOpen, setIsPatchNotesModalOpen] = useState(
     () => loadSeenPatchNotesVersion() !== PATCH_NOTES_VERSION
   )
@@ -268,12 +265,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             onClick={() => setIsStatsModalOpen(true)}
           />
         )}
-        {isDaily && (
-          <CalendarIcon
-            className="h-6 w-6 cursor-pointer"
-            onClick={() => setIsCalendarModalOpen(true)}
-          />
-        )}
         <CogIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsSettingsModalOpen(true)}
@@ -314,10 +305,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setSuccessAlert(t('gameCopied'))
           return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
         }}
+        handleCalendarShare={() => {
+          setSuccessAlert(t('calendarCopied'))
+          return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
+        }}
         mode={mode}
         solution={solution}
         questioner={questioner}
         excludeUrl={excludeUrl}
+        weekStartsOnMonday={weekStartsOnMonday}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
@@ -332,17 +328,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <DonateModal
         isOpen={isDonateModalOpen}
         handleClose={() => setIsDonateModalOpen(false)}
-      />
-      <CalendarModal
-        isOpen={isCalendarModalOpen}
-        handleClose={() => setIsCalendarModalOpen(false)}
-        gameStats={stats}
-        handleShare={() => {
-          setSuccessAlert(t('calendarCopied'))
-          return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
-        }}
-        weekStartsOnMonday={weekStartsOnMonday}
-        excludeUrl={excludeUrl}
       />
       <PatchNotesModal
         isOpen={isPatchNotesModalOpen}

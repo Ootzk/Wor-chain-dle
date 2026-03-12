@@ -14,7 +14,7 @@ test.describe('Share — Exclude URL setting', () => {
     'Clipboard API requires Chromium'
   )
 
-  const SETTINGS_ICON_DAILY = 3 // 0:info, 1:stats, 2:calendar, 3:settings
+  const SETTINGS_ICON_DAILY = 2 // 0:info, 1:stats, 2:settings
 
   /** Grant clipboard permissions and navigate to a custom puzzle */
   async function setupCustomGame(gamePage: import('@playwright/test').Page) {

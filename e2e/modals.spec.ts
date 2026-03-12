@@ -108,19 +108,19 @@ test.describe('Modals', () => {
     // Click stats icon (ChartBarIcon) — 2nd icon in daily mode
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
-    await expect(gamePage.locator('text=Statistics')).toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Statistics' })).toBeVisible()
     await expect(gamePage.locator('text=Total tries')).toBeVisible()
     await expect(gamePage.locator('text=Success rate')).toBeVisible()
     await screenshot(gamePage, '01-stats-modal-open')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('text=Statistics')).not.toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Statistics' })).not.toBeVisible()
   })
 
   test('settings modal with uppercase toggle', async ({ gamePage }) => {
-    // Click settings icon (CogIcon) — 4th icon (0:info, 1:stats, 2:calendar, 3:settings)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    // Click settings icon (CogIcon) — 3rd icon (0:info, 1:stats, 2:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
     await expect(gamePage.locator('text=Settings')).toBeVisible()
     await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
@@ -139,7 +139,7 @@ test.describe('Modals', () => {
     await screenshot(gamePage, '03-uppercase-applied-to-page')
 
     // Reopen settings and toggle off
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await screenshot(gamePage, '04-uppercase-toggle-off')
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -150,8 +150,8 @@ test.describe('Modals', () => {
   })
 
   test('uppercase setting persists across page navigation', async ({ gamePage }) => {
-    // Daily: enable uppercase via settings (settings = 4th icon)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    // Daily: enable uppercase via settings (settings = 3rd icon)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase')).toBeVisible()
@@ -196,8 +196,8 @@ test.describe('Modals', () => {
   })
 
   test('donate modal opens and closes', async ({ gamePage }) => {
-    // Click donate icon (CurrencyDollarIcon) — 5th icon (0:info, 1:stats, 2:calendar, 3:settings, 4:donate)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+    // Click donate icon (CurrencyDollarIcon) — 4th icon (0:info, 1:stats, 2:settings, 3:donate)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
 
     await expect(gamePage.locator('h3:has-text("Donate")')).toBeVisible()
 
@@ -222,8 +222,8 @@ test.describe('Modals', () => {
   })
 
   test('language selector in settings modal', async ({ gamePage }) => {
-    // Open settings (0:info, 1:stats, 2:calendar, 3:settings)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    // Open settings (0:info, 1:stats, 2:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
 
     // Language dropdown should be visible with current language selected
