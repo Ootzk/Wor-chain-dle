@@ -1,6 +1,6 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v1.3.0-blue)
+![Version](https://img.shields.io/badge/Version-v1.4.0-blue)
 
 **Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
 

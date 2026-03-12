@@ -1,4 +1,4 @@
-export const PATCH_NOTES_VERSION = '1.3.0'
+export const PATCH_NOTES_VERSION = '1.4.0'
 
 export const KAKAOPAY_PAYMENT_URL =
   'https://qr.kakaopay.com/FE0rjwVWj41a00262'
