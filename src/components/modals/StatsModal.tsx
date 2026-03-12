@@ -8,7 +8,7 @@ import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { tomorrow } from '../../lib/words'
 import { BaseModal } from './BaseModal'
-import { ChartBarIcon } from '@heroicons/react/outline'
+import { ClipboardListIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 
 export type GameMode = 'daily' | 'practice' | 'custom'
@@ -55,7 +55,7 @@ export const StatsModal = ({
     return (
       <BaseModal
         title={t('records')}
-        icon={<ChartBarIcon />}
+        icon={<ClipboardListIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
       >
@@ -85,7 +85,7 @@ export const StatsModal = ({
     return (
       <BaseModal
         title={t('records')}
-        icon={<ChartBarIcon />}
+        icon={<ClipboardListIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
       >
@@ -134,7 +134,7 @@ export const StatsModal = ({
   return (
     <BaseModal
       title={t('records')}
-      icon={<ChartBarIcon />}
+      icon={<ClipboardListIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >

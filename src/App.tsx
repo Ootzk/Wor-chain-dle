@@ -1,5 +1,5 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
-import { ChartBarIcon } from '@heroicons/react/outline'
+import { ClipboardListIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
@@ -260,7 +260,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           onClick={() => setIsInfoModalOpen(true)}
         />
         {isDaily && (
-          <ChartBarIcon
+          <ClipboardListIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
           />
