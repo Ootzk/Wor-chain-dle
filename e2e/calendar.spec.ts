@@ -1,39 +1,44 @@
+import { Temporal } from 'temporal-polyfill'
 import { test, expect, waitForGameReady, screenshot } from './fixtures/game.fixture'
 import { Page } from '@playwright/test'
 
-// Mirrors CONFIG.startDate and dailyHistory.ts index calculation
-const START_MS = Date.UTC(2026, 1, 16) // Feb 16, 2026
-const DAY_MS = 86400000
-const toIndex = (y: number, m: number, d: number) =>
-  Math.floor((Date.UTC(y, m, d) - START_MS) / DAY_MS)
+/** Format a date key as "yyyy-mm-dd" */
+const toDateKey = (y: number, m: number, d: number) =>
+  `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
 
 /** Inject fake dailyHistory into localStorage and reload */
 async function injectHistory(
   page: Page,
   entries: { y: number; m: number; d: number; guessCount: number; won: boolean }[]
 ) {
-  const history: Record<number, { guessCount: number; won: boolean }> = {}
-  let minIndex = Infinity
+  const history: Record<string, { guessCount: number; won: boolean }> = {}
+  let minKey = ''
   for (const e of entries) {
-    const idx = toIndex(e.y, e.m, e.d)
-    history[idx] = { guessCount: e.guessCount, won: e.won }
-    if (idx < minIndex) minIndex = idx
+    const key = toDateKey(e.y, e.m, e.d)
+    history[key] = { guessCount: e.guessCount, won: e.won }
+    if (!minKey || key < minKey) minKey = key
   }
   await page.evaluate(
-    ({ h, si }) => {
+    ({ h, sd }) => {
       localStorage.setItem('dailyHistory', JSON.stringify(h))
-      localStorage.setItem('dailyHistoryStartIndex', si.toString())
+      localStorage.setItem('dailyHistoryStartDate', sd)
     },
-    { h: history, si: minIndex }
+    { h: history, sd: minKey }
   )
   await page.reload()
   await waitForGameReady(page)
 }
 
 // Daily mode header icons:
-// 0:Translate  1:Info  2:Stats  3:Calendar  4:Settings  5:Donate
-const CALENDAR_ICON = 3
-const SETTINGS_ICON = 4
+// 0:Info  1:Stats  2:Settings  3:Donate
+const STATS_ICON = 1
+const SETTINGS_ICON = 2
+
+/** Open the Stats modal and switch to the Calendar tab */
+async function openCalendarTab(page: Page) {
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(STATS_ICON).click()
+  await page.locator('button', { hasText: 'Calendar' }).click()
+}
 
 test.describe('Calendar', () => {
   test.beforeEach(async ({ gamePage }) => {
@@ -41,14 +46,13 @@ test.describe('Calendar', () => {
     await waitForGameReady(gamePage)
   })
 
-  test('modal opens and shows current month', async ({ gamePage }) => {
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
-    await expect(gamePage.getByRole('heading', { name: 'Calendar' })).toBeVisible()
+  test('calendar tab opens and shows current month', async ({ gamePage }) => {
+    await openCalendarTab(gamePage)
 
-    // Current month label (e.g. "March 2026")
-    const now = new Date()
-    const monthLabel = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    // Current month label (e.g. "March 2026") — uses local time
+    const today = Temporal.Now.plainDateISO()
+    const firstOfMonth = today.with({ day: 1 })
+    const monthLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     await expect(gamePage.locator(`text=${monthLabel}`)).toBeVisible()
 
     // Weekday header — Sunday start by default
@@ -63,17 +67,17 @@ test.describe('Calendar', () => {
     // Share month button
     await expect(gamePage.locator('button', { hasText: 'Share month' })).toBeVisible()
 
-    await screenshot(gamePage, '01-calendar-modal')
+    await screenshot(gamePage, '01-calendar-tab')
 
     // Close via Escape
     await gamePage.keyboard.press('Escape')
-    await expect(gamePage.getByRole('heading', { name: 'Calendar' })).not.toBeVisible()
+    await expect(gamePage.getByRole('heading', { name: 'Records' })).not.toBeVisible()
   })
 
   test('displays win and loss indicators', async ({ gamePage }) => {
-    const now = new Date()
-    const y = now.getUTCFullYear()
-    const m = now.getUTCMonth()
+    const today = Temporal.Now.plainDateISO()
+    const y = today.year
+    const m = today.month - 1 // 0-indexed for toDateKey
 
     await injectHistory(gamePage, [
       { y, m, d: 1, guessCount: 3, won: true },
@@ -81,8 +85,7 @@ test.describe('Calendar', () => {
       { y, m, d: 3, guessCount: 6, won: false },
     ])
 
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
-    await expect(gamePage.getByRole('heading', { name: 'Calendar' })).toBeVisible()
+    await openCalendarTab(gamePage)
 
     // Green circles (wins) with guess counts
     await expect(gamePage.locator('.bg-green-500')).toHaveCount(2)
@@ -96,11 +99,11 @@ test.describe('Calendar', () => {
   })
 
   test('month navigation', async ({ gamePage }) => {
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
+    await openCalendarTab(gamePage)
 
-    const now = new Date()
-    const currentLabel = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    const today = Temporal.Now.plainDateISO()
+    const firstOfMonth = today.with({ day: 1 })
+    const currentLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     await expect(gamePage.locator(`text=${currentLabel}`)).toBeVisible()
 
     // Today button disabled on current month
@@ -121,8 +124,8 @@ test.describe('Calendar', () => {
   })
 
   test('week starts on Monday setting', async ({ gamePage }) => {
-    // Open calendar — default Sunday start
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
+    // Open calendar tab — default Sunday start
+    await openCalendarTab(gamePage)
     const weekdayHeaders = gamePage.locator('.w-10.text-center.text-xs.font-medium')
     await expect(weekdayHeaders.first()).toHaveText('Su')
     await screenshot(gamePage, '01-sunday-start')
@@ -134,15 +137,15 @@ test.describe('Calendar', () => {
     await gamePage.locator('button[role="switch"]').nth(1).click()
     await gamePage.keyboard.press('Escape')
 
-    // Reopen calendar — Monday start
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
+    // Reopen calendar tab — Monday start
+    await openCalendarTab(gamePage)
     await expect(weekdayHeaders.first()).toHaveText('Mo')
     await expect(weekdayHeaders.last()).toHaveText('Su')
     await screenshot(gamePage, '02-monday-start')
   })
 
   test('share button disabled without data, enabled with data', async ({ gamePage }) => {
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
+    await openCalendarTab(gamePage)
     const shareBtn = gamePage.locator('button', { hasText: 'Share month' })
 
     // No data → disabled
@@ -152,11 +155,11 @@ test.describe('Calendar', () => {
     await gamePage.keyboard.press('Escape')
 
     // Inject data and reopen
-    const now = new Date()
+    const today = Temporal.Now.plainDateISO()
     await injectHistory(gamePage, [
-      { y: now.getUTCFullYear(), m: now.getUTCMonth(), d: 1, guessCount: 4, won: true },
+      { y: today.year, m: today.month - 1, d: 1, guessCount: 4, won: true },
     ])
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
+    await openCalendarTab(gamePage)
 
     // Data present → enabled
     await expect(shareBtn).toBeEnabled()
@@ -168,14 +171,14 @@ test.describe('Calendar', () => {
     await screenshot(gamePage, '02-share-enabled-and-copied')
   })
 
-  test('calendar icon only visible in daily mode', async ({ gamePage }) => {
-    // Daily: 6 icons (translate, info, stats, calendar, settings, donate)
-    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(6)
+  test('stats icon visible in daily, hidden in practice (no calendar tab)', async ({ gamePage }) => {
+    // Daily: 4 icons (info, stats, settings, donate)
+    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(4)
 
-    // Practice: 4 icons (no stats, no calendar)
+    // Practice: 3 icons (no stats)
     await gamePage.goto('/#/practice')
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(4)
-    await screenshot(gamePage, '01-no-calendar-in-practice')
+    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(3)
+    await screenshot(gamePage, '01-no-stats-in-practice')
   })
 })

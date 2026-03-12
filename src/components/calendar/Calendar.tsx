@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill'
 import { useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
@@ -6,10 +7,9 @@ import { GameStats } from '../../lib/localStorage'
 import {
   DayResult,
   loadDailyHistory,
-  dateToSolutionIndex,
-  solutionIndexToDate,
+  dateToKey,
   getMonthResults,
-  getDailyHistoryStartIndex,
+  getDailyHistoryStartDate,
 } from '../../lib/dailyHistory'
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
@@ -26,14 +26,12 @@ type Props = {
 
 export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUrl }: Props) => {
   const { t } = useTranslation()
-  const now = new Date()
-  const currentUTCYear = now.getUTCFullYear()
-  const currentUTCMonth = now.getUTCMonth()
+  const today = Temporal.Now.plainDateISO()
 
-  const [year, setYear] = useState(currentUTCYear)
-  const [month, setMonth] = useState(currentUTCMonth)
+  const [year, setYear] = useState(today.year)
+  const [month, setMonth] = useState(today.month - 1) // 0-indexed for consistency
 
-  const epochDate = new Date(CONFIG.startDate)
+  const epoch = Temporal.PlainDate.from(CONFIG.startDate)
 
   const canGoBack = true
   const canGoForward = true
@@ -62,22 +60,19 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   const history = loadDailyHistory()
 
   // Build calendar grid
-  const rawDayOfWeek = new Date(Date.UTC(year, month, 1)).getUTCDay() // 0=Sun
+  const firstDay = Temporal.PlainDate.from({
+    year,
+    month: month + 1,
+    day: 1,
+  })
+  const rawDayOfWeek = firstDay.dayOfWeek // 1=Mon, 7=Sun (ISO)
+  const sundayBasedDow = rawDayOfWeek === 7 ? 0 : rawDayOfWeek // 0=Sun
   const firstDayOfWeek = weekStartsOnMonday
-    ? (rawDayOfWeek + 6) % 7 // Mon=0, Tue=1, ..., Sun=6
-    : rawDayOfWeek
+    ? (sundayBasedDow + 6) % 7 // Mon=0, Tue=1, ..., Sun=6
+    : sundayBasedDow
   const daysInMonth = monthResults.length
-  const todayUTCDate = now.getUTCDate()
 
-  const epochSolutionIndex = dateToSolutionIndex(epochDate)
-  const historyStartIndex = getDailyHistoryStartIndex()
-
-  const calendarEpochDate = historyStartIndex !== null
-    ? solutionIndexToDate(historyStartIndex)
-    : null
-  const calendarEpochYear = calendarEpochDate?.getUTCFullYear() ?? null
-  const calendarEpochMonth = calendarEpochDate?.getUTCMonth() ?? null
-  const calendarEpochDay = calendarEpochDate?.getUTCDate() ?? null
+  const calendarStartDate = getDailyHistoryStartDate()
 
   type CellData = {
     day: number | null
@@ -105,19 +100,13 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
 
   // Day cells
   for (let d = 1; d <= daysInMonth; d++) {
-    const isToday =
-      year === currentUTCYear && month === currentUTCMonth && d === todayUTCDate
-    const isFuture =
-      year > currentUTCYear ||
-      (year === currentUTCYear && month > currentUTCMonth) ||
-      (year === currentUTCYear && month === currentUTCMonth && d > todayUTCDate)
-    const daySolutionIndex = dateToSolutionIndex(
-      new Date(Date.UTC(year, month, d))
-    )
-    const isBeforeEpoch = daySolutionIndex < epochSolutionIndex ||
-      (historyStartIndex !== null && daySolutionIndex < historyStartIndex)
-    const isCalendarEpoch =
-      year === calendarEpochYear && month === calendarEpochMonth && d === calendarEpochDay
+    const date = firstDay.with({ day: d })
+    const key = dateToKey(date)
+    const isToday = Temporal.PlainDate.compare(date, today) === 0
+    const isFuture = Temporal.PlainDate.compare(date, today) > 0
+    const isBeforeEpoch = Temporal.PlainDate.compare(date, epoch) < 0 ||
+      (calendarStartDate !== null && key < calendarStartDate)
+    const isCalendarEpoch = calendarStartDate === key
 
     cells.push({
       day: d,
@@ -142,10 +131,10 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
     })
   }
 
-  const monthLabel = new Date(Date.UTC(year, month, 1)).toLocaleDateString(
-    'en-US',
-    { year: 'numeric', month: 'long', timeZone: 'UTC' }
-  )
+  const monthLabel = firstDay.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long',
+  })
 
   const fallbackWeekdays = weekStartsOnMonday ? WEEKDAYS_MON : WEEKDAYS_SUN
   const weekdayKeys = t('weekdays', { returnObjects: true }) as string[]
@@ -163,7 +152,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   )
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-between h-full">
       {/* Month navigation */}
       <div className="flex items-center w-full mb-3">
         <button
@@ -177,11 +166,11 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
         </span>
         <button
           onClick={() => {
-            setYear(currentUTCYear)
-            setMonth(currentUTCMonth)
+            setYear(today.year)
+            setMonth(today.month - 1)
           }}
-          disabled={year === currentUTCYear && month === currentUTCMonth}
-          className={`p-1 rounded ${year === currentUTCYear && month === currentUTCMonth ? 'opacity-30 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}`}
+          disabled={year === today.year && month === today.month - 1}
+          className={`p-1 rounded ${year === today.year && month === today.month - 1 ? 'opacity-30 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}`}
           title="Today"
         >
           <RefreshIcon className="h-5 w-5" />
@@ -194,51 +183,51 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
         </button>
       </div>
 
-      {/* Weekday header */}
-      <div className="grid grid-cols-7 gap-0 mb-1">
-        {displayWeekdays.map((wd, i) => (
-          <div
-            key={i}
-            className="w-10 text-center text-xs font-medium text-gray-400"
-          >
-            {wd}
-          </div>
-        ))}
+      {/* Weekday header + Day grid */}
+      <div>
+        <div className="grid grid-cols-7 gap-0 mb-1">
+          {displayWeekdays.map((wd, i) => (
+            <div
+              key={i}
+              className="w-10 text-center text-xs font-medium text-gray-400"
+            >
+              {wd}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-0">
+          {cells.map((cell, i) => (
+            <CalendarDay
+              key={i}
+              day={cell.day}
+              result={cell.result}
+              isToday={cell.isToday}
+              isFuture={cell.isFuture}
+              isBeforeEpoch={cell.isBeforeEpoch}
+              isBirthday={cell.isBirthday}
+              isCalendarEpoch={cell.isCalendarEpoch}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Day grid */}
-      <div className="grid grid-cols-7 gap-0">
-        {cells.map((cell, i) => (
-          <CalendarDay
-            key={i}
-            day={cell.day}
-            result={cell.result}
-            isToday={cell.isToday}
-            isFuture={cell.isFuture}
-            isBeforeEpoch={cell.isBeforeEpoch}
-            isBirthday={cell.isBirthday}
-            isCalendarEpoch={cell.isCalendarEpoch}
-          />
-        ))}
+      {/* Streak + Share button */}
+      <div className="w-full flex flex-col items-center">
+        <div className="text-lg font-semibold text-gray-900">
+          🔥 {gameStats.currentStreak}
+        </div>
+        <button
+          type="button"
+          disabled={!hasAnyData}
+          className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
+          onClick={() => {
+            shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
+            handleShare()
+          }}
+        >
+          {t('shareMonth')}
+        </button>
       </div>
-
-      {/* Streak */}
-      <div className="mt-3 text-lg font-semibold text-gray-900">
-        🔥 {gameStats.currentStreak}
-      </div>
-
-      {/* Share button */}
-      <button
-        type="button"
-        disabled={!hasAnyData}
-        className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
-        onClick={() => {
-          shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
-          handleShare()
-        }}
-      >
-        {t('shareMonth')}
-      </button>
     </div>
   )
 }

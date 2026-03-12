@@ -1,6 +1,7 @@
+import { Temporal } from 'temporal-polyfill'
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
-import { DailyHistory, dateToSolutionIndex, getDailyHistoryStartIndex } from './dailyHistory'
+import { DailyHistory, dateToKey, getDailyHistoryStartDate } from './dailyHistory'
 
 export const shareCustomStatus = (
   guesses: string[][],
@@ -31,13 +32,10 @@ export const shareStatus = (
   solution: string,
   excludeUrl: boolean = false
 ) => {
-  const now = new Date()
-  const yyyy = now.getUTCFullYear()
-  const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(now.getUTCDate()).padStart(2, '0')
+  const today = Temporal.Now.plainDateISO()
 
   const shareText =
-    `Wor\u{1F517}dle ${yyyy}-${mm}-${dd}` +
+    `Wor\u{1F517}dle ${today.toString()}` +
     ' ' +
     `${lost ? 'X' : guesses.length}` +
     '/' +
@@ -66,18 +64,20 @@ export const shareCalendar = (
   excludeUrl: boolean = false
 ) => {
   const mm = String(month + 1).padStart(2, '0')
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+  const epoch = Temporal.PlainDate.from(CONFIG.startDate)
+  const today = Temporal.Now.plainDateISO()
+  const startDate = getDailyHistoryStartDate()
 
-  const now = new Date()
-  const todayYear = now.getUTCFullYear()
-  const todayMonth = now.getUTCMonth()
-  const todayDate = now.getUTCDate()
+  const firstDay = Temporal.PlainDate.from({
+    year,
+    month: month + 1,
+    day: 1,
+  })
+  const daysInMonth = firstDay.daysInMonth
 
-  const epochDate = new Date(CONFIG.startDate)
-  const epochIndex = dateToSolutionIndex(epochDate)
-  const historyStartIndex = getDailyHistoryStartIndex()
+  const isCurrentMonth =
+    year === today.year && month === today.month - 1
 
-  const isCurrentMonth = year === todayYear && month === todayMonth
   const lines: string[] = []
   const header = isCurrentMonth
     ? `Wor\u{1F517}dle ${year}-${mm} (\u{1F525} ${streak})`
@@ -90,21 +90,17 @@ export const shareCalendar = (
   let row: string[] = []
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(Date.UTC(year, month, d))
-    const index = dateToSolutionIndex(date)
-    const isFuture =
-      year > todayYear ||
-      (year === todayYear && month > todayMonth) ||
-      (year === todayYear && month === todayMonth && d > todayDate)
-    const isBeforeEpoch = index < epochIndex
-
+    const date = firstDay.with({ day: d })
+    const key = dateToKey(date)
+    const isFuture = Temporal.PlainDate.compare(date, today) > 0
+    const isBeforeEpoch = Temporal.PlainDate.compare(date, epoch) < 0
     const isPreCalendarEpoch =
-      historyStartIndex !== null && index < historyStartIndex
+      startDate !== null && key < startDate
 
     if (isFuture || isBeforeEpoch || isPreCalendarEpoch) {
       row.push('⚪') // inactive (future / before epoch / pre-calendar)
     } else {
-      const result = dailyHistory[index]
+      const result = dailyHistory[key]
       if (!result) {
         row.push('⬜') // not played
       } else if (result.won) {

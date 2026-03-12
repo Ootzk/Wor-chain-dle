@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { BaseModal } from './BaseModal'
+import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import {
   KAKAOPAY_PAYMENT_URL,
   TOSS_PAYMENT_URL,
+  GITHUB_SPONSORS_URL,
 } from '../../constants/config'
 
 type Tab = {
@@ -14,7 +16,7 @@ type Tab = {
 const TABS: Tab[] = [
   { id: 'kakaopay', label: 'KakaoPay' },
   { id: 'toss', label: 'Toss' },
-  // { id: 'github', label: 'GitHub Sponsors' },
+  { id: 'github', label: 'GitHub' },
 ]
 
 type Props = {
@@ -27,7 +29,7 @@ export const DonateModal = ({ isOpen, handleClose }: Props) => {
   const [activeTab, setActiveTab] = useState(TABS[0].id)
 
   return (
-    <BaseModal title={t('donate')} isOpen={isOpen} handleClose={handleClose}>
+    <BaseModal title={t('donate')} icon={<CurrencyDollarIcon />} isOpen={isOpen} handleClose={handleClose}>
       {TABS.length > 1 && (
         <div className="flex border-b border-gray-200 mb-4">
           {TABS.map((tab) => (
@@ -46,19 +48,21 @@ export const DonateModal = ({ isOpen, handleClose }: Props) => {
         </div>
       )}
 
-      <div className="min-h-[280px]">
+      <div className="h-[21rem]">
         {activeTab === 'kakaopay' && (
-          <div className="flex flex-col items-center">
-            <img
-              src={process.env.PUBLIC_URL + '/images/kakaopay-qr.png'}
-              alt="KakaoPay QR"
-              className="w-48 mb-3"
-            />
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex items-center justify-center h-48 mb-3">
+              <img
+                src={process.env.PUBLIC_URL + '/images/kakaopay-qr.png'}
+                alt="KakaoPay QR"
+                className="w-48"
+              />
+            </div>
             <a
               href={KAKAOPAY_PAYMENT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-3 mb-3 text-base font-medium rounded-md text-gray-900 bg-yellow-400 hover:bg-yellow-500 shadow-sm focus:outline-none"
+              className="inline-flex items-center justify-center min-w-[14rem] px-6 py-3 mb-3 text-base font-medium rounded-md text-gray-900 bg-yellow-400 hover:bg-yellow-500 shadow-sm focus:outline-none"
             >
               {t('donateKakaoPay')}
             </a>
@@ -69,17 +73,43 @@ export const DonateModal = ({ isOpen, handleClose }: Props) => {
         )}
 
         {activeTab === 'toss' && (
-          <div className="flex flex-col items-center">
-            <img
-              src={process.env.PUBLIC_URL + '/images/toss-qr.jpg'}
-              alt="Toss QR"
-              className="w-48 mb-3"
-            />
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex items-center justify-center h-48 mb-3">
+              <img
+                src={process.env.PUBLIC_URL + '/images/toss-qr.jpg'}
+                alt="Toss QR"
+                className="w-48"
+              />
+            </div>
             <a
               href={TOSS_PAYMENT_URL}
-              className="inline-flex items-center px-6 py-3 mb-3 text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 shadow-sm focus:outline-none"
+              className="inline-flex items-center justify-center min-w-[14rem] px-6 py-3 mb-3 text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 shadow-sm focus:outline-none"
             >
               {t('donateToss')}
+            </a>
+            <p className="text-sm font-medium text-gray-700">
+              {t('donateMonsterDrink')}
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'github' && (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex items-center justify-center w-full h-48 mb-3">
+              <iframe
+                src="https://github.com/sponsors/Ootzk/card"
+                title="Sponsor Ootzk"
+                className="w-full h-full"
+                style={{ border: 0 }}
+              />
+            </div>
+            <a
+              href={GITHUB_SPONSORS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center min-w-[14rem] px-6 py-3 mb-3 text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 shadow-sm focus:outline-none"
+            >
+              {t('donateGithub')}
             </a>
             <p className="text-sm font-medium text-gray-700">
               {t('donateMonsterDrink')}

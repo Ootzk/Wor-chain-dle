@@ -13,6 +13,7 @@ test.skip(() => !process.env.GENERATE_SCREENSHOTS, 'Set GENERATE_SCREENSHOTS=1 t
 
 const ASSETS = path.resolve(__dirname, '..', 'assets')
 const HYDRO_PATH = `/#/custom/${encodeCustomPuzzle('hydro', 'ootzk')}`
+const HYDRO_DATE = new Date('2026-02-20T12:00:00Z') // hydro = WORDS[4], epoch+4
 
 // ── Helpers ──
 
@@ -20,16 +21,8 @@ async function save(page: Page, name: string) {
   await page.screenshot({ path: path.join(ASSETS, `${name}.png`) })
 }
 
-async function disguiseAsDaily(page: Page) {
-  const d = new Date()
-  const today = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
-  await page.evaluate((date) => {
-    const el = document.querySelector('p.text-sm.text-gray-500')
-    if (el) el.innerHTML = `Daily | ${date}`
-  }, today)
-}
-
 async function initPage(page: Page) {
+  await page.clock.setFixedTime(HYDRO_DATE)
   await page.addInitScript((version) => {
     localStorage.setItem('seenPatchNotesVersion', version)
     localStorage.setItem('i18nextLng', 'en')
@@ -48,23 +41,20 @@ async function initPage(page: Page) {
 
 // ── Game Flow Screenshots ──
 
-test('game flow: empty board → win → statistics', async ({ page }) => {
+test('game flow: empty board → win → success', async ({ page }) => {
   await initPage(page)
-  await page.goto(HYDRO_PATH)
+  await page.goto('/')
   await waitForGameReady(page)
-  await disguiseAsDaily(page)
 
   // 1. Empty board
   await save(page, 'empty-board')
 
   // 2. Guess 1: SHAKE → ⬜🟪⬜⬜⬜
   await submitWord(page, 'shake')
-  await disguiseAsDaily(page)
   await save(page, 'first-guess')
 
   // 3. Guess 2: LANCE (E locked at last) → ⬜⬜⬜⬜⬜
   await submitWord(page, 'lanc')
-  await disguiseAsDaily(page)
   await save(page, 'second-guess')
 
   // 4. Guess 3: LORES (L locked at first) → ⬜🟪🟪⬜⬜
@@ -78,21 +68,42 @@ test('game flow: empty board → win → statistics', async ({ page }) => {
 
   // 7. Guess 6: HYDRO (O locked at last) → 🟩🟩🟩🟩🟩
   await submitWord(page, 'hydr')
-  await disguiseAsDaily(page)
 
   // Wait for success alert
   await page.locator('.bg-green-200').waitFor({ state: 'visible', timeout: 3000 })
   await page.waitForTimeout(500)
   await save(page, 'success')
+})
 
-  // Wait for alert to dismiss and stats modal to open
-  await page.locator('text=Statistics').waitFor({ state: 'visible', timeout: 5000 })
-  await page.waitForTimeout(500)
-  // Hide questioner subtitle ("readme's Wor🔗dle") in stats modal
-  await page.evaluate(() => {
-    const sub = document.querySelector('.text-sm.text-gray-500.text-center.mb-4')
-    if (sub) sub.remove()
+// ── Daily Statistics Screenshot ──
+
+test('daily statistics modal', async ({ page }) => {
+  await initPage(page)
+
+  // Inject fake daily stats + completed game (hydro on 2026-02-20)
+  await page.addInitScript(() => {
+    const stats = {
+      winDistribution: [0, 1, 3, 5, 8, 2],
+      gamesFailed: 3,
+      currentStreak: 4,
+      bestStreak: 8,
+      totalGames: 22,
+      successRate: 86,
+    }
+    localStorage.setItem('gameStats', JSON.stringify(stats))
+    const gameState = {
+      guesses: [['h', 'y', 'd', 'r', 'o']],
+      solution: 'hydro',
+    }
+    localStorage.setItem('gameState', JSON.stringify(gameState))
   })
+
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  // Stats modal auto-opens (completed game detected)
+  await page.locator('text=Statistics').waitFor({ state: 'visible', timeout: 8000 })
+  await page.waitForTimeout(500)
   await save(page, 'statistics')
 })
 
@@ -100,7 +111,7 @@ test('game flow: empty board → win → statistics', async ({ page }) => {
 
 test('dead end scenario', async ({ page }) => {
   await initPage(page)
-  await page.goto(HYDRO_PATH)
+  await page.goto('/')
   await waitForGameReady(page)
 
   // Guesses 1-3: same as win scenario
@@ -112,57 +123,66 @@ test('dead end scenario', async ({ page }) => {
   await submitWord(page, 'feat')  // 4. FEATS (S locked) → chain F left
   await submitWord(page, 'lint')  // 5. FLINT (F locked) → chain T right → T ≠ O → dead end!
 
-  await disguiseAsDaily(page)
-
   // Wait for dead-end loss alert
   await page.locator('text=The word was hydro').waitFor({ state: 'visible', timeout: 3000 })
   await page.waitForTimeout(500)
   await save(page, 'dead-end')
 })
 
-// ── Calendar Screenshot ──
+// ── Calendar Screenshot (now inside Stats modal tab) ──
 
 test('monthly calendar with history', async ({ page }) => {
-  await initPage(page)
+  // Use March 12 for a fuller calendar (more history than Feb 20)
+  const CALENDAR_DATE = new Date('2026-03-12T12:00:00Z')
+  await page.clock.setFixedTime(CALENDAR_DATE)
+  await page.addInitScript((version) => {
+    localStorage.setItem('seenPatchNotesVersion', version)
+    localStorage.setItem('i18nextLng', 'en')
+  }, PATCH_NOTES_VERSION)
+
+  // Generate daily history: Feb 16 ~ Mar 11 (fixed dates, not runtime-dependent)
+  const history: Record<string, { guessCount: number; won: boolean }> = {}
+  const epoch = new Date('2026-02-16T00:00:00Z')
+  const end = new Date('2026-03-12T00:00:00Z')
+  for (let dt = new Date(epoch); dt < end; dt.setUTCDate(dt.getUTCDate() + 1)) {
+    const d = dt.getUTCDate()
+    const key = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+    const won = d % 5 !== 0
+    history[key] = { guessCount: won ? (d % 4) + 2 : 6, won }
+  }
+
+  // Calculate current streak from the end of history
+  const sortedKeys = Object.keys(history).sort().reverse()
+  let streak = 0
+  for (const k of sortedKeys) {
+    if (history[k].won) streak++
+    else break
+  }
+
+  await page.addInitScript(
+    ({ h, cs }) => {
+      localStorage.setItem('dailyHistory', JSON.stringify(h))
+      localStorage.setItem('dailyHistoryStartDate', '2026-02-16')
+      const stats = {
+        winDistribution: [0, 0, 0, 0, 0, 0],
+        gamesFailed: 0,
+        currentStreak: cs,
+        bestStreak: cs,
+        totalGames: Object.keys(h).length,
+        successRate: 0,
+      }
+      localStorage.setItem('gameStats', JSON.stringify(stats))
+    },
+    { h: history, cs: streak }
+  )
+
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Inject daily history for current month
-  const START_MS = Date.UTC(2026, 1, 16) // CONFIG.startDate
-  const DAY_MS = 86400000
-  const toIndex = (y: number, m: number, d: number) =>
-    Math.floor((Date.UTC(y, m, d) - START_MS) / DAY_MS)
-
-  const now = new Date()
-  const y = now.getUTCFullYear()
-  const m = now.getUTCMonth()
-  const today = now.getUTCDate()
-
-  // Generate history: wins and losses for days before today
-  const history: Record<number, { guessCount: number; won: boolean }> = {}
-  let minIndex = Infinity
-  for (let d = 1; d < today; d++) {
-    const idx = toIndex(y, m, d)
-    if (idx < 0) continue // skip dates before epoch
-    // Alternate: most wins, occasional losses
-    const won = d % 5 !== 0
-    history[idx] = { guessCount: won ? ((d % 4) + 2) : 6, won }
-    if (idx < minIndex) minIndex = idx
-  }
-
-  await page.evaluate(
-    ({ h, si }) => {
-      localStorage.setItem('dailyHistory', JSON.stringify(h))
-      localStorage.setItem('dailyHistoryStartIndex', si.toString())
-    },
-    { h: history, si: minIndex }
-  )
-  await page.reload()
-  await waitForGameReady(page)
-
-  // Open calendar modal (Daily mode: icon index 3)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
-  await page.locator('h3').waitFor({ state: 'visible' })
+  // Open Stats modal (icon index 1), then click Calendar tab
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+  await page.locator('text=Statistics').waitFor({ state: 'visible' })
+  await page.locator('text=Calendar').click()
   await page.waitForTimeout(500)
   await save(page, 'calendar')
 })
@@ -174,8 +194,8 @@ test('how-to-play modal (English)', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Click info icon (2nd header icon)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+  // Click info icon (1st header icon)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
   await page.locator('text=How to play').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   // Click "How to play" tab (default tab is "Daily Mode")
@@ -193,7 +213,7 @@ test('how-to-play modal (Korean)', async ({ page }) => {
   // Korean Enter = "입력" → use language-agnostic wait
   await page.locator('button:text-is("q")').waitFor({ state: 'visible' })
 
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
   await page.locator('h3').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   // Click "게임 방법" (How to play) tab
@@ -202,7 +222,7 @@ test('how-to-play modal (Korean)', async ({ page }) => {
   await save(page, 'how-to-play-kor')
 })
 
-test('language selector (Korean)', async ({ page }) => {
+test('settings with language selector (Korean)', async ({ page }) => {
   await page.addInitScript((version) => {
     localStorage.setItem('seenPatchNotesVersion', version)
     localStorage.setItem('i18nextLng', 'ko')
@@ -210,10 +230,10 @@ test('language selector (Korean)', async ({ page }) => {
   await page.goto('/')
   await page.locator('button:text-is("q")').waitFor({ state: 'visible' })
 
-  // Click translate icon (1st header icon)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
+  // Open Settings modal (icon index 2)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
   await page.waitForTimeout(500)
-  await save(page, 'language-select-kor')
+  await save(page, 'settings-kor')
 })
 
 test('patch notes modal', async ({ page }) => {
@@ -240,8 +260,8 @@ test('settings modal with all toggles', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings (Daily mode: icon index 4)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
+  // Open settings (Daily mode: icon index 2)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
   await page.locator('text=Settings').waitFor({ state: 'visible' })
   await page.waitForTimeout(300)
   await save(page, 'settings')
@@ -252,8 +272,8 @@ test('donate modal', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Click donate icon (Daily mode: icon index 5)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(5).click()
+  // Click donate icon (Daily mode: icon index 3)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
   await page.locator('h3:has-text("Donate")').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'donation')

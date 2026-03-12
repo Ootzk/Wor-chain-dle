@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill'
 import { WORDS } from '../constants/wordlist'
 import { VALIDGUESSES } from '../constants/validGuesses'
 import { CONFIG } from '../constants/config'
@@ -15,17 +16,19 @@ export const getRandomWord = () => {
 }
 
 export const getWordOfDay = () => {
-  // January 1, 2022 Game Epoch
-  const epochMs = new Date(CONFIG.startDate).valueOf()
-  const now = Date.now()
-  const msInDay = 86400000
-  const index = Math.floor((now - epochMs) / msInDay)
-  const nextday = (index + 1) * msInDay + epochMs
+  const epoch = Temporal.PlainDate.from(CONFIG.startDate)
+  const today = Temporal.Now.plainDateISO()
+  const index = today.since(epoch).days
+
+  const tz = Temporal.Now.timeZoneId()
+  const tomorrow = today
+    .add({ days: 1 })
+    .toZonedDateTime(tz).epochMilliseconds
 
   return {
     solution: WORDS[index % WORDS.length],
     solutionIndex: index,
-    tomorrow: nextday,
+    tomorrow,
   }
 }
 

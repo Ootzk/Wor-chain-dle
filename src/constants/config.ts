@@ -1,10 +1,12 @@
-export const PATCH_NOTES_VERSION = '1.3.0'
+export const PATCH_NOTES_VERSION = '1.4.0'
 
 export const KAKAOPAY_PAYMENT_URL =
   'https://qr.kakaopay.com/FE0rjwVWj41a00262'
 
 export const TOSS_PAYMENT_URL =
   'supertoss://send?bank=%EC%B9%B4%EC%B9%B4%EC%98%A4%EB%B1%85%ED%81%AC&accountNo=3333260839723&amount=2100'
+
+export const GITHUB_SPONSORS_URL = 'https://github.com/sponsors/Ootzk'
 
 export const CONFIG = {
   tries: 6,
@@ -16,7 +18,7 @@ export const CONFIG = {
   wordListSourceLink: 'https://www.nytimes.com/games/wordle',
   googleAnalytics: '',
   normalization: 'NFC',
-  startDate: 'February 16, 2026 00:00:00 UTC',
+  startDate: '2026-02-16',
   defaultLang: 'en',
   availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh'],
   escapeSpecialCharacters: true,
