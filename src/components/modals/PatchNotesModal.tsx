@@ -1,4 +1,5 @@
 import { BaseModal } from './BaseModal'
+import { SparklesIcon } from '@heroicons/react/outline'
 import { PATCH_NOTES_VERSION } from '../../constants/config'
 import { useTranslation } from 'react-i18next'
 
@@ -37,6 +38,7 @@ export const PatchNotesModal = ({ isOpen, handleClose }: Props) => {
   return (
     <BaseModal
       title={t('patchNotesTitle')}
+      icon={<SparklesIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >

@@ -1,4 +1,5 @@
 import { BaseModal } from './BaseModal'
+import { CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 
 type Props = {
@@ -49,7 +50,7 @@ export const SettingsModal = ({
   const { t } = useTranslation()
 
   return (
-    <BaseModal title={t('settings')} isOpen={isOpen} handleClose={handleClose}>
+    <BaseModal title={t('settings')} icon={<CogIcon />} isOpen={isOpen} handleClose={handleClose}>
       <div className="mt-2">
         <div className="flex items-center justify-between py-3">
           <span className="text-sm font-medium text-gray-700">

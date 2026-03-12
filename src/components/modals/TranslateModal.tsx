@@ -1,4 +1,5 @@
 import { BaseModal } from './BaseModal'
+import { TranslateIcon } from '@heroicons/react/outline'
 import { CONFIG } from '../../constants/config'
 import { useTranslation } from 'react-i18next'
 import { localeLanguageKey } from '../../i18n'
@@ -45,6 +46,7 @@ export const TranslateModal = ({ isOpen, handleClose }: Props) => {
   return (
     <BaseModal
       title={t('pickYourLanguage')}
+      icon={<TranslateIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >

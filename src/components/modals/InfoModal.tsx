@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Cell } from '../grid/Cell'
 import { ChainBridge } from '../grid/ChainBridge'
 import { BaseModal } from './BaseModal'
+import { InformationCircleIcon } from '@heroicons/react/outline'
 import { CONFIG } from '../../constants/config'
 import { Trans, useTranslation } from 'react-i18next'
 import 'i18next'
@@ -225,6 +226,7 @@ export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
   return (
     <BaseModal
       title={t('information')}
+      icon={<InformationCircleIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >
