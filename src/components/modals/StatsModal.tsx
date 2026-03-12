@@ -5,6 +5,7 @@ import { GameStats } from '../../lib/localStorage'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { tomorrow } from '../../lib/words'
 import { BaseModal } from './BaseModal'
+import { ChartBarIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 
 export type GameMode = 'daily' | 'practice' | 'custom'
@@ -42,6 +43,7 @@ export const StatsModal = ({
     return (
       <BaseModal
         title={t('statistics')}
+        icon={<ChartBarIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
       >
@@ -64,6 +66,7 @@ export const StatsModal = ({
     return (
       <BaseModal
         title={t('statistics')}
+        icon={<ChartBarIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
       >
@@ -109,6 +112,7 @@ export const StatsModal = ({
     return (
       <BaseModal
         title={t('statistics')}
+        icon={<ChartBarIcon />}
         isOpen={isOpen}
         handleClose={handleClose}
       >
@@ -119,6 +123,7 @@ export const StatsModal = ({
   return (
     <BaseModal
       title={t('statistics')}
+      icon={<ChartBarIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >

@@ -1,4 +1,5 @@
 import { BaseModal } from './BaseModal'
+import { CalendarIcon } from '@heroicons/react/outline'
 import { Calendar } from '../calendar/Calendar'
 import { GameStats } from '../../lib/localStorage'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +26,7 @@ export const CalendarModal = ({
   return (
     <BaseModal
       title={t('calendar')}
+      icon={<CalendarIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >
