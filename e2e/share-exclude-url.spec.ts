@@ -38,8 +38,8 @@ test.describe('Share — Exclude URL setting', () => {
 
   /** Toggle the Exclude URL setting on/off */
   async function toggleExcludeUrl(gamePage: import('@playwright/test').Page) {
-    // Custom mode: 0:info, 1:stats, 2:settings
-    const settingsIndex = 2
+    // Custom mode: 0:info, 1:settings, 2:donate
+    const settingsIndex = 1
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(settingsIndex).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
     // Exclude URL is the 3rd toggle (0:uppercase, 1:weekStart, 2:excludeUrl)
