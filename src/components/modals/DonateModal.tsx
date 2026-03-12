@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import {
   KAKAOPAY_PAYMENT_URL,
   TOSS_PAYMENT_URL,
+  GITHUB_SPONSORS_URL,
 } from '../../constants/config'
 
 type Tab = {
@@ -15,7 +16,7 @@ type Tab = {
 const TABS: Tab[] = [
   { id: 'kakaopay', label: 'KakaoPay' },
   { id: 'toss', label: 'Toss' },
-  // { id: 'github', label: 'GitHub Sponsors' },
+  { id: 'github', label: 'GitHub' },
 ]
 
 type Props = {
@@ -81,6 +82,29 @@ export const DonateModal = ({ isOpen, handleClose }: Props) => {
               className="inline-flex items-center px-6 py-3 mb-3 text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 shadow-sm focus:outline-none"
             >
               {t('donateToss')}
+            </a>
+            <p className="text-sm font-medium text-gray-700">
+              {t('donateMonsterDrink')}
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'github' && (
+          <div className="flex flex-col items-center">
+            <iframe
+              src="https://github.com/sponsors/Ootzk/card"
+              title="Sponsor Ootzk"
+              height="225"
+              className="w-full max-w-[600px] mb-3"
+              style={{ border: 0 }}
+            />
+            <a
+              href={GITHUB_SPONSORS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-6 py-3 mb-3 text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 shadow-sm focus:outline-none"
+            >
+              {t('donateGithub')}
             </a>
             <p className="text-sm font-medium text-gray-700">
               {t('donateMonsterDrink')}

@@ -6,6 +6,8 @@ export const KAKAOPAY_PAYMENT_URL =
 export const TOSS_PAYMENT_URL =
   'supertoss://send?bank=%EC%B9%B4%EC%B9%B4%EC%98%A4%EB%B1%85%ED%81%AC&accountNo=3333260839723&amount=2100'
 
+export const GITHUB_SPONSORS_URL = 'https://github.com/sponsors/Ootzk'
+
 export const CONFIG = {
   tries: 6,
   language: 'English',
