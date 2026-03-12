@@ -30,9 +30,9 @@ async function injectHistory(
 }
 
 // Daily mode header icons:
-// 0:Translate  1:Info  2:Stats  3:Calendar  4:Settings  5:Donate
-const CALENDAR_ICON = 3
-const SETTINGS_ICON = 4
+// 0:Info  1:Stats  2:Calendar  3:Settings  4:Donate
+const CALENDAR_ICON = 2
+const SETTINGS_ICON = 3
 
 test.describe('Calendar', () => {
   test.beforeEach(async ({ gamePage }) => {
@@ -168,13 +168,13 @@ test.describe('Calendar', () => {
   })
 
   test('calendar icon only visible in daily mode', async ({ gamePage }) => {
-    // Daily: 6 icons (translate, info, stats, calendar, settings, donate)
-    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(6)
+    // Daily: 5 icons (info, stats, calendar, settings, donate)
+    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(5)
 
-    // Practice: 4 icons (no stats, no calendar)
+    // Practice: 3 icons (no stats, no calendar)
     await gamePage.goto('/#/practice')
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(4)
+    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(3)
     await screenshot(gamePage, '01-no-calendar-in-practice')
   })
 })

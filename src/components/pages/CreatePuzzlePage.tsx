@@ -5,7 +5,6 @@ import {
   InformationCircleIcon,
   CogIcon,
   CurrencyDollarIcon,
-  TranslateIcon,
 } from '@heroicons/react/outline'
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
@@ -15,7 +14,6 @@ import { Keyboard } from '../keyboard/Keyboard'
 import { InfoModal } from '../modals/InfoModal'
 import { SettingsModal } from '../modals/SettingsModal'
 import { DonateModal } from '../modals/DonateModal'
-import { TranslateModal } from '../modals/TranslateModal'
 import { CONFIG } from '../../constants/config'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
@@ -34,7 +32,7 @@ export const CreatePuzzlePage = () => {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
-  const [isI18nModalOpen, setIsI18nModalOpen] = useState(false)
+
 
   useEffect(() => {
     saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
@@ -153,12 +151,6 @@ export const CreatePuzzlePage = () => {
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-green-500">{t('createPuzzle')}</p>
         </div>
-        {CONFIG.availableLangs.length > 1 && (
-          <TranslateIcon
-            className="h-6 w-6 cursor-pointer"
-            onClick={() => setIsI18nModalOpen(true)}
-          />
-        )}
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
@@ -272,10 +264,6 @@ export const CreatePuzzlePage = () => {
         />
       </div>
 
-      <TranslateModal
-        isOpen={isI18nModalOpen}
-        handleClose={() => setIsI18nModalOpen(false)}
-      />
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}

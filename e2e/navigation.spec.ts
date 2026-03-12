@@ -81,7 +81,7 @@ test.describe('Navigation', () => {
     // Daily: stats icon visible
     await gamePage.goto('/')
     await waitForGameReady(gamePage)
-    const statsIcon = gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2)
+    const statsIcon = gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1)
     await expect(statsIcon).toBeVisible()
     await screenshot(gamePage, '01-daily-with-stats-icon')
 
@@ -92,8 +92,8 @@ test.describe('Navigation', () => {
     // Count cursor-pointer SVG icons in header
     const headerIcons = gamePage.locator('.flex.w-80 svg.cursor-pointer')
     const count = await headerIcons.count()
-    // Daily has: translate, info, stats, settings, donate (5)
-    // Practice has: translate, info, settings, donate (4)
+    // Daily has: info, stats, calendar, settings, donate (5)
+    // Practice has: info, settings, donate (3)
     expect(count).toBeLessThan(5)
     await screenshot(gamePage, '02-practice-without-stats-icon')
   })
