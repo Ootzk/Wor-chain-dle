@@ -152,7 +152,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   )
 
   return (
-    <div className="flex flex-col items-center justify-between min-h-[26rem]">
+    <div className="flex flex-col items-center justify-between h-full">
       {/* Month navigation */}
       <div className="flex items-center w-full mb-3">
         <button

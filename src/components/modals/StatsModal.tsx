@@ -154,9 +154,9 @@ export const StatsModal = ({
         ))}
       </div>
 
-      <div className="min-h-[26rem]">
+      <div className="h-[26rem]">
         {activeTab === 'stats' && (
-          <div className="flex flex-col justify-between min-h-[26rem]">
+          <div className="flex flex-col justify-between h-full">
             <div>
               <StatBar gameStats={gameStats} />
             </div>
