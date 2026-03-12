@@ -92,9 +92,9 @@ test.describe('Navigation', () => {
     // Count cursor-pointer SVG icons in header
     const headerIcons = gamePage.locator('.flex.w-80 svg.cursor-pointer')
     const count = await headerIcons.count()
-    // Daily has: info, stats, calendar, settings, donate (5)
+    // Daily has: info, stats, settings, donate (4)
     // Practice has: info, settings, donate (3)
-    expect(count).toBeLessThan(5)
+    expect(count).toBeLessThan(4)
     await screenshot(gamePage, '02-practice-without-stats-icon')
   })
 })

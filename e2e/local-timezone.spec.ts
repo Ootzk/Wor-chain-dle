@@ -12,7 +12,7 @@ import { waitForGameReady, screenshot } from './fixtures/game.fixture'
 // Bare test without gamePage fixture — we need custom browser contexts
 const test = base
 
-const CALENDAR_ICON = 2
+const STATS_ICON = 1
 
 /** Common initScript to suppress patch notes and set English */
 function addGameInitScript(page: Page) {
@@ -197,9 +197,9 @@ test.describe('Daily History Migration', () => {
     await page.goto('/')
     await waitForGameReady(page)
 
-    // Open calendar — should show March 2026
-    await page.locator('svg.h-6.w-6.cursor-pointer').nth(CALENDAR_ICON).click()
-    await expect(page.getByRole('heading', { name: 'Calendar' })).toBeVisible()
+    // Open Stats modal → Calendar tab — should show March 2026
+    await page.locator('svg.h-6.w-6.cursor-pointer').nth(STATS_ICON).click()
+    await page.locator('button', { hasText: 'Calendar' }).click()
 
     // Verify win/loss indicators rendered from migrated data
     await expect(page.locator('.bg-green-500')).toHaveCount(2)

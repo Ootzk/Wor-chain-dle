@@ -19,6 +19,7 @@
     "chainPatternInstructions": "체인 방향은 오른쪽 → 왼쪽 → 오른쪽 → 왼쪽 → 오른쪽 순서로 교대하며 뱀 모양을 형성합니다.",
     "chainDeadEndInstructions": "체인된 글자가 정답의 해당 위치와 맞지 않으면 게임이 조기 종료됩니다.",
     "guessDistribution": "추측 분포",
+    "records": "기록",
     "statistics": "통계",
     "totalTries": "총 게임 수",
     "successRate": "성공률",

@@ -19,6 +19,7 @@
     "chainPatternInstructions": "The chain alternates: right \u2192 left \u2192 right \u2192 left \u2192 right, forming a snake pattern.",
     "chainDeadEndInstructions": "If the chained letter doesn't match the answer's position, the game ends early.",
     "guessDistribution": "Guess Distribution",
+    "records": "Records",
     "statistics": "Statistics",
     "totalTries": "Total tries",
     "successRate": "Success rate",

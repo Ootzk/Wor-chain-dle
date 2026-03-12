@@ -34,7 +34,7 @@ test.describe('Game Flow', () => {
 
     // Stats modal opens after alert
     await expect(
-      gamePage.locator('text=Statistics')
+      gamePage.getByRole('heading', { name: 'Records' })
     ).toBeVisible({ timeout: 5000 })
     await screenshot(gamePage, '04-stats-modal-after-win')
   })
@@ -117,7 +117,7 @@ test.describe('Game Flow', () => {
 
     // Stats modal opens
     await expect(
-      gamePage.locator('text=Statistics')
+      gamePage.getByRole('heading', { name: 'Records' })
     ).toBeVisible({ timeout: 5000 })
     await screenshot(gamePage, '08-stats-modal-after-loss')
   })

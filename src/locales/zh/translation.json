@@ -15,6 +15,7 @@
   "wrongSpotInstructions": "字母 L 出現在正解當中，但不在正確的位置。",
   "notInWordInstructions": "字母 U 不在正解當中。",
   "guessDistribution": "猜詞分佈",
+  "records": "記錄",
   "statistics": "統計",
   "totalTries": "總猜測次數",
   "successRate": "成功率",
