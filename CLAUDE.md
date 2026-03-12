@@ -56,7 +56,7 @@ scripts/
 
 ```bash
 npm install
-npm start              # 로컬 개발 서버 (http://localhost:3000)
+PUBLIC_URL=/ npm start # 로컬 개발 서버 (http://localhost:3000)
 npm run build          # 프로덕션 빌드
 npm test               # 단위 테스트
 npm run test:e2e       # Playwright E2E 테스트 (빌드 후 serve)
@@ -67,6 +67,8 @@ npm run readme:screenshots # README 스크린샷 자동 생성 (GENERATE_SCREENS
 npm run lint           # prettier 체크
 npm run fix            # prettier 자동 포맷
 ```
+
+> `package.json`의 `homepage`가 GitHub Pages URL로 설정되어 있어서, `PUBLIC_URL=/`을 지정하지 않으면 로컬에서 에셋 경로가 맞지 않는다.
 
 Docker:
 
