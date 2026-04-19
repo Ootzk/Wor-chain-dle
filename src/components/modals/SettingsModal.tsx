@@ -26,6 +26,7 @@ const langFlags: Record<string, string> = {
   es: '\uD83C\uDDEA\uD83C\uDDF8',
   sw: '\uD83C\uDDF9\uD83C\uDDFF\uD83C\uDDF0\uD83C\uDDEA',
   zh: '\uD83C\uDDE8\uD83C\uDDF3',
+  de: '\uD83C\uDDE9\uD83C\uDDEA',
 }
 
 type Props = {
