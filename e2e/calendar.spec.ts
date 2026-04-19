@@ -123,26 +123,7 @@ test.describe('Calendar', () => {
     await screenshot(gamePage, '02-back-to-current')
   })
 
-  test('week starts on Monday setting', async ({ gamePage }) => {
-    // Open calendar tab — default Sunday start
-    await openCalendarTab(gamePage)
-    const weekdayHeaders = gamePage.locator('.w-10.text-center.text-xs.font-medium')
-    await expect(weekdayHeaders.first()).toHaveText('Su')
-    await screenshot(gamePage, '01-sunday-start')
-    await gamePage.keyboard.press('Escape')
-
-    // Enable weekStartsOnMonday in settings (2nd toggle)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(SETTINGS_ICON).click()
-    await expect(gamePage.locator('text=Start Week on Monday')).toBeVisible()
-    await gamePage.locator('button[role="switch"]').nth(1).click()
-    await gamePage.keyboard.press('Escape')
-
-    // Reopen calendar tab — Monday start
-    await openCalendarTab(gamePage)
-    await expect(weekdayHeaders.first()).toHaveText('Mo')
-    await expect(weekdayHeaders.last()).toHaveText('Su')
-    await screenshot(gamePage, '02-monday-start')
-  })
+  // weekStart setting removed in v1.5.0
 
   test('share button disabled without data, enabled with data', async ({ gamePage }) => {
     await openCalendarTab(gamePage)
