@@ -169,6 +169,7 @@
     "cosmetic_msg_slang": "슬랭",
     "cosmetic_msg_emoji": "이모지",
     "achievements": "업적",
+    "achievementUnlocked": "달성: {{name}}",
     "unlocked": "해금됨",
     "locked": "미해금",
     "achievement_win_in_1_title": "한 방에!",

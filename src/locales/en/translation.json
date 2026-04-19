@@ -211,6 +211,7 @@
     "cosmetic_msg_slang": "Slang",
     "cosmetic_msg_emoji": "Emoji",
     "achievements": "Achievements",
+    "achievementUnlocked": "Achieved: {{name}}",
     "unlocked": "Unlocked",
     "locked": "Locked",
     "achievement_win_in_1_title": "One Shot!",

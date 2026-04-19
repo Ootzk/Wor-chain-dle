@@ -169,6 +169,7 @@
     "cosmetic_msg_slang": "Slang",
     "cosmetic_msg_emoji": "Emoji",
     "achievements": "実績",
+    "achievementUnlocked": "達成: {{name}}",
     "unlocked": "解除済み",
     "locked": "未解除",
     "achievement_win_in_1_title": "一発正解！",

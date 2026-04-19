@@ -36,6 +36,7 @@ import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import {
   evaluateAchievements,
   retroUnlockAchievements,
+  ACHIEVEMENTS,
 } from './lib/achievements'
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
 import ReactGA from 'react-ga'
@@ -82,6 +83,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
+  const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
   const [guesses, setGuesses] = useState<string[][]>(() => {
     if (!isDaily) return []
     const loaded = loadGameStateFromLocalStorage()
@@ -154,6 +156,19 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }, [isGameWon, isGameLost, t, guesses.length])
 
+  const showAchievementAlert = (newlyUnlocked: string[]) => {
+    if (newlyUnlocked.length === 0) return
+    const names = newlyUnlocked.map((id) => {
+      const a = ACHIEVEMENTS.find((a) => a.id === id)
+      return (
+        '\uD83C\uDF89 ' +
+        t('achievementUnlocked', { name: a ? t(a.titleKey) : id })
+      )
+    })
+    setAchievementAlerts(names)
+    setTimeout(() => setAchievementAlerts([]), ALERT_TIME_MS)
+  }
+
   const onChar = (value: string) => {
     const chainInfo = getChainInfo(guesses)
     const maxLength = chainInfo ? CONFIG.wordLength - 1 : CONFIG.wordLength
@@ -209,7 +224,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           const updatedStats = addStatsForCompletedGame(stats, guesses.length)
           setStats(updatedStats)
           saveDailyResult(todayKey, guesses.length + 1, true)
-          evaluateAchievements(updatedStats, loadDailyHistory())
+          showAchievementAlert(
+            evaluateAchievements(updatedStats, loadDailyHistory())
+          )
         }
         return setIsGameWon(true)
       }
@@ -224,7 +241,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             const updatedStats = addStatsForCompletedGame(stats, CONFIG.tries)
             setStats(updatedStats)
             saveDailyResult(todayKey, CONFIG.tries, false)
-            evaluateAchievements(updatedStats, loadDailyHistory())
+            showAchievementAlert(
+              evaluateAchievements(updatedStats, loadDailyHistory())
+            )
           }
           setIsGameLost(true)
           return
@@ -239,7 +258,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           )
           setStats(updatedStats)
           saveDailyResult(todayKey, guesses.length + 1, false)
-          evaluateAchievements(updatedStats, loadDailyHistory())
+          showAchievementAlert(
+            evaluateAchievements(updatedStats, loadDailyHistory())
+          )
         }
         setIsGameLost(true)
       }
@@ -373,6 +394,18 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         isOpen={successAlert !== ''}
         variant="success"
       />
+      {achievementAlerts.map((msg, i) => {
+        const tops = ['top-32', 'top-44', 'top-56', 'top-68']
+        return (
+          <Alert
+            key={`achievement-${i}`}
+            message={msg}
+            isOpen={true}
+            variant="achievement"
+            topClass={tops[i] || tops[tops.length - 1]}
+          />
+        )
+      })}
     </div>
   )
 }
