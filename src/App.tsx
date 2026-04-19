@@ -124,7 +124,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     } else {
       document.title = `Wor\u{1F517}dle Practice`
     }
-  }, [isDaily, isCustom, questioner])
+  }, [isDaily, isCustom, questioner, stats])
 
   useEffect(() => {
     if (isDaily) {
