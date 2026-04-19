@@ -92,7 +92,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
-    rewardId: 'color_yellow',
+    rewardId: 'color_gold',
   },
   {
     id: 'win_in_4',
@@ -139,7 +139,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_7_title',
     descriptionKey: 'achievement_streak_7_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
-    rewardId: 'color_pink',
+    rewardId: 'color_black',
   },
   {
     id: 'streak_30',

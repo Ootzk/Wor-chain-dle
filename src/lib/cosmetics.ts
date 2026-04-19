@@ -56,8 +56,8 @@ export const CELL_FONT_STYLES: Record<string, string> = {
 
 export const CELL_COLOR_STYLES: Record<string, string> = {
   color_default: '',
-  color_yellow: 'text-yellow-200',
-  color_pink: 'text-pink-200',
+  color_gold: 'text-yellow-300',
+  color_black: 'text-black',
 }
 
 // --- Chain Style Options ---
@@ -127,15 +127,15 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     titleKey: 'cosmetic_color_default',
   },
   {
-    id: 'color_yellow',
+    id: 'color_gold',
     category: 'cellColor',
-    titleKey: 'cosmetic_color_yellow',
+    titleKey: 'cosmetic_color_gold',
     requiresAchievement: 'win_in_3',
   },
   {
-    id: 'color_pink',
+    id: 'color_black',
     category: 'cellColor',
-    titleKey: 'cosmetic_color_pink',
+    titleKey: 'cosmetic_color_black',
     requiresAchievement: 'streak_7',
   },
 
