@@ -133,7 +133,8 @@ PR을 만들 때 아래 항목을 반드시 설정한다:
 
 - `package.json` → `"version"` 필드
 - `src/constants/config.ts` → `PATCH_NOTES_VERSION` 상수
-- `README.md` → 버전 뱃지
+
+> `README.md` 버전 뱃지는 GitHub Release 기반 동적 뱃지이므로 수동 업데이트 불필요.
 
 `release/{version}` 브랜치를 `main`으로 PR할 때 위 값들이 해당 버전과 반드시 일치해야 한다. `/bump-version` 스킬로 일괄 업데이트 가능.
 
