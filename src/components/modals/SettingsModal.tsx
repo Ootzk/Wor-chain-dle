@@ -14,6 +14,9 @@ import {
   getShareEmojiSet,
   equipCosmetic,
   loadCosmeticState,
+  CELL_FONT_STYLES,
+  CELL_COLOR_STYLES,
+  END_MESSAGE_KEYS,
 } from '../../lib/cosmetics'
 import { loadAchievementState } from '../../lib/achievements'
 
@@ -60,6 +63,131 @@ const Toggle = ({
     />
   </button>
 )
+
+const CosmeticPicker = ({
+  category,
+  options,
+  equipped,
+  onSelect,
+  isUnlocked,
+  t,
+  labelKey,
+}: {
+  category: CosmeticCategory
+  options: typeof COSMETIC_OPTIONS
+  equipped: string
+  onSelect: (id: string) => void
+  isUnlocked: (option: (typeof COSMETIC_OPTIONS)[number]) => boolean
+  t: (key: string, opts?: any) => any
+  labelKey: string
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const renderPreview = (optionId: string) => {
+    switch (category) {
+      case 'shareEmoji': {
+        const s = getShareEmojiSet(optionId)
+        return <span>{s.correct}{s.present}{s.absent}</span>
+      }
+      case 'cellFont': {
+        const fontClass = CELL_FONT_STYLES[optionId] || ''
+        return <span className={`${fontClass} font-bold`}>ABC</span>
+      }
+      case 'cellColor': {
+        const colorClass = CELL_COLOR_STYLES[optionId] || ''
+        return (
+          <span className={`inline-block w-5 h-5 rounded ${colorClass || 'text-white'} bg-green-500 text-center text-xs leading-5 font-bold`}>
+            A
+          </span>
+        )
+      }
+      case 'chainStyle': {
+        const borderStyle = optionId === 'chain_dashed' ? 'border-dashed' : 'border-solid'
+        const borderWidth = optionId === 'chain_thick' ? 'border-t-4' : 'border-t-2'
+        return (
+          <span className={`inline-block w-8 ${borderWidth} ${borderStyle} border-black`} />
+        )
+      }
+      case 'endMessage': {
+        const key = END_MESSAGE_KEYS[optionId]
+        const msgs = t(key, { returnObjects: true })
+        return <span className="text-xs italic">{Array.isArray(msgs) ? msgs[0] : ''}</span>
+      }
+      default:
+        return null
+    }
+  }
+
+  const equippedOption = options.find((o) => o.id === equipped)
+
+  return (
+    <>
+      <div className="flex items-center justify-between py-3">
+        <span className="text-sm font-medium text-gray-700">
+          {t(labelKey)}
+        </span>
+        <button
+          type="button"
+          className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
+          onClick={() => setIsOpen(true)}
+        >
+          <span className="flex items-center gap-2 truncate">
+            {renderPreview(equipped)}
+            <span className="truncate">{equippedOption ? t(equippedOption.titleKey) : ''}</span>
+          </span>
+          <span className="text-xs text-gray-400 ml-1">{'\u25BC'}</span>
+        </button>
+      </div>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30"
+          onClick={() => setIsOpen(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl w-72 max-h-80 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-4 py-3 border-b border-gray-200">
+              <span className="text-sm font-bold text-gray-900">
+                {t(labelKey)}
+              </span>
+            </div>
+            {options.map((option) => {
+              const unlocked = isUnlocked(option)
+              const selected = equipped === option.id
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  disabled={!unlocked}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 ${
+                    selected
+                      ? 'bg-indigo-50 text-indigo-600'
+                      : unlocked
+                        ? 'hover:bg-gray-50 text-gray-700'
+                        : 'text-gray-300 cursor-not-allowed'
+                  }`}
+                  onClick={() => {
+                    if (unlocked) {
+                      onSelect(option.id)
+                      setIsOpen(false)
+                    }
+                  }}
+                >
+                  {renderPreview(option.id)}
+                  <span className="flex-1">{t(option.titleKey)}</span>
+                  {!unlocked && <span>{'\uD83D\uDD12'}</span>}
+                  {selected && unlocked && <span className="text-indigo-600">{'\u2713'}</span>}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
 
 export const SettingsModal = ({
   isOpen,
@@ -211,50 +339,25 @@ export const SettingsModal = ({
             </pre>
           </div>
 
-          {/* Cosmetic dropdowns */}
+          {/* Cosmetic pickers */}
           {cosmeticCategories.map(({ category, labelKey }) => {
             const options = COSMETIC_OPTIONS.filter(
               (o) => o.category === category
             )
             return (
-              <div
+              <CosmeticPicker
                 key={category}
-                className="flex items-center justify-between py-3"
-              >
-                <span className="text-sm font-medium text-gray-700">
-                  {t(labelKey)}
-                </span>
-                <select
-                  className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  value={equipped[category]}
-                  onChange={(e) => {
-                    equipCosmetic(category, e.target.value)
-                    setEquipped({ ...equipped, [category]: e.target.value })
-                  }}
-                >
-                  {options.map((option) => {
-                    const unlocked = isOptionUnlocked(option)
-                    const preview =
-                      category === 'shareEmoji'
-                        ? (() => {
-                            const s = getShareEmojiSet(option.id)
-                            return `${s.correct}${s.present}${s.absent} `
-                          })()
-                        : ''
-                    return (
-                      <option
-                        key={option.id}
-                        value={option.id}
-                        disabled={!unlocked}
-                      >
-                        {preview}
-                        {t(option.titleKey)}
-                        {!unlocked ? ' \uD83D\uDD12' : ''}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
+                category={category}
+                options={options}
+                equipped={equipped[category]}
+                onSelect={(id) => {
+                  equipCosmetic(category, id)
+                  setEquipped({ ...equipped, [category]: id })
+                }}
+                isUnlocked={isOptionUnlocked}
+                t={t}
+                labelKey={labelKey}
+              />
             )
           })}
         </div>

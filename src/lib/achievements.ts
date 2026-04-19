@@ -55,7 +55,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_50_title',
     descriptionKey: 'achievement_play_50_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 50 }),
-    rewardId: 'font_mono',
+    rewardId: 'font_marker',
   },
   {
     id: 'play_100',
@@ -101,7 +101,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
-    rewardId: 'font_serif',
+    rewardId: 'font_pixel',
   },
   {
     id: 'win_in_5',

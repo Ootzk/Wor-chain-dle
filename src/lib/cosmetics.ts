@@ -48,8 +48,8 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
 
 export const CELL_FONT_STYLES: Record<string, string> = {
   font_default: '',
-  font_serif: 'font-serif',
-  font_mono: 'font-mono',
+  font_pixel: "font-['Press_Start_2P']",
+  font_marker: "font-['Permanent_Marker']",
 }
 
 // --- Cell Color Options ---
@@ -108,15 +108,15 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     titleKey: 'cosmetic_font_default',
   },
   {
-    id: 'font_serif',
+    id: 'font_pixel',
     category: 'cellFont',
-    titleKey: 'cosmetic_font_serif',
+    titleKey: 'cosmetic_font_pixel',
     requiresAchievement: 'win_in_4',
   },
   {
-    id: 'font_mono',
+    id: 'font_marker',
     category: 'cellFont',
-    titleKey: 'cosmetic_font_mono',
+    titleKey: 'cosmetic_font_marker',
     requiresAchievement: 'play_50',
   },
 
