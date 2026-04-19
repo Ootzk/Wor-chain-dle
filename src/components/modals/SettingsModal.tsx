@@ -182,7 +182,7 @@ const CosmeticPicker = ({
                 </span>
               </div>
 
-              <div className="flex items-center justify-between px-4 py-3">
+              <div className={`flex items-center justify-between px-4 py-3 ${selected ? 'bg-indigo-50' : ''}`}>
                 <button
                   type="button"
                   className="text-gray-400 hover:text-gray-600 text-lg font-bold px-2"
@@ -190,7 +190,7 @@ const CosmeticPicker = ({
                 >
                   {'<'}
                 </button>
-                <span className="text-sm font-semibold text-gray-900">
+                <span className={`text-sm font-semibold ${selected ? 'text-indigo-600' : 'text-gray-900'}`}>
                   {MSG_THEME_EMOJI[currentOption.id] || ''} {t(currentOption.titleKey)}
                 </span>
                 <button
@@ -202,9 +202,9 @@ const CosmeticPicker = ({
                 </button>
               </div>
 
-              <div className="px-4 pb-3">
+              <div className={`px-4 pb-3 ${selected ? 'bg-indigo-50' : ''}`}>
                 {Array.isArray(msgs) && (
-                  <table className="w-full text-sm text-gray-600">
+                  <table className={`w-full text-sm ${selected ? 'text-indigo-600' : 'text-gray-600'}`}>
                     <tbody>
                       {msgs.map((msg: string, i: number) => (
                         <tr key={i}>
@@ -221,7 +221,7 @@ const CosmeticPicker = ({
                 )}
               </div>
 
-              <div className="px-4 pb-3">
+              <div className={`px-4 pb-3 ${selected ? 'bg-indigo-50' : ''}`}>
                 {!unlocked && (
                   <button
                     type="button"
@@ -235,7 +235,7 @@ const CosmeticPicker = ({
                   <button
                     type="button"
                     disabled
-                    className="w-full rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-500 cursor-default"
+                    className="w-full rounded-md bg-indigo-100 px-3 py-2 text-sm font-medium text-indigo-600 cursor-default"
                   >
                     {'\u2713'}
                   </button>
