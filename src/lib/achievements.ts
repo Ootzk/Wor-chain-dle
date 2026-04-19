@@ -45,7 +45,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 1,
     titleKey: 'achievement_play_10_title',
     descriptionKey: 'achievement_play_10_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.totalGames, 10), target: 10 }),
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 10 }),
   },
   {
     id: 'play_50',
@@ -53,7 +53,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 4,
     titleKey: 'achievement_play_50_title',
     descriptionKey: 'achievement_play_50_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.totalGames, 50), target: 50 }),
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 50 }),
   },
   {
     id: 'play_100',
@@ -61,7 +61,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 6,
     titleKey: 'achievement_play_100_title',
     descriptionKey: 'achievement_play_100_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.totalGames, 100), target: 100 }),
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 100 }),
   },
 
   // Guess — N번째 시도로 N회 승리
@@ -71,7 +71,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 10,
     titleKey: 'achievement_win_in_1_title',
     descriptionKey: 'achievement_win_in_1_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.winDistribution[0], 1), target: 1 }),
+    progress: ({ stats }) => ({ current: stats.winDistribution[0], target: 1 }),
   },
   {
     id: 'win_in_2',
@@ -79,7 +79,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 7,
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.winDistribution[1], 2), target: 2 }),
+    progress: ({ stats }) => ({ current: stats.winDistribution[1], target: 2 }),
   },
   {
     id: 'win_in_3',
@@ -87,7 +87,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 5,
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.winDistribution[2], 3), target: 3 }),
+    progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
   },
   {
     id: 'win_in_4',
@@ -95,7 +95,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 3,
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.winDistribution[3], 4), target: 4 }),
+    progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
   },
   {
     id: 'win_in_5',
@@ -103,7 +103,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 2,
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.winDistribution[4], 5), target: 5 }),
+    progress: ({ stats }) => ({ current: stats.winDistribution[4], target: 5 }),
   },
   {
     id: 'win_in_6',
@@ -111,7 +111,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 1,
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.winDistribution[5], 6), target: 6 }),
+    progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
   },
 
   // Streak
@@ -121,7 +121,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 3,
     titleKey: 'achievement_streak_3_title',
     descriptionKey: 'achievement_streak_3_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.bestStreak, 3), target: 3 }),
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
   },
   {
     id: 'streak_7',
@@ -129,7 +129,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 6,
     titleKey: 'achievement_streak_7_title',
     descriptionKey: 'achievement_streak_7_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.bestStreak, 7), target: 7 }),
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
   },
   {
     id: 'streak_30',
@@ -137,7 +137,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 10,
     titleKey: 'achievement_streak_30_title',
     descriptionKey: 'achievement_streak_30_desc',
-    progress: ({ stats }) => ({ current: Math.min(stats.bestStreak, 30), target: 30 }),
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 30 }),
   },
 ]
 
