@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { BaseModal } from './BaseModal'
 import { CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
@@ -33,8 +33,6 @@ type Props = {
   handleClose: () => void
   isUppercase: boolean
   onToggleUppercase: () => void
-  weekStartsOnMonday: boolean
-  onToggleWeekStart: () => void
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
 }
@@ -93,7 +91,7 @@ const CosmeticPicker = ({
 
   return (
     <>
-      <div className="flex items-center justify-between py-3">
+      <div className="flex items-center justify-between py-1.5">
         <span className="text-sm font-medium text-gray-700">
           {t(labelKey)}
         </span>
@@ -268,20 +266,11 @@ export const SettingsModal = ({
   handleClose,
   isUppercase,
   onToggleUppercase,
-  weekStartsOnMonday,
-  onToggleWeekStart,
   excludeUrl,
   onToggleExcludeUrl,
 }: Props) => {
   const { t, i18n } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'preferences' | 'cosmetics'>(
-    'preferences'
-  )
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
-
-  useEffect(() => {
-    if (isOpen) setActiveTab('preferences')
-  }, [isOpen])
 
   // Sample: ocean → chain (solution = chain)
   const sampleSolution = 'chain'
@@ -308,11 +297,6 @@ export const SettingsModal = ({
     !option.requiresAchievement ||
     !!achievementState.unlocked[option.requiresAchievement]
 
-  const tabs = [
-    { id: 'preferences' as const, label: t('preferences') },
-    { id: 'cosmetics' as const, label: t('cosmetics') },
-  ]
-
   return (
     <BaseModal
       title={t('settings')}
@@ -320,79 +304,40 @@ export const SettingsModal = ({
       isOpen={isOpen}
       handleClose={handleClose}
     >
-      <div className="flex border-b border-gray-200 mb-4">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === tab.id
-                ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
-                : 'text-gray-400 hover:text-gray-600'
-            }`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <div className="max-h-[70vh] overflow-y-auto">
+        {/* Language */}
+        {CONFIG.availableLangs.length > 1 && (
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm font-medium text-gray-700">
+              {t('pickYourLanguage')}
+            </span>
+            <select
+              className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={i18n.language?.split('-')[0]}
+              onChange={(e) => {
+                i18n.changeLanguage(e.target.value)
+                localStorage.setItem(localeLanguageKey, e.target.value)
+              }}
+            >
+              {CONFIG.availableLangs.map((lang) => (
+                <option key={lang} value={lang}>
+                  {langFlags[lang]} {t(`languages.${lang}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-      {activeTab === 'preferences' && (
-        <div>
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm font-medium text-gray-700">
-              {t('uppercaseLabel')}
-            </span>
-            <Toggle checked={isUppercase} onClick={onToggleUppercase} />
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm font-medium text-gray-700">
-              {t('weekStartLabel')}
-            </span>
-            <Toggle
-              checked={weekStartsOnMonday}
-              onClick={onToggleWeekStart}
-            />
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm font-medium text-gray-700">
-              {t('excludeUrlLabel')}
-            </span>
-            <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
-          </div>
-          {CONFIG.availableLangs.length > 1 && (
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm font-medium text-gray-700">
-                {t('pickYourLanguage')}
-              </span>
-              <select
-                className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                value={i18n.language?.split('-')[0]}
-                onChange={(e) => {
-                  i18n.changeLanguage(e.target.value)
-                  localStorage.setItem(localeLanguageKey, e.target.value)
-                }}
-              >
-                {CONFIG.availableLangs.map((lang) => (
-                  <option key={lang} value={lang}>
-                    {langFlags[lang]} {t(`languages.${lang}`)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'cosmetics' && (
-        <div>
-          {/* Win message preview (Alert style) */}
+        {/* Sample view */}
+        <div className="my-2">
+          {/* Win message preview */}
           {(() => {
             const keys = ALERT_MESSAGE_KEYS[equipped.endMessage]
             const msgs = t(keys?.win || 'winMessages_classic', { returnObjects: true })
             const msg = Array.isArray(msgs) ? msgs[sampleGuesses.length - 1] : ''
             return (
               <div className="bg-green-200 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
-                <div className="p-4">
+                <div className="p-3">
                   <p className="text-sm text-center font-medium text-gray-900">
                     {msg}
                   </p>
@@ -401,7 +346,7 @@ export const SettingsModal = ({
             )
           })()}
 
-          {/* Sample grid: ocean → chain */}
+          {/* Sample grid */}
           <div className={`flex flex-col items-center py-2 ${isUppercase ? 'uppercase' : ''}`}>
             <CompletedRow
               guess={sampleGuesses[0]}
@@ -417,42 +362,54 @@ export const SettingsModal = ({
           </div>
 
           {/* Share preview */}
-          <div className="mt-2">
-            <pre className="rounded border border-gray-200 bg-gray-50 p-2 text-xs text-gray-700 whitespace-pre leading-relaxed">
-              {generateShareText(
-                sampleGuesses,
-                false,
-                sampleSolution,
-                CONFIG.tries,
-                Temporal.Now.plainDateISO().toString(),
-                excludeUrl
-              )}
-            </pre>
-          </div>
-
-          {/* Cosmetic pickers */}
-          {cosmeticCategories.map(({ category, labelKey }) => {
-            const options = COSMETIC_OPTIONS.filter(
-              (o) => o.category === category
-            )
-            return (
-              <CosmeticPicker
-                key={category}
-                category={category}
-                options={options}
-                equipped={equipped[category]}
-                onSelect={(id) => {
-                  equipCosmetic(category, id)
-                  setEquipped({ ...equipped, [category]: id })
-                }}
-                isUnlocked={isOptionUnlocked}
-                t={t}
-                labelKey={labelKey}
-              />
-            )
-          })}
+          <pre className="rounded border border-gray-200 bg-gray-50 p-2 text-xs text-gray-700 whitespace-pre leading-relaxed">
+            {generateShareText(
+              sampleGuesses,
+              false,
+              sampleSolution,
+              CONFIG.tries,
+              Temporal.Now.plainDateISO().toString(),
+              excludeUrl
+            )}
+          </pre>
         </div>
-      )}
+
+        {/* Display settings */}
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm font-medium text-gray-700">
+            {t('uppercaseLabel')}
+          </span>
+          <Toggle checked={isUppercase} onClick={onToggleUppercase} />
+        </div>
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm font-medium text-gray-700">
+            {t('excludeUrlLabel')}
+          </span>
+          <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
+        </div>
+
+        {/* Cosmetic pickers */}
+        {cosmeticCategories.map(({ category, labelKey }) => {
+          const options = COSMETIC_OPTIONS.filter(
+            (o) => o.category === category
+          )
+          return (
+            <CosmeticPicker
+              key={category}
+              category={category}
+              options={options}
+              equipped={equipped[category]}
+              onSelect={(id) => {
+                equipCosmetic(category, id)
+                setEquipped({ ...equipped, [category]: id })
+              }}
+              isUnlocked={isOptionUnlocked}
+              t={t}
+              labelKey={labelKey}
+            />
+          )
+        })}
+      </div>
     </BaseModal>
   )
 }
