@@ -71,12 +71,18 @@ export const CHAIN_STYLES: Record<
   chain_thick: { className: 'border-l-4 border-r-4 border-black', height: 'h-2', borderWidth: 'border-4', borderStyle: 'border-solid' },
 }
 
-// --- End Message Options ---
+// --- Alert Message Options ---
 
-export const END_MESSAGE_KEYS: Record<string, string> = {
-  msg_default: 'winMessages',
-  msg_epic: 'winMessagesEpic',
-  msg_chill: 'winMessagesChill',
+export const ALERT_MESSAGE_KEYS: Record<
+  string,
+  { win: string; loss: string }
+> = {
+  msg_classic: { win: 'winMessages_classic', loss: 'lossMessage_classic' },
+  msg_phrase: { win: 'winMessages_phrase', loss: 'lossMessage_phrase' },
+  msg_chill: { win: 'winMessages_chill', loss: 'lossMessage_chill' },
+  msg_epic: { win: 'winMessages_epic', loss: 'lossMessage_epic' },
+  msg_slang: { win: 'winMessages_slang', loss: 'lossMessage_slang' },
+  msg_emoji: { win: 'winMessages_emoji', loss: 'lossMessage_emoji' },
 }
 
 // --- All Options ---
@@ -158,11 +164,23 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     requiresAchievement: 'play_100',
   },
 
-  // End Message
+  // Alert Message
   {
-    id: 'msg_default',
+    id: 'msg_classic',
     category: 'endMessage',
-    titleKey: 'cosmetic_msg_default',
+    titleKey: 'cosmetic_msg_classic',
+  },
+  {
+    id: 'msg_phrase',
+    category: 'endMessage',
+    titleKey: 'cosmetic_msg_phrase',
+    requiresAchievement: 'win_in_5',
+  },
+  {
+    id: 'msg_chill',
+    category: 'endMessage',
+    titleKey: 'cosmetic_msg_chill',
+    requiresAchievement: 'win_in_4',
   },
   {
     id: 'msg_epic',
@@ -171,10 +189,16 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     requiresAchievement: 'win_in_2',
   },
   {
-    id: 'msg_chill',
+    id: 'msg_slang',
     category: 'endMessage',
-    titleKey: 'cosmetic_msg_chill',
-    requiresAchievement: 'win_in_5',
+    titleKey: 'cosmetic_msg_slang',
+    requiresAchievement: 'streak_7',
+  },
+  {
+    id: 'msg_emoji',
+    category: 'endMessage',
+    titleKey: 'cosmetic_msg_emoji',
+    requiresAchievement: 'win_in_3',
   },
 ]
 
@@ -188,7 +212,7 @@ const defaultState: CosmeticState = {
     cellFont: 'font_default',
     cellColor: 'color_default',
     chainStyle: 'chain_default',
-    endMessage: 'msg_default',
+    endMessage: 'msg_classic',
   },
 }
 
@@ -251,10 +275,13 @@ export const getEquippedChainStyle = (): {
   )
 }
 
-export const getEquippedEndMessageKey = (): string => {
+export const getEquippedAlertMessageKeys = (): {
+  win: string
+  loss: string
+} => {
   const state = loadCosmeticState()
   return (
-    END_MESSAGE_KEYS[state.equipped.endMessage] ??
-    END_MESSAGE_KEYS['msg_default']
+    ALERT_MESSAGE_KEYS[state.equipped.endMessage] ??
+    ALERT_MESSAGE_KEYS['msg_classic']
   )
 }

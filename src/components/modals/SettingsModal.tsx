@@ -16,7 +16,7 @@ import {
   loadCosmeticState,
   CELL_FONT_STYLES,
   CELL_COLOR_STYLES,
-  END_MESSAGE_KEYS,
+  ALERT_MESSAGE_KEYS,
 } from '../../lib/cosmetics'
 import { loadAchievementState } from '../../lib/achievements'
 
@@ -83,7 +83,7 @@ const CosmeticPicker = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const renderPreview = (optionId: string) => {
+  const renderPreview = (optionId: string, compact = false) => {
     switch (category) {
       case 'shareEmoji': {
         const s = getShareEmojiSet(optionId)
@@ -109,9 +109,23 @@ const CosmeticPicker = ({
         )
       }
       case 'endMessage': {
-        const key = END_MESSAGE_KEYS[optionId]
-        const msgs = t(key, { returnObjects: true })
-        return <span className="text-xs italic">{Array.isArray(msgs) ? msgs[0] : ''}</span>
+        if (compact) return null
+        const keys = ALERT_MESSAGE_KEYS[optionId]
+        const msgs = t(keys?.win || 'winMessages_classic', { returnObjects: true })
+        const loss = t(keys?.loss || 'lossMessage_classic', { solution: '?' })
+        if (!Array.isArray(msgs)) return null
+        return (
+          <div className="text-xs text-gray-500 space-y-0.5">
+            {msgs.map((msg: string, i: number) => (
+              <div key={i}>
+                <span className="text-gray-400">{i + 1}.</span> {msg}
+              </div>
+            ))}
+            <div>
+              <span className="text-gray-400">X.</span> {loss}
+            </div>
+          </div>
+        )
       }
       default:
         return null
@@ -132,7 +146,7 @@ const CosmeticPicker = ({
           onClick={() => setIsOpen(true)}
         >
           <span className="flex items-center gap-2 truncate">
-            {renderPreview(equipped)}
+            {renderPreview(equipped, true)}
             <span className="truncate">{equippedOption ? t(equippedOption.titleKey) : ''}</span>
           </span>
           <span className="text-xs text-gray-400 ml-1">{'\u25BC'}</span>
@@ -310,6 +324,22 @@ export const SettingsModal = ({
 
       {activeTab === 'cosmetics' && (
         <div>
+          {/* Win message preview (Alert style) */}
+          {(() => {
+            const keys = ALERT_MESSAGE_KEYS[equipped.endMessage]
+            const msgs = t(keys?.win || 'winMessages_classic', { returnObjects: true })
+            const msg = Array.isArray(msgs) ? msgs[0] : ''
+            return (
+              <div className="bg-green-200 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
+                <div className="p-4">
+                  <p className="text-sm text-center font-medium text-gray-900">
+                    {msg}
+                  </p>
+                </div>
+              </div>
+            )
+          })()}
+
           {/* Sample grid: ocean → chain */}
           <div className={`flex flex-col items-center py-2 ${isUppercase ? 'uppercase' : ''}`}>
             <CompletedRow

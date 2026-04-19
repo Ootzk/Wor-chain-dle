@@ -37,7 +37,7 @@ import {
   evaluateAchievements,
   retroUnlockAchievements,
 } from './lib/achievements'
-import { getEquippedEndMessageKey } from './lib/cosmetics'
+import { getEquippedAlertMessageKeys } from './lib/cosmetics'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -138,13 +138,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [isUppercase, weekStartsOnMonday, excludeUrl])
 
   useEffect(() => {
+    const alertKeys = getEquippedAlertMessageKeys()
     if (isGameWon) {
-      const WIN_MESSAGES = t(getEquippedEndMessageKey(), {
-        returnObjects: true,
-      })
-      setSuccessAlert(
-        WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)]
-      )
+      const WIN_MESSAGES = t(alertKeys.win, { returnObjects: true })
+      setSuccessAlert(WIN_MESSAGES[guesses.length - 1] || WIN_MESSAGES[0])
       setTimeout(() => {
         setSuccessAlert('')
         setIsStatsModalOpen(true)
@@ -155,7 +152,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         setIsStatsModalOpen(true)
       }, ALERT_TIME_MS)
     }
-  }, [isGameWon, isGameLost, t])
+  }, [isGameWon, isGameLost, t, guesses.length])
 
   const onChar = (value: string) => {
     const chainInfo = getChainInfo(guesses)
@@ -367,7 +364,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
       <Alert message={t('wordNotFound')} isOpen={isWordNotFoundAlertOpen} />
-      <Alert message={t('solution', { solution })} isOpen={isGameLost} />
+      <Alert
+        message={t(getEquippedAlertMessageKeys().loss, { solution })}
+        isOpen={isGameLost}
+      />
       <Alert
         message={successAlert}
         isOpen={successAlert !== ''}
