@@ -166,6 +166,13 @@
     "sw": "Kiswahili",
     "zh": "中文"
   },
+  "preferences": "偏好设置",
+  "cosmetics": "装饰品",
+  "shareEmojiLabel": "分享表情",
+  "equipped": "已装备",
+  "cosmetic_emoji_default": "默认",
+  "cosmetic_emoji_circle": "圆形",
+  "cosmetic_emoji_heart": "爱心",
   "achievements": "成就",
   "unlocked": "已解锁",
   "locked": "未解锁",

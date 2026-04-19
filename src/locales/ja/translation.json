@@ -126,6 +126,13 @@
         "sw": "Kiswahili",
         "zh": "中文"
     },
+    "preferences": "設定",
+    "cosmetics": "コスメティック",
+    "shareEmojiLabel": "共有絵文字",
+    "equipped": "装備中",
+    "cosmetic_emoji_default": "デフォルト",
+    "cosmetic_emoji_circle": "サークル",
+    "cosmetic_emoji_heart": "ハート",
     "achievements": "実績",
     "unlocked": "解除済み",
     "locked": "未解除",

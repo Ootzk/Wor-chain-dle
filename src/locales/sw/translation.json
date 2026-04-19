@@ -167,6 +167,13 @@
     "sw": "Kiswahili",
     "zh": "中文"
   },
+  "preferences": "Mapendeleo",
+  "cosmetics": "Mapambo",
+  "shareEmojiLabel": "Emoji ya kushiriki",
+  "equipped": "Imevaliwa",
+  "cosmetic_emoji_default": "Kawaida",
+  "cosmetic_emoji_circle": "Duara",
+  "cosmetic_emoji_heart": "Moyo",
   "achievements": "Mafanikio",
   "unlocked": "Imefunguliwa",
   "locked": "Imefungwa",

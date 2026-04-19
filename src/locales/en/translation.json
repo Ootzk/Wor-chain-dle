@@ -172,6 +172,13 @@
         "sw": "Kiswahili",
         "zh": "中文"
     },
+    "preferences": "Preferences",
+    "cosmetics": "Cosmetics",
+    "shareEmojiLabel": "Share Emoji",
+    "equipped": "Equipped",
+    "cosmetic_emoji_default": "Default",
+    "cosmetic_emoji_circle": "Circle",
+    "cosmetic_emoji_heart": "Heart",
     "achievements": "Achievements",
     "unlocked": "Unlocked",
     "locked": "Locked",

@@ -126,6 +126,13 @@
         "sw": "Kiswahili",
         "zh": "中文"
     },
+    "preferences": "환경설정",
+    "cosmetics": "치장품",
+    "shareEmojiLabel": "공유 이모지",
+    "equipped": "장착 중",
+    "cosmetic_emoji_default": "기본",
+    "cosmetic_emoji_circle": "동그라미",
+    "cosmetic_emoji_heart": "하트",
     "achievements": "업적",
     "unlocked": "해금됨",
     "locked": "미해금",

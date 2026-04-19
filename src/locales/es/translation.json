@@ -167,6 +167,13 @@
     "sw": "Kiswahili",
     "zh": "中文"
   },
+  "preferences": "Preferencias",
+  "cosmetics": "Cosméticos",
+  "shareEmojiLabel": "Emoji de compartir",
+  "equipped": "Equipado",
+  "cosmetic_emoji_default": "Predeterminado",
+  "cosmetic_emoji_circle": "Círculo",
+  "cosmetic_emoji_heart": "Corazón",
   "achievements": "Logros",
   "unlocked": "Desbloqueado",
   "locked": "Bloqueado",
