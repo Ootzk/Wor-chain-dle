@@ -64,11 +64,11 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
 
 export const CHAIN_STYLES: Record<
   string,
-  { className: string; height: string }
+  { className: string; height: string; borderWidth: string; borderStyle: string }
 > = {
-  chain_default: { className: 'border-l-2 border-r-2 border-black', height: 'h-1' },
-  chain_dashed: { className: 'border-l-2 border-r-2 border-dashed border-black', height: 'h-1' },
-  chain_thick: { className: 'border-l-4 border-r-4 border-black', height: 'h-2' },
+  chain_default: { className: 'border-l-2 border-r-2 border-black', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-solid' },
+  chain_dashed: { className: 'border-l-2 border-r-2 border-dashed border-black', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-dashed' },
+  chain_thick: { className: 'border-l-4 border-r-4 border-black', height: 'h-2', borderWidth: 'border-4', borderStyle: 'border-solid' },
 }
 
 // --- End Message Options ---
@@ -242,6 +242,8 @@ export const getEquippedCellColor = (): string => {
 export const getEquippedChainStyle = (): {
   className: string
   height: string
+  borderWidth: string
+  borderStyle: string
 } => {
   const state = loadCosmeticState()
   return (

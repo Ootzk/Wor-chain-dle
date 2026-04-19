@@ -1,6 +1,6 @@
 import { CharStatus } from '../../lib/statuses'
 import classnames from 'classnames'
-import { getEquippedCellFont, getEquippedCellColor } from '../../lib/cosmetics'
+import { getEquippedCellFont, getEquippedCellColor, getEquippedChainStyle } from '../../lib/cosmetics'
 
 type Props = {
   value?: string
@@ -20,9 +20,14 @@ export const Cell = ({
   const isChain = chainTop || chainBottom
   const cosmeticFont = getEquippedCellFont()
   const cosmeticColor = getEquippedCellColor()
+  const chainStyle = getEquippedChainStyle()
+  const chainBorderWidth = isChain ? chainStyle.borderWidth || 'border-2' : 'border-2'
+  const chainBorderStyle = isChain ? chainStyle.borderStyle || 'border-solid' : 'border-solid'
 
   const classes = classnames(
-    'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded',
+    'w-14 h-14 flex items-center justify-center mx-0.5 text-lg font-bold rounded',
+    chainBorderWidth,
+    chainBorderStyle,
     cosmeticFont,
     {
       'bg-white border-slate-200': !status && !isLocked && !isChain,
