@@ -1,10 +1,14 @@
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   getAchievementsWithStatus,
+  markAchievementsSeen,
   AchievementCategory,
 } from '../../lib/achievements'
 import { loadDailyHistory } from '../../lib/dailyHistory'
 import { loadStats } from '../../lib/stats'
+import { getRewardsForAchievement } from '../../lib/cosmetics'
+import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
@@ -46,21 +50,46 @@ const ProgressBar = ({
   )
 }
 
-export const AchievementList = () => {
+export const AchievementList = ({
+  scrollToId,
+}: {
+  scrollToId?: string
+}) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyHistory()
   const achievements = getAchievementsWithStatus(stats, dailyHistory)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    return () => {
+      markAchievementsSeen()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (scrollToId && scrollRef.current) {
+      const el = scrollRef.current.querySelector(
+        `[data-achievement-id="${scrollToId}"]`
+      )
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)
+      }
+    }
+  }, [scrollToId])
 
   return (
-    <div className="h-full overflow-y-auto space-y-2 pr-1">
+    <div ref={scrollRef} className="h-full overflow-y-auto space-y-2 pr-1">
       {achievements.map((achievement) => (
         <div
           key={achievement.id}
-          className={`rounded-lg border p-3 ${
-            achievement.unlocked
-              ? 'border-green-400 bg-green-50'
-              : 'border-gray-200'
+          data-achievement-id={achievement.id}
+          className={`rounded-lg p-3 transition-colors ${
+            scrollToId === achievement.id
+              ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
+              : achievement.unlocked
+                ? 'border border-green-400 bg-green-50'
+                : 'border border-gray-200'
           }`}
         >
           <div className="flex items-start justify-between gap-2">
@@ -72,10 +101,38 @@ export const AchievementList = () => {
                 <span className="text-sm font-semibold truncate text-gray-900">
                   {t(achievement.titleKey)}
                 </span>
+                {achievement.isNew && (
+                  <span className="text-[0.625rem] font-bold text-yellow-600 bg-yellow-100 rounded px-1 py-0.5 flex-shrink-0">
+                    NEW!
+                  </span>
+                )}
               </div>
               <p className="text-xs mt-1 text-gray-600 text-left">
                 {t(achievement.descriptionKey)}
               </p>
+              {(() => {
+                const rewards = getRewardsForAchievement(achievement.id)
+                if (rewards.length === 0) return null
+                return (
+                  <div className="mt-1 space-y-0.5">
+                    {rewards.map((r) => (
+                      <div key={r.id} className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <span>{t(`${r.category}Label`)}</span>
+                        <span className="text-gray-300">|</span>
+                        <span className="flex items-center">
+                          <CosmeticPreview
+                            category={r.category}
+                            optionId={r.id}
+                            compact
+                          />
+                        </span>
+                        <span className="text-gray-300">|</span>
+                        <span>{t(r.titleKey)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
             </div>
             <div className="flex-shrink-0">
               <DifficultyStars difficulty={achievement.difficulty} />

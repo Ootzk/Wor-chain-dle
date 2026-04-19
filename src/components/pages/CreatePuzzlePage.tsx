@@ -27,7 +27,7 @@ export const CreatePuzzlePage = () => {
   const [copied, setCopied] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState('')
   const [isUppercase, setIsUppercase] = useState(() => loadSettings().isUppercase)
-  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(() => loadSettings().weekStartsOnMonday)
+  const [weekStartsOnMonday] = useState(() => loadSettings().weekStartsOnMonday)
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
@@ -274,8 +274,6 @@ export const CreatePuzzlePage = () => {
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
-        weekStartsOnMonday={weekStartsOnMonday}
-        onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
       />

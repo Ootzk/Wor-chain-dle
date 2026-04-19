@@ -36,7 +36,9 @@ import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import {
   evaluateAchievements,
   retroUnlockAchievements,
+  ACHIEVEMENTS,
 } from './lib/achievements'
+import { getEquippedAlertMessageKeys } from './lib/cosmetics'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -65,6 +67,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
+  const [statsInitialTab, setStatsInitialTab] = useState<
+    'stats' | 'calendar' | 'achievements' | undefined
+  >(undefined)
+  const [scrollToAchievement, setScrollToAchievement] = useState<
+    string | undefined
+  >(undefined)
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
@@ -74,13 +82,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
-  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
-    () => loadSettings().weekStartsOnMonday
-  )
+  const [weekStartsOnMonday] = useState(() => loadSettings().weekStartsOnMonday)
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
+  const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
   const [guesses, setGuesses] = useState<string[][]>(() => {
     if (!isDaily) return []
     const loaded = loadGameStateFromLocalStorage()
@@ -137,11 +144,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [isUppercase, weekStartsOnMonday, excludeUrl])
 
   useEffect(() => {
+    const alertKeys = getEquippedAlertMessageKeys()
     if (isGameWon) {
-      const WIN_MESSAGES = t('winMessages', { returnObjects: true })
-      setSuccessAlert(
-        WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)]
-      )
+      const WIN_MESSAGES = t(alertKeys.win, { returnObjects: true })
+      setSuccessAlert(WIN_MESSAGES[guesses.length - 1] || WIN_MESSAGES[0])
       setTimeout(() => {
         setSuccessAlert('')
         setIsStatsModalOpen(true)
@@ -152,7 +158,21 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         setIsStatsModalOpen(true)
       }, ALERT_TIME_MS)
     }
-  }, [isGameWon, isGameLost, t])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameWon, isGameLost])
+
+  const showAchievementAlert = (newlyUnlocked: string[]) => {
+    if (newlyUnlocked.length === 0) return
+    const names = newlyUnlocked.map((id) => {
+      const a = ACHIEVEMENTS.find((a) => a.id === id)
+      return (
+        '\uD83C\uDF89 ' +
+        t('achievementUnlocked', { name: a ? t(a.titleKey) : id })
+      )
+    })
+    setAchievementAlerts(names)
+    setTimeout(() => setAchievementAlerts([]), ALERT_TIME_MS)
+  }
 
   const onChar = (value: string) => {
     const chainInfo = getChainInfo(guesses)
@@ -209,7 +229,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           const updatedStats = addStatsForCompletedGame(stats, guesses.length)
           setStats(updatedStats)
           saveDailyResult(todayKey, guesses.length + 1, true)
-          evaluateAchievements(updatedStats, loadDailyHistory())
+          showAchievementAlert(
+            evaluateAchievements(updatedStats, loadDailyHistory())
+          )
         }
         return setIsGameWon(true)
       }
@@ -224,7 +246,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             const updatedStats = addStatsForCompletedGame(stats, CONFIG.tries)
             setStats(updatedStats)
             saveDailyResult(todayKey, CONFIG.tries, false)
-            evaluateAchievements(updatedStats, loadDailyHistory())
+            showAchievementAlert(
+              evaluateAchievements(updatedStats, loadDailyHistory())
+            )
           }
           setIsGameLost(true)
           return
@@ -239,7 +263,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           )
           setStats(updatedStats)
           saveDailyResult(todayKey, guesses.length + 1, false)
-          evaluateAchievements(updatedStats, loadDailyHistory())
+          showAchievementAlert(
+            evaluateAchievements(updatedStats, loadDailyHistory())
+          )
         }
         setIsGameLost(true)
       }
@@ -305,7 +331,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       />
       <StatsModal
         isOpen={isStatsModalOpen}
-        handleClose={() => setIsStatsModalOpen(false)}
+        handleClose={() => {
+          setIsStatsModalOpen(false)
+          setStatsInitialTab(undefined)
+          setScrollToAchievement(undefined)
+        }}
+        initialTab={statsInitialTab}
+        scrollToAchievement={scrollToAchievement}
         guesses={guesses}
         gameStats={stats}
         isGameLost={isGameLost}
@@ -329,10 +361,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
-        weekStartsOnMonday={weekStartsOnMonday}
-        onToggleWeekStart={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
+        onNavigateToAchievement={(id) => {
+          setIsSettingsModalOpen(false)
+          setStatsInitialTab('achievements')
+          setScrollToAchievement(id)
+          setTimeout(() => setIsStatsModalOpen(true), 300)
+        }}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
@@ -364,12 +400,27 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
       <Alert message={t('wordNotFound')} isOpen={isWordNotFoundAlertOpen} />
-      <Alert message={t('solution', { solution })} isOpen={isGameLost} />
+      <Alert
+        message={t(getEquippedAlertMessageKeys().loss, { solution })}
+        isOpen={isGameLost}
+      />
       <Alert
         message={successAlert}
         isOpen={successAlert !== ''}
         variant="success"
       />
+      {achievementAlerts.map((msg, i) => {
+        const tops = ['top-32', 'top-44', 'top-56', 'top-68']
+        return (
+          <Alert
+            key={`achievement-${i}`}
+            message={msg}
+            isOpen={true}
+            variant="achievement"
+            topClass={tops[i] || tops[tops.length - 1]}
+          />
+        )
+      })}
     </div>
   )
 }

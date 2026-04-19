@@ -20,7 +20,6 @@ export type AchievementDef = {
   category: AchievementCategory
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
   progress: (ctx: AchievementContext) => AchievementProgress
-  rewardId?: string
   titleKey: string
   descriptionKey: string
 }
@@ -33,6 +32,7 @@ type AchievementState = {
   version: number
   unlocked: Record<string, AchievementUnlock>
   retroCompleted: boolean
+  lastSeenAt?: number
 }
 
 // --- Achievement Definitions ---
@@ -46,7 +46,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_10_title',
     descriptionKey: 'achievement_play_10_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 10 }),
-    rewardId: 'emoji_circle',
   },
   {
     id: 'play_50',
@@ -123,7 +122,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_3_title',
     descriptionKey: 'achievement_streak_3_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
-    rewardId: 'emoji_heart',
   },
   {
     id: 'streak_7',
@@ -207,6 +205,12 @@ export const retroUnlockAchievements = (
   return newlyUnlocked
 }
 
+export const markAchievementsSeen = (): void => {
+  const state = loadAchievementState()
+  state.lastSeenAt = Date.now()
+  saveAchievementState(state)
+}
+
 export const getAchievementsWithStatus = (
   stats: GameStats,
   dailyHistory: DailyHistory
@@ -215,13 +219,18 @@ export const getAchievementsWithStatus = (
     unlocked: boolean
     unlockedAt?: number
     currentProgress: AchievementProgress
+    isNew: boolean
   }
 > => {
   const state = loadAchievementState()
   const ctx: AchievementContext = { stats, dailyHistory }
+  const lastSeen = state.lastSeenAt || 0
   return ACHIEVEMENTS.map((def) => ({
     ...def,
     unlocked: !!state.unlocked[def.id],
+    isNew:
+      !!state.unlocked[def.id] &&
+      (state.unlocked[def.id].unlockedAt > lastSeen),
     unlockedAt: state.unlocked[def.id]?.unlockedAt,
     currentProgress: def.progress(ctx),
   }))
