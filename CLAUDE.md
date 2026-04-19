@@ -115,6 +115,7 @@ PR을 만들 때 아래 항목을 반드시 설정한다:
   - `🔖 versioning` — release → main PR 전용
   - `🧑‍💻 devops` — 개발 환경/CI/테스트
   - `💥 breaking change` — 호환성 깨지는 변경
+  - `🌐 i18n` — 다국어/번역
   - `browser: chrome`, `browser: safari` — 브라우저 한정
   - `platform: PC`, `platform: mobile` — 플랫폼 한정
 - **Assignee**: `--assignee Ootzk`
