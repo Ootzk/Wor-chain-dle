@@ -36,7 +36,7 @@ export const AchievementList = () => {
         >
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-lg flex-shrink-0">
+              <span className="text-lg flex-shrink-0 w-7 text-center inline-block">
                 {CATEGORY_ICONS[achievement.category]}
               </span>
               <span className="text-sm font-semibold truncate text-gray-900">
@@ -45,7 +45,7 @@ export const AchievementList = () => {
             </div>
             <DifficultyStars difficulty={achievement.difficulty} />
           </div>
-          <p className="text-xs mt-1 ml-8 text-gray-600">
+          <p className="text-xs mt-1 text-gray-600 text-left">
             {t(achievement.descriptionKey)}
           </p>
         </div>
