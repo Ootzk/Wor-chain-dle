@@ -42,8 +42,8 @@ test.describe('Share — Exclude URL setting', () => {
     const settingsIndex = 1
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(settingsIndex).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
-    // Exclude URL is the 3rd toggle (0:uppercase, 1:weekStart, 2:excludeUrl)
-    await gamePage.locator('button[role="switch"]').nth(2).click()
+    // Exclude URL is the 2nd toggle (0:uppercase, 1:excludeUrl)
+    await gamePage.locator('button[role="switch"]').nth(1).click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('text=Settings')).not.toBeVisible()
   }
