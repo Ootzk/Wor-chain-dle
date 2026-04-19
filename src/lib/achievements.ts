@@ -10,11 +10,16 @@ type AchievementContext = {
   dailyHistory: DailyHistory
 }
 
+export type AchievementProgress = {
+  current: number
+  target: number
+}
+
 export type AchievementDef = {
   id: string
   category: AchievementCategory
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
-  condition: (ctx: AchievementContext) => boolean
+  progress: (ctx: AchievementContext) => AchievementProgress
   rewardId?: string
   titleKey: string
   descriptionKey: string
@@ -40,7 +45,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 1,
     titleKey: 'achievement_play_10_title',
     descriptionKey: 'achievement_play_10_desc',
-    condition: ({ stats }) => stats.totalGames >= 10,
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 10 }),
   },
   {
     id: 'play_50',
@@ -48,7 +53,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 4,
     titleKey: 'achievement_play_50_title',
     descriptionKey: 'achievement_play_50_desc',
-    condition: ({ stats }) => stats.totalGames >= 50,
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 50 }),
   },
   {
     id: 'play_100',
@@ -56,57 +61,57 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 6,
     titleKey: 'achievement_play_100_title',
     descriptionKey: 'achievement_play_100_desc',
-    condition: ({ stats }) => stats.totalGames >= 100,
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 100 }),
   },
 
-  // Accuracy
+  // Guess — N번째 시도로 N회 승리
   {
     id: 'win_in_1',
     category: 'guess',
     difficulty: 10,
     titleKey: 'achievement_win_in_1_title',
     descriptionKey: 'achievement_win_in_1_desc',
-    condition: ({ stats }) => stats.winDistribution[0] >= 1,
+    progress: ({ stats }) => ({ current: stats.winDistribution[0], target: 1 }),
   },
   {
     id: 'win_in_2',
     category: 'guess',
-    difficulty: 7,
+    difficulty: 9,
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
-    condition: ({ stats }) => stats.winDistribution[1] >= 1,
+    progress: ({ stats }) => ({ current: stats.winDistribution[1], target: 2 }),
   },
   {
     id: 'win_in_3',
     category: 'guess',
-    difficulty: 5,
+    difficulty: 7,
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
-    condition: ({ stats }) => stats.winDistribution[2] >= 1,
+    progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
   },
   {
     id: 'win_in_4',
     category: 'guess',
-    difficulty: 3,
+    difficulty: 6,
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
-    condition: ({ stats }) => stats.winDistribution[3] >= 1,
+    progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
   },
   {
     id: 'win_in_5',
     category: 'guess',
-    difficulty: 2,
+    difficulty: 4,
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
-    condition: ({ stats }) => stats.winDistribution[4] >= 1,
+    progress: ({ stats }) => ({ current: stats.winDistribution[4], target: 5 }),
   },
   {
     id: 'win_in_6',
     category: 'guess',
-    difficulty: 1,
+    difficulty: 3,
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
-    condition: ({ stats }) => stats.winDistribution[5] >= 1,
+    progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
   },
 
   // Streak
@@ -116,7 +121,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 3,
     titleKey: 'achievement_streak_3_title',
     descriptionKey: 'achievement_streak_3_desc',
-    condition: ({ stats }) => stats.bestStreak >= 3,
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
   },
   {
     id: 'streak_7',
@@ -124,7 +129,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 6,
     titleKey: 'achievement_streak_7_title',
     descriptionKey: 'achievement_streak_7_desc',
-    condition: ({ stats }) => stats.bestStreak >= 7,
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
   },
   {
     id: 'streak_30',
@@ -132,7 +137,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     difficulty: 10,
     titleKey: 'achievement_streak_30_title',
     descriptionKey: 'achievement_streak_30_desc',
-    condition: ({ stats }) => stats.bestStreak >= 30,
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 30 }),
   },
 ]
 
@@ -170,7 +175,8 @@ export const evaluateAchievements = (
   for (const achievement of ACHIEVEMENTS) {
     if (state.unlocked[achievement.id]) continue
 
-    if (achievement.condition(ctx)) {
+    const { current, target } = achievement.progress(ctx)
+    if (current >= target) {
       state.unlocked[achievement.id] = { unlockedAt: Date.now() }
       newlyUnlocked.push(achievement.id)
     }
@@ -199,13 +205,22 @@ export const retroUnlockAchievements = (
   return newlyUnlocked
 }
 
-export const getAchievementsWithStatus = (): Array<
-  AchievementDef & { unlocked: boolean; unlockedAt?: number }
+export const getAchievementsWithStatus = (
+  stats: GameStats,
+  dailyHistory: DailyHistory
+): Array<
+  AchievementDef & {
+    unlocked: boolean
+    unlockedAt?: number
+    currentProgress: AchievementProgress
+  }
 > => {
   const state = loadAchievementState()
+  const ctx: AchievementContext = { stats, dailyHistory }
   return ACHIEVEMENTS.map((def) => ({
     ...def,
     unlocked: !!state.unlocked[def.id],
     unlockedAt: state.unlocked[def.id]?.unlockedAt,
+    currentProgress: def.progress(ctx),
   }))
 }
