@@ -1,4 +1,4 @@
-export const PATCH_NOTES_VERSION = '1.4.0'
+export const PATCH_NOTES_VERSION = '1.5.0'
 
 export const KAKAOPAY_PAYMENT_URL =
   'https://qr.kakaopay.com/FE0rjwVWj41a00262'
@@ -20,6 +20,6 @@ export const CONFIG = {
   normalization: 'NFC',
   startDate: '2026-02-16',
   defaultLang: 'en',
-  availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh'],
+  availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh', 'de'],
   escapeSpecialCharacters: true,
 }

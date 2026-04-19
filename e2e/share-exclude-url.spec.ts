@@ -42,8 +42,8 @@ test.describe('Share — Exclude URL setting', () => {
     const settingsIndex = 1
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(settingsIndex).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
-    // Exclude URL is the 3rd toggle (0:uppercase, 1:weekStart, 2:excludeUrl)
-    await gamePage.locator('button[role="switch"]').nth(2).click()
+    // Exclude URL is the 2nd toggle (0:uppercase, 1:excludeUrl)
+    await gamePage.locator('button[role="switch"]').nth(1).click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('text=Settings')).not.toBeVisible()
   }
@@ -86,7 +86,8 @@ test.describe('Share — Exclude URL setting', () => {
     // Enable Exclude URL on daily page
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(SETTINGS_ICON_DAILY).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
-    const excludeToggle = gamePage.locator('button[role="switch"]').nth(2)
+    // Exclude URL is the 2nd toggle (0:uppercase, 1:excludeUrl)
+    const excludeToggle = gamePage.locator('button[role="switch"]').nth(1)
     await expect(excludeToggle).toHaveAttribute('aria-checked', 'false')
     await excludeToggle.click()
     await expect(excludeToggle).toHaveAttribute('aria-checked', 'true')
@@ -100,7 +101,7 @@ test.describe('Share — Exclude URL setting', () => {
     // Reopen settings — toggle should still be on
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(SETTINGS_ICON_DAILY).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
-    const toggleAfter = gamePage.locator('button[role="switch"]').nth(2)
+    const toggleAfter = gamePage.locator('button[role="switch"]').nth(1)
     await expect(toggleAfter).toHaveAttribute('aria-checked', 'true')
     await screenshot(gamePage, '02-exclude-url-persisted-after-reload')
   })

@@ -212,14 +212,17 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
       </div>
 
       {/* Streak + Share button */}
-      <div className="w-full flex flex-col items-center">
-        <div className="text-lg font-semibold text-gray-900">
-          🔥 {gameStats.currentStreak}
+      <div className="columns-2 w-full">
+        <div>
+          <h5>{t('currentStreak')}</h5>
+          <span className="text-lg font-semibold text-gray-900">
+            🔥 {gameStats.currentStreak}
+          </span>
         </div>
         <button
           type="button"
           disabled={!hasAnyData}
-          className={`mt-3 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
+          className={`mt-2 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
           onClick={() => {
             shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
             handleShare()

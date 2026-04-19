@@ -2,6 +2,7 @@ import { Temporal } from 'temporal-polyfill'
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
 import { DailyHistory, dateToKey, getDailyHistoryStartDate } from './dailyHistory'
+import { getEquippedShareEmoji } from './cosmetics'
 
 export const shareCustomStatus = (
   guesses: string[][],
@@ -26,6 +27,33 @@ export const shareCustomStatus = (
   navigator.clipboard.writeText(shareText)
 }
 
+export const generateShareText = (
+  guesses: string[][],
+  lost: boolean,
+  solution: string,
+  tries: number,
+  dateLabel: string,
+  excludeUrl: boolean = false,
+  urlOverride?: string
+): string => {
+  return (
+    `Wor\u{1F517}dle ${dateLabel}` +
+    ' ' +
+    `${lost ? 'X' : guesses.length}` +
+    '/' +
+    tries.toString() +
+    '\n\n' +
+    generateEmojiGrid(guesses, solution) +
+    (excludeUrl
+      ? ''
+      : '\n\n' +
+        (urlOverride ??
+          window.location.href
+            .replace(`${window.location.protocol}//`, '')
+            .replace(/#.*$/, '')))
+  )
+}
+
 export const shareStatus = (
   guesses: string[][],
   lost: boolean,
@@ -33,22 +61,14 @@ export const shareStatus = (
   excludeUrl: boolean = false
 ) => {
   const today = Temporal.Now.plainDateISO()
-
-  const shareText =
-    `Wor\u{1F517}dle ${today.toString()}` +
-    ' ' +
-    `${lost ? 'X' : guesses.length}` +
-    '/' +
-    CONFIG.tries.toString() +
-    '\n\n' +
-    generateEmojiGrid(guesses, solution) +
-    (excludeUrl
-      ? ''
-      : '\n\n' +
-        window.location.href
-          .replace(`${window.location.protocol}//`, '')
-          .replace(/#.*$/, ''))
-
+  const shareText = generateShareText(
+    guesses,
+    lost,
+    solution,
+    CONFIG.tries,
+    today.toString(),
+    excludeUrl
+  )
   navigator.clipboard.writeText(shareText)
 }
 
@@ -97,16 +117,17 @@ export const shareCalendar = (
     const isPreCalendarEpoch =
       startDate !== null && key < startDate
 
+    const emoji = getEquippedShareEmoji()
     if (isFuture || isBeforeEpoch || isPreCalendarEpoch) {
-      row.push('⚪') // inactive (future / before epoch / pre-calendar)
+      row.push('\u26AA') // inactive (future / before epoch / pre-calendar)
     } else {
       const result = dailyHistory[key]
       if (!result) {
-        row.push('⬜') // not played
+        row.push(emoji.absent) // not played
       } else if (result.won) {
-        row.push('🟩') // won
+        row.push(emoji.correct) // won
       } else {
-        row.push('🟪') // lost
+        row.push(emoji.present) // lost
       }
     }
 
@@ -137,6 +158,7 @@ export const generateEmojiGrid = (
   guesses: string[][],
   solution: string
 ) => {
+  const emoji = getEquippedShareEmoji()
   return guesses
     .map((guess, gi) => {
       const status = getGuessStatuses(guess, solution)
@@ -144,11 +166,11 @@ export const generateEmojiGrid = (
         .map((_, i) => {
           switch (status[i]) {
             case 'correct':
-              return '🟩'
+              return emoji.correct
             case 'present':
-              return '🟪'
+              return emoji.present
             default:
-              return '⬜'
+              return emoji.absent
           }
         })
         .join('')

@@ -5,15 +5,22 @@ import classNames from 'classnames'
 type Props = {
   isOpen: boolean
   message: string
-  variant?: 'success' | 'warning'
+  variant?: 'success' | 'warning' | 'achievement'
+  topClass?: string
 }
 
-export const Alert = ({ isOpen, message, variant = 'warning' }: Props) => {
+export const Alert = ({
+  isOpen,
+  message,
+  variant = 'warning',
+  topClass = 'top-20',
+}: Props) => {
   const classes = classNames(
-    'fixed top-20 left-1/2 transform -translate-x-1/2 max-w-sm w-full shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden',
+    `fixed ${topClass} left-1/2 transform -translate-x-1/2 max-w-sm w-full shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden`,
     {
-      'bg-rose-200': variant === 'warning',
+      'bg-purple-200': variant === 'warning',
       'bg-green-200 z-20': variant === 'success',
+      'bg-yellow-200 z-20': variant === 'achievement',
     }
   )
 

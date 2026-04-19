@@ -311,3 +311,135 @@ test('custom puzzle — playing', async ({ page }) => {
   await page.waitForTimeout(300)
   await save(page, 'custom-puzzle')
 })
+
+// ── v1.5.0: Achievements & Cosmetics Screenshots ──
+
+test('achievements tab with unlocked and locked', async ({ page }) => {
+  await initPage(page)
+
+  // Inject stats + achievements (some unlocked, some in progress)
+  await page.addInitScript(() => {
+    const stats = {
+      winDistribution: [0, 1, 3, 5, 8, 2],
+      gamesFailed: 3,
+      currentStreak: 4,
+      bestStreak: 8,
+      totalGames: 22,
+      successRate: 86,
+    }
+    localStorage.setItem('gameStats', JSON.stringify(stats))
+    const now = Date.now()
+    localStorage.setItem('achievementState', JSON.stringify({
+      version: 1,
+      unlocked: {
+        play_10: { unlockedAt: now },
+        win_in_4: { unlockedAt: now },
+        win_in_5: { unlockedAt: now },
+        win_in_6: { unlockedAt: now },
+        streak_3: { unlockedAt: now },
+      },
+      retroCompleted: true,
+      lastSeenAt: 0,
+    }))
+  })
+
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  // Open Stats → Achievements tab
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+  await page.locator('text=Statistics').waitFor({ state: 'visible' })
+  await page.locator('text=Achievements').click()
+  await page.waitForTimeout(500)
+  await save(page, 'achievements')
+})
+
+test('settings with cosmetics and sample view', async ({ page }) => {
+  await initPage(page)
+
+  // Unlock some achievements for cosmetic options
+  await page.addInitScript(() => {
+    const now = Date.now()
+    localStorage.setItem('achievementState', JSON.stringify({
+      version: 1,
+      unlocked: {
+        play_10: { unlockedAt: now },
+        streak_3: { unlockedAt: now },
+        win_in_6: { unlockedAt: now },
+      },
+      retroCompleted: true,
+    }))
+    // Equip circle emoji to show cosmetic effect in sample view
+    localStorage.setItem('cosmeticState', JSON.stringify({
+      equipped: {
+        shareEmoji: 'emoji_circle',
+        cellFont: 'font_default',
+        cellColor: 'color_default',
+        chainStyle: 'chain_default',
+        chainColor: 'chaincolor_black',
+        endMessage: 'msg_classic',
+      },
+    }))
+  })
+
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  // Open settings
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.waitForTimeout(300)
+  await save(page, 'settings-cosmetics')
+})
+
+test('cosmetic picker popup', async ({ page }) => {
+  await initPage(page)
+
+  await page.addInitScript(() => {
+    const now = Date.now()
+    localStorage.setItem('achievementState', JSON.stringify({
+      version: 1,
+      unlocked: {
+        play_10: { unlockedAt: now },
+        streak_3: { unlockedAt: now },
+      },
+      retroCompleted: true,
+    }))
+  })
+
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  // Open settings → click Share Emoji picker
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Share Emoji').locator('..').locator('button').click()
+  await page.waitForTimeout(300)
+  await save(page, 'cosmetic-picker')
+})
+
+test('alert message theme picker', async ({ page }) => {
+  await initPage(page)
+
+  await page.addInitScript(() => {
+    const now = Date.now()
+    localStorage.setItem('achievementState', JSON.stringify({
+      version: 1,
+      unlocked: {
+        win_in_6: { unlockedAt: now },
+        streak_30: { unlockedAt: now },
+      },
+      retroCompleted: true,
+    }))
+  })
+
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  // Open settings → click Alert Message picker
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Win Message').locator('..').locator('button').click()
+  await page.waitForTimeout(300)
+  await save(page, 'alert-message-picker')
+})

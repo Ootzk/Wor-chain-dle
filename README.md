@@ -1,6 +1,6 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v1.4.0-blue)
+[![Release](https://img.shields.io/github/v/release/Ootzk/Wor-chain-dle?label=release&logo=github)](https://github.com/Ootzk/Wor-chain-dle/releases)
 
 **Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
 
@@ -119,7 +119,7 @@ Done with today's word? Tap "Practice" at the bottom to play unlimited games wit
 
 ### Multi-Language Support
 
-Available in 6 languages. Change the language from the dropdown in Settings.
+Available in 7 languages. Change the language from the popup in Settings.
 
 <p align="center">
   <img src="assets/settings-kor.png" alt="Language selection in Settings" width="300" />
@@ -148,14 +148,44 @@ Su Mo Tu We Th Fr Sa
 ootzk.github.io/Wor-chain-dle
 </pre>
 
+### Achievements
+
+Earn achievements by reaching milestones, winning streaks, and mastering guess counts. Track your progress with difficulty stars and progress bars. Newly unlocked achievements are highlighted with a "NEW!" tag. Each achievement unlocks a cosmetic reward.
+
+<p align="center">
+  <img src="assets/achievements.png" alt="Achievements" width="300" />
+</p>
+
+### Cosmetics
+
+Customize your game's look with unlocked cosmetic items:
+
+- **Share Emoji** — Change the emoji set used in share text (🟩🟪⬜ → 🟢🟣⚪ or 💚💜🤍)
+- **Cell Font** — Switch between Sans-serif, Pixel, or Marker fonts
+- **Letter Color** — White, Gold, or Black text on tiles
+- **Chain Style** — Solid, Dashed, or Thick chain lines
+- **Chain Color** — Black, Silver, or Gold chain color
+- **Alert Message** — 6 themes with guess-count-based messages (Classic, Phrase, Chill, Epic, Slang, Emoji)
+
+The Settings modal includes a live sample view showing all cosmetic changes in real time.
+
+<p align="center">
+  <img src="assets/settings-cosmetics.png" alt="Settings with Cosmetics" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/cosmetic-picker.png" alt="Cosmetic Picker Popup" width="300" />
+</p>
+
+<p align="center">
+  <img src="assets/alert-message-picker.png" alt="Alert Message Theme Picker" width="300" />
+</p>
+
 ### Settings
 
 Customize your experience:
 
 - **Uppercase Letters** — Display letters in uppercase.
-- **Start Week on Monday** — Change the calendar's week start day.
 - **Exclude URL when Sharing** — Omit the game URL from share text.
-- **Language** — Switch between 6 languages from the dropdown.
+- **Language** — Switch between 7 languages.
 
 <p align="center">
   <img src="assets/settings.png" alt="Settings" width="300" />
