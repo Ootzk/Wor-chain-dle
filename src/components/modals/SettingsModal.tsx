@@ -348,7 +348,7 @@ export const SettingsModal = ({
                 onClick={() => setIsLangOpen(false)}
               >
                 <div
-                  className="bg-white rounded-lg shadow-xl w-72 max-h-80 overflow-y-auto"
+                  className="bg-white rounded-lg shadow-xl w-72 max-h-96 overflow-y-auto"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="px-4 py-3 border-b border-gray-200">
