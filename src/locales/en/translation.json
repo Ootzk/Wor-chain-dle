@@ -52,7 +52,7 @@
     "lossMessage_epic": "DEFEATED! ({{solution}})",
     "winMessages_slang": ["YOOO WTF", "That's nuts", "Sheeeesh", "Aight cool", "Bruh barely", "ngl i was sweating"],
     "lossMessage_slang": "skill issue ({{solution}})",
-    "winMessages_emoji": ["\uD83E\uDD2F", "\uD83D\uDE31", "\uD83D\uDE0E", "\uD83D\uDE0A", "\uD83D\uDE2C", "\uD83D\uDE2E\u200D\uD83D\uDCA8"],
+    "winMessages_emoji": ["\uD83E\uDD2F", "\uD83E\uDD29", "\uD83D\uDE0E", "\uD83D\uDE00", "\uD83D\uDE2C", "\uD83D\uDE2E\u200D\uD83D\uDCA8"],
     "lossMessage_emoji": "\uD83D\uDC80 {{solution}}",
     "firstExampleWord": [{
             "letter": "W",

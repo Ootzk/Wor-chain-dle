@@ -80,6 +80,17 @@ export const CHAIN_COLOR_STYLES: Record<string, string> = {
   chaincolor_gold: 'border-yellow-500',
 }
 
+// --- Alert Message Theme Emoji ---
+
+export const MSG_THEME_EMOJI: Record<string, string> = {
+  msg_classic: '\uD83D\uDCD6',
+  msg_phrase: '\uD83D\uDCAC',
+  msg_chill: '\uD83D\uDE0E',
+  msg_epic: '\uD83C\uDFC6',
+  msg_slang: '\uD83D\uDDEF\uFE0F',
+  msg_emoji: '\uD83D\uDE00',
+}
+
 // --- Alert Message Options ---
 
 export const ALERT_MESSAGE_KEYS: Record<
@@ -317,5 +328,13 @@ export const getEquippedAlertMessageKeys = (): {
   return (
     ALERT_MESSAGE_KEYS[state.equipped.endMessage] ??
     ALERT_MESSAGE_KEYS['msg_classic']
+  )
+}
+
+export const getRewardsForAchievement = (
+  achievementId: string
+): CosmeticOption[] => {
+  return COSMETIC_OPTIONS.filter(
+    (o) => o.requiresAchievement === achievementId
   )
 }

@@ -52,7 +52,7 @@
     "lossMessage_epic": "敗北！ ({{solution}})",
     "winMessages_slang": ["は？天才か？", "えぐすぎw", "つよw", "まあまあやるやん", "あっっっぶね", "死ぬかと思った"],
     "lossMessage_slang": "草 雑魚乙 ({{solution}})",
-    "winMessages_emoji": ["\uD83E\uDD2F", "\uD83D\uDE31", "\uD83D\uDE0E", "\uD83D\uDE0A", "\uD83D\uDE2C", "\uD83D\uDE2E\u200D\uD83D\uDCA8"],
+    "winMessages_emoji": ["\uD83E\uDD2F", "\uD83E\uDD29", "\uD83D\uDE0E", "\uD83D\uDE00", "\uD83D\uDE2C", "\uD83D\uDE2E\u200D\uD83D\uDCA8"],
     "lossMessage_emoji": "\uD83D\uDC80 {{solution}}",
     "firstExampleWord": [
         { "letter": "W", "highlight": true },

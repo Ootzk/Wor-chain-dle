@@ -5,6 +5,8 @@ import {
 } from '../../lib/achievements'
 import { loadDailyHistory } from '../../lib/dailyHistory'
 import { loadStats } from '../../lib/stats'
+import { getRewardsForAchievement } from '../../lib/cosmetics'
+import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
@@ -76,6 +78,29 @@ export const AchievementList = () => {
               <p className="text-xs mt-1 text-gray-600 text-left">
                 {t(achievement.descriptionKey)}
               </p>
+              {(() => {
+                const rewards = getRewardsForAchievement(achievement.id)
+                if (rewards.length === 0) return null
+                return (
+                  <div className="mt-1 space-y-0.5">
+                    {rewards.map((r) => (
+                      <div key={r.id} className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <span>{t(`${r.category}Label`)}</span>
+                        <span className="text-gray-300">|</span>
+                        <span className="flex items-center">
+                          <CosmeticPreview
+                            category={r.category}
+                            optionId={r.id}
+                            compact
+                          />
+                        </span>
+                        <span className="text-gray-300">|</span>
+                        <span>{t(r.titleKey)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
             </div>
             <div className="flex-shrink-0">
               <DifficultyStars difficulty={achievement.difficulty} />
