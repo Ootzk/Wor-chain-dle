@@ -17,19 +17,24 @@ type Feature = {
 
 const features: Feature[] = [
   {
-    icon: '🕛',
-    titleKey: 'patchNote_localTimezone_title',
-    descKey: 'patchNote_localTimezone_desc',
+    icon: '🏆',
+    titleKey: 'patchNote_achievements_title',
+    descKey: 'patchNote_achievements_desc',
   },
   {
     icon: '🎨',
-    titleKey: 'patchNote_uiRefactor_title',
-    descKey: 'patchNote_uiRefactor_desc',
+    titleKey: 'patchNote_cosmetics_title',
+    descKey: 'patchNote_cosmetics_desc',
   },
   {
-    icon: '❤️',
-    titleKey: 'patchNote_sponsors_title',
-    descKey: 'patchNote_sponsors_desc',
+    icon: '🇩🇪',
+    titleKey: 'patchNote_german_title',
+    descKey: 'patchNote_german_desc',
+  },
+  {
+    icon: '🔧',
+    titleKey: 'patchNote_uiFixes_title',
+    descKey: 'patchNote_uiFixes_desc',
   },
 ]
 
