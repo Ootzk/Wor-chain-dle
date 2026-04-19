@@ -10,6 +10,7 @@ import { generateShareText } from '../../lib/share'
 import { Temporal } from 'temporal-polyfill'
 import {
   COSMETIC_OPTIONS,
+  CosmeticCategory,
   getShareEmojiSet,
   equipCosmetic,
   loadCosmeticState,
@@ -74,9 +75,7 @@ export const SettingsModal = ({
   const [activeTab, setActiveTab] = useState<'preferences' | 'cosmetics'>(
     'preferences'
   )
-  const [equippedEmoji, setEquippedEmoji] = useState(
-    () => loadCosmeticState().equipped.shareEmoji
-  )
+  const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
 
   useEffect(() => {
     if (isOpen) setActiveTab('preferences')
@@ -90,9 +89,17 @@ export const SettingsModal = ({
   ]
 
   const achievementState = loadAchievementState()
-  const shareEmojiOptions = COSMETIC_OPTIONS.filter(
-    (o) => o.category === 'shareEmoji'
-  )
+
+  const cosmeticCategories: {
+    category: CosmeticCategory
+    labelKey: string
+  }[] = [
+    { category: 'shareEmoji', labelKey: 'shareEmojiLabel' },
+    { category: 'cellFont', labelKey: 'cellFontLabel' },
+    { category: 'cellColor', labelKey: 'cellColorLabel' },
+    { category: 'chainStyle', labelKey: 'chainStyleLabel' },
+    { category: 'endMessage', labelKey: 'endMessageLabel' },
+  ]
 
   const isOptionUnlocked = (option: (typeof COSMETIC_OPTIONS)[number]) =>
     !option.requiresAchievement ||
@@ -204,35 +211,52 @@ export const SettingsModal = ({
             </pre>
           </div>
 
-          {/* Share Emoji dropdown */}
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm font-medium text-gray-700">
-              {t('shareEmojiLabel')}
-            </span>
-            <select
-              className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              value={equippedEmoji}
-              onChange={(e) => {
-                equipCosmetic('shareEmoji', e.target.value)
-                setEquippedEmoji(e.target.value)
-              }}
-            >
-              {shareEmojiOptions.map((option) => {
-                const unlocked = isOptionUnlocked(option)
-                const emojiSet = getShareEmojiSet(option.id)
-                return (
-                  <option
-                    key={option.id}
-                    value={option.id}
-                    disabled={!unlocked}
-                  >
-                    {emojiSet.correct}{emojiSet.present}{emojiSet.absent} {t(option.titleKey)}
-                    {!unlocked ? ' \uD83D\uDD12' : ''}
-                  </option>
-                )
-              })}
-            </select>
-          </div>
+          {/* Cosmetic dropdowns */}
+          {cosmeticCategories.map(({ category, labelKey }) => {
+            const options = COSMETIC_OPTIONS.filter(
+              (o) => o.category === category
+            )
+            return (
+              <div
+                key={category}
+                className="flex items-center justify-between py-3"
+              >
+                <span className="text-sm font-medium text-gray-700">
+                  {t(labelKey)}
+                </span>
+                <select
+                  className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  value={equipped[category]}
+                  onChange={(e) => {
+                    equipCosmetic(category, e.target.value)
+                    setEquipped({ ...equipped, [category]: e.target.value })
+                  }}
+                >
+                  {options.map((option) => {
+                    const unlocked = isOptionUnlocked(option)
+                    const preview =
+                      category === 'shareEmoji'
+                        ? (() => {
+                            const s = getShareEmojiSet(option.id)
+                            return `${s.correct}${s.present}${s.absent} `
+                          })()
+                        : ''
+                    return (
+                      <option
+                        key={option.id}
+                        value={option.id}
+                        disabled={!unlocked}
+                      >
+                        {preview}
+                        {t(option.titleKey)}
+                        {!unlocked ? ' \uD83D\uDD12' : ''}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            )
+          })}
         </div>
       )}
     </BaseModal>

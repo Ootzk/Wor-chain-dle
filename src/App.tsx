@@ -37,6 +37,7 @@ import {
   evaluateAchievements,
   retroUnlockAchievements,
 } from './lib/achievements'
+import { getEquippedEndMessageKey } from './lib/cosmetics'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -138,7 +139,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (isGameWon) {
-      const WIN_MESSAGES = t('winMessages', { returnObjects: true })
+      const WIN_MESSAGES = t(getEquippedEndMessageKey(), {
+        returnObjects: true,
+      })
       setSuccessAlert(
         WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)]
       )

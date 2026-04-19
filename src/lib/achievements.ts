@@ -55,6 +55,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_50_title',
     descriptionKey: 'achievement_play_50_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 50 }),
+    rewardId: 'font_mono',
   },
   {
     id: 'play_100',
@@ -63,6 +64,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_100_title',
     descriptionKey: 'achievement_play_100_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 100 }),
+    rewardId: 'chain_thick',
   },
 
   // Guess — N번째 시도로 N회 승리
@@ -81,6 +83,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[1], target: 2 }),
+    rewardId: 'msg_epic',
   },
   {
     id: 'win_in_3',
@@ -89,6 +92,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
+    rewardId: 'color_yellow',
   },
   {
     id: 'win_in_4',
@@ -97,6 +101,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
+    rewardId: 'font_serif',
   },
   {
     id: 'win_in_5',
@@ -105,6 +110,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[4], target: 5 }),
+    rewardId: 'msg_chill',
   },
   {
     id: 'win_in_6',
@@ -113,6 +119,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
+    rewardId: 'chain_dashed',
   },
 
   // Streak
@@ -132,6 +139,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_7_title',
     descriptionKey: 'achievement_streak_7_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
+    rewardId: 'color_pink',
   },
   {
     id: 'streak_30',
