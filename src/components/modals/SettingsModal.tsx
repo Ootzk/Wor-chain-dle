@@ -6,7 +6,8 @@ import { CONFIG } from '../../constants/config'
 import { localeLanguageKey } from '../../i18n'
 import { CompletedRow } from '../grid/CompletedRow'
 import { ChainBridge } from '../grid/ChainBridge'
-import { generateEmojiGrid } from '../../lib/share'
+import { generateShareText } from '../../lib/share'
+import { Temporal } from 'temporal-polyfill'
 import {
   COSMETIC_OPTIONS,
   getShareEmojiSet,
@@ -192,7 +193,14 @@ export const SettingsModal = ({
           {/* Share preview */}
           <div className="mt-2">
             <pre className="rounded border border-gray-200 bg-gray-50 p-2 text-xs text-gray-700 whitespace-pre leading-relaxed">
-              {generateEmojiGrid(sampleGuesses, sampleSolution)}
+              {generateShareText(
+                sampleGuesses,
+                false,
+                sampleSolution,
+                CONFIG.tries,
+                Temporal.Now.plainDateISO().toString(),
+                excludeUrl
+              )}
             </pre>
           </div>
 

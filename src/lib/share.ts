@@ -27,6 +27,33 @@ export const shareCustomStatus = (
   navigator.clipboard.writeText(shareText)
 }
 
+export const generateShareText = (
+  guesses: string[][],
+  lost: boolean,
+  solution: string,
+  tries: number,
+  dateLabel: string,
+  excludeUrl: boolean = false,
+  urlOverride?: string
+): string => {
+  return (
+    `Wor\u{1F517}dle ${dateLabel}` +
+    ' ' +
+    `${lost ? 'X' : guesses.length}` +
+    '/' +
+    tries.toString() +
+    '\n\n' +
+    generateEmojiGrid(guesses, solution) +
+    (excludeUrl
+      ? ''
+      : '\n\n' +
+        (urlOverride ??
+          window.location.href
+            .replace(`${window.location.protocol}//`, '')
+            .replace(/#.*$/, '')))
+  )
+}
+
 export const shareStatus = (
   guesses: string[][],
   lost: boolean,
@@ -34,22 +61,14 @@ export const shareStatus = (
   excludeUrl: boolean = false
 ) => {
   const today = Temporal.Now.plainDateISO()
-
-  const shareText =
-    `Wor\u{1F517}dle ${today.toString()}` +
-    ' ' +
-    `${lost ? 'X' : guesses.length}` +
-    '/' +
-    CONFIG.tries.toString() +
-    '\n\n' +
-    generateEmojiGrid(guesses, solution) +
-    (excludeUrl
-      ? ''
-      : '\n\n' +
-        window.location.href
-          .replace(`${window.location.protocol}//`, '')
-          .replace(/#.*$/, ''))
-
+  const shareText = generateShareText(
+    guesses,
+    lost,
+    solution,
+    CONFIG.tries,
+    today.toString(),
+    excludeUrl
+  )
   navigator.clipboard.writeText(shareText)
 }
 
