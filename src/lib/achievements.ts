@@ -46,6 +46,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_10_title',
     descriptionKey: 'achievement_play_10_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 10 }),
+    rewardId: 'emoji_circle',
   },
   {
     id: 'play_50',
@@ -122,6 +123,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_3_title',
     descriptionKey: 'achievement_streak_3_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
+    rewardId: 'emoji_heart',
   },
   {
     id: 'streak_7',
