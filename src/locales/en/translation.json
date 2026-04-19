@@ -171,5 +171,27 @@
         "es": "Español",
         "sw": "Kiswahili",
         "zh": "中文"
-    }
+    },
+    "achievement_first_win_title": "First Win",
+    "achievement_first_win_desc": "Win your first game",
+    "achievement_win_in_1_title": "One Shot!",
+    "achievement_win_in_1_desc": "Win a game on the first guess",
+    "achievement_win_in_3_title": "Sharp Instinct",
+    "achievement_win_in_3_desc": "Win a game in 3 guesses or fewer",
+    "achievement_success_rate_50_title": "Consistent",
+    "achievement_success_rate_50_desc": "Achieve 50% success rate with 20+ games",
+    "achievement_success_rate_80_title": "Word Master",
+    "achievement_success_rate_80_desc": "Achieve 80% success rate with 20+ games",
+    "achievement_streak_3_title": "3-Day Streak",
+    "achievement_streak_3_desc": "Win 3 games in a row",
+    "achievement_streak_7_title": "Week-long Streak!",
+    "achievement_streak_7_desc": "Win 7 games in a row",
+    "achievement_streak_30_title": "Monthly Streak!",
+    "achievement_streak_30_desc": "Win 30 games in a row",
+    "achievement_play_10_title": "Getting Started",
+    "achievement_play_10_desc": "Play 10 games",
+    "achievement_play_50_title": "Dedicated Player",
+    "achievement_play_50_desc": "Play 50 games",
+    "achievement_play_100_title": "Centurion",
+    "achievement_play_100_desc": "Play 100 games"
 }

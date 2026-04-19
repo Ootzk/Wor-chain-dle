@@ -1,0 +1,195 @@
+import { GameStats } from './localStorage'
+import { DailyHistory } from './dailyHistory'
+
+// --- Type Definitions ---
+
+export type AchievementCategory = 'milestone' | 'accuracy' | 'streak'
+
+type AchievementContext = {
+  stats: GameStats
+  dailyHistory: DailyHistory
+}
+
+export type AchievementDef = {
+  id: string
+  category: AchievementCategory
+  condition: (ctx: AchievementContext) => boolean
+  rewardId?: string
+  titleKey: string
+  descriptionKey: string
+}
+
+type AchievementUnlock = {
+  unlockedAt: number
+}
+
+type AchievementState = {
+  version: number
+  unlocked: Record<string, AchievementUnlock>
+  retroCompleted: boolean
+}
+
+// --- Achievement Definitions ---
+
+export const ACHIEVEMENTS: AchievementDef[] = [
+  // Milestone
+  {
+    id: 'play_10',
+    category: 'milestone',
+    titleKey: 'achievement_play_10_title',
+    descriptionKey: 'achievement_play_10_desc',
+    condition: ({ stats }) => stats.totalGames >= 10,
+  },
+  {
+    id: 'play_50',
+    category: 'milestone',
+    titleKey: 'achievement_play_50_title',
+    descriptionKey: 'achievement_play_50_desc',
+    condition: ({ stats }) => stats.totalGames >= 50,
+  },
+  {
+    id: 'play_100',
+    category: 'milestone',
+    titleKey: 'achievement_play_100_title',
+    descriptionKey: 'achievement_play_100_desc',
+    condition: ({ stats }) => stats.totalGames >= 100,
+  },
+
+  // Accuracy
+  {
+    id: 'first_win',
+    category: 'accuracy',
+    titleKey: 'achievement_first_win_title',
+    descriptionKey: 'achievement_first_win_desc',
+    condition: ({ stats }) =>
+      stats.winDistribution.reduce((a, b) => a + b, 0) >= 1,
+  },
+  {
+    id: 'win_in_1',
+    category: 'accuracy',
+    titleKey: 'achievement_win_in_1_title',
+    descriptionKey: 'achievement_win_in_1_desc',
+    condition: ({ stats }) => stats.winDistribution[0] >= 1,
+  },
+  {
+    id: 'win_in_3',
+    category: 'accuracy',
+    titleKey: 'achievement_win_in_3_title',
+    descriptionKey: 'achievement_win_in_3_desc',
+    condition: ({ dailyHistory }) =>
+      Object.values(dailyHistory).some((r) => r.won && r.guessCount <= 3),
+  },
+  {
+    id: 'success_rate_50',
+    category: 'accuracy',
+    titleKey: 'achievement_success_rate_50_title',
+    descriptionKey: 'achievement_success_rate_50_desc',
+    condition: ({ stats }) =>
+      stats.totalGames >= 20 && stats.successRate >= 50,
+  },
+  {
+    id: 'success_rate_80',
+    category: 'accuracy',
+    titleKey: 'achievement_success_rate_80_title',
+    descriptionKey: 'achievement_success_rate_80_desc',
+    condition: ({ stats }) =>
+      stats.totalGames >= 20 && stats.successRate >= 80,
+  },
+
+  // Streak
+  {
+    id: 'streak_3',
+    category: 'streak',
+    titleKey: 'achievement_streak_3_title',
+    descriptionKey: 'achievement_streak_3_desc',
+    condition: ({ stats }) => stats.bestStreak >= 3,
+  },
+  {
+    id: 'streak_7',
+    category: 'streak',
+    titleKey: 'achievement_streak_7_title',
+    descriptionKey: 'achievement_streak_7_desc',
+    condition: ({ stats }) => stats.bestStreak >= 7,
+  },
+  {
+    id: 'streak_30',
+    category: 'streak',
+    titleKey: 'achievement_streak_30_title',
+    descriptionKey: 'achievement_streak_30_desc',
+    condition: ({ stats }) => stats.bestStreak >= 30,
+  },
+]
+
+// --- localStorage ---
+
+const STORAGE_KEY = 'achievementState'
+
+const defaultState: AchievementState = {
+  version: 1,
+  unlocked: {},
+  retroCompleted: false,
+}
+
+export const loadAchievementState = (): AchievementState => {
+  const data = localStorage.getItem(STORAGE_KEY)
+  return data
+    ? { ...defaultState, ...(JSON.parse(data) as Partial<AchievementState>) }
+    : { ...defaultState }
+}
+
+const saveAchievementState = (state: AchievementState): void => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+}
+
+// --- Engine ---
+
+export const evaluateAchievements = (
+  stats: GameStats,
+  dailyHistory: DailyHistory
+): string[] => {
+  const state = loadAchievementState()
+  const ctx: AchievementContext = { stats, dailyHistory }
+  const newlyUnlocked: string[] = []
+
+  for (const achievement of ACHIEVEMENTS) {
+    if (state.unlocked[achievement.id]) continue
+
+    if (achievement.condition(ctx)) {
+      state.unlocked[achievement.id] = { unlockedAt: Date.now() }
+      newlyUnlocked.push(achievement.id)
+    }
+  }
+
+  if (newlyUnlocked.length > 0) {
+    saveAchievementState(state)
+  }
+
+  return newlyUnlocked
+}
+
+export const retroUnlockAchievements = (
+  stats: GameStats,
+  dailyHistory: DailyHistory
+): string[] => {
+  const state = loadAchievementState()
+  if (state.retroCompleted) return []
+
+  const newlyUnlocked = evaluateAchievements(stats, dailyHistory)
+
+  const updatedState = loadAchievementState()
+  updatedState.retroCompleted = true
+  saveAchievementState(updatedState)
+
+  return newlyUnlocked
+}
+
+export const getAchievementsWithStatus = (): Array<
+  AchievementDef & { unlocked: boolean; unlockedAt?: number }
+> => {
+  const state = loadAchievementState()
+  return ACHIEVEMENTS.map((def) => ({
+    ...def,
+    unlocked: !!state.unlocked[def.id],
+    unlockedAt: state.unlocked[def.id]?.unlockedAt,
+  }))
+}

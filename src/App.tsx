@@ -18,6 +18,7 @@ import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import {
   saveDailyResult,
   initDailyHistoryStartDate,
+  loadDailyHistory,
   dateToKey,
 } from './lib/dailyHistory'
 import {
@@ -32,6 +33,10 @@ import {
 import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
 import { getChainInfo, isChainDeadEnd } from './lib/chain'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
+import {
+  evaluateAchievements,
+  retroUnlockAchievements,
+} from './lib/achievements'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -112,6 +117,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const today = Temporal.Now.plainDateISO()
       const todayKey = dateToKey(today)
       initDailyHistoryStartDate(todayKey)
+      retroUnlockAchievements(stats, loadDailyHistory())
       document.title = `Wor\u{1F517}dle Daily | ${todayKey}`
     } else if (isCustom) {
       document.title = `Wor\u{1F517}dle Custom | ${questioner}`
@@ -200,10 +206,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       if (winningWord) {
         if (isDaily) {
-          setStats(addStatsForCompletedGame(stats, guesses.length))
-        }
-        if (isDaily) {
+          const updatedStats = addStatsForCompletedGame(stats, guesses.length)
+          setStats(updatedStats)
           saveDailyResult(todayKey, guesses.length + 1, true)
+          evaluateAchievements(updatedStats, loadDailyHistory())
         }
         return setIsGameWon(true)
       }
@@ -215,10 +221,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           .filter((i) => i)
         if (isChainDeadEnd(newGuesses, solutionChars)) {
           if (isDaily) {
-            setStats(addStatsForCompletedGame(stats, CONFIG.tries))
-          }
-          if (isDaily) {
+            const updatedStats = addStatsForCompletedGame(stats, CONFIG.tries)
+            setStats(updatedStats)
             saveDailyResult(todayKey, CONFIG.tries, false)
+            evaluateAchievements(updatedStats, loadDailyHistory())
           }
           setIsGameLost(true)
           return
@@ -227,10 +233,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       if (guesses.length === CONFIG.tries - 1) {
         if (isDaily) {
-          setStats(addStatsForCompletedGame(stats, guesses.length + 1))
-        }
-        if (isDaily) {
+          const updatedStats = addStatsForCompletedGame(
+            stats,
+            guesses.length + 1
+          )
+          setStats(updatedStats)
           saveDailyResult(todayKey, guesses.length + 1, false)
+          evaluateAchievements(updatedStats, loadDailyHistory())
         }
         setIsGameLost(true)
       }
