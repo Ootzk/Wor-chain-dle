@@ -135,7 +135,7 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
 
     // Grid and keyboard should have uppercase class
-    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '03-uppercase-applied-to-page')
 
     // Reopen settings and toggle off
@@ -145,7 +145,7 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
 
     // Uppercase class should be gone
-    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).not.toBeVisible()
     await screenshot(gamePage, '05-uppercase-removed-from-page')
   })
 
@@ -154,44 +154,44 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '01-daily-uppercase-on')
 
     // Daily → Practice
     await gamePage.locator('a', { hasText: 'Practice' }).click()
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '02-practice-uppercase-persisted')
 
     // Practice → Daily
     await gamePage.locator('a', { hasText: 'Daily' }).click()
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '03-daily-uppercase-still-on')
 
     // Daily → Create
     await gamePage.locator('a', { hasText: 'Create' }).click()
     await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
-    await expect(gamePage.locator('div.uppercase')).toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '04-create-uppercase-persisted')
 
     // Toggle off on Create page (settings = 2nd icon: info, settings)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).not.toBeVisible()
     await screenshot(gamePage, '05-create-uppercase-off')
 
     // Create → Daily
     await gamePage.locator('a', { hasText: 'Daily' }).click()
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).not.toBeVisible()
     await screenshot(gamePage, '06-daily-uppercase-off-persisted')
 
     // Daily → Custom
     await gamePage.goto(customPuzzlePath('crane', 'Alice'))
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('div.uppercase')).not.toBeVisible()
+    await expect(gamePage.locator('div.uppercase').first()).not.toBeVisible()
     await screenshot(gamePage, '07-custom-uppercase-off-persisted')
   })
 
@@ -236,20 +236,20 @@ test.describe('Modals', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await expect(gamePage.locator('text=Settings')).toBeVisible()
 
-    // Language picker button should be visible with English flag
-    await expect(gamePage.locator('text=English')).toBeVisible()
+    // Language picker button should be visible with English
+    await expect(gamePage.locator('button:has-text("English")')).toBeVisible()
     await screenshot(gamePage, '01-settings-language-picker')
 
     // Click to open language popup
-    await gamePage.locator('text=English').locator('..').locator('button').click()
+    await gamePage.locator('button:has-text("English")').click()
 
     // Popup should show all languages
     await expect(gamePage.locator('text=한국어')).toBeVisible()
     await expect(gamePage.locator('text=日本語')).toBeVisible()
     await screenshot(gamePage, '02-settings-language-popup')
 
-    // Close popup by clicking outside
-    await gamePage.locator('.fixed.inset-0').click({ position: { x: 10, y: 10 } })
+    // Close popup
+    await gamePage.keyboard.press('Escape')
   })
 
   test('modal closes on Escape key', async ({ gamePage }) => {
