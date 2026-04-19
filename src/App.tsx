@@ -152,7 +152,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         setIsStatsModalOpen(true)
       }, ALERT_TIME_MS)
     }
-  }, [isGameWon, isGameLost, t, guesses.length])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameWon, isGameLost])
 
   const showAchievementAlert = (newlyUnlocked: string[]) => {
     if (newlyUnlocked.length === 0) return

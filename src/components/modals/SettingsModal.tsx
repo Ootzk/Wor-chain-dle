@@ -104,7 +104,7 @@ const CosmeticPicker = ({
             <span className="flex items-center">{renderPreview(equipped, true)}</span>
             <span className="flex items-center gap-1">
               <span className="truncate">{equippedOption ? t(equippedOption.titleKey) : ''}</span>
-              <span className="text-xs text-gray-400">{'\u25BC'}</span>
+              <span className="text-xs text-gray-400">{'\u25BE'}</span>
             </span>
           </span>
         </button>
@@ -271,6 +271,7 @@ export const SettingsModal = ({
 }: Props) => {
   const { t, i18n } = useTranslation()
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
+  const [isLangOpen, setIsLangOpen] = useState(false)
 
   // Sample: ocean → chain (solution = chain)
   const sampleSolution = 'chain'
@@ -307,25 +308,76 @@ export const SettingsModal = ({
       <div className="max-h-[70vh] overflow-y-auto">
         {/* Language */}
         {CONFIG.availableLangs.length > 1 && (
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm font-medium text-gray-700">
-              {t('pickYourLanguage')}
-            </span>
-            <select
-              className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              value={i18n.language?.split('-')[0]}
-              onChange={(e) => {
-                i18n.changeLanguage(e.target.value)
-                localStorage.setItem(localeLanguageKey, e.target.value)
-              }}
-            >
-              {CONFIG.availableLangs.map((lang) => (
-                <option key={lang} value={lang}>
-                  {langFlags[lang]} {t(`languages.${lang}`)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm font-medium text-gray-700">
+                {t('pickYourLanguage')}
+              </span>
+              <button
+                type="button"
+                className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
+                onClick={() => setIsLangOpen(true)}
+              >
+                <span className="flex items-center justify-between w-full">
+                  <span className="flex items-center">
+                    {langFlags[i18n.language?.split('-')[0]] || ''}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="truncate">
+                      {t(`languages.${i18n.language?.split('-')[0]}`)}
+                    </span>
+                    <span className="text-xs text-gray-400">{'\u25BE'}</span>
+                  </span>
+                </span>
+              </button>
+            </div>
+            {isLangOpen && (
+              <div
+                className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30"
+                onClick={() => setIsLangOpen(false)}
+              >
+                <div
+                  className="bg-white rounded-lg shadow-xl w-72 max-h-80 overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <span className="text-sm font-bold text-gray-900">
+                      {t('pickYourLanguage')}
+                    </span>
+                  </div>
+                  {CONFIG.availableLangs.map((lang) => {
+                    const selected = i18n.language?.split('-')[0] === lang
+                    return (
+                      <button
+                        key={lang}
+                        type="button"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 ${
+                          selected
+                            ? 'bg-indigo-50 text-indigo-600'
+                            : 'hover:bg-gray-50 text-gray-700'
+                        }`}
+                        onClick={() => {
+                          i18n.changeLanguage(lang)
+                          localStorage.setItem(localeLanguageKey, lang)
+                          setIsLangOpen(false)
+                        }}
+                      >
+                        <span className="flex-shrink-0 flex items-center">
+                          {langFlags[lang]}
+                        </span>
+                        <span className="flex-1 text-right">
+                          {t(`languages.${lang}`)}
+                        </span>
+                        <span className="w-5 text-center flex-shrink-0">
+                          {selected && <span className="text-indigo-600">{'\u2713'}</span>}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Sample view */}
