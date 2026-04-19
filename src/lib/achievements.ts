@@ -76,7 +76,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'win_in_2',
     category: 'guess',
-    difficulty: 7,
+    difficulty: 9,
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[1], target: 2 }),
@@ -84,7 +84,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'win_in_3',
     category: 'guess',
-    difficulty: 5,
+    difficulty: 7,
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
@@ -92,7 +92,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'win_in_4',
     category: 'guess',
-    difficulty: 3,
+    difficulty: 6,
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
@@ -100,7 +100,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'win_in_5',
     category: 'guess',
-    difficulty: 2,
+    difficulty: 4,
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[4], target: 5 }),
@@ -108,7 +108,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'win_in_6',
     category: 'guess',
-    difficulty: 1,
+    difficulty: 3,
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
