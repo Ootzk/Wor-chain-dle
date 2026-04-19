@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   getAchievementsWithStatus,
@@ -50,11 +50,16 @@ const ProgressBar = ({
   )
 }
 
-export const AchievementList = () => {
+export const AchievementList = ({
+  scrollToId,
+}: {
+  scrollToId?: string
+}) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyHistory()
   const achievements = getAchievementsWithStatus(stats, dailyHistory)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     return () => {
@@ -62,15 +67,29 @@ export const AchievementList = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (scrollToId && scrollRef.current) {
+      const el = scrollRef.current.querySelector(
+        `[data-achievement-id="${scrollToId}"]`
+      )
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)
+      }
+    }
+  }, [scrollToId])
+
   return (
-    <div className="h-full overflow-y-auto space-y-2 pr-1">
+    <div ref={scrollRef} className="h-full overflow-y-auto space-y-2 pr-1">
       {achievements.map((achievement) => (
         <div
           key={achievement.id}
-          className={`rounded-lg border p-3 ${
-            achievement.unlocked
-              ? 'border-green-400 bg-green-50'
-              : 'border-gray-200'
+          data-achievement-id={achievement.id}
+          className={`rounded-lg p-3 transition-colors ${
+            scrollToId === achievement.id
+              ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
+              : achievement.unlocked
+                ? 'border border-green-400 bg-green-50'
+                : 'border border-gray-200'
           }`}
         >
           <div className="flex items-start justify-between gap-2">

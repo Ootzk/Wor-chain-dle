@@ -28,6 +28,8 @@ type Props = {
   questioner?: string
   excludeUrl: boolean
   weekStartsOnMonday: boolean
+  initialTab?: 'stats' | 'calendar' | 'achievements'
+  scrollToAchievement?: string
 }
 
 export const StatsModal = ({
@@ -44,6 +46,8 @@ export const StatsModal = ({
   questioner,
   excludeUrl,
   weekStartsOnMonday,
+  initialTab,
+  scrollToAchievement,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<
@@ -51,8 +55,8 @@ export const StatsModal = ({
   >('stats')
 
   useEffect(() => {
-    if (isOpen) setActiveTab('stats')
-  }, [isOpen])
+    if (isOpen) setActiveTab(initialTab || 'stats')
+  }, [isOpen, initialTab])
 
   if (mode === 'practice') {
     return (
@@ -210,7 +214,9 @@ export const StatsModal = ({
           />
         )}
 
-        {activeTab === 'achievements' && <AchievementList />}
+        {activeTab === 'achievements' && (
+          <AchievementList scrollToId={scrollToAchievement} />
+        )}
       </div>
     </BaseModal>
   )

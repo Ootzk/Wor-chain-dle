@@ -67,6 +67,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
+  const [statsInitialTab, setStatsInitialTab] = useState<
+    'stats' | 'calendar' | 'achievements' | undefined
+  >(undefined)
+  const [scrollToAchievement, setScrollToAchievement] = useState<
+    string | undefined
+  >(undefined)
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
@@ -325,7 +331,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       />
       <StatsModal
         isOpen={isStatsModalOpen}
-        handleClose={() => setIsStatsModalOpen(false)}
+        handleClose={() => {
+          setIsStatsModalOpen(false)
+          setStatsInitialTab(undefined)
+          setScrollToAchievement(undefined)
+        }}
+        initialTab={statsInitialTab}
+        scrollToAchievement={scrollToAchievement}
         guesses={guesses}
         gameStats={stats}
         isGameLost={isGameLost}
@@ -351,6 +363,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
+        onNavigateToAchievement={(id) => {
+          setIsSettingsModalOpen(false)
+          setStatsInitialTab('achievements')
+          setScrollToAchievement(id)
+          setTimeout(() => setIsStatsModalOpen(true), 300)
+        }}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

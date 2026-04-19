@@ -35,6 +35,7 @@ type Props = {
   onToggleUppercase: () => void
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
+  onNavigateToAchievement?: (achievementId: string) => void
 }
 
 const Toggle = ({
@@ -69,6 +70,7 @@ const CosmeticPicker = ({
   isUnlocked,
   t,
   labelKey,
+  onNavigateToAchievement,
 }: {
   category: CosmeticCategory
   options: typeof COSMETIC_OPTIONS
@@ -77,6 +79,7 @@ const CosmeticPicker = ({
   isUnlocked: (option: (typeof COSMETIC_OPTIONS)[number]) => boolean
   t: (key: string, opts?: any) => any
   labelKey: string
+  onNavigateToAchievement?: (achievementId: string) => void
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [msgIndex, setMsgIndex] = useState(() =>
@@ -128,16 +131,14 @@ const CosmeticPicker = ({
               const unlocked = isUnlocked(option)
               const selected = equipped === option.id
               return (
-                <button
+                <div
                   key={option.id}
-                  type="button"
-                  disabled={!unlocked}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 ${
                     selected
                       ? 'bg-indigo-50 text-indigo-600'
                       : unlocked
-                        ? 'hover:bg-gray-50 text-gray-700'
-                        : 'text-gray-300 cursor-not-allowed'
+                        ? 'hover:bg-gray-50 text-gray-700 cursor-pointer'
+                        : 'text-gray-300'
                   }`}
                   onClick={() => {
                     if (unlocked) {
@@ -149,10 +150,23 @@ const CosmeticPicker = ({
                   <span className="flex-shrink-0 flex items-center">{renderPreview(option.id)}</span>
                   <span className="flex-1 text-right">{t(option.titleKey)}</span>
                   <span className="w-5 text-center flex-shrink-0">
-                    {!unlocked && '\uD83D\uDD12'}
+                    {!unlocked && (
+                      <span
+                        className="cursor-pointer hover:opacity-70"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (onNavigateToAchievement && option.requiresAchievement) {
+                            setIsOpen(false)
+                            onNavigateToAchievement(option.requiresAchievement)
+                          }
+                        }}
+                      >
+                        {'\uD83D\uDD12'}
+                      </span>
+                    )}
                     {selected && unlocked && <span className="text-indigo-600">{'\u2713'}</span>}
                   </span>
-                </button>
+                </div>
               )
             })}
           </div>
@@ -225,8 +239,13 @@ const CosmeticPicker = ({
                 {!unlocked && (
                   <button
                     type="button"
-                    disabled
-                    className="w-full rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
+                    className="w-full rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-400 cursor-pointer hover:bg-gray-300"
+                    onClick={() => {
+                      if (onNavigateToAchievement && currentOption.requiresAchievement) {
+                        setIsOpen(false)
+                        onNavigateToAchievement(currentOption.requiresAchievement)
+                      }
+                    }}
                   >
                     {'\uD83D\uDD12'}
                   </button>
@@ -268,6 +287,7 @@ export const SettingsModal = ({
   onToggleUppercase,
   excludeUrl,
   onToggleExcludeUrl,
+  onNavigateToAchievement,
 }: Props) => {
   const { t, i18n } = useTranslation()
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
@@ -458,6 +478,7 @@ export const SettingsModal = ({
               isUnlocked={isOptionUnlocked}
               t={t}
               labelKey={labelKey}
+              onNavigateToAchievement={onNavigateToAchievement}
             />
           )
         })}
