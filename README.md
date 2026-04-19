@@ -1,6 +1,6 @@
 # Wor-chain-dle
 
-![Version](https://img.shields.io/badge/Version-v1.4.0-blue)
+[![Release](https://img.shields.io/github/v/release/Ootzk/Wor-chain-dle?label=release&logo=github)](https://github.com/Ootzk/Wor-chain-dle/releases)
 
 **Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
 
