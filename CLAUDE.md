@@ -235,7 +235,7 @@ Stats 아이콘은 Daily 모드 전용 (`isDaily && ...`). 스크린샷 스크�
 - **v1.2.0** — Custom 퍼즐 출제/공유, Playwright E2E 테스트 인프라, 모드별 InfoModal 탭 UI, 후원 결제수단(KakaoPay/Toss), README 스크린샷 자동화, CI에 E2E 추가.
 - **v1.3.0** — 월별 달력 (Daily 기록 시각화, 월 네비게이션, 이모지 공유), 주 시작 요일 설정 (일/월), 공유 시 URL 제외 설정, Daily 공유 날짜 ISO 8601 포맷, 공유 URL 해시 정리, Settings 모달 리팩토링 (섹션 제거), 번역 리소스 인라인 번들링 (백그라운드 탭 번역 키 노출 버그 수정), CI E2E 테스트 복원, 달력·공유 E2E 테스트.
 - **v1.4.0** — 로컬 타임존 기반 단어 리셋 (UTC→로컬 자정, Temporal API 전면 도입), UI 리팩토링 (Calendar→Stats 탭 통합, 언어 선택→Settings 드롭다운, 헤더 아이콘 6→4개 축소, 모달 타이틀 아이콘 추가), GitHub Sponsors 후원 탭 추가, dailyHistory 키 마이그레이션 (정수→날짜 문자열), 스크린샷 스크립트 clock 조작 도입, 로컬 타임존 E2E 테스트.
-- **v1.5.0** — Achievements & Cosmetics 시스템 (업적 12종, 치장품 12종+기본 6종). 업적: 선언적 정의, progress 기반 해금, 레트로 해금, 해금 시 금색 토스트 알림, NEW! 태그. 치장품: Share 이모지 3종, 셀 폰트 3종 (Google Fonts), 글자 색상 3종, 체인 스타일 3종, 체인 색상 3종, 알림 메시지 6테마 (guess별 문구). Settings 모달 통합 (탭 제거, 샘플뷰, 커스텀 팝업 피커, 잠금→업적 이동), Alert 색상 개선 (경고 보라색, 업적 금색), 주 시작 요일 설정 제거.
+- **v1.5.0** — Achievements & Cosmetics 시스템 (업적 12종, 치장품 12종+기본 6종). 업적: 선언적 정의, progress 기반 해금, 레트로 해금, 해금 시 금색 토스트 알림, NEW! 태그. 치장품: Share 이모지 3종, 셀 폰트 3종 (Google Fonts), 글자 색상 3종, 체인 스타일 3종, 체인 색상 3종, 알림 메시지 6테마 (guess별 문구). Settings 모달 통합 (탭 제거, 샘플뷰, 커스텀 팝업 피커, 잠금→업적 이동), Alert 색상 개선 (경고 보라색, 업적 금색), 주 시작 요일 설정 제거, 독일어(de) 추가 (7개 언어), @headlessui/react 1.4.2→1.7.19 업그레이드 (FocusTrap 무한 루프 수정), Calendar Share 버튼 수평 배치, README 버전 뱃지 동적 전환.
 
 ## Communication
 
