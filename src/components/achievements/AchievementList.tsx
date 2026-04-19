@@ -31,8 +31,8 @@ export const AchievementList = () => {
           key={achievement.id}
           className={`rounded-lg border p-3 ${
             achievement.unlocked
-              ? 'border-indigo-200 bg-indigo-50'
-              : 'border-gray-200 bg-gray-50 opacity-50'
+              ? 'border-green-400 bg-green-50'
+              : 'border-gray-200'
           }`}
         >
           <div className="flex items-start justify-between">
@@ -40,39 +40,15 @@ export const AchievementList = () => {
               <span className="text-lg flex-shrink-0">
                 {CATEGORY_ICONS[achievement.category]}
               </span>
-              <span
-                className={`text-sm font-semibold truncate ${
-                  achievement.unlocked ? 'text-gray-900' : 'text-gray-400'
-                }`}
-              >
+              <span className="text-sm font-semibold truncate text-gray-900">
                 {t(achievement.titleKey)}
               </span>
             </div>
             <DifficultyStars difficulty={achievement.difficulty} />
           </div>
-          <p
-            className={`text-xs mt-1 ml-8 ${
-              achievement.unlocked ? 'text-gray-600' : 'text-gray-400'
-            }`}
-          >
+          <p className="text-xs mt-1 ml-8 text-gray-600">
             {t(achievement.descriptionKey)}
           </p>
-          <div className="text-xs mt-1 ml-8">
-            {achievement.unlocked ? (
-              <span className="text-indigo-600">
-                {'\uD83D\uDD13'} {t('unlocked')}
-                {achievement.unlockedAt && (
-                  <span className="text-gray-400 ml-1">
-                    {new Date(achievement.unlockedAt).toLocaleDateString()}
-                  </span>
-                )}
-              </span>
-            ) : (
-              <span className="text-gray-400">
-                {'\uD83D\uDD12'} {t('locked')}
-              </span>
-            )}
-          </div>
         </div>
       ))}
     </div>
