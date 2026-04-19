@@ -82,6 +82,9 @@ const CosmeticPicker = ({
   labelKey: string
 }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const [msgIndex, setMsgIndex] = useState(() =>
+    Math.max(0, options.findIndex((o) => o.id === equipped))
+  )
 
   const renderPreview = (optionId: string, compact = false) => {
     switch (category) {
@@ -145,15 +148,17 @@ const CosmeticPicker = ({
           className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
           onClick={() => setIsOpen(true)}
         >
-          <span className="flex items-center gap-2 truncate">
-            {renderPreview(equipped, true)}
-            <span className="truncate">{equippedOption ? t(equippedOption.titleKey) : ''}</span>
+          <span className="flex items-center justify-between w-full">
+            <span>{renderPreview(equipped, true)}</span>
+            <span className="flex items-center gap-1">
+              <span className="truncate">{equippedOption ? t(equippedOption.titleKey) : ''}</span>
+              <span className="text-xs text-gray-400">{'\u25BC'}</span>
+            </span>
           </span>
-          <span className="text-xs text-gray-400 ml-1">{'\u25BC'}</span>
         </button>
       </div>
 
-      {isOpen && (
+      {isOpen && category !== 'endMessage' && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30"
           onClick={() => setIsOpen(false)}
@@ -189,16 +194,117 @@ const CosmeticPicker = ({
                     }
                   }}
                 >
-                  {renderPreview(option.id)}
-                  <span className="flex-1">{t(option.titleKey)}</span>
-                  {!unlocked && <span>{'\uD83D\uDD12'}</span>}
-                  {selected && unlocked && <span className="text-indigo-600">{'\u2713'}</span>}
+                  <span className="flex-shrink-0">{renderPreview(option.id)}</span>
+                  <span className="flex-1 text-right">{t(option.titleKey)}</span>
+                  <span className="w-5 text-center flex-shrink-0">
+                    {!unlocked && '\uD83D\uDD12'}
+                    {selected && unlocked && <span className="text-indigo-600">{'\u2713'}</span>}
+                  </span>
                 </button>
               )
             })}
           </div>
         </div>
       )}
+
+      {isOpen && category === 'endMessage' && (() => {
+        const currentOption = options[msgIndex]
+        const unlocked = isUnlocked(currentOption)
+        const selected = equipped === currentOption.id
+        const keys = ALERT_MESSAGE_KEYS[currentOption.id]
+        const msgs = t(keys?.win || 'winMessages_classic', { returnObjects: true })
+        const loss = t(keys?.loss || 'lossMessage_classic', { solution: '?' })
+
+        return (
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30"
+            onClick={() => setIsOpen(false)}
+          >
+            <div
+              className="bg-white rounded-lg shadow-xl w-72"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 py-3 border-b border-gray-200">
+                <span className="text-sm font-bold text-gray-900">
+                  {t(labelKey)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between px-4 py-3">
+                <button
+                  type="button"
+                  className="text-gray-400 hover:text-gray-600 text-lg font-bold px-2"
+                  onClick={() => setMsgIndex((msgIndex - 1 + options.length) % options.length)}
+                >
+                  {'<'}
+                </button>
+                <span className="text-sm font-semibold text-gray-900">
+                  {t(currentOption.titleKey)}
+                </span>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:text-gray-600 text-lg font-bold px-2"
+                  onClick={() => setMsgIndex((msgIndex + 1) % options.length)}
+                >
+                  {'>'}
+                </button>
+              </div>
+
+              <div className="px-4 pb-3">
+                {Array.isArray(msgs) && (
+                  <table className="w-full text-sm text-gray-600">
+                    <tbody>
+                      {msgs.map((msg: string, i: number) => (
+                        <tr key={i}>
+                          <td className="text-gray-400 pr-2 py-0.5 w-6 text-right">{i + 1}.</td>
+                          <td className="py-0.5">{msg}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td className="text-gray-400 pr-2 py-0.5 w-6 text-right">X.</td>
+                        <td className="py-0.5">{loss}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              <div className="px-4 pb-3">
+                {!unlocked && (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
+                  >
+                    {'\uD83D\uDD12'}
+                  </button>
+                )}
+                {unlocked && selected && (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-500 cursor-default"
+                  >
+                    {'\u2713'}
+                  </button>
+                )}
+                {unlocked && !selected && (
+                  <button
+                    type="button"
+                    className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    onClick={() => {
+                      onSelect(currentOption.id)
+                      setIsOpen(false)
+                    }}
+                  >
+                    {t('equip')}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </>
   )
 }
@@ -328,7 +434,7 @@ export const SettingsModal = ({
           {(() => {
             const keys = ALERT_MESSAGE_KEYS[equipped.endMessage]
             const msgs = t(keys?.win || 'winMessages_classic', { returnObjects: true })
-            const msg = Array.isArray(msgs) ? msgs[0] : ''
+            const msg = Array.isArray(msgs) ? msgs[sampleGuesses.length - 1] : ''
             return (
               <div className="bg-green-200 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
                 <div className="p-4">
