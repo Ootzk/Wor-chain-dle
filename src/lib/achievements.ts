@@ -3,7 +3,7 @@ import { DailyHistory } from './dailyHistory'
 
 // --- Type Definitions ---
 
-export type AchievementCategory = 'milestone' | 'accuracy' | 'streak'
+export type AchievementCategory = 'milestone' | 'guess' | 'streak'
 
 type AchievementContext = {
   stats: GameStats
@@ -62,7 +62,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Accuracy
   {
     id: 'win_in_1',
-    category: 'accuracy',
+    category: 'guess',
     difficulty: 10,
     titleKey: 'achievement_win_in_1_title',
     descriptionKey: 'achievement_win_in_1_desc',
@@ -70,7 +70,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_2',
-    category: 'accuracy',
+    category: 'guess',
     difficulty: 7,
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
@@ -78,7 +78,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_3',
-    category: 'accuracy',
+    category: 'guess',
     difficulty: 5,
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
@@ -86,7 +86,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_4',
-    category: 'accuracy',
+    category: 'guess',
     difficulty: 3,
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
@@ -94,7 +94,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_5',
-    category: 'accuracy',
+    category: 'guess',
     difficulty: 2,
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
@@ -102,7 +102,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_6',
-    category: 'accuracy',
+    category: 'guess',
     difficulty: 1,
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
