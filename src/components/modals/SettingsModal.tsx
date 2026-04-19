@@ -133,37 +133,27 @@ const CosmeticPicker = ({
               return (
                 <div
                   key={option.id}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 cursor-pointer ${
                     selected
                       ? 'bg-indigo-50 text-indigo-600'
                       : unlocked
-                        ? 'hover:bg-gray-50 text-gray-700 cursor-pointer'
-                        : 'text-gray-300'
+                        ? 'hover:bg-gray-50 text-gray-700'
+                        : 'text-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => {
                     if (unlocked) {
                       onSelect(option.id)
                       setIsOpen(false)
+                    } else if (onNavigateToAchievement && option.requiresAchievement) {
+                      setIsOpen(false)
+                      onNavigateToAchievement(option.requiresAchievement)
                     }
                   }}
                 >
                   <span className="flex-shrink-0 flex items-center">{renderPreview(option.id)}</span>
                   <span className="flex-1 text-right">{t(option.titleKey)}</span>
                   <span className="w-5 text-center flex-shrink-0">
-                    {!unlocked && (
-                      <span
-                        className="cursor-pointer hover:opacity-70"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (onNavigateToAchievement && option.requiresAchievement) {
-                            setIsOpen(false)
-                            onNavigateToAchievement(option.requiresAchievement)
-                          }
-                        }}
-                      >
-                        {'\uD83D\uDD12'}
-                      </span>
-                    )}
+                    {!unlocked && '\uD83D\uDD12'}
                     {selected && unlocked && <span className="text-indigo-600">{'\u2713'}</span>}
                   </span>
                 </div>
