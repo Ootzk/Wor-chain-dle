@@ -126,6 +126,9 @@
         "sw": "Kiswahili",
         "zh": "中文"
     },
+    "achievements": "実績",
+    "unlocked": "解除済み",
+    "locked": "未解除",
     "achievement_win_in_1_title": "一発正解！",
     "achievement_win_in_1_desc": "1回目で正解する",
     "achievement_win_in_2_title": "ダブルタップ",

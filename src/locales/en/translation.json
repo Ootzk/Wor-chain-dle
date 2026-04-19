@@ -172,6 +172,9 @@
         "sw": "Kiswahili",
         "zh": "中文"
     },
+    "achievements": "Achievements",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
     "achievement_win_in_1_title": "One Shot!",
     "achievement_win_in_1_desc": "Win a game on the first guess",
     "achievement_win_in_2_title": "Double Tap",
