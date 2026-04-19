@@ -11,11 +11,10 @@ const CATEGORY_ICONS: Record<AchievementCategory, string> = {
 }
 
 const DifficultyStars = ({ difficulty }: { difficulty: number }) => {
-  const stars = Math.ceil(difficulty / 2)
   return (
     <span className="text-xs text-yellow-500 whitespace-nowrap">
-      {'★'.repeat(stars)}
-      {'☆'.repeat(5 - stars)}
+      {'★'.repeat(difficulty)}
+      {'☆'.repeat(10 - difficulty)}
     </span>
   )
 }
