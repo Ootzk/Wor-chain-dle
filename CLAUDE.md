@@ -36,10 +36,14 @@ src/
     dailyHistory.ts              ← 날짜별 게임 결과 기록 (Daily 전용, localStorage)
     customPuzzle.ts              ← Custom 퍼즐 인코딩/디코딩 (URL-safe Base64)
     tokenizer.ts                 ← orthography 기반 단어 토큰화
+    achievements.ts              ← 업적 시스템 (정의, 해금 엔진, 진행도, localStorage)
+    cosmetics.ts                 ← 치장품 시스템 (정의, 장착 관리, 옵션, localStorage)
   components/
-    grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge)
+    grid/                        ← 게임 그리드 UI (green=correct, purple=present, ChainBridge, 치장품 적용)
     keyboard/                    ← QWERTY 키보드 UI + 물리 키보드 지원 (e.code 기반, IME 호환)
     calendar/                    ← 월별 달력 UI (CalendarDay 셀, 월 네비게이션, 공유)
+    achievements/                ← 업적 목록 UI (AchievementList, 진행도 바, NEW! 태그, 보상 표시)
+    cosmetics/                   ← CosmeticPreview 공통 컴포넌트 (치장품 미리보기)
     modals/                      ← Info, Stats, Settings, Donate, PatchNotes 모달
     pages/
       CreatePuzzlePage.tsx       ← 문제 출제 페이지 (단어 입력 + URL 생성)
@@ -168,7 +172,8 @@ PR을 만들 때 아래 항목을 반드시 설정한다:
 - `chain-rule.spec.ts` — 체인 연결 검증, dead end, 턴 패턴
 - `keyboard-input.spec.ts` — 물리 키보드, IME 호환성
 - `mobile-responsive.spec.ts` — 반응형 레이아웃, 터치 인터랙션
-- `modals.spec.ts` — 전체 모달 테스트 (모드별)
+- `modals.spec.ts` — 전체 모달 테스트 (모드별, 언어 팝업 포함)
+- `achievements-cosmetics.spec.ts` — 업적 탭, 해금 상태, 레트로 해금, 치장품 선택/적용, Share 이모지 검증
 - `calendar.spec.ts` — 달력 모달, 월 네비게이션, 승패 인디케이터, 주 시작 설정, 공유
 - `share-exclude-url.spec.ts` — 공유 시 URL 제외 설정 테스트
 - `navigation.spec.ts` — 라우트 전환, 페이지 네비게이션
@@ -207,10 +212,10 @@ Stats 아이콘은 Daily 모드 전용 (`isDaily && ...`). 스크린샷 스크�
 - **PatchNotesModal**: `seenPatchNotesVersion` (localStorage) `!==` `PATCH_NOTES_VERSION` (config.ts) 이면 자동 표시. 단순 불일치 비교이므로 다운그레이드 시에도 표시됨.
 - **DonateModal**: 탭 기반 결제 수단 선택 (KakaoPay QR + Toss Pay + GitHub Sponsors). 결제 URL은 `config.ts`에 상수로 관리.
 - **StatsModal**: 모드별 구조가 다름.
-  - **Daily**: 탭 UI (Statistics + Calendar). Statistics 탭에 통계 요약 + Guess Distribution 히스토그램. 게임 완료 시(`isGameWon || isGameLost`) Share 버튼 + 카운트다운 표시. Calendar 탭에 월별 달력 (Calendar 컴포넌트 임베딩).
+  - **Daily**: 탭 UI (Statistics + Calendar + Achievements). Statistics 탭에 통계 요약 + Guess Distribution 히스토그램. 게임 완료 시(`isGameWon || isGameLost`) Share 버튼 + 카운트다운 표시. Calendar 탭에 월별 달력. Achievements 탭에 업적 목록 (진행도, 보상 표시, NEW! 태그).
   - **Custom**: 간소한 Records 뷰. 히스토그램 없이 Share 버튼만 표시.
   - localStorage: Daily는 `gameStats`, Custom은 `customGameStats` 키 사용.
-- **SettingsModal**: 플랫 리스트 — 토글 3개 (대문자 표시, 주 시작 요일, URL 제외) + 언어 선택 드롭다운. Toggle 컴포넌트 + `<select>` 사용.
+- **SettingsModal**: 단일 스크롤 레이아웃 — 언어 선택 팝업 + 샘플뷰 (Alert + 그리드 + Share 미리보기) + 토글 2개 (대문자 표시, URL 제외) + Cosmetics 드롭다운 6개 (커스텀 팝업 피커). Alert Message는 좌우 전환 전용 팝업.
 
 ## i18n (Internationalization)
 
@@ -228,6 +233,7 @@ Stats 아이콘은 Daily 모드 전용 (`isDaily && ...`). 스크린샷 스크�
 - **v1.2.0** — Custom 퍼즐 출제/공유, Playwright E2E 테스트 인프라, 모드별 InfoModal 탭 UI, 후원 결제수단(KakaoPay/Toss), README 스크린샷 자동화, CI에 E2E 추가.
 - **v1.3.0** — 월별 달력 (Daily 기록 시각화, 월 네비게이션, 이모지 공유), 주 시작 요일 설정 (일/월), 공유 시 URL 제외 설정, Daily 공유 날짜 ISO 8601 포맷, 공유 URL 해시 정리, Settings 모달 리팩토링 (섹션 제거), 번역 리소스 인라인 번들링 (백그라운드 탭 번역 키 노출 버그 수정), CI E2E 테스트 복원, 달력·공유 E2E 테스트.
 - **v1.4.0** — 로컬 타임존 기반 단어 리셋 (UTC→로컬 자정, Temporal API 전면 도입), UI 리팩토링 (Calendar→Stats 탭 통합, 언어 선택→Settings 드롭다운, 헤더 아이콘 6→4개 축소, 모달 타이틀 아이콘 추가), GitHub Sponsors 후원 탭 추가, dailyHistory 키 마이그레이션 (정수→날짜 문자열), 스크린샷 스크립트 clock 조작 도입, 로컬 타임존 E2E 테스트.
+- **v1.5.0** — Achievements & Cosmetics 시스템 (업적 12종, 치장품 12종+기본 6종). 업적: 선언적 정의, progress 기반 해금, 레트로 해금, 해금 시 금색 토스트 알림, NEW! 태그. 치장품: Share 이모지 3종, 셀 폰트 3종 (Google Fonts), 글자 색상 3종, 체인 스타일 3종, 체인 색상 3종, 알림 메시지 6테마 (guess별 문구). Settings 모달 통합 (탭 제거, 샘플뷰, 커스텀 팝업 피커, 잠금→업적 이동), Alert 색상 개선 (경고 보라색, 업적 금색), 주 시작 요일 설정 제거.
 
 ## Communication
 
