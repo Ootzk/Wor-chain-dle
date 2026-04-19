@@ -4,6 +4,9 @@ import { CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../../constants/config'
 import { localeLanguageKey } from '../../i18n'
+import { CompletedRow } from '../grid/CompletedRow'
+import { ChainBridge } from '../grid/ChainBridge'
+import { generateEmojiGrid } from '../../lib/share'
 import {
   COSMETIC_OPTIONS,
   getShareEmojiSet,
@@ -77,6 +80,13 @@ export const SettingsModal = ({
   useEffect(() => {
     if (isOpen) setActiveTab('preferences')
   }, [isOpen])
+
+  // Sample: ocean → chain (solution = chain)
+  const sampleSolution = 'chain'
+  const sampleGuesses = [
+    ['o', 'c', 'e', 'a', 'n'],
+    ['c', 'h', 'a', 'i', 'n'],
+  ]
 
   const achievementState = loadAchievementState()
   const shareEmojiOptions = COSMETIC_OPTIONS.filter(
@@ -164,61 +174,56 @@ export const SettingsModal = ({
 
       {activeTab === 'cosmetics' && (
         <div>
-          <div className="py-3">
+          {/* Sample grid: ocean → chain */}
+          <div className={`flex flex-col items-center py-2 ${isUppercase ? 'uppercase' : ''}`}>
+            <CompletedRow
+              guess={sampleGuesses[0]}
+              solution={sampleSolution}
+              chainBottomIndex={4}
+            />
+            <ChainBridge chainIndex={4} />
+            <CompletedRow
+              guess={sampleGuesses[1]}
+              solution={sampleSolution}
+              chainTopIndex={4}
+            />
+          </div>
+
+          {/* Share preview */}
+          <div className="mt-2">
+            <pre className="rounded border border-gray-200 bg-gray-50 p-2 text-xs text-gray-700 whitespace-pre leading-relaxed">
+              {generateEmojiGrid(sampleGuesses, sampleSolution)}
+            </pre>
+          </div>
+
+          {/* Share Emoji dropdown */}
+          <div className="flex items-center justify-between py-3">
             <span className="text-sm font-medium text-gray-700">
               {t('shareEmojiLabel')}
             </span>
-            <div className="mt-2 space-y-2">
+            <select
+              className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={equippedEmoji}
+              onChange={(e) => {
+                equipCosmetic('shareEmoji', e.target.value)
+                setEquippedEmoji(e.target.value)
+              }}
+            >
               {shareEmojiOptions.map((option) => {
                 const unlocked = isOptionUnlocked(option)
-                const selected = equippedEmoji === option.id
                 const emojiSet = getShareEmojiSet(option.id)
                 return (
-                  <button
+                  <option
                     key={option.id}
+                    value={option.id}
                     disabled={!unlocked}
-                    className={`w-full flex items-center justify-between rounded-lg border p-3 text-left text-sm transition-colors ${
-                      selected
-                        ? 'border-indigo-500 bg-indigo-50'
-                        : unlocked
-                          ? 'border-gray-200 hover:border-gray-300'
-                          : 'border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed'
-                    }`}
-                    onClick={() => {
-                      if (unlocked) {
-                        equipCosmetic('shareEmoji', option.id)
-                        setEquippedEmoji(option.id)
-                      }
-                    }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">
-                        {emojiSet.correct}
-                        {emojiSet.present}
-                        {emojiSet.absent}
-                      </span>
-                      <span
-                        className={
-                          unlocked ? 'text-gray-900' : 'text-gray-400'
-                        }
-                      >
-                        {t(option.titleKey)}
-                      </span>
-                    </div>
-                    {selected && (
-                      <span className="text-indigo-600 text-xs font-medium">
-                        {t('equipped')}
-                      </span>
-                    )}
-                    {!unlocked && (
-                      <span className="text-gray-400 text-xs">
-                        {'\uD83D\uDD12'}
-                      </span>
-                    )}
-                  </button>
+                    {emojiSet.correct}{emojiSet.present}{emojiSet.absent} {t(option.titleKey)}
+                    {!unlocked ? ' \uD83D\uDD12' : ''}
+                  </option>
                 )
               })}
-            </div>
+            </select>
           </div>
         </div>
       )}
