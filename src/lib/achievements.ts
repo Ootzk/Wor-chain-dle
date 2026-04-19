@@ -32,6 +32,7 @@ type AchievementState = {
   version: number
   unlocked: Record<string, AchievementUnlock>
   retroCompleted: boolean
+  lastSeenAt?: number
 }
 
 // --- Achievement Definitions ---
@@ -204,6 +205,12 @@ export const retroUnlockAchievements = (
   return newlyUnlocked
 }
 
+export const markAchievementsSeen = (): void => {
+  const state = loadAchievementState()
+  state.lastSeenAt = Date.now()
+  saveAchievementState(state)
+}
+
 export const getAchievementsWithStatus = (
   stats: GameStats,
   dailyHistory: DailyHistory
@@ -212,13 +219,18 @@ export const getAchievementsWithStatus = (
     unlocked: boolean
     unlockedAt?: number
     currentProgress: AchievementProgress
+    isNew: boolean
   }
 > => {
   const state = loadAchievementState()
   const ctx: AchievementContext = { stats, dailyHistory }
+  const lastSeen = state.lastSeenAt || 0
   return ACHIEVEMENTS.map((def) => ({
     ...def,
     unlocked: !!state.unlocked[def.id],
+    isNew:
+      !!state.unlocked[def.id] &&
+      (state.unlocked[def.id].unlockedAt > lastSeen),
     unlockedAt: state.unlocked[def.id]?.unlockedAt,
     currentProgress: def.progress(ctx),
   }))

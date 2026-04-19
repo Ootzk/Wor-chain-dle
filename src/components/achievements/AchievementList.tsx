@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   getAchievementsWithStatus,
+  markAchievementsSeen,
   AchievementCategory,
 } from '../../lib/achievements'
 import { loadDailyHistory } from '../../lib/dailyHistory'
@@ -54,6 +56,12 @@ export const AchievementList = () => {
   const dailyHistory = loadDailyHistory()
   const achievements = getAchievementsWithStatus(stats, dailyHistory)
 
+  useEffect(() => {
+    return () => {
+      markAchievementsSeen()
+    }
+  }, [])
+
   return (
     <div className="h-full overflow-y-auto space-y-2 pr-1">
       {achievements.map((achievement) => (
@@ -74,6 +82,11 @@ export const AchievementList = () => {
                 <span className="text-sm font-semibold truncate text-gray-900">
                   {t(achievement.titleKey)}
                 </span>
+                {achievement.isNew && (
+                  <span className="text-[0.625rem] font-bold text-yellow-600 bg-yellow-100 rounded px-1 py-0.5 flex-shrink-0">
+                    NEW!
+                  </span>
+                )}
               </div>
               <p className="text-xs mt-1 text-gray-600 text-left">
                 {t(achievement.descriptionKey)}
