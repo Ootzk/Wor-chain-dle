@@ -20,7 +20,6 @@ export type AchievementDef = {
   category: AchievementCategory
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
   progress: (ctx: AchievementContext) => AchievementProgress
-  rewardId?: string
   titleKey: string
   descriptionKey: string
 }
@@ -46,7 +45,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_10_title',
     descriptionKey: 'achievement_play_10_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 10 }),
-    rewardId: 'emoji_circle',
   },
   {
     id: 'play_50',
@@ -55,7 +53,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_50_title',
     descriptionKey: 'achievement_play_50_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 50 }),
-    rewardId: 'font_marker',
   },
   {
     id: 'play_100',
@@ -64,7 +61,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_play_100_title',
     descriptionKey: 'achievement_play_100_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 100 }),
-    rewardId: 'chain_thick',
   },
 
   // Guess — N번째 시도로 N회 승리
@@ -83,7 +79,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[1], target: 2 }),
-    rewardId: 'msg_epic',
   },
   {
     id: 'win_in_3',
@@ -92,7 +87,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
-    rewardId: 'color_gold',
   },
   {
     id: 'win_in_4',
@@ -101,7 +95,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
-    rewardId: 'font_pixel',
   },
   {
     id: 'win_in_5',
@@ -110,7 +103,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[4], target: 5 }),
-    rewardId: 'msg_chill',
   },
   {
     id: 'win_in_6',
@@ -119,7 +111,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
-    rewardId: 'chain_dashed',
   },
 
   // Streak
@@ -130,7 +121,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_3_title',
     descriptionKey: 'achievement_streak_3_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
-    rewardId: 'emoji_heart',
   },
   {
     id: 'streak_7',
@@ -139,7 +129,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_7_title',
     descriptionKey: 'achievement_streak_7_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
-    rewardId: 'color_black',
   },
   {
     id: 'streak_30',

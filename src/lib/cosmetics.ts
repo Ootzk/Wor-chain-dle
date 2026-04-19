@@ -124,7 +124,7 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'emoji_heart',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_heart',
-    requiresAchievement: 'streak_3',
+    requiresAchievement: 'win_in_3',
   },
 
   // Cell Font
@@ -156,13 +156,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'color_gold',
     category: 'cellColor',
     titleKey: 'cosmetic_color_gold',
-    requiresAchievement: 'win_in_3',
+    requiresAchievement: 'win_in_2',
   },
   {
     id: 'color_black',
     category: 'cellColor',
     titleKey: 'cosmetic_color_black',
-    requiresAchievement: 'streak_7',
+    requiresAchievement: 'win_in_5',
   },
 
   // Chain Style
@@ -175,13 +175,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chain_dashed',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_dashed',
-    requiresAchievement: 'win_in_6',
+    requiresAchievement: 'streak_3',
   },
   {
     id: 'chain_thick',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_thick',
-    requiresAchievement: 'play_100',
+    requiresAchievement: 'streak_7',
   },
 
   // Chain Color
@@ -194,13 +194,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chaincolor_silver',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_silver',
-    requiresAchievement: 'win_in_1',
+    requiresAchievement: 'play_100',
   },
   {
     id: 'chaincolor_gold',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_gold',
-    requiresAchievement: 'streak_30',
+    requiresAchievement: 'win_in_1',
   },
 
   // Alert Message
@@ -213,31 +213,31 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'msg_phrase',
     category: 'endMessage',
     titleKey: 'cosmetic_msg_phrase',
-    requiresAchievement: 'win_in_5',
+    requiresAchievement: 'win_in_6',
   },
-  {
-    id: 'msg_chill',
-    category: 'endMessage',
-    titleKey: 'cosmetic_msg_chill',
-    requiresAchievement: 'win_in_4',
-  },
-  {
-    id: 'msg_epic',
-    category: 'endMessage',
-    titleKey: 'cosmetic_msg_epic',
-    requiresAchievement: 'win_in_2',
-  },
-  {
-    id: 'msg_slang',
-    category: 'endMessage',
-    titleKey: 'cosmetic_msg_slang',
-    requiresAchievement: 'streak_7',
-  },
+  // {
+  //   id: 'msg_chill',
+  //   category: 'endMessage',
+  //   titleKey: 'cosmetic_msg_chill',
+  //   requiresAchievement: undefined, // 추후 신규 업적에 배정
+  // },
+  // {
+  //   id: 'msg_epic',
+  //   category: 'endMessage',
+  //   titleKey: 'cosmetic_msg_epic',
+  //   requiresAchievement: undefined, // 추후 신규 업적에 배정
+  // },
+  // {
+  //   id: 'msg_slang',
+  //   category: 'endMessage',
+  //   titleKey: 'cosmetic_msg_slang',
+  //   requiresAchievement: undefined, // 추후 신규 업적에 배정
+  // },
   {
     id: 'msg_emoji',
     category: 'endMessage',
     titleKey: 'cosmetic_msg_emoji',
-    requiresAchievement: 'win_in_3',
+    requiresAchievement: 'streak_30',
   },
 ]
 
