@@ -111,6 +111,16 @@ const CosmeticPicker = ({
           <span className={`inline-block w-8 ${borderWidth} ${borderStyle} border-black`} />
         )
       }
+      case 'chainColor': {
+        const bgMap: Record<string, string> = {
+          chaincolor_black: 'bg-black',
+          chaincolor_silver: 'bg-gray-400',
+          chaincolor_gold: 'bg-yellow-500',
+        }
+        return (
+          <span className={`inline-block w-4 h-4 rounded-full border border-gray-300 ${bgMap[optionId] || 'bg-black'}`} />
+        )
+      }
       case 'endMessage': {
         if (compact) return null
         const keys = ALERT_MESSAGE_KEYS[optionId]
@@ -149,7 +159,7 @@ const CosmeticPicker = ({
           onClick={() => setIsOpen(true)}
         >
           <span className="flex items-center justify-between w-full">
-            <span>{renderPreview(equipped, true)}</span>
+            <span className="flex items-center">{renderPreview(equipped, true)}</span>
             <span className="flex items-center gap-1">
               <span className="truncate">{equippedOption ? t(equippedOption.titleKey) : ''}</span>
               <span className="text-xs text-gray-400">{'\u25BC'}</span>
@@ -194,7 +204,7 @@ const CosmeticPicker = ({
                     }
                   }}
                 >
-                  <span className="flex-shrink-0">{renderPreview(option.id)}</span>
+                  <span className="flex-shrink-0 flex items-center">{renderPreview(option.id)}</span>
                   <span className="flex-1 text-right">{t(option.titleKey)}</span>
                   <span className="w-5 text-center flex-shrink-0">
                     {!unlocked && '\uD83D\uDD12'}
@@ -346,6 +356,7 @@ export const SettingsModal = ({
     { category: 'cellFont', labelKey: 'cellFontLabel' },
     { category: 'cellColor', labelKey: 'cellColorLabel' },
     { category: 'chainStyle', labelKey: 'chainStyleLabel' },
+    { category: 'chainColor', labelKey: 'chainColorLabel' },
     { category: 'endMessage', labelKey: 'endMessageLabel' },
   ]
 

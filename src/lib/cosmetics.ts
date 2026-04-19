@@ -5,6 +5,7 @@ export type CosmeticCategory =
   | 'cellFont'
   | 'cellColor'
   | 'chainStyle'
+  | 'chainColor'
   | 'endMessage'
 
 export type ShareEmojiSet = {
@@ -66,9 +67,17 @@ export const CHAIN_STYLES: Record<
   string,
   { className: string; height: string; borderWidth: string; borderStyle: string }
 > = {
-  chain_default: { className: 'border-l-2 border-r-2 border-black', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-solid' },
-  chain_dashed: { className: 'border-l-2 border-r-2 border-dashed border-black', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-dashed' },
-  chain_thick: { className: 'border-l-4 border-r-4 border-black', height: 'h-2', borderWidth: 'border-4', borderStyle: 'border-solid' },
+  chain_default: { className: 'border-l-2 border-r-2', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-solid' },
+  chain_dashed: { className: 'border-l-2 border-r-2 border-dashed', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-dashed' },
+  chain_thick: { className: 'border-l-4 border-r-4', height: 'h-2', borderWidth: 'border-4', borderStyle: 'border-solid' },
+}
+
+// --- Chain Color Options ---
+
+export const CHAIN_COLOR_STYLES: Record<string, string> = {
+  chaincolor_black: 'border-black',
+  chaincolor_silver: 'border-gray-400',
+  chaincolor_gold: 'border-yellow-500',
 }
 
 // --- Alert Message Options ---
@@ -164,6 +173,25 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     requiresAchievement: 'play_100',
   },
 
+  // Chain Color
+  {
+    id: 'chaincolor_black',
+    category: 'chainColor',
+    titleKey: 'cosmetic_chaincolor_black',
+  },
+  {
+    id: 'chaincolor_silver',
+    category: 'chainColor',
+    titleKey: 'cosmetic_chaincolor_silver',
+    requiresAchievement: 'win_in_1',
+  },
+  {
+    id: 'chaincolor_gold',
+    category: 'chainColor',
+    titleKey: 'cosmetic_chaincolor_gold',
+    requiresAchievement: 'streak_30',
+  },
+
   // Alert Message
   {
     id: 'msg_classic',
@@ -212,6 +240,7 @@ const defaultState: CosmeticState = {
     cellFont: 'font_default',
     cellColor: 'color_default',
     chainStyle: 'chain_default',
+    chainColor: 'chaincolor_black',
     endMessage: 'msg_classic',
   },
 }
@@ -273,6 +302,11 @@ export const getEquippedChainStyle = (): {
   return (
     CHAIN_STYLES[state.equipped.chainStyle] ?? CHAIN_STYLES['chain_default']
   )
+}
+
+export const getEquippedChainColor = (): string => {
+  const state = loadCosmeticState()
+  return CHAIN_COLOR_STYLES[state.equipped.chainColor] ?? CHAIN_COLOR_STYLES['chaincolor_black']
 }
 
 export const getEquippedAlertMessageKeys = (): {
