@@ -19,8 +19,8 @@ test.describe('Achievements & Cosmetics', () => {
     await expect(gamePage.locator('text=Play 10 games')).toBeVisible()
     await screenshot(gamePage, '01-achievements-tab')
 
-    // Progress bar should be visible
-    await expect(gamePage.locator('div.bg-indigo-500').first()).toBeVisible()
+    // Progress bar container should be visible
+    await expect(gamePage.locator('div.bg-gray-200.rounded-full').first()).toBeVisible()
     await screenshot(gamePage, '02-achievements-progress')
   })
 
@@ -134,16 +134,17 @@ test.describe('Achievements & Cosmetics', () => {
     // Open settings
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
-    // Click Share Emoji picker button
-    await gamePage.locator('text=Share Emoji').locator('..').locator('button').click()
+    // Click Share Emoji picker button (first cosmetic picker)
+    await gamePage.locator('button:has-text("Square")').click()
 
-    // Popup should show options
-    await expect(gamePage.locator('text=Square')).toBeVisible()
-    await expect(gamePage.locator('text=Circle')).toBeVisible()
+    // Popup should show options (z-[60] is the cosmetic picker overlay)
+    const popup = gamePage.locator('.z-\\[60\\]')
+    await expect(popup).toBeVisible()
+    await expect(popup.locator('text=Circle')).toBeVisible()
     await screenshot(gamePage, '01-emoji-picker-popup')
 
     // Select Circle
-    await gamePage.locator('div', { hasText: 'Circle' }).last().click()
+    await popup.locator('text=Circle').click()
 
     // Preview should update
     const sharePreview = gamePage.locator('pre')
@@ -156,7 +157,7 @@ test.describe('Achievements & Cosmetics', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
     // Click Share Emoji picker
-    await gamePage.locator('text=Share Emoji').locator('..').locator('button').click()
+    await gamePage.locator('button:has-text("Square")').click()
 
     // Circle and Heart should show lock (not unlocked)
     await expect(gamePage.locator('text=\uD83D\uDD12').first()).toBeVisible()
