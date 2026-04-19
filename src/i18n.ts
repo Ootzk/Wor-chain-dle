@@ -9,6 +9,7 @@ import ja from './locales/ja/translation.json'
 import es from './locales/es/translation.json'
 import sw from './locales/sw/translation.json'
 import zh from './locales/zh/translation.json'
+import de from './locales/de/translation.json'
 
 export const localeLanguageKey = 'i18nextLng'
 
@@ -27,6 +28,7 @@ i18next
       es: { translation: es },
       sw: { translation: sw },
       zh: { translation: zh },
+      de: { translation: de },
     },
     fallbackLng: CONFIG.defaultLang,
     debug: false,

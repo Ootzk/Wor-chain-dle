@@ -20,6 +20,6 @@ export const CONFIG = {
   normalization: 'NFC',
   startDate: '2026-02-16',
   defaultLang: 'en',
-  availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh'],
+  availableLangs: ['en', 'ko', 'ja', 'es', 'sw', 'zh', 'de'],
   escapeSpecialCharacters: true,
 }
