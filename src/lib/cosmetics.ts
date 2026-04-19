@@ -69,7 +69,7 @@ export const CHAIN_STYLES: Record<
 > = {
   chain_default: { className: 'border-l-2 border-r-2', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-solid' },
   chain_dashed: { className: 'border-l-2 border-r-2 border-dashed', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-dashed' },
-  chain_thick: { className: 'border-l-4 border-r-4', height: 'h-2', borderWidth: 'border-4', borderStyle: 'border-solid' },
+  chain_thick: { className: 'border-l-4 border-r-4', height: 'h-1', borderWidth: 'border-4', borderStyle: 'border-solid' },
 }
 
 // --- Chain Color Options ---
