@@ -166,6 +166,9 @@
     "sw": "Kiswahili",
     "zh": "中文"
   },
+  "achievements": "成就",
+  "unlocked": "已解锁",
+  "locked": "未解锁",
   "achievement_win_in_1_title": "一击即中！",
   "achievement_win_in_1_desc": "第1次尝试就猜对",
   "achievement_win_in_2_title": "双击命中",

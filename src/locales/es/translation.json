@@ -167,6 +167,9 @@
     "sw": "Kiswahili",
     "zh": "中文"
   },
+  "achievements": "Logros",
+  "unlocked": "Desbloqueado",
+  "locked": "Bloqueado",
   "achievement_win_in_1_title": "¡De un tiro!",
   "achievement_win_in_1_desc": "Acertar en el primer intento",
   "achievement_win_in_2_title": "Doble toque",

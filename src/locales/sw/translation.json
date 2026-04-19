@@ -167,6 +167,9 @@
     "sw": "Kiswahili",
     "zh": "中文"
   },
+  "achievements": "Mafanikio",
+  "unlocked": "Imefunguliwa",
+  "locked": "Imefungwa",
   "achievement_win_in_1_title": "Risasi moja!",
   "achievement_win_in_1_desc": "Shinda katika jaribio la kwanza",
   "achievement_win_in_2_title": "Mguso maradufu",

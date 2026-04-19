@@ -126,6 +126,9 @@
         "sw": "Kiswahili",
         "zh": "中文"
     },
+    "achievements": "업적",
+    "unlocked": "해금됨",
+    "locked": "미해금",
     "achievement_win_in_1_title": "한 방에!",
     "achievement_win_in_1_desc": "첫 번째 시도에서 정답을 맞추세요",
     "achievement_win_in_2_title": "두 번이면 충분해",

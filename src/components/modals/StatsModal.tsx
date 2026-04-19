@@ -3,6 +3,7 @@ import Countdown from 'react-countdown'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { Calendar } from '../calendar/Calendar'
+import { AchievementList } from '../achievements/AchievementList'
 import { GameStats } from '../../lib/localStorage'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -45,7 +46,9 @@ export const StatsModal = ({
   weekStartsOnMonday,
 }: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('stats')
+  const [activeTab, setActiveTab] = useState<
+    'stats' | 'calendar' | 'achievements'
+  >('stats')
 
   useEffect(() => {
     if (isOpen) setActiveTab('stats')
@@ -129,6 +132,7 @@ export const StatsModal = ({
   const tabs = [
     { id: 'stats' as const, label: t('statistics') },
     { id: 'calendar' as const, label: t('calendar') },
+    { id: 'achievements' as const, label: t('achievements') },
   ]
 
   return (
@@ -205,6 +209,8 @@ export const StatsModal = ({
             excludeUrl={excludeUrl}
           />
         )}
+
+        {activeTab === 'achievements' && <AchievementList />}
       </div>
     </BaseModal>
   )
