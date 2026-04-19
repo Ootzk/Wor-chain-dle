@@ -57,14 +57,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 
   // Accuracy
   {
-    id: 'first_win',
-    category: 'accuracy',
-    titleKey: 'achievement_first_win_title',
-    descriptionKey: 'achievement_first_win_desc',
-    condition: ({ stats }) =>
-      stats.winDistribution.reduce((a, b) => a + b, 0) >= 1,
-  },
-  {
     id: 'win_in_1',
     category: 'accuracy',
     titleKey: 'achievement_win_in_1_title',
@@ -72,28 +64,39 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     condition: ({ stats }) => stats.winDistribution[0] >= 1,
   },
   {
+    id: 'win_in_2',
+    category: 'accuracy',
+    titleKey: 'achievement_win_in_2_title',
+    descriptionKey: 'achievement_win_in_2_desc',
+    condition: ({ stats }) => stats.winDistribution[1] >= 1,
+  },
+  {
     id: 'win_in_3',
     category: 'accuracy',
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
-    condition: ({ dailyHistory }) =>
-      Object.values(dailyHistory).some((r) => r.won && r.guessCount <= 3),
+    condition: ({ stats }) => stats.winDistribution[2] >= 1,
   },
   {
-    id: 'success_rate_50',
+    id: 'win_in_4',
     category: 'accuracy',
-    titleKey: 'achievement_success_rate_50_title',
-    descriptionKey: 'achievement_success_rate_50_desc',
-    condition: ({ stats }) =>
-      stats.totalGames >= 20 && stats.successRate >= 50,
+    titleKey: 'achievement_win_in_4_title',
+    descriptionKey: 'achievement_win_in_4_desc',
+    condition: ({ stats }) => stats.winDistribution[3] >= 1,
   },
   {
-    id: 'success_rate_80',
+    id: 'win_in_5',
     category: 'accuracy',
-    titleKey: 'achievement_success_rate_80_title',
-    descriptionKey: 'achievement_success_rate_80_desc',
-    condition: ({ stats }) =>
-      stats.totalGames >= 20 && stats.successRate >= 80,
+    titleKey: 'achievement_win_in_5_title',
+    descriptionKey: 'achievement_win_in_5_desc',
+    condition: ({ stats }) => stats.winDistribution[4] >= 1,
+  },
+  {
+    id: 'win_in_6',
+    category: 'accuracy',
+    titleKey: 'achievement_win_in_6_title',
+    descriptionKey: 'achievement_win_in_6_desc',
+    condition: ({ stats }) => stats.winDistribution[5] >= 1,
   },
 
   // Streak
