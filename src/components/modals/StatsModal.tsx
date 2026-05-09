@@ -11,8 +11,7 @@ import { tomorrow } from '../../lib/words'
 import { BaseModal } from './BaseModal'
 import { ClipboardListIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
-
-export type GameMode = 'daily' | 'practice' | 'custom'
+import { GameMode } from '../../lib/gameMode'
 
 type Props = {
   isOpen: boolean
@@ -178,7 +177,7 @@ export const StatsModal = ({
                 </>
               )}
             </div>
-            {(isGameLost || isGameWon) ? (
+            {isGameLost || isGameWon ? (
               <div className="columns-2">
                 <div>
                   <h5>{t('newWordCountdown')}</h5>
