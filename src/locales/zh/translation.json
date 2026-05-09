@@ -1,6 +1,7 @@
 {
   "about": "關於本遊戲",
   "information": "信息",
+  "patchNotes": "更新",
   "gameName": "No Word-Guessing-Game - {{language}}",
   "enterKey": "輸入",
   "deleteKey": "刪除",

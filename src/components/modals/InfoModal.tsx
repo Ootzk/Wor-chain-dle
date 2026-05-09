@@ -6,6 +6,7 @@ import { InformationCircleIcon } from '@heroicons/react/outline'
 import { CONFIG } from '../../constants/config'
 import { Trans, useTranslation } from 'react-i18next'
 import 'i18next'
+import { PatchNotesContent } from './PatchNotesContent'
 
 type GameMode = 'daily' | 'practice' | 'custom' | 'create'
 
@@ -220,6 +221,7 @@ export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
   const tabs = [
     { id: 'mode', label: t(MODE_TITLE_KEY[mode]) },
     { id: 'howToPlay', label: t('howToPlay') },
+    { id: 'patchNotes', label: t('patchNotes') },
     { id: 'about', label: t('about') },
   ]
 
@@ -230,11 +232,11 @@ export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
       isOpen={isOpen}
       handleClose={handleClose}
     >
-      <div className="flex border-b border-gray-200 mb-4">
+      <div className="flex overflow-x-auto border-b border-gray-200 mb-4">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`flex-shrink-0 px-3 sm:px-4 py-2 text-sm font-medium whitespace-nowrap ${
               activeTab === tab.id
                 ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
                 : 'text-gray-400 hover:text-gray-600'
@@ -251,6 +253,8 @@ export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
       )}
 
       {activeTab === 'howToPlay' && <HowToPlayContent />}
+
+      {activeTab === 'patchNotes' && <PatchNotesContent />}
 
       {activeTab === 'about' && <AboutContent />}
     </BaseModal>

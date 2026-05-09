@@ -1,6 +1,7 @@
 {
     "about": "게임 소개",
     "information": "정보",
+    "patchNotes": "업데이트",
     "gameName": "단어 맞히기 게임 - {{language}}",
     "enterKey": "입력",
     "deleteKey": "삭제",

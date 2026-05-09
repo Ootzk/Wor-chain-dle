@@ -1,6 +1,7 @@
 {
   "about": "Über dieses Spiel",
   "information": "Information",
+  "patchNotes": "Updates",
   "gameName": "Wörter-Ratespiel - {{language}}",
   "enterKey": "Eingabe",
   "deleteKey": "Löschen",

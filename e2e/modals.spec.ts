@@ -20,10 +20,15 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
     await screenshot(gamePage, '02-daily-tab-how-to-play')
 
-    // Tab 3: About this game
+    // Tab 3: Patch Notes
+    await gamePage.locator('button', { hasText: 'Patch Notes' }).click()
+    await expect(gamePage.getByText('Achievements', { exact: true })).toBeVisible()
+    await screenshot(gamePage, '03-daily-tab-patch-notes')
+
+    // Tab 4: About this game
     await gamePage.locator('button', { hasText: 'About this game' }).click()
     await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
-    await screenshot(gamePage, '03-daily-tab-about')
+    await screenshot(gamePage, '04-daily-tab-about')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()

@@ -1,6 +1,7 @@
 {
   "about": "Acerca de este juego",
   "information": "Información",
+  "patchNotes": "Novedades",
   "gameName": "No Word-Guessing-Game - {{language}}",
   "enterKey": "Enviar",
   "deleteKey": "Eliminar",

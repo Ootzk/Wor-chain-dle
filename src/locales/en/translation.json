@@ -1,6 +1,7 @@
 {
     "about": "About this game",
     "information": "Information",
+    "patchNotes": "Patch Notes",
     "gameName": "Word Guessing Game - {{language}}",
     "enterKey": "Enter",
     "deleteKey": "Delete",
