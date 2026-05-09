@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import {
   CosmeticCategory,
+  getShareBadge,
   getShareEmojiSet,
   CELL_FONT_STYLES,
   CELL_COLOR_STYLES,
@@ -36,6 +37,9 @@ export const CosmeticPreview = ({
         </span>
       )
     }
+    case 'shareBadge': {
+      return <span>{getShareBadge(optionId) || '-'}</span>
+    }
     case 'cellFont': {
       const fontClass = CELL_FONT_STYLES[optionId] || ''
       return <span className={`${fontClass} font-bold`}>ABC</span>
@@ -44,7 +48,9 @@ export const CosmeticPreview = ({
       const colorClass = CELL_COLOR_STYLES[optionId] || ''
       return (
         <span
-          className={`inline-block w-5 h-5 rounded ${colorClass || 'text-white'} bg-green-500 text-center text-xs leading-5 font-bold`}
+          className={`inline-block w-5 h-5 rounded ${
+            colorClass || 'text-white'
+          } bg-green-500 text-center text-xs leading-5 font-bold`}
         >
           A
         </span>
@@ -64,12 +70,15 @@ export const CosmeticPreview = ({
     case 'chainColor': {
       return (
         <span
-          className={`inline-block w-4 h-4 rounded-full border border-gray-300 ${CHAIN_COLOR_BG[optionId] || 'bg-black'}`}
+          className={`inline-block w-4 h-4 rounded-full border border-gray-300 ${
+            CHAIN_COLOR_BG[optionId] || 'bg-black'
+          }`}
         />
       )
     }
     case 'endMessage': {
-      if (compact) return <span>{MSG_THEME_EMOJI[optionId] || '\uD83D\uDCD6'}</span>
+      if (compact)
+        return <span>{MSG_THEME_EMOJI[optionId] || '\uD83D\uDCD6'}</span>
       const keys = ALERT_MESSAGE_KEYS[optionId]
       const msgs = t(keys?.win || 'winMessages_classic', {
         returnObjects: true,

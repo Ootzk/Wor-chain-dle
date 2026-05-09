@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  getAchievementModes,
   getAchievementsWithStatus,
   markAchievementsSeen,
   AchievementCategory,
@@ -9,11 +10,44 @@ import { loadDailyHistory } from '../../lib/dailyHistory'
 import { loadStats } from '../../lib/stats'
 import { getRewardsForAchievement } from '../../lib/cosmetics'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
+import { GameMode } from '../../lib/gameMode'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
   guess: '\uD83C\uDFB2',
   streak: '\uD83D\uDD25',
+  event: '\uD83E\uDDE9',
+}
+
+const MODE_BADGE_CLASSES: Record<GameMode, string> = {
+  daily: 'bg-gray-50 text-gray-500 border-gray-200',
+  practice: 'bg-purple-50 text-purple-600 border-purple-100',
+  custom: 'bg-green-50 text-green-600 border-green-100',
+}
+
+const ALL_MODES: GameMode[] = ['daily', 'practice', 'custom']
+const ALL_MODE_BADGE_CLASS = 'bg-yellow-50 text-yellow-700 border-yellow-200'
+
+const getModeBadgeItems = (
+  modes: GameMode[]
+): Array<{ id: string; labelKey: string; className: string }> => {
+  const includesAllModes = ALL_MODES.every((mode) => modes.includes(mode))
+
+  if (includesAllModes) {
+    return [
+      {
+        id: 'all',
+        labelKey: 'allModes',
+        className: ALL_MODE_BADGE_CLASS,
+      },
+    ]
+  }
+
+  return modes.map((mode) => ({
+    id: mode,
+    labelKey: mode,
+    className: MODE_BADGE_CLASSES[mode],
+  }))
 }
 
 const DifficultyStars = ({ difficulty }: { difficulty: number }) => {
@@ -50,11 +84,7 @@ const ProgressBar = ({
   )
 }
 
-export const AchievementList = ({
-  scrollToId,
-}: {
-  scrollToId?: string
-}) => {
+export const AchievementList = ({ scrollToId }: { scrollToId?: string }) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyHistory()
@@ -73,7 +103,10 @@ export const AchievementList = ({
         `[data-achievement-id="${scrollToId}"]`
       )
       if (el) {
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)
+        setTimeout(
+          () => el.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+          100
+        )
       }
     }
   }, [scrollToId])
@@ -88,8 +121,8 @@ export const AchievementList = ({
             scrollToId === achievement.id
               ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
               : achievement.unlocked
-                ? 'border border-green-400 bg-green-50'
-                : 'border border-gray-200'
+              ? 'border border-green-400 bg-green-50'
+              : 'border border-gray-200'
           }`}
         >
           <div className="flex items-start justify-between gap-2">
@@ -108,7 +141,19 @@ export const AchievementList = ({
                 )}
               </div>
               <p className="text-xs mt-1 text-gray-600 text-left">
-                {t(achievement.descriptionKey)}
+                <span className="inline-flex flex-wrap items-center gap-1 align-middle mr-1">
+                  {getModeBadgeItems(getAchievementModes(achievement)).map(
+                    (badge) => (
+                      <span
+                        key={badge.id}
+                        className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none ${badge.className}`}
+                      >
+                        {t(badge.labelKey)}
+                      </span>
+                    )
+                  )}
+                </span>
+                <span>{t(achievement.descriptionKey)}</span>
               </p>
               {(() => {
                 const rewards = getRewardsForAchievement(achievement.id)
@@ -116,7 +161,10 @@ export const AchievementList = ({
                 return (
                   <div className="mt-1 space-y-0.5">
                     {rewards.map((r) => (
-                      <div key={r.id} className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <div
+                        key={r.id}
+                        className="flex items-center gap-1.5 text-xs text-gray-500"
+                      >
                         <span>{t(`${r.category}Label`)}</span>
                         <span className="text-gray-300">|</span>
                         <span className="flex items-center">
