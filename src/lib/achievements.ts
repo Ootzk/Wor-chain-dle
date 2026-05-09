@@ -12,7 +12,7 @@ import {
 
 // --- Type Definitions ---
 
-export type AchievementCategory = 'milestone' | 'guess' | 'streak'
+export type AchievementCategory = 'milestone' | 'guess' | 'streak' | 'event'
 
 export type AchievementEndReason = 'win' | 'fail' | 'deadEnd'
 
@@ -220,23 +220,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
   },
-  {
-    id: 'dead_end_tail',
-    category: 'guess',
-    modes: ['daily'],
-    difficulty: 7,
-    titleKey: 'achievement_dead_end_tail_title',
-    descriptionKey: 'achievement_dead_end_tail_desc',
-    progress: ({ game }) => ({
-      current:
-        game?.endReason === 'deadEnd' &&
-        game.deadEnd?.guessIndex === 5 &&
-        game.deadEnd.chainPosition === 'last'
-          ? 1
-          : 0,
-      target: 1,
-    }),
-  },
 
   // Streak
   {
@@ -274,6 +257,25 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_streak_30_title',
     descriptionKey: 'achievement_streak_30_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 30 }),
+  },
+
+  // Event — 특정 게임 상황에서 발생하는 업적
+  {
+    id: 'dead_end_tail',
+    category: 'event',
+    modes: ['daily'],
+    difficulty: 7,
+    titleKey: 'achievement_dead_end_tail_title',
+    descriptionKey: 'achievement_dead_end_tail_desc',
+    progress: ({ game }) => ({
+      current:
+        game?.endReason === 'deadEnd' &&
+        game.deadEnd?.guessIndex === 5 &&
+        game.deadEnd.chainPosition === 'last'
+          ? 1
+          : 0,
+      target: 1,
+    }),
   },
 ]
 
