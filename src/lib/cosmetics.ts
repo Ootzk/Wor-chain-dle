@@ -44,6 +44,16 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
     present: '\uD83D\uDC9C',
     absent: '\uD83E\uDD0D',
   },
+  emoji_bibimbap: {
+    correct: '\uD83E\uDD6C',
+    present: '\uD83C\uDF46',
+    absent: '\uD83C\uDF5A',
+  },
+  emoji_yogurt: {
+    correct: '\uD83C\uDF4F',
+    present: '\uD83C\uDF47',
+    absent: '\uD83E\uDD5B',
+  },
 }
 
 // --- Share Badge Options ---
@@ -158,6 +168,18 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_heart',
     requiresAchievement: 'win_in_3',
+  },
+  {
+    id: 'emoji_bibimbap',
+    category: 'shareEmoji',
+    titleKey: 'cosmetic_emoji_bibimbap',
+    requiresAchievement: 'bibimbap_balance',
+  },
+  {
+    id: 'emoji_yogurt',
+    category: 'shareEmoji',
+    titleKey: 'cosmetic_emoji_yogurt',
+    requiresAchievement: 'yogurt_recipe',
   },
 
   // Share Badge

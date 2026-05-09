@@ -9,7 +9,11 @@ import {
 } from './achievements'
 import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
-import { getRewardsForAchievement, getShareBadge } from './cosmetics'
+import {
+  getRewardsForAchievement,
+  getShareBadge,
+  getShareEmojiSet,
+} from './cosmetics'
 import { createDefaultAchievementTrackingState } from './achievementProgress'
 
 const stats: GameStats = {
@@ -165,8 +169,35 @@ describe('share badge achievements', () => {
     ).toContain('badge_wrestle')
   })
 
+  it('connects game-event achievements to share emoji rewards', () => {
+    expect(getShareEmojiSet('emoji_bibimbap')).toEqual({
+      correct: '\uD83E\uDD6C',
+      present: '\uD83C\uDF46',
+      absent: '\uD83C\uDF5A',
+    })
+    expect(getShareEmojiSet('emoji_yogurt')).toEqual({
+      correct: '\uD83C\uDF4F',
+      present: '\uD83C\uDF47',
+      absent: '\uD83E\uDD5B',
+    })
+    expect(
+      getRewardsForAchievement('bibimbap_balance').map((r) => r.id)
+    ).toContain('emoji_bibimbap')
+    expect(
+      getRewardsForAchievement('yogurt_recipe').map((r) => r.id)
+    ).toContain('emoji_yogurt')
+  })
+
   it('keeps new share badge achievements daily-only', () => {
     for (const id of ['play_150', 'fail_100', 'streak_14']) {
+      const achievement = ACHIEVEMENTS.find((a) => a.id === id)
+      expect(achievement).toBeTruthy()
+      expect(getAchievementModes(achievement!)).toEqual(['daily'])
+    }
+  })
+
+  it('keeps new share emoji achievements daily-only', () => {
+    for (const id of ['bibimbap_balance', 'yogurt_recipe']) {
       const achievement = ACHIEVEMENTS.find((a) => a.id === id)
       expect(achievement).toBeTruthy()
       expect(getAchievementModes(achievement!)).toEqual(['daily'])
@@ -282,5 +313,48 @@ describe('share badge achievements', () => {
         progress,
       })
     ).toContain('custom_win_10')
+  })
+
+  it('unlocks bibimbap from a 6-guess balanced status game', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        game: {
+          guesses: [
+            ['u', 'n', 'c', 'u', 't'],
+            ['g', 'r', 'u', 'n', 't'],
+            ['g', 'e', 'n', 'r', 'e'],
+            ['n', 'a', 'i', 'v', 'e'],
+            ['n', 'a', 'c', 'r', 'e'],
+            ['c', 'r', 'a', 'n', 'e'],
+          ],
+          solution: 'crane',
+          won: true,
+          lost: false,
+          guessCount: 6,
+          endReason: 'win',
+        },
+      })
+    ).toContain('bibimbap_balance')
+  })
+
+  it('unlocks yogurt from using apple grape and milks in one game', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        game: {
+          guesses: [
+            ['a', 'p', 'p', 'l', 'e'],
+            ['g', 'r', 'a', 'p', 'e'],
+            ['m', 'i', 'l', 'k', 's'],
+          ],
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 3,
+          endReason: 'fail',
+        },
+      })
+    ).toContain('yogurt_recipe')
   })
 })

@@ -9,6 +9,7 @@ import {
   AchievementTrackingState,
   loadAchievementProgress,
 } from './achievementProgress'
+import { CharStatus, getGuessStatuses } from './statuses'
 
 // --- Type Definitions ---
 
@@ -65,6 +66,32 @@ type AchievementState = {
   unlocked: Record<string, AchievementUnlock>
   retroCompleted: boolean
   lastSeenAt?: number
+}
+
+type StatusCounts = Record<CharStatus, number>
+
+export const countStatusesForGame = (
+  guesses: string[][],
+  solution: string
+): StatusCounts => {
+  const counts: StatusCounts = {
+    absent: 0,
+    present: 0,
+    correct: 0,
+  }
+
+  for (const guess of guesses) {
+    for (const status of getGuessStatuses(guess, solution)) {
+      counts[status] += 1
+    }
+  }
+
+  return counts
+}
+
+export const usedAllWords = (guesses: string[][], words: string[]): boolean => {
+  const submittedWords = new Set(guesses.map((guess) => guess.join('')))
+  return words.every((word) => submittedWords.has(word))
 }
 
 // --- Achievement Definitions ---
@@ -274,6 +301,39 @@ export const ACHIEVEMENTS: AchievementDef[] = [
         game.deadEnd.chainPosition === 'last'
           ? 1
           : 0,
+      target: 1,
+    }),
+  },
+  {
+    id: 'bibimbap_balance',
+    category: 'event',
+    difficulty: 9,
+    titleKey: 'achievement_bibimbap_balance_title',
+    descriptionKey: 'achievement_bibimbap_balance_desc',
+    progress: ({ game }) => {
+      if (!game?.won || game.guessCount !== 6) {
+        return { current: 0, target: 1 }
+      }
+
+      const counts = countStatusesForGame(game.guesses, game.solution)
+      return {
+        current:
+          counts.correct === 10 && counts.present === 10 && counts.absent === 10
+            ? 1
+            : 0,
+        target: 1,
+      }
+    },
+  },
+  {
+    id: 'yogurt_recipe',
+    category: 'event',
+    difficulty: 6,
+    titleKey: 'achievement_yogurt_recipe_title',
+    descriptionKey: 'achievement_yogurt_recipe_desc',
+    progress: ({ game }) => ({
+      current:
+        game && usedAllWords(game.guesses, ['apple', 'grape', 'milks']) ? 1 : 0,
       target: 1,
     }),
   },
