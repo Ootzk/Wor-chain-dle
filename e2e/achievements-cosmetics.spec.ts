@@ -1,4 +1,9 @@
-import { test, expect, waitForGameReady, screenshot } from './fixtures/game.fixture'
+import {
+  test,
+  expect,
+  waitForGameReady,
+  screenshot,
+} from './fixtures/game.fixture'
 
 test.describe('Achievements & Cosmetics', () => {
   test.beforeEach(async ({ gamePage }) => {
@@ -9,7 +14,9 @@ test.describe('Achievements & Cosmetics', () => {
   test('achievements tab shows in stats modal', async ({ gamePage }) => {
     // Open stats modal (icon index 1 in daily mode)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-    await expect(gamePage.getByRole('heading', { name: 'Records' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).toBeVisible()
 
     // Click Achievements tab
     await gamePage.locator('button', { hasText: 'Achievements' }).click()
@@ -20,18 +27,25 @@ test.describe('Achievements & Cosmetics', () => {
     await screenshot(gamePage, '01-achievements-tab')
 
     // Progress bar container should be visible
-    await expect(gamePage.locator('div.bg-gray-200.rounded-full').first()).toBeVisible()
+    await expect(
+      gamePage.locator('div.bg-gray-200.rounded-full').first()
+    ).toBeVisible()
     await screenshot(gamePage, '02-achievements-progress')
   })
 
-  test('achievements show unlocked state with pre-set data', async ({ gamePage }) => {
+  test('achievements show unlocked state with pre-set data', async ({
+    gamePage,
+  }) => {
     // Set up achievement state with play_10 unlocked
     await gamePage.evaluate(() => {
-      localStorage.setItem('achievementState', JSON.stringify({
-        version: 1,
-        unlocked: { play_10: { unlockedAt: Date.now() } },
-        retroCompleted: true,
-      }))
+      localStorage.setItem(
+        'achievementState',
+        JSON.stringify({
+          version: 1,
+          unlocked: { play_10: { unlockedAt: Date.now() } },
+          retroCompleted: true,
+        })
+      )
     })
     await gamePage.reload()
     await waitForGameReady(gamePage)
@@ -49,14 +63,17 @@ test.describe('Achievements & Cosmetics', () => {
   test('retroactive unlock on first load', async ({ gamePage }) => {
     // Set up stats that satisfy play_10 and streak_3
     await gamePage.evaluate(() => {
-      localStorage.setItem('gameStats', JSON.stringify({
-        winDistribution: [0, 0, 0, 0, 0, 0],
-        gamesFailed: 0,
-        currentStreak: 3,
-        bestStreak: 3,
-        totalGames: 10,
-        successRate: 100,
-      }))
+      localStorage.setItem(
+        'gameStats',
+        JSON.stringify({
+          winDistribution: [0, 0, 0, 0, 0, 0],
+          gamesFailed: 0,
+          currentStreak: 3,
+          bestStreak: 3,
+          totalGames: 10,
+          successRate: 100,
+        })
+      )
       localStorage.removeItem('achievementState')
     })
     await gamePage.reload()
@@ -88,6 +105,7 @@ test.describe('Achievements & Cosmetics', () => {
 
     // Sample grid should be visible
     await expect(gamePage.locator('text=Share Emoji')).toBeVisible()
+    await expect(gamePage.locator('text=Share Badge')).toBeVisible()
     await expect(gamePage.locator('text=Cell Font')).toBeVisible()
     await expect(gamePage.locator('text=Chain Style')).toBeVisible()
     await screenshot(gamePage, '01-settings-cosmetics')
@@ -96,16 +114,19 @@ test.describe('Achievements & Cosmetics', () => {
   test('share emoji cosmetic changes share output', async ({ gamePage }) => {
     // Equip circle emoji
     await gamePage.evaluate(() => {
-      localStorage.setItem('cosmeticState', JSON.stringify({
-        equipped: {
-          shareEmoji: 'emoji_circle',
-          cellFont: 'font_default',
-          cellColor: 'color_default',
-          chainStyle: 'chain_default',
-          chainColor: 'chaincolor_black',
-          endMessage: 'msg_classic',
-        },
-      }))
+      localStorage.setItem(
+        'cosmeticState',
+        JSON.stringify({
+          equipped: {
+            shareEmoji: 'emoji_circle',
+            cellFont: 'font_default',
+            cellColor: 'color_default',
+            chainStyle: 'chain_default',
+            chainColor: 'chaincolor_black',
+            endMessage: 'msg_classic',
+          },
+        })
+      )
     })
     await gamePage.reload()
     await waitForGameReady(gamePage)
@@ -122,11 +143,14 @@ test.describe('Achievements & Cosmetics', () => {
   test('cosmetic picker popup opens and selects', async ({ gamePage }) => {
     // Unlock play_10 so emoji_circle is available
     await gamePage.evaluate(() => {
-      localStorage.setItem('achievementState', JSON.stringify({
-        version: 1,
-        unlocked: { play_10: { unlockedAt: Date.now() } },
-        retroCompleted: true,
-      }))
+      localStorage.setItem(
+        'achievementState',
+        JSON.stringify({
+          version: 1,
+          unlocked: { play_10: { unlockedAt: Date.now() } },
+          retroCompleted: true,
+        })
+      )
     })
     await gamePage.reload()
     await waitForGameReady(gamePage)

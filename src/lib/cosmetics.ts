@@ -2,6 +2,7 @@
 
 export type CosmeticCategory =
   | 'shareEmoji'
+  | 'shareBadge'
   | 'cellFont'
   | 'cellColor'
   | 'chainStyle'
@@ -45,6 +46,12 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
   },
 }
 
+// --- Share Badge Options ---
+
+const SHARE_BADGES: Record<string, string> = {
+  badge_none: '',
+}
+
 // --- Cell Font Options ---
 
 export const CELL_FONT_STYLES: Record<string, string> = {
@@ -65,11 +72,31 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
 
 export const CHAIN_STYLES: Record<
   string,
-  { className: string; height: string; borderWidth: string; borderStyle: string }
+  {
+    className: string
+    height: string
+    borderWidth: string
+    borderStyle: string
+  }
 > = {
-  chain_default: { className: 'border-l-2 border-r-2', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-solid' },
-  chain_dashed: { className: 'border-l-2 border-r-2 border-dashed', height: 'h-1', borderWidth: 'border-2', borderStyle: 'border-dashed' },
-  chain_thick: { className: 'border-l-4 border-r-4', height: 'h-1', borderWidth: 'border-4', borderStyle: 'border-solid' },
+  chain_default: {
+    className: 'border-l-2 border-r-2',
+    height: 'h-1',
+    borderWidth: 'border-2',
+    borderStyle: 'border-solid',
+  },
+  chain_dashed: {
+    className: 'border-l-2 border-r-2 border-dashed',
+    height: 'h-1',
+    borderWidth: 'border-2',
+    borderStyle: 'border-dashed',
+  },
+  chain_thick: {
+    className: 'border-l-4 border-r-4',
+    height: 'h-1',
+    borderWidth: 'border-4',
+    borderStyle: 'border-solid',
+  },
 }
 
 // --- Chain Color Options ---
@@ -93,17 +120,15 @@ export const MSG_THEME_EMOJI: Record<string, string> = {
 
 // --- Alert Message Options ---
 
-export const ALERT_MESSAGE_KEYS: Record<
-  string,
-  { win: string; loss: string }
-> = {
-  msg_classic: { win: 'winMessages_classic', loss: 'lossMessage_classic' },
-  msg_phrase: { win: 'winMessages_phrase', loss: 'lossMessage_phrase' },
-  msg_chill: { win: 'winMessages_chill', loss: 'lossMessage_chill' },
-  msg_epic: { win: 'winMessages_epic', loss: 'lossMessage_epic' },
-  msg_slang: { win: 'winMessages_slang', loss: 'lossMessage_slang' },
-  msg_emoji: { win: 'winMessages_emoji', loss: 'lossMessage_emoji' },
-}
+export const ALERT_MESSAGE_KEYS: Record<string, { win: string; loss: string }> =
+  {
+    msg_classic: { win: 'winMessages_classic', loss: 'lossMessage_classic' },
+    msg_phrase: { win: 'winMessages_phrase', loss: 'lossMessage_phrase' },
+    msg_chill: { win: 'winMessages_chill', loss: 'lossMessage_chill' },
+    msg_epic: { win: 'winMessages_epic', loss: 'lossMessage_epic' },
+    msg_slang: { win: 'winMessages_slang', loss: 'lossMessage_slang' },
+    msg_emoji: { win: 'winMessages_emoji', loss: 'lossMessage_emoji' },
+  }
 
 // --- All Options ---
 
@@ -125,6 +150,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_heart',
     requiresAchievement: 'win_in_3',
+  },
+
+  // Share Badge
+  {
+    id: 'badge_none',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_none',
   },
 
   // Cell Font
@@ -248,6 +280,7 @@ const STORAGE_KEY = 'cosmeticState'
 const defaultState: CosmeticState = {
   equipped: {
     shareEmoji: 'emoji_default',
+    shareBadge: 'badge_none',
     cellFont: 'font_default',
     cellColor: 'color_default',
     chainStyle: 'chain_default',
@@ -293,6 +326,15 @@ export const getShareEmojiSet = (optionId: string): ShareEmojiSet => {
   return SHARE_EMOJI_SETS[optionId] ?? SHARE_EMOJI_SETS['emoji_default']
 }
 
+export const getEquippedShareBadge = (): string => {
+  const state = loadCosmeticState()
+  return SHARE_BADGES[state.equipped.shareBadge] ?? SHARE_BADGES['badge_none']
+}
+
+export const getShareBadge = (optionId: string): string => {
+  return SHARE_BADGES[optionId] ?? SHARE_BADGES['badge_none']
+}
+
 export const getEquippedCellFont = (): string => {
   const state = loadCosmeticState()
   return CELL_FONT_STYLES[state.equipped.cellFont] ?? ''
@@ -317,7 +359,10 @@ export const getEquippedChainStyle = (): {
 
 export const getEquippedChainColor = (): string => {
   const state = loadCosmeticState()
-  return CHAIN_COLOR_STYLES[state.equipped.chainColor] ?? CHAIN_COLOR_STYLES['chaincolor_black']
+  return (
+    CHAIN_COLOR_STYLES[state.equipped.chainColor] ??
+    CHAIN_COLOR_STYLES['chaincolor_black']
+  )
 }
 
 export const getEquippedAlertMessageKeys = (): {
@@ -334,7 +379,5 @@ export const getEquippedAlertMessageKeys = (): {
 export const getRewardsForAchievement = (
   achievementId: string
 ): CosmeticOption[] => {
-  return COSMETIC_OPTIONS.filter(
-    (o) => o.requiresAchievement === achievementId
-  )
+  return COSMETIC_OPTIONS.filter((o) => o.requiresAchievement === achievementId)
 }
