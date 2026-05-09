@@ -210,6 +210,8 @@ npm run build      # production build
 npm test           # run tests
 ```
 
+Coding agents should read [`AGENTS.md`](AGENTS.md) before making changes. Claude Code also has a compatibility wrapper in [`CLAUDE.md`](CLAUDE.md).
+
 ## Credits
 
 - Based on [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game)
