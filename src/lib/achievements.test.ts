@@ -135,6 +135,8 @@ describe('share badge achievements', () => {
   })
 
   it('connects stats-based achievements to share badge rewards', () => {
+    expect(getShareBadge('badge_chain')).toBe('\uD83D\uDD17')
+    expect(getShareBadge('badge_none')).toBe('\uD83D\uDD17')
     expect(getShareBadge('badge_fire')).toBe('\uD83D\uDD25')
     expect(getShareBadge('badge_calendar')).toBe('\uD83D\uDCC5')
     expect(getShareBadge('badge_lizard')).toBe('\uD83E\uDD8E')

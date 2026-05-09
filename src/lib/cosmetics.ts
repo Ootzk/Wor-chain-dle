@@ -59,7 +59,8 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
 // --- Share Badge Options ---
 
 const SHARE_BADGES: Record<string, string> = {
-  badge_none: '',
+  badge_chain: '\uD83D\uDD17',
+  badge_none: '\uD83D\uDD17',
   badge_fire: '\uD83D\uDD25',
   badge_calendar: '\uD83D\uDCC5',
   badge_lizard: '\uD83E\uDD8E',
@@ -184,9 +185,9 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
 
   // Share Badge
   {
-    id: 'badge_none',
+    id: 'badge_chain',
     category: 'shareBadge',
-    titleKey: 'cosmetic_badge_none',
+    titleKey: 'cosmetic_badge_chain',
   },
   {
     id: 'badge_fire',
@@ -358,7 +359,7 @@ const STORAGE_KEY = 'cosmeticState'
 const defaultState: CosmeticState = {
   equipped: {
     shareEmoji: 'emoji_default',
-    shareBadge: 'badge_none',
+    shareBadge: 'badge_chain',
     cellFont: 'font_default',
     cellColor: 'color_default',
     chainStyle: 'chain_default',
@@ -367,14 +368,39 @@ const defaultState: CosmeticState = {
   },
 }
 
+const legacyOptionIds: Record<string, string> = {
+  badge_none: 'badge_chain',
+}
+
+const normalizeOptionId = (optionId: string): string =>
+  legacyOptionIds[optionId] ?? optionId
+
+const normalizeEquipped = (
+  equipped: Partial<Record<CosmeticCategory, string>>
+): Record<CosmeticCategory, string> => {
+  const merged = {
+    ...defaultState.equipped,
+    ...equipped,
+  }
+
+  return {
+    shareEmoji: normalizeOptionId(merged.shareEmoji),
+    shareBadge: normalizeOptionId(merged.shareBadge),
+    cellFont: normalizeOptionId(merged.cellFont),
+    cellColor: normalizeOptionId(merged.cellColor),
+    chainStyle: normalizeOptionId(merged.chainStyle),
+    chainColor: normalizeOptionId(merged.chainColor),
+    endMessage: normalizeOptionId(merged.endMessage),
+  }
+}
+
 export const loadCosmeticState = (): CosmeticState => {
   const data = localStorage.getItem(STORAGE_KEY)
   return data
     ? {
-        equipped: {
-          ...defaultState.equipped,
-          ...(JSON.parse(data) as Partial<CosmeticState>).equipped,
-        },
+        equipped: normalizeEquipped(
+          (JSON.parse(data) as Partial<CosmeticState>).equipped ?? {}
+        ),
       }
     : { ...defaultState }
 }
@@ -406,11 +432,13 @@ export const getShareEmojiSet = (optionId: string): ShareEmojiSet => {
 
 export const getEquippedShareBadge = (): string => {
   const state = loadCosmeticState()
-  return SHARE_BADGES[state.equipped.shareBadge] ?? SHARE_BADGES['badge_none']
+  return SHARE_BADGES[state.equipped.shareBadge] ?? SHARE_BADGES['badge_chain']
 }
 
 export const getShareBadge = (optionId: string): string => {
-  return SHARE_BADGES[optionId] ?? SHARE_BADGES['badge_none']
+  return (
+    SHARE_BADGES[normalizeOptionId(optionId)] ?? SHARE_BADGES['badge_chain']
+  )
 }
 
 export const getEquippedCellFont = (): string => {

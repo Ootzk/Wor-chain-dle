@@ -8,9 +8,13 @@ import {
 } from './dailyHistory'
 import { getEquippedShareBadge, getEquippedShareEmoji } from './cosmetics'
 
-const formatShareHeader = (title: string, result: string): string => {
+const formatShareTitle = (suffix?: string): string => {
   const badge = getEquippedShareBadge()
-  return [title, result, badge].filter(Boolean).join(' ')
+  return [`Wor${badge}dle`, suffix].filter(Boolean).join(' ')
+}
+
+const formatShareHeader = (suffix: string, result: string): string => {
+  return [formatShareTitle(suffix), result].filter(Boolean).join(' ')
 }
 
 export const shareCustomStatus = (
@@ -22,7 +26,7 @@ export const shareCustomStatus = (
 ) => {
   const shareText =
     formatShareHeader(
-      `Wor\u{1F517}dle Custom/${questioner}`,
+      `Custom/${questioner}`,
       `${lost ? 'X' : guesses.length}/${CONFIG.tries.toString()}`
     ) +
     '\n\n' +
@@ -46,7 +50,7 @@ export const generateShareText = (
 ): string => {
   return (
     formatShareHeader(
-      `Wor\u{1F517}dle ${dateLabel}`,
+      dateLabel,
       `${lost ? 'X' : guesses.length}/${tries.toString()}`
     ) +
     '\n\n' +
@@ -105,9 +109,9 @@ export const shareCalendar = (
   const isCurrentMonth = year === today.year && month === today.month - 1
 
   const lines: string[] = []
-  const header = isCurrentMonth
-    ? `Wor\u{1F517}dle ${year}-${mm} (\u{1F525} ${streak})`
-    : `Wor\u{1F517}dle ${year}-${mm}`
+  const header = formatShareTitle(
+    isCurrentMonth ? `${year}-${mm} (\u{1F525} ${streak})` : `${year}-${mm}`
+  )
   lines.push(header)
   lines.push('')
   lines.push(
