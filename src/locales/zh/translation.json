@@ -236,6 +236,9 @@
   "cosmetic_emoji_heart": "爱心",
   "shareBadgeLabel": "分享徽章",
   "cosmetic_badge_none": "无",
+  "cosmetic_badge_fire": "火焰",
+  "cosmetic_badge_skull": "骷髅",
+  "cosmetic_badge_star": "星星",
   "cellFontLabel": "单元格字体",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -286,5 +289,11 @@
   "achievement_play_50_title": "忠实玩家",
   "achievement_play_50_desc": "玩50局游戏",
   "achievement_play_100_title": "百战老将",
-  "achievement_play_100_desc": "玩100局游戏"
+  "achievement_play_100_desc": "玩100局游戏",
+  "achievement_play_150_title": "明星玩家",
+  "achievement_play_150_desc": "玩150局游戏",
+  "achievement_fail_100_title": "百次跌倒",
+  "achievement_fail_100_desc": "失败100次",
+  "achievement_streak_14_title": "连续两周！",
+  "achievement_streak_14_desc": "连续赢得14场游戏"
 }

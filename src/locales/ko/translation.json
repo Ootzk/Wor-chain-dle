@@ -195,6 +195,9 @@
   "cosmetic_emoji_heart": "하트",
   "shareBadgeLabel": "공유 배지",
   "cosmetic_badge_none": "없음",
+  "cosmetic_badge_fire": "불꽃",
+  "cosmetic_badge_skull": "해골",
+  "cosmetic_badge_star": "별",
   "cellFontLabel": "셀 폰트",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -245,5 +248,11 @@
   "achievement_play_50_title": "단골 플레이어",
   "achievement_play_50_desc": "50게임 플레이",
   "achievement_play_100_title": "백전노장",
-  "achievement_play_100_desc": "100게임 플레이"
+  "achievement_play_100_desc": "100게임 플레이",
+  "achievement_play_150_title": "스타 플레이어",
+  "achievement_play_150_desc": "150게임 플레이",
+  "achievement_fail_100_title": "백 번 쓰러져도",
+  "achievement_fail_100_desc": "100회 실패하세요",
+  "achievement_streak_14_title": "2주 연속 성공",
+  "achievement_streak_14_desc": "14일 연속으로 승리하세요"
 }

@@ -236,6 +236,9 @@
   "cosmetic_emoji_heart": "Moyo",
   "shareBadgeLabel": "Beji ya kushiriki",
   "cosmetic_badge_none": "Hakuna",
+  "cosmetic_badge_fire": "Moto",
+  "cosmetic_badge_skull": "Fuvu",
+  "cosmetic_badge_star": "Nyota",
   "cellFontLabel": "Fonti ya seli",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -286,5 +289,11 @@
   "achievement_play_50_title": "Mchezaji mwaminifu",
   "achievement_play_50_desc": "Cheza michezo 50",
   "achievement_play_100_title": "Mkongwe",
-  "achievement_play_100_desc": "Cheza michezo 100"
+  "achievement_play_100_desc": "Cheza michezo 100",
+  "achievement_play_150_title": "Mchezaji nyota",
+  "achievement_play_150_desc": "Cheza michezo 150",
+  "achievement_fail_100_title": "Mara mia kuanguka",
+  "achievement_fail_100_desc": "Poteza michezo 100",
+  "achievement_streak_14_title": "Mfululizo wa wiki mbili",
+  "achievement_streak_14_desc": "Shinda michezo 14 mfululizo"
 }

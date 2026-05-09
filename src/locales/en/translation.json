@@ -247,6 +247,9 @@
   "cosmetic_emoji_heart": "Heart",
   "shareBadgeLabel": "Share Badge",
   "cosmetic_badge_none": "None",
+  "cosmetic_badge_fire": "Fire",
+  "cosmetic_badge_skull": "Skull",
+  "cosmetic_badge_star": "Star",
   "cellFontLabel": "Cell Font",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -297,5 +300,11 @@
   "achievement_play_50_title": "Dedicated Player",
   "achievement_play_50_desc": "Play 50 games",
   "achievement_play_100_title": "Centurion",
-  "achievement_play_100_desc": "Play 100 games"
+  "achievement_play_100_desc": "Play 100 games",
+  "achievement_play_150_title": "Star Player",
+  "achievement_play_150_desc": "Play 150 games",
+  "achievement_fail_100_title": "Fallen Hundred",
+  "achievement_fail_100_desc": "Lose 100 games",
+  "achievement_streak_14_title": "Two-Week Streak",
+  "achievement_streak_14_desc": "Win 14 games in a row"
 }

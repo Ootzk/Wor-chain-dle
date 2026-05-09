@@ -202,6 +202,9 @@
   "cosmetic_emoji_heart": "ハート",
   "shareBadgeLabel": "共有バッジ",
   "cosmetic_badge_none": "なし",
+  "cosmetic_badge_fire": "炎",
+  "cosmetic_badge_skull": "スカル",
+  "cosmetic_badge_star": "スター",
   "cellFontLabel": "セルフォント",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -252,5 +255,11 @@
   "achievement_play_50_title": "常連プレイヤー",
   "achievement_play_50_desc": "50ゲームプレイ",
   "achievement_play_100_title": "百戦錬磨",
-  "achievement_play_100_desc": "100ゲームプレイ"
+  "achievement_play_100_desc": "100ゲームプレイ",
+  "achievement_play_150_title": "スタープレイヤー",
+  "achievement_play_150_desc": "150ゲームプレイ",
+  "achievement_fail_100_title": "百回倒れても",
+  "achievement_fail_100_desc": "100回失敗する",
+  "achievement_streak_14_title": "2週間連続！",
+  "achievement_streak_14_desc": "14日連続で勝利する"
 }

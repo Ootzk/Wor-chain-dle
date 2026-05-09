@@ -243,6 +243,9 @@
   "cosmetic_emoji_heart": "Corazón",
   "shareBadgeLabel": "Insignia de compartir",
   "cosmetic_badge_none": "Ninguna",
+  "cosmetic_badge_fire": "Fuego",
+  "cosmetic_badge_skull": "Calavera",
+  "cosmetic_badge_star": "Estrella",
   "cellFontLabel": "Fuente de celda",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -293,5 +296,11 @@
   "achievement_play_50_title": "Jugador dedicado",
   "achievement_play_50_desc": "Jugar 50 partidas",
   "achievement_play_100_title": "Centurión",
-  "achievement_play_100_desc": "Jugar 100 partidas"
+  "achievement_play_100_desc": "Jugar 100 partidas",
+  "achievement_play_150_title": "Jugador estrella",
+  "achievement_play_150_desc": "Jugar 150 partidas",
+  "achievement_fail_100_title": "Cien caídas",
+  "achievement_fail_100_desc": "Perder 100 partidas",
+  "achievement_streak_14_title": "Racha de dos semanas",
+  "achievement_streak_14_desc": "Ganar 14 partidas seguidas"
 }

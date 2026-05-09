@@ -1,11 +1,15 @@
 import {
+  ACHIEVEMENTS,
   AchievementDef,
   evaluateAchievementDefinitions,
+  evaluateAchievements,
   getAchievementModes,
   loadAchievementState,
+  retroUnlockAchievements,
 } from './achievements'
 import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
+import { getRewardsForAchievement, getShareBadge } from './cosmetics'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -101,5 +105,74 @@ describe('achievement mode availability', () => {
       })
     ).toEqual(['custom_allowed'])
     expect(loadAchievementState().unlocked.custom_allowed).toBeTruthy()
+  })
+})
+
+describe('share badge achievements', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('unlocks stats-based share badge achievements in daily mode', () => {
+    const badgeStats: GameStats = {
+      ...stats,
+      totalGames: 150,
+      gamesFailed: 100,
+      bestStreak: 14,
+    }
+
+    expect(evaluateAchievements(badgeStats, dailyHistory)).toEqual(
+      expect.arrayContaining(['play_150', 'fail_100', 'streak_14'])
+    )
+    expect(loadAchievementState().unlocked.play_150).toBeTruthy()
+    expect(loadAchievementState().unlocked.fail_100).toBeTruthy()
+    expect(loadAchievementState().unlocked.streak_14).toBeTruthy()
+  })
+
+  it('connects stats-based achievements to share badge rewards', () => {
+    expect(getShareBadge('badge_fire')).toBe('\uD83D\uDD25')
+    expect(getShareBadge('badge_skull')).toBe('\uD83D\uDC80')
+    expect(getShareBadge('badge_star')).toBe('\u2B50')
+    expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
+      'badge_fire'
+    )
+    expect(getRewardsForAchievement('fail_100').map((r) => r.id)).toContain(
+      'badge_skull'
+    )
+    expect(getRewardsForAchievement('play_150').map((r) => r.id)).toContain(
+      'badge_star'
+    )
+  })
+
+  it('keeps new share badge achievements daily-only', () => {
+    for (const id of ['play_150', 'fail_100', 'streak_14']) {
+      const achievement = ACHIEVEMENTS.find((a) => a.id === id)
+      expect(achievement).toBeTruthy()
+      expect(getAchievementModes(achievement!)).toEqual(['daily'])
+    }
+  })
+
+  it('runs retro unlock again for older achievement state versions', () => {
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 1,
+        unlocked: {},
+        retroCompleted: true,
+      })
+    )
+
+    const badgeStats: GameStats = {
+      ...stats,
+      totalGames: 150,
+      gamesFailed: 100,
+      bestStreak: 14,
+    }
+
+    expect(retroUnlockAchievements(badgeStats, dailyHistory)).toEqual(
+      expect.arrayContaining(['play_150', 'fail_100', 'streak_14'])
+    )
+    expect(loadAchievementState().version).toBe(2)
+    expect(loadAchievementState().retroCompleted).toBe(true)
   })
 })

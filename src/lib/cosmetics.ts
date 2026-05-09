@@ -50,6 +50,9 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
 
 const SHARE_BADGES: Record<string, string> = {
   badge_none: '',
+  badge_fire: '\uD83D\uDD25',
+  badge_skull: '\uD83D\uDC80',
+  badge_star: '\u2B50',
 }
 
 // --- Cell Font Options ---
@@ -157,6 +160,24 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'badge_none',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_none',
+  },
+  {
+    id: 'badge_fire',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_fire',
+    requiresAchievement: 'streak_14',
+  },
+  {
+    id: 'badge_skull',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_skull',
+    requiresAchievement: 'fail_100',
+  },
+  {
+    id: 'badge_star',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_star',
+    requiresAchievement: 'play_150',
   },
 
   // Cell Font

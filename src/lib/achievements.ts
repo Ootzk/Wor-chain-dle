@@ -81,6 +81,24 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     descriptionKey: 'achievement_play_100_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 100 }),
   },
+  {
+    id: 'play_150',
+    category: 'milestone',
+    modes: ['daily'],
+    difficulty: 8,
+    titleKey: 'achievement_play_150_title',
+    descriptionKey: 'achievement_play_150_desc',
+    progress: ({ stats }) => ({ current: stats.totalGames, target: 150 }),
+  },
+  {
+    id: 'fail_100',
+    category: 'milestone',
+    modes: ['daily'],
+    difficulty: 8,
+    titleKey: 'achievement_fail_100_title',
+    descriptionKey: 'achievement_fail_100_desc',
+    progress: ({ stats }) => ({ current: stats.gamesFailed, target: 100 }),
+  },
 
   // Guess — N번째 시도로 N회 승리
   {
@@ -158,6 +176,15 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
   },
   {
+    id: 'streak_14',
+    category: 'streak',
+    modes: ['daily'],
+    difficulty: 8,
+    titleKey: 'achievement_streak_14_title',
+    descriptionKey: 'achievement_streak_14_desc',
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 14 }),
+  },
+  {
     id: 'streak_30',
     category: 'streak',
     modes: ['daily'],
@@ -171,9 +198,10 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 // --- localStorage ---
 
 const STORAGE_KEY = 'achievementState'
+const ACHIEVEMENT_STATE_VERSION = 2
 
 const defaultState: AchievementState = {
-  version: 1,
+  version: ACHIEVEMENT_STATE_VERSION,
   unlocked: {},
   retroCompleted: false,
 }
@@ -264,7 +292,9 @@ export const retroUnlockAchievements = (
   dailyHistory: DailyHistory
 ): string[] => {
   const state = loadAchievementState()
-  if (state.retroCompleted) return []
+  if (state.retroCompleted && state.version >= ACHIEVEMENT_STATE_VERSION) {
+    return []
+  }
 
   const newlyUnlocked = evaluateAchievements(stats, dailyHistory, {
     mode: 'daily',
@@ -272,6 +302,7 @@ export const retroUnlockAchievements = (
 
   const updatedState = loadAchievementState()
   updatedState.retroCompleted = true
+  updatedState.version = ACHIEVEMENT_STATE_VERSION
   saveAchievementState(updatedState)
 
   return newlyUnlocked

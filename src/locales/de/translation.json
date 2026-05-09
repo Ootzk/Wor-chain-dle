@@ -202,6 +202,9 @@
   "cosmetic_emoji_heart": "Heart",
   "shareBadgeLabel": "Teilen-Badge",
   "cosmetic_badge_none": "Keine",
+  "cosmetic_badge_fire": "Feuer",
+  "cosmetic_badge_skull": "Schädel",
+  "cosmetic_badge_star": "Stern",
   "cellFontLabel": "Zellschriftart",
   "cosmetic_font_default": "Sans-serif",
   "cosmetic_font_pixel": "Pixel",
@@ -252,5 +255,11 @@
   "achievement_play_50_title": "Fleißiger Spieler",
   "achievement_play_50_desc": "Spiele 50 Spiele",
   "achievement_play_100_title": "Zenturio",
-  "achievement_play_100_desc": "Spiele 100 Spiele"
+  "achievement_play_100_desc": "Spiele 100 Spiele",
+  "achievement_play_150_title": "Starspieler",
+  "achievement_play_150_desc": "Spiele 150 Spiele",
+  "achievement_fail_100_title": "Hundertmal gefallen",
+  "achievement_fail_100_desc": "Verliere 100 Spiele",
+  "achievement_streak_14_title": "Zwei-Wochen-Serie",
+  "achievement_streak_14_desc": "Gewinne 14 Spiele in Folge"
 }
