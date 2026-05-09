@@ -238,7 +238,7 @@ describe('share badge achievements', () => {
   it('unlocks the tail trap badge from final-letter dead ends', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
-        mode: 'practice',
+        mode: 'daily',
         game: {
           guesses: [
             ['a', 'l', 'p', 'h', 'a'],

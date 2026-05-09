@@ -223,7 +223,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'dead_end_tail',
     category: 'guess',
-    modes: ['daily', 'practice', 'custom'],
+    modes: ['daily'],
     difficulty: 7,
     titleKey: 'achievement_dead_end_tail_title',
     descriptionKey: 'achievement_dead_end_tail_desc',
