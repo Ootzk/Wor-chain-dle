@@ -23,6 +23,9 @@ test.describe('Achievements & Cosmetics', () => {
 
     // Should show achievement cards
     await expect(gamePage.locator('text=Getting Started')).toBeVisible()
+    await expect(
+      gamePage.locator('[data-achievement-id="play_10"]')
+    ).toContainText('Daily')
     await expect(gamePage.locator('text=Play 10 games')).toBeVisible()
     await screenshot(gamePage, '01-achievements-tab')
 

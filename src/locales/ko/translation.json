@@ -41,6 +41,7 @@
   "donateGithub": "GitHub으로 후원",
   "practice": "연습",
   "daily": "오늘의 문제",
+  "custom": "커스텀",
   "createPuzzleNav": "출제",
   "playAgain": "다시 하기",
   "winMessages_classic": ["천재", "훌륭함", "인상적", "멋져", "좋아", "휴"],
