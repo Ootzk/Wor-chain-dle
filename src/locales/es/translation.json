@@ -1,6 +1,7 @@
 {
   "about": "Acerca de este juego",
   "information": "Información",
+  "patchNotes": "Novedades",
   "gameName": "No Word-Guessing-Game - {{language}}",
   "enterKey": "Enviar",
   "deleteKey": "Eliminar",
@@ -172,6 +173,8 @@
   "shareMonth": "Compartir mes",
   "calendarCopied": "Calendario copiado al portapapeles",
   "weekdays": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"],
+  "patchNote_calendar_title": "Calendario mensual",
+  "patchNote_calendar_desc": "Consulta tus resultados diarios en un calendario mensual, cambia de mes y comparte tu registro mensual como una cuadrícula de emojis.",
   "patchNote_localTimezone_title": "Reinicio por zona horaria local",
   "patchNote_localTimezone_desc": "La palabra diaria ahora se renueva a medianoche local en lugar de UTC.\n¡Donde sea que estés, un nuevo rompecabezas comienza a medianoche!",
   "patchNote_uiRefactor_title": "Rediseño de UI",

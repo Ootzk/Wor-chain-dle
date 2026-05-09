@@ -1,6 +1,7 @@
 {
     "about": "このゲームについて",
     "information": "情報",
+    "patchNotes": "アップデート",
     "gameName": "単語当てゲーム - {{language}}",
     "enterKey": "入力",
     "deleteKey": "削除",
@@ -131,6 +132,8 @@
     "shareMonth": "月間記録を共有",
     "calendarCopied": "カレンダーがクリップボードにコピーされました",
     "weekdays": ["日", "月", "火", "水", "木", "金", "土"],
+    "patchNote_calendar_title": "月間カレンダー",
+    "patchNote_calendar_desc": "デイリー結果を月間カレンダーで確認し、月を移動して絵文字グリッドで月間記録を共有できます。",
     "patchNote_localTimezone_title": "ローカルタイムゾーンリセット",
     "patchNote_localTimezone_desc": "単語の更新がUTCではなくデバイスのローカル深夜基準に変更されました。\nどこにいても深夜に新しい問題が始まります！",
     "patchNote_uiRefactor_title": "UIリファクタリング",
