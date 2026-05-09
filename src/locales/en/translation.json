@@ -42,6 +42,7 @@
   "practice": "Practice",
   "daily": "Daily",
   "custom": "Custom",
+  "allModes": "All",
   "createPuzzleNav": "Create",
   "playAgain": "Play Again",
   "winMessages_classic": [

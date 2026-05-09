@@ -38,6 +38,7 @@
   "practice": "Mazoezi",
   "daily": "Kila siku",
   "custom": "Maalum",
+  "allModes": "Zote",
   "createPuzzleNav": "Unda",
   "playAgain": "Cheza tena",
   "winMessages_classic": ["Kipaji", "Ajabu", "Bora", "Vizuri", "Safi", "Nzuri"],

@@ -24,6 +24,31 @@ const MODE_BADGE_CLASSES: Record<GameMode, string> = {
   custom: 'bg-green-50 text-green-600 border-green-100',
 }
 
+const ALL_MODES: GameMode[] = ['daily', 'practice', 'custom']
+const ALL_MODE_BADGE_CLASS = 'bg-yellow-50 text-yellow-700 border-yellow-200'
+
+const getModeBadgeItems = (
+  modes: GameMode[]
+): Array<{ id: string; labelKey: string; className: string }> => {
+  const includesAllModes = ALL_MODES.every((mode) => modes.includes(mode))
+
+  if (includesAllModes) {
+    return [
+      {
+        id: 'all',
+        labelKey: 'allModes',
+        className: ALL_MODE_BADGE_CLASS,
+      },
+    ]
+  }
+
+  return modes.map((mode) => ({
+    id: mode,
+    labelKey: mode,
+    className: MODE_BADGE_CLASSES[mode],
+  }))
+}
+
 const DifficultyStars = ({ difficulty }: { difficulty: number }) => {
   return (
     <span className="text-xs text-yellow-500 whitespace-nowrap">
@@ -116,14 +141,16 @@ export const AchievementList = ({ scrollToId }: { scrollToId?: string }) => {
               </div>
               <p className="text-xs mt-1 text-gray-600 text-left">
                 <span className="inline-flex flex-wrap items-center gap-1 align-middle mr-1">
-                  {getAchievementModes(achievement).map((mode) => (
-                    <span
-                      key={mode}
-                      className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none ${MODE_BADGE_CLASSES[mode]}`}
-                    >
-                      {t(mode)}
-                    </span>
-                  ))}
+                  {getModeBadgeItems(getAchievementModes(achievement)).map(
+                    (badge) => (
+                      <span
+                        key={badge.id}
+                        className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none ${badge.className}`}
+                      >
+                        {t(badge.labelKey)}
+                      </span>
+                    )
+                  )}
                 </span>
                 <span>{t(achievement.descriptionKey)}</span>
               </p>
