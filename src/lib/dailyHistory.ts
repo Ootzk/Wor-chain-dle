@@ -68,6 +68,138 @@ export const getMonthResults = (
   return results
 }
 
+export const hasCompleteMonth = (
+  history: DailyHistory,
+  year: number,
+  month: number, // 0-indexed
+  options: {
+    today?: Temporal.PlainDate
+    startDate?: string | null
+  } = {}
+): boolean => {
+  const today = options.today ?? Temporal.Now.plainDateISO()
+  const epoch = Temporal.PlainDate.from(CONFIG.startDate)
+  const firstDay = Temporal.PlainDate.from({
+    year,
+    month: month + 1,
+    day: 1,
+  })
+  const lastDay = firstDay.with({ day: firstDay.daysInMonth })
+  const startDate = options.startDate
+    ? Temporal.PlainDate.from(options.startDate)
+    : null
+
+  if (Temporal.PlainDate.compare(lastDay, today) > 0) return false
+  if (Temporal.PlainDate.compare(firstDay, epoch) < 0) return false
+  if (startDate && Temporal.PlainDate.compare(firstDay, startDate) < 0) {
+    return false
+  }
+
+  for (let day = 1; day <= firstDay.daysInMonth; day++) {
+    const key = dateToKey(firstDay.with({ day }))
+    if (!history[key]) return false
+  }
+
+  return true
+}
+
+export const countCompleteMonths = (
+  history: DailyHistory,
+  options: {
+    today?: Temporal.PlainDate
+    startDate?: string | null
+  } = {}
+): number => {
+  const today = options.today ?? Temporal.Now.plainDateISO()
+  const epoch = Temporal.PlainDate.from(CONFIG.startDate)
+  const startDate = options.startDate
+    ? Temporal.PlainDate.from(options.startDate)
+    : epoch
+  const firstEligibleDate =
+    Temporal.PlainDate.compare(startDate, epoch) > 0 ? startDate : epoch
+
+  let cursor = Temporal.PlainDate.from({
+    year: firstEligibleDate.year,
+    month: firstEligibleDate.month,
+    day: 1,
+  })
+  if (firstEligibleDate.day > 1) {
+    cursor = cursor.add({ months: 1 })
+  }
+  const finalMonth = Temporal.PlainDate.from({
+    year: today.year,
+    month: today.month,
+    day: 1,
+  })
+  let count = 0
+
+  while (Temporal.PlainDate.compare(cursor, finalMonth) <= 0) {
+    if (hasCompleteMonth(history, cursor.year, cursor.month - 1, options)) {
+      count += 1
+    }
+    cursor = cursor.add({ months: 1 })
+  }
+
+  return count
+}
+
+export const getBestMonthlyAttendanceProgress = (
+  history: DailyHistory,
+  options: {
+    today?: Temporal.PlainDate
+    startDate?: string | null
+  } = {}
+): { current: number; target: number } => {
+  if (countCompleteMonths(history, options) > 0) {
+    return { current: 1, target: 1 }
+  }
+
+  const today = options.today ?? Temporal.Now.plainDateISO()
+  const epoch = Temporal.PlainDate.from(CONFIG.startDate)
+  const startDate = options.startDate
+    ? Temporal.PlainDate.from(options.startDate)
+    : epoch
+  const firstEligibleDate =
+    Temporal.PlainDate.compare(startDate, epoch) > 0 ? startDate : epoch
+
+  let cursor = Temporal.PlainDate.from({
+    year: firstEligibleDate.year,
+    month: firstEligibleDate.month,
+    day: 1,
+  })
+  const finalMonth = Temporal.PlainDate.from({
+    year: today.year,
+    month: today.month,
+    day: 1,
+  })
+  let best = { current: 0, target: 1 }
+
+  while (Temporal.PlainDate.compare(cursor, finalMonth) <= 0) {
+    const monthStart = cursor
+    const target = monthStart.daysInMonth
+
+    if (target > 0) {
+      let current = 0
+      for (let offset = 0; offset < target; offset++) {
+        const key = dateToKey(monthStart.add({ days: offset }))
+        if (history[key]) {
+          current += 1
+        }
+      }
+      if (
+        current / target > best.current / best.target ||
+        (current === best.current && target > best.target)
+      ) {
+        best = { current, target }
+      }
+    }
+
+    cursor = cursor.add({ months: 1 })
+  }
+
+  return best
+}
+
 // --- Migration: integer-key → date-string-key (one-time) ---
 
 let migrated = false

@@ -51,8 +51,13 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
 const SHARE_BADGES: Record<string, string> = {
   badge_none: '',
   badge_fire: '\uD83D\uDD25',
+  badge_calendar: '\uD83D\uDCC5',
+  badge_lizard: '\uD83E\uDD8E',
+  badge_six: '6\uFE0F\u20E3',
   badge_skull: '\uD83D\uDC80',
   badge_star: '\u2B50',
+  badge_hundred: '\uD83D\uDCAF',
+  badge_wrestle: '\uD83E\uDD3C',
 }
 
 // --- Cell Font Options ---
@@ -168,6 +173,24 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     requiresAchievement: 'streak_14',
   },
   {
+    id: 'badge_calendar',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_calendar',
+    requiresAchievement: 'monthly_attendance',
+  },
+  {
+    id: 'badge_lizard',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_lizard',
+    requiresAchievement: 'dead_end_tail',
+  },
+  {
+    id: 'badge_six',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_six',
+    requiresAchievement: 'played_v1_6_0_5',
+  },
+  {
     id: 'badge_skull',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_skull',
@@ -178,6 +201,18 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_star',
     requiresAchievement: 'play_150',
+  },
+  {
+    id: 'badge_hundred',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_hundred',
+    requiresAchievement: 'practice_win_100',
+  },
+  {
+    id: 'badge_wrestle',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_wrestle',
+    requiresAchievement: 'custom_win_10',
   },
 
   // Cell Font

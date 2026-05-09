@@ -10,6 +10,7 @@ import {
 import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
 import { getRewardsForAchievement, getShareBadge } from './cosmetics'
+import { createDefaultAchievementTrackingState } from './achievementProgress'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -131,17 +132,37 @@ describe('share badge achievements', () => {
 
   it('connects stats-based achievements to share badge rewards', () => {
     expect(getShareBadge('badge_fire')).toBe('\uD83D\uDD25')
+    expect(getShareBadge('badge_calendar')).toBe('\uD83D\uDCC5')
+    expect(getShareBadge('badge_lizard')).toBe('\uD83E\uDD8E')
+    expect(getShareBadge('badge_six')).toBe('6\uFE0F\u20E3')
     expect(getShareBadge('badge_skull')).toBe('\uD83D\uDC80')
     expect(getShareBadge('badge_star')).toBe('\u2B50')
+    expect(getShareBadge('badge_hundred')).toBe('\uD83D\uDCAF')
+    expect(getShareBadge('badge_wrestle')).toBe('\uD83E\uDD3C')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
+    expect(
+      getRewardsForAchievement('monthly_attendance').map((r) => r.id)
+    ).toContain('badge_calendar')
+    expect(
+      getRewardsForAchievement('dead_end_tail').map((r) => r.id)
+    ).toContain('badge_lizard')
+    expect(
+      getRewardsForAchievement('played_v1_6_0_5').map((r) => r.id)
+    ).toContain('badge_six')
     expect(getRewardsForAchievement('fail_100').map((r) => r.id)).toContain(
       'badge_skull'
     )
     expect(getRewardsForAchievement('play_150').map((r) => r.id)).toContain(
       'badge_star'
     )
+    expect(
+      getRewardsForAchievement('practice_win_100').map((r) => r.id)
+    ).toContain('badge_hundred')
+    expect(
+      getRewardsForAchievement('custom_win_10').map((r) => r.id)
+    ).toContain('badge_wrestle')
   })
 
   it('keeps new share badge achievements daily-only', () => {
@@ -174,5 +195,92 @@ describe('share badge achievements', () => {
     )
     expect(loadAchievementState().version).toBe(2)
     expect(loadAchievementState().retroCompleted).toBe(true)
+  })
+
+  it('unlocks monthly attendance from a complete daily history month', () => {
+    const completeApril: DailyHistory = {}
+    for (let day = 1; day <= 30; day++) {
+      completeApril[`2026-04-${String(day).padStart(2, '0')}`] = {
+        guessCount: 6,
+        won: day % 2 === 0,
+      }
+    }
+
+    expect(evaluateAchievements(stats, completeApril)).toContain(
+      'monthly_attendance'
+    )
+  })
+
+  it('shows best monthly attendance progress before completion', () => {
+    const partialMonth: DailyHistory = {}
+    for (let day = 1; day <= 12; day++) {
+      partialMonth[`2026-05-${String(day).padStart(2, '0')}`] = {
+        guessCount: 6,
+        won: true,
+      }
+    }
+
+    const monthlyAttendance = ACHIEVEMENTS.find(
+      (a) => a.id === 'monthly_attendance'
+    )
+
+    expect(monthlyAttendance?.progress).toBeTruthy()
+    expect(
+      monthlyAttendance!.progress({
+        stats,
+        dailyHistory: partialMonth,
+        mode: 'daily',
+        progress: createDefaultAchievementTrackingState(),
+      })
+    ).toEqual({ current: 12, target: 31 })
+  })
+
+  it('unlocks the tail trap badge from final-letter dead ends', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'practice',
+        game: {
+          guesses: [
+            ['a', 'l', 'p', 'h', 'a'],
+            ['a', 'p', 'p', 'l', 'e'],
+            ['e', 'a', 'g', 'l', 'e'],
+            ['e', 'l', 'd', 'e', 'r'],
+            ['r', 'o', 'u', 'n', 'd'],
+          ],
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 5,
+          endReason: 'deadEnd',
+          deadEnd: {
+            guessIndex: 5,
+            chainPosition: 'last',
+            chainLetter: 'd',
+            solutionLetter: 'n',
+          },
+        },
+      })
+    ).toContain('dead_end_tail')
+  })
+
+  it('unlocks version and mode-count badges from tracked progress', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.versions['1.6.0'] = { gamesCompleted: 5 }
+    progress.modes.practice.gamesWon = 100
+    progress.modes.custom.gamesWon = 10
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'practice',
+        progress,
+      })
+    ).toEqual(expect.arrayContaining(['played_v1_6_0_5', 'practice_win_100']))
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'custom',
+        progress,
+      })
+    ).toContain('custom_win_10')
   })
 })

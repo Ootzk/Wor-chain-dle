@@ -34,12 +34,15 @@ import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
 import { getChainInfo, isChainDeadEnd } from './lib/chain'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import {
+  DeadEndContext,
+  AchievementEndReason,
   evaluateAchievements,
   retroUnlockAchievements,
   ACHIEVEMENTS,
 } from './lib/achievements'
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
 import { GameMode } from './lib/gameMode'
+import { recordCompletedGameProgress } from './lib/achievementProgress'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -180,15 +183,23 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     completedGuesses,
     won,
     endReason,
+    deadEnd,
   }: {
     nextStats: typeof stats
     completedGuesses: string[][]
     won: boolean
-    endReason: 'win' | 'fail' | 'deadEnd'
+    endReason: AchievementEndReason
+    deadEnd?: DeadEndContext
   }) => {
+    const achievementProgress = recordCompletedGameProgress({
+      mode,
+      appVersion: PATCH_NOTES_VERSION,
+      won,
+    })
     showAchievementAlert(
       evaluateAchievements(nextStats, loadDailyHistory(), {
         mode,
+        progress: achievementProgress,
         game: {
           guesses: completedGuesses,
           solution,
@@ -196,6 +207,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           lost: !won,
           guessCount: completedGuesses.length,
           endReason,
+          deadEnd,
         },
       })
     )
@@ -273,6 +285,17 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           .split(ORTHOGRAPHY_PATTERN)
           .filter((i) => i)
         if (isChainDeadEnd(nextGuesses, solutionChars)) {
+          const deadEndChainInfo = getChainInfo(nextGuesses)
+          const deadEndChainIndex =
+            deadEndChainInfo?.position === 'first' ? 0 : CONFIG.wordLength - 1
+          const deadEnd = deadEndChainInfo
+            ? {
+                guessIndex: nextGuesses.length,
+                chainPosition: deadEndChainInfo.position,
+                chainLetter: deadEndChainInfo.letter,
+                solutionLetter: solutionChars[deadEndChainIndex],
+              }
+            : undefined
           let nextStats = stats
           if (isDaily) {
             nextStats = addStatsForCompletedGame(stats, CONFIG.tries)
@@ -284,6 +307,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             completedGuesses: nextGuesses,
             won: false,
             endReason: 'deadEnd',
+            deadEnd,
           })
           setIsGameLost(true)
           return

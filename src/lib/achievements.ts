@@ -1,12 +1,27 @@
 import { GameStats } from './localStorage'
-import { DailyHistory } from './dailyHistory'
+import {
+  DailyHistory,
+  getDailyHistoryStartDate,
+  getBestMonthlyAttendanceProgress,
+} from './dailyHistory'
 import { GameMode } from './gameMode'
+import {
+  AchievementTrackingState,
+  loadAchievementProgress,
+} from './achievementProgress'
 
 // --- Type Definitions ---
 
 export type AchievementCategory = 'milestone' | 'guess' | 'streak'
 
 export type AchievementEndReason = 'win' | 'fail' | 'deadEnd'
+
+export type DeadEndContext = {
+  guessIndex: number
+  chainPosition: 'first' | 'last'
+  chainLetter: string
+  solutionLetter: string
+}
 
 export type CompletedGameContext = {
   guesses: string[][]
@@ -15,12 +30,14 @@ export type CompletedGameContext = {
   lost: boolean
   guessCount: number
   endReason: AchievementEndReason
+  deadEnd?: DeadEndContext
 }
 
 export type AchievementContext = {
   stats: GameStats
   dailyHistory: DailyHistory
   mode: GameMode
+  progress: AchievementTrackingState
   game?: CompletedGameContext
 }
 
@@ -99,6 +116,54 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     descriptionKey: 'achievement_fail_100_desc',
     progress: ({ stats }) => ({ current: stats.gamesFailed, target: 100 }),
   },
+  {
+    id: 'monthly_attendance',
+    category: 'milestone',
+    modes: ['daily'],
+    difficulty: 9,
+    titleKey: 'achievement_monthly_attendance_title',
+    descriptionKey: 'achievement_monthly_attendance_desc',
+    progress: ({ dailyHistory }) =>
+      getBestMonthlyAttendanceProgress(dailyHistory, {
+        startDate: getDailyHistoryStartDate(),
+      }),
+  },
+  {
+    id: 'played_v1_6_0_5',
+    category: 'milestone',
+    modes: ['daily', 'practice', 'custom'],
+    difficulty: 1,
+    titleKey: 'achievement_played_v1_6_0_5_title',
+    descriptionKey: 'achievement_played_v1_6_0_5_desc',
+    progress: ({ progress }) => ({
+      current: progress.versions['1.6.0']?.gamesCompleted ?? 0,
+      target: 5,
+    }),
+  },
+  {
+    id: 'practice_win_100',
+    category: 'milestone',
+    modes: ['practice'],
+    difficulty: 8,
+    titleKey: 'achievement_practice_win_100_title',
+    descriptionKey: 'achievement_practice_win_100_desc',
+    progress: ({ progress }) => ({
+      current: progress.modes.practice.gamesWon,
+      target: 100,
+    }),
+  },
+  {
+    id: 'custom_win_10',
+    category: 'milestone',
+    modes: ['custom'],
+    difficulty: 4,
+    titleKey: 'achievement_custom_win_10_title',
+    descriptionKey: 'achievement_custom_win_10_desc',
+    progress: ({ progress }) => ({
+      current: progress.modes.custom.gamesWon,
+      target: 10,
+    }),
+  },
 
   // Guess — N번째 시도로 N회 승리
   {
@@ -154,6 +219,23 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
+  },
+  {
+    id: 'dead_end_tail',
+    category: 'guess',
+    modes: ['daily', 'practice', 'custom'],
+    difficulty: 7,
+    titleKey: 'achievement_dead_end_tail_title',
+    descriptionKey: 'achievement_dead_end_tail_desc',
+    progress: ({ game }) => ({
+      current:
+        game?.endReason === 'deadEnd' &&
+        game.deadEnd?.guessIndex === 5 &&
+        game.deadEnd.chainPosition === 'last'
+          ? 1
+          : 0,
+      target: 1,
+    }),
   },
 
   // Streak
@@ -231,6 +313,7 @@ export const isAchievementAvailableInMode = (
 export type AchievementEvaluationOptions = {
   mode?: GameMode
   game?: CompletedGameContext
+  progress?: AchievementTrackingState
 }
 
 const createAchievementContext = (
@@ -241,6 +324,7 @@ const createAchievementContext = (
   stats,
   dailyHistory,
   mode: options.mode ?? 'daily',
+  progress: options.progress ?? loadAchievementProgress(),
   game: options.game,
 })
 
