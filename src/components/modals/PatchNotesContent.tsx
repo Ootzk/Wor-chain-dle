@@ -10,33 +10,36 @@ type Feature = {
   sub?: { icon: string; titleKey: string; descKey: string }[]
 }
 
-const features: Feature[] = [
-  {
-    icon: '🏆',
-    titleKey: 'patchNote_achievements_title',
-    descKey: 'patchNote_achievements_desc',
-  },
-  {
-    icon: '🎨',
-    titleKey: 'patchNote_cosmetics_title',
-    descKey: 'patchNote_cosmetics_desc',
-  },
-  {
-    icon: '🇩🇪',
-    titleKey: 'patchNote_german_title',
-    descKey: 'patchNote_german_desc',
-  },
-  {
-    icon: '🔧',
-    titleKey: 'patchNote_uiFixes_title',
-    descKey: 'patchNote_uiFixes_desc',
-  },
-]
+type PatchNoteVersion = {
+  version: string
+  features: Feature[]
+}
 
-const patchNoteVersions: { version: string; features: Feature[] }[] = [
+const patchNoteVersions: PatchNoteVersion[] = [
   {
-    version: PATCH_NOTES_VERSION,
-    features,
+    version: '1.5.0',
+    features: [
+      {
+        icon: '🏆',
+        titleKey: 'patchNote_achievements_title',
+        descKey: 'patchNote_achievements_desc',
+      },
+      {
+        icon: '🎨',
+        titleKey: 'patchNote_cosmetics_title',
+        descKey: 'patchNote_cosmetics_desc',
+      },
+      {
+        icon: '🇩🇪',
+        titleKey: 'patchNote_german_title',
+        descKey: 'patchNote_german_desc',
+      },
+      {
+        icon: '🔧',
+        titleKey: 'patchNote_uiFixes_title',
+        descKey: 'patchNote_uiFixes_desc',
+      },
+    ],
   },
   {
     version: '1.4.0',
@@ -119,6 +122,10 @@ const patchNoteVersions: { version: string; features: Feature[] }[] = [
   },
 ]
 
+const currentPatchNotes =
+  patchNoteVersions.find(({ version }) => version === PATCH_NOTES_VERSION) ??
+  patchNoteVersions[0]
+
 const PatchNoteFeatureCard = ({ feature }: { feature: Feature }) => {
   const { t } = useTranslation()
   const { icon, titleKey, descKey, sub } = feature
@@ -194,11 +201,11 @@ export const PatchNotesContent = ({ variant = 'current' }: Props) => {
   return (
     <>
       <div className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 mb-4">
-        v{PATCH_NOTES_VERSION}
+        v{currentPatchNotes.version}
       </div>
 
       <div className="space-y-3 text-left">
-        {features.map((feature) => (
+        {currentPatchNotes.features.map((feature) => (
           <PatchNoteFeatureCard key={feature.titleKey} feature={feature} />
         ))}
       </div>
