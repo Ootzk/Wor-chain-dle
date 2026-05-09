@@ -254,7 +254,7 @@ export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
 
       {activeTab === 'howToPlay' && <HowToPlayContent />}
 
-      {activeTab === 'patchNotes' && <PatchNotesContent />}
+      {activeTab === 'patchNotes' && <PatchNotesContent variant="history" />}
 
       {activeTab === 'about' && <AboutContent />}
     </BaseModal>

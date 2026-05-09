@@ -23,6 +23,8 @@ test.describe('Modals', () => {
     // Tab 3: Patch Notes
     await gamePage.locator('button', { hasText: 'Patch Notes' }).click()
     await expect(gamePage.getByText('Achievements', { exact: true })).toBeVisible()
+    await gamePage.locator('button', { hasText: 'v1.4.0' }).click()
+    await expect(gamePage.getByText('Local Timezone Reset')).toBeVisible()
     await screenshot(gamePage, '03-daily-tab-patch-notes')
 
     // Tab 4: About this game

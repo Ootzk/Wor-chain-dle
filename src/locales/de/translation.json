@@ -114,6 +114,8 @@
   "shareMonth": "Monat teilen",
   "calendarCopied": "Kalender in die Zwischenablage kopiert",
   "weekdays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+  "patchNote_calendar_title": "Monatskalender",
+  "patchNote_calendar_desc": "Verfolge tägliche Ergebnisse im Monatskalender, wechsle zwischen Monaten und teile deinen Monatsverlauf als Emoji-Raster.",
   "patchNote_localTimezone_title": "Lokale Zeitzone",
   "patchNote_localTimezone_desc": "Das tägliche Wort wechselt jetzt um Mitternacht deiner lokalen Zeit statt UTC.\nEgal wo du bist, ein neues Rätsel beginnt um Mitternacht!",
   "patchNote_uiRefactor_title": "UI-Überarbeitung",
