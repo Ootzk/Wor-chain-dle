@@ -1,4 +1,10 @@
-import { test, expect, customPuzzlePath, waitForGameReady, screenshot } from './fixtures/game.fixture'
+import {
+  test,
+  expect,
+  customPuzzlePath,
+  waitForGameReady,
+  screenshot,
+} from './fixtures/game.fixture'
 import { test as baseTest } from '@playwright/test'
 
 test.describe('Modals', () => {
@@ -9,7 +15,9 @@ test.describe('Modals', () => {
 
   test('info modal — daily mode tabs', async ({ gamePage }) => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible()
 
     // Tab 1: Daily Mode (default)
     await expect(gamePage.locator('text=Daily Mode')).toBeVisible()
@@ -22,19 +30,23 @@ test.describe('Modals', () => {
 
     // Tab 3: Patch Notes
     await gamePage.locator('button', { hasText: 'Patch Notes' }).click()
-    await expect(gamePage.getByText('Achievements', { exact: true })).toBeVisible()
+    await expect(gamePage.getByText('Patch Notes in Information')).toBeVisible()
     await gamePage.locator('button', { hasText: 'v1.4.0' }).click()
     await expect(gamePage.getByText('Local Timezone Reset')).toBeVisible()
     await screenshot(gamePage, '03-daily-tab-patch-notes')
 
     // Tab 4: About this game
     await gamePage.locator('button', { hasText: 'About this game' }).click()
-    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await expect(
+      gamePage.locator('text=open source word guessing game')
+    ).toBeVisible()
     await screenshot(gamePage, '04-daily-tab-about')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).not.toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).not.toBeVisible()
   })
 
   test('info modal — practice mode tabs', async ({ gamePage }) => {
@@ -42,7 +54,9 @@ test.describe('Modals', () => {
     await waitForGameReady(gamePage)
 
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible()
 
     // Tab 1: Practice Mode (default)
     await expect(gamePage.locator('text=Practice Mode')).toBeVisible()
@@ -55,7 +69,9 @@ test.describe('Modals', () => {
 
     // Tab 3: About this game
     await gamePage.locator('button', { hasText: 'About this game' }).click()
-    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await expect(
+      gamePage.locator('text=open source word guessing game')
+    ).toBeVisible()
     await screenshot(gamePage, '03-practice-tab-about')
 
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -66,7 +82,9 @@ test.describe('Modals', () => {
     await waitForGameReady(gamePage)
 
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible()
 
     // Tab 1: Custom Mode (default) — shows questioner name
     await expect(gamePage.locator('text=Custom Mode')).toBeVisible()
@@ -80,7 +98,9 @@ test.describe('Modals', () => {
 
     // Tab 3: About this game
     await gamePage.locator('button', { hasText: 'About this game' }).click()
-    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await expect(
+      gamePage.locator('text=open source word guessing game')
+    ).toBeVisible()
     await screenshot(gamePage, '03-custom-tab-about')
 
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -88,11 +108,15 @@ test.describe('Modals', () => {
 
   test('info modal — create mode tabs', async ({ gamePage }) => {
     await gamePage.goto('/#/create')
-    await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+    await gamePage
+      .locator('button', { hasText: 'Enter' })
+      .waitFor({ state: 'visible' })
 
     // Create page icons: info(0), settings(1), donate(2)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible()
 
     // Tab 1: How to Create (default)
     await expect(gamePage.locator('text=How to create')).toBeVisible()
@@ -105,7 +129,9 @@ test.describe('Modals', () => {
 
     // Tab 3: About this game
     await gamePage.locator('button', { hasText: 'About this game' }).click()
-    await expect(gamePage.locator('text=open source word guessing game')).toBeVisible()
+    await expect(
+      gamePage.locator('text=open source word guessing game')
+    ).toBeVisible()
     await screenshot(gamePage, '03-create-tab-about')
 
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -115,14 +141,18 @@ test.describe('Modals', () => {
     // Click stats icon (ChartBarIcon) — 2nd icon in daily mode
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
 
-    await expect(gamePage.getByRole('heading', { name: 'Records' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).toBeVisible()
     await expect(gamePage.locator('text=Total tries')).toBeVisible()
     await expect(gamePage.locator('text=Success rate')).toBeVisible()
     await screenshot(gamePage, '01-stats-modal-open')
 
     // Close
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.getByRole('heading', { name: 'Records' })).not.toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).not.toBeVisible()
   })
 
   test('settings modal with uppercase toggle', async ({ gamePage }) => {
@@ -156,7 +186,9 @@ test.describe('Modals', () => {
     await screenshot(gamePage, '05-uppercase-removed-from-page')
   })
 
-  test('uppercase setting persists across page navigation', async ({ gamePage }) => {
+  test('uppercase setting persists across page navigation', async ({
+    gamePage,
+  }) => {
     // Daily: enable uppercase via settings (settings = 3rd icon)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await gamePage.locator('button[role="switch"]').first().click()
@@ -178,7 +210,9 @@ test.describe('Modals', () => {
 
     // Daily → Create
     await gamePage.locator('a', { hasText: 'Create' }).click()
-    await gamePage.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+    await gamePage
+      .locator('button', { hasText: 'Enter' })
+      .waitFor({ state: 'visible' })
     await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '04-create-uppercase-persisted')
 
@@ -210,27 +244,33 @@ test.describe('Modals', () => {
 
     // KakaoPay tab (default): QR image and payment link button
     await expect(gamePage.locator('img[alt="KakaoPay QR"]')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Donate via KakaoPay")')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Donate via KakaoPay")')).toHaveAttribute(
-      'href',
-      'https://qr.kakaopay.com/FE0rjwVWj41a00262'
-    )
+    await expect(
+      gamePage.locator('a:has-text("Donate via KakaoPay")')
+    ).toBeVisible()
+    await expect(
+      gamePage.locator('a:has-text("Donate via KakaoPay")')
+    ).toHaveAttribute('href', 'https://qr.kakaopay.com/FE0rjwVWj41a00262')
     await screenshot(gamePage, '01-donate-modal-kakaopay')
 
     // Switch to Toss tab
     await gamePage.locator('button:has-text("Toss")').click()
     await expect(gamePage.locator('img[alt="Toss QR"]')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Donate via Toss")')).toBeVisible()
+    await expect(
+      gamePage.locator('a:has-text("Donate via Toss")')
+    ).toBeVisible()
     await screenshot(gamePage, '02-donate-modal-toss')
 
     // Switch to GitHub tab
     await gamePage.locator('button:has-text("GitHub")').click()
-    await expect(gamePage.locator('iframe[title="Sponsor Ootzk"]')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Donate via GitHub")')).toBeVisible()
-    await expect(gamePage.locator('a:has-text("Donate via GitHub")')).toHaveAttribute(
-      'href',
-      'https://github.com/sponsors/Ootzk'
-    )
+    await expect(
+      gamePage.locator('iframe[title="Sponsor Ootzk"]')
+    ).toBeVisible()
+    await expect(
+      gamePage.locator('a:has-text("Donate via GitHub")')
+    ).toBeVisible()
+    await expect(
+      gamePage.locator('a:has-text("Donate via GitHub")')
+    ).toHaveAttribute('href', 'https://github.com/sponsors/Ootzk')
     await screenshot(gamePage, '03-donate-modal-github')
 
     // Close
@@ -262,12 +302,16 @@ test.describe('Modals', () => {
   test('modal closes on Escape key', async ({ gamePage }) => {
     // Open info modal
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible()
     await screenshot(gamePage, '01-modal-open-before-escape')
 
     // Press Escape to close (HeadlessUI Dialog handles this natively)
     await gamePage.keyboard.press('Escape')
-    await expect(gamePage.getByRole('heading', { name: 'Information' })).not.toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).not.toBeVisible()
     await screenshot(gamePage, '02-modal-closed-after-escape')
   })
 })
@@ -281,13 +325,18 @@ baseTest.describe('PatchNotes Modal', () => {
     })
 
     await page.goto('/')
-    await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+    await page
+      .locator('button', { hasText: 'Enter' })
+      .waitFor({ state: 'visible' })
 
     // PatchNotes modal should be open
     const patchNotesTitle = page.getByRole('heading', { name: "What's New" })
     await expect(patchNotesTitle).toBeVisible({ timeout: 5000 })
     const body1 = await page.screenshot()
-    await baseTest.info().attach('01-patch-notes-first-visit', { body: body1, contentType: 'image/png' })
+    await baseTest.info().attach('01-patch-notes-first-visit', {
+      body: body1,
+      contentType: 'image/png',
+    })
 
     // Close it
     await page.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -295,9 +344,14 @@ baseTest.describe('PatchNotes Modal', () => {
 
     // Reload — should NOT reappear
     await page.reload()
-    await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+    await page
+      .locator('button', { hasText: 'Enter' })
+      .waitFor({ state: 'visible' })
     await expect(patchNotesTitle).not.toBeVisible()
     const body2 = await page.screenshot()
-    await baseTest.info().attach('02-patch-notes-dismissed-after-reload', { body: body2, contentType: 'image/png' })
+    await baseTest.info().attach('02-patch-notes-dismissed-after-reload', {
+      body: body2,
+      contentType: 'image/png',
+    })
   })
 })
