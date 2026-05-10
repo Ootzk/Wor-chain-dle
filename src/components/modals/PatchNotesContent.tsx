@@ -12,12 +12,14 @@ type Feature = {
 
 type PatchNoteVersion = {
   version: string
+  releasedAt: string
   features: Feature[]
 }
 
 const patchNoteVersions: PatchNoteVersion[] = [
   {
     version: '1.6.0',
+    releasedAt: '2026-05-10',
     features: [
       {
         icon: '📝',
@@ -43,6 +45,7 @@ const patchNoteVersions: PatchNoteVersion[] = [
   },
   {
     version: '1.5.0',
+    releasedAt: '2026-04-20',
     features: [
       {
         icon: '🏆',
@@ -68,6 +71,7 @@ const patchNoteVersions: PatchNoteVersion[] = [
   },
   {
     version: '1.4.0',
+    releasedAt: '2026-03-12',
     features: [
       {
         icon: '🕛',
@@ -88,6 +92,7 @@ const patchNoteVersions: PatchNoteVersion[] = [
   },
   {
     version: '1.3.0',
+    releasedAt: '2026-03-07',
     features: [
       {
         icon: '📅',
@@ -98,6 +103,7 @@ const patchNoteVersions: PatchNoteVersion[] = [
   },
   {
     version: '1.2.0',
+    releasedAt: '2026-02-28',
     features: [
       {
         icon: '🧩',
@@ -193,13 +199,18 @@ export const PatchNotesContent = ({ variant = 'current' }: Props) => {
   if (variant === 'history') {
     return (
       <div className="space-y-3 text-left">
-        {patchNoteVersions.map(({ version, features }, index) => (
+        {patchNoteVersions.map(({ version, releasedAt, features }, index) => (
           <Disclosure key={version} defaultOpen={index === 0}>
             {({ open }) => (
               <div className="rounded-lg border border-gray-200 overflow-hidden">
                 <Disclosure.Button className="flex w-full items-center justify-between gap-3 bg-gray-50 px-3 py-2 text-left">
-                  <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    v{version}
+                  <span className="flex items-center gap-2">
+                    <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+                      v{version}
+                    </span>
+                    <span className="text-xs font-medium text-gray-500">
+                      {releasedAt}
+                    </span>
                   </span>
                   <ChevronDownIcon
                     className={`h-4 w-4 text-gray-500 transition-transform ${
@@ -225,8 +236,13 @@ export const PatchNotesContent = ({ variant = 'current' }: Props) => {
 
   return (
     <>
-      <div className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 mb-4">
-        v{currentPatchNotes.version}
+      <div className="mb-4 flex items-center justify-center gap-2">
+        <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+          v{currentPatchNotes.version}
+        </span>
+        <span className="text-xs font-medium text-gray-500">
+          {currentPatchNotes.releasedAt}
+        </span>
       </div>
 
       <div className="space-y-3 text-left">
