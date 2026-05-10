@@ -1,8 +1,21 @@
 import { Temporal } from 'temporal-polyfill'
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
-import { DailyHistory, dateToKey, getDailyHistoryStartDate } from './dailyHistory'
-import { getEquippedShareEmoji } from './cosmetics'
+import {
+  DailyHistory,
+  dateToKey,
+  getDailyHistoryStartDate,
+} from './dailyHistory'
+import { getEquippedShareBadge, getEquippedShareEmoji } from './cosmetics'
+
+const formatShareTitle = (suffix?: string): string => {
+  const badge = getEquippedShareBadge()
+  return [`Wor${badge}dle`, suffix].filter(Boolean).join(' ')
+}
+
+const formatShareHeader = (suffix: string, result: string): string => {
+  return [formatShareTitle(suffix), result].filter(Boolean).join(' ')
+}
 
 export const shareCustomStatus = (
   guesses: string[][],
@@ -12,11 +25,10 @@ export const shareCustomStatus = (
   excludeUrl: boolean = false
 ) => {
   const shareText =
-    `Wor\u{1F517}dle Custom/${questioner}` +
-    ' ' +
-    `${lost ? 'X' : guesses.length}` +
-    '/' +
-    CONFIG.tries.toString() +
+    formatShareHeader(
+      `Custom/${questioner}`,
+      `${lost ? 'X' : guesses.length}/${CONFIG.tries.toString()}`
+    ) +
     '\n\n' +
     generateEmojiGrid(guesses, solution) +
     (excludeUrl
@@ -37,11 +49,10 @@ export const generateShareText = (
   urlOverride?: string
 ): string => {
   return (
-    `Wor\u{1F517}dle ${dateLabel}` +
-    ' ' +
-    `${lost ? 'X' : guesses.length}` +
-    '/' +
-    tries.toString() +
+    formatShareHeader(
+      dateLabel,
+      `${lost ? 'X' : guesses.length}/${tries.toString()}`
+    ) +
     '\n\n' +
     generateEmojiGrid(guesses, solution) +
     (excludeUrl
@@ -95,16 +106,17 @@ export const shareCalendar = (
   })
   const daysInMonth = firstDay.daysInMonth
 
-  const isCurrentMonth =
-    year === today.year && month === today.month - 1
+  const isCurrentMonth = year === today.year && month === today.month - 1
 
   const lines: string[] = []
-  const header = isCurrentMonth
-    ? `Wor\u{1F517}dle ${year}-${mm} (\u{1F525} ${streak})`
-    : `Wor\u{1F517}dle ${year}-${mm}`
+  const header = formatShareTitle(
+    isCurrentMonth ? `${year}-${mm} (\u{1F525} ${streak})` : `${year}-${mm}`
+  )
   lines.push(header)
   lines.push('')
-  lines.push((weekStartsOnMonday ? WEEKDAY_LABELS_MON : WEEKDAY_LABELS_SUN).join(' '))
+  lines.push(
+    (weekStartsOnMonday ? WEEKDAY_LABELS_MON : WEEKDAY_LABELS_SUN).join(' ')
+  )
 
   // Build grid rows
   let row: string[] = []
@@ -114,8 +126,7 @@ export const shareCalendar = (
     const key = dateToKey(date)
     const isFuture = Temporal.PlainDate.compare(date, today) > 0
     const isBeforeEpoch = Temporal.PlainDate.compare(date, epoch) < 0
-    const isPreCalendarEpoch =
-      startDate !== null && key < startDate
+    const isPreCalendarEpoch = startDate !== null && key < startDate
 
     const emoji = getEquippedShareEmoji()
     if (isFuture || isBeforeEpoch || isPreCalendarEpoch) {
@@ -154,10 +165,7 @@ export const shareCalendar = (
   navigator.clipboard.writeText(lines.join('\n'))
 }
 
-export const generateEmojiGrid = (
-  guesses: string[][],
-  solution: string
-) => {
+export const generateEmojiGrid = (guesses: string[][], solution: string) => {
   const emoji = getEquippedShareEmoji()
   return guesses
     .map((guess, gi) => {

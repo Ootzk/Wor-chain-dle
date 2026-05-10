@@ -11,7 +11,7 @@ import { InfoModal } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
-import { StatsModal, GameMode } from './components/modals/StatsModal'
+import { StatsModal } from './components/modals/StatsModal'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
@@ -34,11 +34,15 @@ import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
 import { getChainInfo, isChainDeadEnd } from './lib/chain'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import {
+  DeadEndContext,
+  AchievementEndReason,
   evaluateAchievements,
   retroUnlockAchievements,
   ACHIEVEMENTS,
 } from './lib/achievements'
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
+import { GameMode } from './lib/gameMode'
+import { recordCompletedGameProgress } from './lib/achievementProgress'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -174,6 +178,41 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     setTimeout(() => setAchievementAlerts([]), ALERT_TIME_MS)
   }
 
+  const evaluateCompletedGameAchievements = ({
+    nextStats,
+    completedGuesses,
+    won,
+    endReason,
+    deadEnd,
+  }: {
+    nextStats: typeof stats
+    completedGuesses: string[][]
+    won: boolean
+    endReason: AchievementEndReason
+    deadEnd?: DeadEndContext
+  }) => {
+    const achievementProgress = recordCompletedGameProgress({
+      mode,
+      appVersion: PATCH_NOTES_VERSION,
+      won,
+    })
+    showAchievementAlert(
+      evaluateAchievements(nextStats, loadDailyHistory(), {
+        mode,
+        progress: achievementProgress,
+        game: {
+          guesses: completedGuesses,
+          solution,
+          won,
+          lost: !won,
+          guessCount: completedGuesses.length,
+          endReason,
+          deadEnd,
+        },
+      })
+    )
+  }
+
   const onChar = (value: string) => {
     const chainInfo = getChainInfo(guesses)
     const maxLength = chainInfo ? CONFIG.wordLength - 1 : CONFIG.wordLength
@@ -220,53 +259,74 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
     if (guesses.length < CONFIG.tries && !isGameWon) {
       setCurrentGuess([])
-      setGuesses([...guesses, fullGuess])
+      const nextGuesses = [...guesses, fullGuess]
+      setGuesses(nextGuesses)
 
       const todayKey = dateToKey(Temporal.Now.plainDateISO())
 
       if (winningWord) {
+        let nextStats = stats
         if (isDaily) {
-          const updatedStats = addStatsForCompletedGame(stats, guesses.length)
-          setStats(updatedStats)
+          nextStats = addStatsForCompletedGame(stats, guesses.length)
+          setStats(nextStats)
           saveDailyResult(todayKey, guesses.length + 1, true)
-          showAchievementAlert(
-            evaluateAchievements(updatedStats, loadDailyHistory())
-          )
         }
+        evaluateCompletedGameAchievements({
+          nextStats,
+          completedGuesses: nextGuesses,
+          won: true,
+          endReason: 'win',
+        })
         return setIsGameWon(true)
       }
 
       if (guesses.length === CONFIG.tries - 2) {
-        const newGuesses = [...guesses, fullGuess]
         const solutionChars = solution
           .split(ORTHOGRAPHY_PATTERN)
           .filter((i) => i)
-        if (isChainDeadEnd(newGuesses, solutionChars)) {
+        if (isChainDeadEnd(nextGuesses, solutionChars)) {
+          const deadEndChainInfo = getChainInfo(nextGuesses)
+          const deadEndChainIndex =
+            deadEndChainInfo?.position === 'first' ? 0 : CONFIG.wordLength - 1
+          const deadEnd = deadEndChainInfo
+            ? {
+                guessIndex: nextGuesses.length,
+                chainPosition: deadEndChainInfo.position,
+                chainLetter: deadEndChainInfo.letter,
+                solutionLetter: solutionChars[deadEndChainIndex],
+              }
+            : undefined
+          let nextStats = stats
           if (isDaily) {
-            const updatedStats = addStatsForCompletedGame(stats, CONFIG.tries)
-            setStats(updatedStats)
+            nextStats = addStatsForCompletedGame(stats, CONFIG.tries)
+            setStats(nextStats)
             saveDailyResult(todayKey, CONFIG.tries, false)
-            showAchievementAlert(
-              evaluateAchievements(updatedStats, loadDailyHistory())
-            )
           }
+          evaluateCompletedGameAchievements({
+            nextStats,
+            completedGuesses: nextGuesses,
+            won: false,
+            endReason: 'deadEnd',
+            deadEnd,
+          })
           setIsGameLost(true)
           return
         }
       }
 
       if (guesses.length === CONFIG.tries - 1) {
+        let nextStats = stats
         if (isDaily) {
-          const updatedStats = addStatsForCompletedGame(
-            stats,
-            guesses.length + 1
-          )
-          setStats(updatedStats)
+          nextStats = addStatsForCompletedGame(stats, guesses.length + 1)
+          setStats(nextStats)
           saveDailyResult(todayKey, guesses.length + 1, false)
-          showAchievementAlert(
-            evaluateAchievements(updatedStats, loadDailyHistory())
-          )
         }
+        evaluateCompletedGameAchievements({
+          nextStats,
+          completedGuesses: nextGuesses,
+          won: false,
+          endReason: 'fail',
+        })
         setIsGameLost(true)
       }
     }

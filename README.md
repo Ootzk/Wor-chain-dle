@@ -89,10 +89,14 @@ ootzk.github.io/Wor-chain-dle
 
 ## Features
 
-New features are introduced through a one-time "What's New" popup on your first visit after an update.
+### Patch Notes & Update History
+
+New features are introduced through a one-time "What's New" popup on your first visit after an update. The Information modal also includes a Patch Notes tab, so you can browse previous updates by version and release date.
 
 <p align="center">
-  <img src="assets/patch-note.png" alt="What's New in v1.4.0" width="300" />
+  <img src="assets/patch-note.png" alt="What's New in v1.6.0" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/patch-notes-history.png" alt="Patch Notes history" width="300" />
 </p>
 
 ### Create & Share Custom Puzzles
@@ -150,7 +154,7 @@ ootzk.github.io/Wor-chain-dle
 
 ### Achievements
 
-Earn achievements by reaching milestones, winning streaks, and mastering guess counts. Track your progress with difficulty stars and progress bars. Newly unlocked achievements are highlighted with a "NEW!" tag. Each achievement unlocks a cosmetic reward.
+Earn achievements by reaching milestones, winning streaks, mastering guess counts, or triggering special puzzle events. Each card shows which mode can unlock it: Daily, Practice, Custom, or All. Newly unlocked achievements are highlighted with a "NEW!" tag, and each achievement unlocks a cosmetic reward.
 
 <p align="center">
   <img src="assets/achievements.png" alt="Achievements" width="300" />
@@ -160,7 +164,8 @@ Earn achievements by reaching milestones, winning streaks, and mastering guess c
 
 Customize your game's look with unlocked cosmetic items:
 
-- **Share Emoji** — Change the emoji set used in share text (🟩🟪⬜ → 🟢🟣⚪ or 💚💜🤍)
+- **Share Badge** — Replace the title symbol in shared results (Wor🔗dle → Wor🔥dle, Wor🦎dle, Wor💯dle)
+- **Share Emoji** — Change the emoji set used in share text (🟩🟪⬜ → 🟢🟣⚪, 💚💜🤍, 🥬🍆🍚, or 🍏🍇🥛)
 - **Cell Font** — Switch between Sans-serif, Pixel, or Marker fonts
 - **Letter Color** — White, Gold, or Black text on tiles
 - **Chain Style** — Solid, Dashed, or Thick chain lines
@@ -209,6 +214,8 @@ npm start          # dev server (http://localhost:3000)
 npm run build      # production build
 npm test           # run tests
 ```
+
+Coding agents should read [`AGENTS.md`](AGENTS.md) before making changes. Claude Code also has a compatibility wrapper in [`CLAUDE.md`](CLAUDE.md).
 
 ## Credits
 
