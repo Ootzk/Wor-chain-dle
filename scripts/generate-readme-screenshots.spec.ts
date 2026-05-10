@@ -243,7 +243,7 @@ test('patch notes modal', async ({ page }) => {
   })
   await page.goto('/')
   await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
-  await page.locator("text=What's New").waitFor({ state: 'visible', timeout: 5000 })
+  await page.getByRole('heading', { name: "What's New" }).waitFor({ state: 'visible', timeout: 5000 })
   await page.waitForTimeout(500)
   await save(page, 'patch-note')
 })
