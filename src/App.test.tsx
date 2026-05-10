@@ -2,19 +2,22 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
 import { solution } from './lib/words'
+import { saveSeenPatchNotesVersion } from './lib/localStorage'
 import { ORTHOGRAPHY } from './constants/orthography'
 import { WORDS } from './constants/wordlist'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
-import { CONFIG } from './constants/config'
+import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
 import chalk from 'chalk'
 
 test('renders game', () => {
+  saveSeenPatchNotesVersion(PATCH_NOTES_VERSION)
+
   render(
     <MemoryRouter>
       <App mode="daily" solution={solution} />
     </MemoryRouter>
   )
-  const titleElement = screen.getByText(/Wor.*dle/i)
+  const titleElement = screen.getByRole('heading', { name: /Wor.*dle/i })
   expect(titleElement).toBeInTheDocument()
 })
 
