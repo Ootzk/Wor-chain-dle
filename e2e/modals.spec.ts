@@ -284,18 +284,19 @@ baseTest.describe('PatchNotes Modal', () => {
     await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
 
     // PatchNotes modal should be open
-    await expect(page.locator("text=What's New")).toBeVisible({ timeout: 5000 })
+    const patchNotesTitle = page.getByRole('heading', { name: "What's New" })
+    await expect(patchNotesTitle).toBeVisible({ timeout: 5000 })
     const body1 = await page.screenshot()
     await baseTest.info().attach('01-patch-notes-first-visit', { body: body1, contentType: 'image/png' })
 
     // Close it
     await page.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(page.locator("text=What's New")).not.toBeVisible()
+    await expect(patchNotesTitle).not.toBeVisible()
 
     // Reload — should NOT reappear
     await page.reload()
     await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
-    await expect(page.locator("text=What's New")).not.toBeVisible()
+    await expect(patchNotesTitle).not.toBeVisible()
     const body2 = await page.screenshot()
     await baseTest.info().attach('02-patch-notes-dismissed-after-reload', { body: body2, contentType: 'image/png' })
   })

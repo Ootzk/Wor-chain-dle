@@ -17,6 +17,31 @@ type PatchNoteVersion = {
 
 const patchNoteVersions: PatchNoteVersion[] = [
   {
+    version: '1.6.0',
+    features: [
+      {
+        icon: '📝',
+        titleKey: 'patchNote_updateHistory_title',
+        descKey: 'patchNote_updateHistory_desc',
+      },
+      {
+        icon: '🏷️',
+        titleKey: 'patchNote_shareBadges_title',
+        descKey: 'patchNote_shareBadges_desc',
+      },
+      {
+        icon: '🧩',
+        titleKey: 'patchNote_newAchievements_title',
+        descKey: 'patchNote_newAchievements_desc',
+      },
+      {
+        icon: '🍚',
+        titleKey: 'patchNote_recipeEmoji_title',
+        descKey: 'patchNote_recipeEmoji_desc',
+      },
+    ],
+  },
+  {
     version: '1.5.0',
     features: [
       {
