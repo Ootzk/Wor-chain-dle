@@ -9,6 +9,7 @@ Always pass `--repo Ootzk/Wor-chain-dle` to GitHub CLI commands that can infer a
 - `feature/*` or any non-`main`, non-`release/*` branch: create a feature PR into the target release branch.
 - `release/*`: create a release PR into `main`.
 - `main`: stop and tell the developer that PRs are not created directly from `main`.
+- Use full semantic versions in branch names and text. Write the full form such as `v1.6.0`; do not omit the patch component.
 
 ## Preflight
 
@@ -38,6 +39,7 @@ Always pass `--repo Ootzk/Wor-chain-dle` to GitHub CLI commands that can infer a
 
 - Base: target release branch, for example `release/v1.6.0`.
 - Title: concise, 70 characters or less, with a conventional commit prefix such as `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `ci:`, or `chore:`.
+- Draft: create feature PRs as draft unless the developer explicitly asks for ready-for-review.
 - Labels: choose relevant labels:
   - `✨ enhancement`: new feature.
   - `🐛 bug`: bug fix.
@@ -79,6 +81,7 @@ Feature PRs target release branches, so GitHub may not auto-close issues or popu
    ```bash
    gh pr create \
      --repo Ootzk/Wor-chain-dle \
+     --draft \
      --base <base-branch> \
      --title "<title>" \
      --label "<label1>" \

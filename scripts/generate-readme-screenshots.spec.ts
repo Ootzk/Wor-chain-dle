@@ -9,7 +9,10 @@ import {
 import { PATCH_NOTES_VERSION } from '../src/constants/config'
 
 // Skip unless explicitly opted in via: GENERATE_SCREENSHOTS=1 npm run readme:screenshots
-test.skip(() => !process.env.GENERATE_SCREENSHOTS, 'Set GENERATE_SCREENSHOTS=1 to run')
+test.skip(
+  () => !process.env.GENERATE_SCREENSHOTS,
+  'Set GENERATE_SCREENSHOTS=1 to run'
+)
 
 const ASSETS = path.resolve(__dirname, '..', 'assets')
 const HYDRO_PATH = `/#/custom/${encodeCustomPuzzle('hydro', 'ootzk')}`
@@ -29,9 +32,7 @@ async function initPage(page: Page) {
     window.addEventListener('keydown', (e) => {
       if (
         e.code === 'Backspace' &&
-        !['INPUT', 'TEXTAREA'].includes(
-          (document.activeElement?.tagName ?? '')
-        )
+        !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName ?? '')
       ) {
         e.preventDefault()
       }
@@ -70,7 +71,9 @@ test('game flow: empty board → win → success', async ({ page }) => {
   await submitWord(page, 'hydr')
 
   // Wait for success alert
-  await page.locator('.bg-green-200').waitFor({ state: 'visible', timeout: 3000 })
+  await page
+    .locator('.bg-green-200')
+    .waitFor({ state: 'visible', timeout: 3000 })
   await page.waitForTimeout(500)
   await save(page, 'success')
 })
@@ -102,7 +105,9 @@ test('daily statistics modal', async ({ page }) => {
   await waitForGameReady(page)
 
   // Stats modal auto-opens (completed game detected)
-  await page.locator('text=Statistics').waitFor({ state: 'visible', timeout: 8000 })
+  await page
+    .locator('text=Statistics')
+    .waitFor({ state: 'visible', timeout: 8000 })
   await page.waitForTimeout(500)
   await save(page, 'statistics')
 })
@@ -116,15 +121,17 @@ test('dead end scenario', async ({ page }) => {
 
   // Guesses 1-3: same as win scenario
   await submitWord(page, 'shake') // 1. SHAKE → chain E right
-  await submitWord(page, 'lanc')  // 2. LANCE → chain L left
-  await submitWord(page, 'ores')  // 3. LORES → chain S right
+  await submitWord(page, 'lanc') // 2. LANCE → chain L left
+  await submitWord(page, 'ores') // 3. LORES → chain S right
 
   // Guesses 4-5: diverge to create dead end
-  await submitWord(page, 'feat')  // 4. FEATS (S locked) → chain F left
-  await submitWord(page, 'lint')  // 5. FLINT (F locked) → chain T right → T ≠ O → dead end!
+  await submitWord(page, 'feat') // 4. FEATS (S locked) → chain F left
+  await submitWord(page, 'lint') // 5. FLINT (F locked) → chain T right → T ≠ O → dead end!
 
   // Wait for dead-end loss alert
-  await page.locator('text=The word was hydro').waitFor({ state: 'visible', timeout: 3000 })
+  await page
+    .locator('text=The word was hydro')
+    .waitFor({ state: 'visible', timeout: 3000 })
   await page.waitForTimeout(500)
   await save(page, 'dead-end')
 })
@@ -146,7 +153,10 @@ test('monthly calendar with history', async ({ page }) => {
   const end = new Date('2026-03-12T00:00:00Z')
   for (let dt = new Date(epoch); dt < end; dt.setUTCDate(dt.getUTCDate() + 1)) {
     const d = dt.getUTCDate()
-    const key = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+    const key = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(d).padStart(2, '0')}`
     const won = d % 5 !== 0
     history[key] = { guessCount: won ? (d % 4) + 2 : 6, won }
   }
@@ -242,10 +252,26 @@ test('patch notes modal', async ({ page }) => {
     localStorage.setItem('i18nextLng', 'en')
   })
   await page.goto('/')
-  await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
-  await page.getByRole('heading', { name: "What's New" }).waitFor({ state: 'visible', timeout: 5000 })
+  await page
+    .locator('button', { hasText: 'Enter' })
+    .waitFor({ state: 'visible' })
+  await page
+    .getByRole('heading', { name: "What's New" })
+    .waitFor({ state: 'visible', timeout: 5000 })
   await page.waitForTimeout(500)
   await save(page, 'patch-note')
+})
+
+test('patch notes history tab', async ({ page }) => {
+  await initPage(page)
+  await page.goto('/')
+  await waitForGameReady(page)
+
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
+  await page.locator('text=Information').waitFor({ state: 'visible' })
+  await page.locator('text=Patch Notes').click()
+  await page.waitForTimeout(500)
+  await save(page, 'patch-notes-history')
 })
 
 test('practice mode', async ({ page }) => {
@@ -284,7 +310,9 @@ test('donate modal', async ({ page }) => {
 test('create puzzle — copied state', async ({ page }) => {
   await initPage(page)
   await page.goto('/#/create')
-  await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+  await page
+    .locator('button', { hasText: 'Enter' })
+    .waitFor({ state: 'visible' })
 
   // Enter questioner name
   await page.locator('input[placeholder]').fill('ootzk')
@@ -312,7 +340,7 @@ test('custom puzzle — playing', async ({ page }) => {
   await save(page, 'custom-puzzle')
 })
 
-// ── v1.5.0: Achievements & Cosmetics Screenshots ──
+// ── v1.5.0+v1.6.0: Achievements & Cosmetics Screenshots ──
 
 test('achievements tab with unlocked and locked', async ({ page }) => {
   await initPage(page)
@@ -329,18 +357,37 @@ test('achievements tab with unlocked and locked', async ({ page }) => {
     }
     localStorage.setItem('gameStats', JSON.stringify(stats))
     const now = Date.now()
-    localStorage.setItem('achievementState', JSON.stringify({
-      version: 1,
-      unlocked: {
-        play_10: { unlockedAt: now },
-        win_in_4: { unlockedAt: now },
-        win_in_5: { unlockedAt: now },
-        win_in_6: { unlockedAt: now },
-        streak_3: { unlockedAt: now },
-      },
-      retroCompleted: true,
-      lastSeenAt: 0,
-    }))
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 2,
+        unlocked: {
+          play_10: { unlockedAt: now },
+          win_in_4: { unlockedAt: now },
+          win_in_5: { unlockedAt: now },
+          win_in_6: { unlockedAt: now },
+          streak_3: { unlockedAt: now },
+          played_v1_6_0_5: { unlockedAt: now },
+          practice_win_100: { unlockedAt: now },
+          custom_win_10: { unlockedAt: now },
+        },
+        retroCompleted: true,
+        lastSeenAt: 0,
+      })
+    )
+    localStorage.setItem(
+      'achievementProgress',
+      JSON.stringify({
+        modes: {
+          daily: { gamesCompleted: 22, gamesWon: 19 },
+          practice: { gamesCompleted: 118, gamesWon: 100 },
+          custom: { gamesCompleted: 10, gamesWon: 10 },
+        },
+        versions: {
+          '1.6.0': { gamesCompleted: 5 },
+        },
+      })
+    )
   })
 
   await page.goto('/')
@@ -360,26 +407,36 @@ test('settings with cosmetics and sample view', async ({ page }) => {
   // Unlock some achievements for cosmetic options
   await page.addInitScript(() => {
     const now = Date.now()
-    localStorage.setItem('achievementState', JSON.stringify({
-      version: 1,
-      unlocked: {
-        play_10: { unlockedAt: now },
-        streak_3: { unlockedAt: now },
-        win_in_6: { unlockedAt: now },
-      },
-      retroCompleted: true,
-    }))
-    // Equip circle emoji to show cosmetic effect in sample view
-    localStorage.setItem('cosmeticState', JSON.stringify({
-      equipped: {
-        shareEmoji: 'emoji_circle',
-        cellFont: 'font_default',
-        cellColor: 'color_default',
-        chainStyle: 'chain_default',
-        chainColor: 'chaincolor_black',
-        endMessage: 'msg_classic',
-      },
-    }))
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 2,
+        unlocked: {
+          play_10: { unlockedAt: now },
+          streak_3: { unlockedAt: now },
+          win_in_6: { unlockedAt: now },
+          streak_14: { unlockedAt: now },
+          bibimbap_balance: { unlockedAt: now },
+          yogurt_recipe: { unlockedAt: now },
+        },
+        retroCompleted: true,
+      })
+    )
+    // Equip v1.6.0 cosmetics to show their effect in the sample/share preview.
+    localStorage.setItem(
+      'cosmeticState',
+      JSON.stringify({
+        equipped: {
+          shareBadge: 'badge_fire',
+          shareEmoji: 'emoji_bibimbap',
+          cellFont: 'font_default',
+          cellColor: 'color_default',
+          chainStyle: 'chain_default',
+          chainColor: 'chaincolor_black',
+          endMessage: 'msg_classic',
+        },
+      })
+    )
   })
 
   await page.goto('/')
@@ -397,14 +454,20 @@ test('cosmetic picker popup', async ({ page }) => {
 
   await page.addInitScript(() => {
     const now = Date.now()
-    localStorage.setItem('achievementState', JSON.stringify({
-      version: 1,
-      unlocked: {
-        play_10: { unlockedAt: now },
-        streak_3: { unlockedAt: now },
-      },
-      retroCompleted: true,
-    }))
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 2,
+        unlocked: {
+          play_10: { unlockedAt: now },
+          streak_3: { unlockedAt: now },
+          win_in_3: { unlockedAt: now },
+          bibimbap_balance: { unlockedAt: now },
+          yogurt_recipe: { unlockedAt: now },
+        },
+        retroCompleted: true,
+      })
+    )
   })
 
   await page.goto('/')
@@ -423,14 +486,17 @@ test('alert message theme picker', async ({ page }) => {
 
   await page.addInitScript(() => {
     const now = Date.now()
-    localStorage.setItem('achievementState', JSON.stringify({
-      version: 1,
-      unlocked: {
-        win_in_6: { unlockedAt: now },
-        streak_30: { unlockedAt: now },
-      },
-      retroCompleted: true,
-    }))
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 2,
+        unlocked: {
+          win_in_6: { unlockedAt: now },
+          streak_30: { unlockedAt: now },
+        },
+        retroCompleted: true,
+      })
+    )
   })
 
   await page.goto('/')

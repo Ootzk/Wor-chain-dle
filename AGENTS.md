@@ -135,6 +135,7 @@ Choose verification based on risk. Documentation-only changes do not need the fu
 - Release PR titles must be `Release v{version}`.
 - PR merges are always performed by the developer, not by agents.
 - Always pass `--repo Ootzk/Wor-chain-dle` to `gh pr create` and other GitHub CLI commands that can infer a repository. This repo has an upstream fork remote, so implicit repo detection can target the wrong repository.
+- Use full semantic versions in branch names, issue/PR text, screenshots, and docs. Write the full form such as `v1.6.0`; do not omit the patch component.
 
 Required PR metadata:
 
@@ -170,6 +171,8 @@ npm version <version> --no-git-tag-version
 ```
 
 Then update `PATCH_NOTES_VERSION` to the same version. The README release badge is dynamic and does not need a manual version edit.
+
+When referring to versions in prose, use the full semver form with the `v` prefix for release labels, for example `v1.6.0`. Use the bare semver form only where code/config expects it, for example `PATCH_NOTES_VERSION = '1.6.0'`.
 
 ## Game Modes
 
@@ -240,11 +243,12 @@ Dead end logic matters: if a locked chain letter cannot match the answer at that
 README screenshots are generated with Playwright:
 
 ```bash
-GENERATE_SCREENSHOTS=1 npm run readme:screenshots
+npm run readme:screenshots
 ```
 
 - The script is `scripts/generate-readme-screenshots.spec.ts`.
 - Config is `scripts/readme-screenshots.config.ts`.
+- The config sets the web server `cwd` to the repository root and builds with `PUBLIC_URL=/`; keep both or localhost screenshots can serve the wrong path and return 404.
 - It uses a mobile-optimized Chromium viewport, currently 526x750 at 2x scale.
 - Output goes to `assets/`.
 - It reuses helpers from `e2e/fixtures/game.fixture.ts`.
