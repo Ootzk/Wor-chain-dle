@@ -6,6 +6,8 @@ Use this workflow to update project version metadata before a release PR.
 
 - Target version, for example `1.6.0`.
 
+Use full semantic versions. In code/config use the bare form such as `1.6.0`; in release labels, branch names, issue/PR text, and docs use the `v`-prefixed form such as `v1.6.0`. Do not omit the patch component.
+
 ## Files To Update
 
 - `package.json`: `version`
