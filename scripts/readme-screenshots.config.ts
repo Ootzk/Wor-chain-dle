@@ -1,4 +1,7 @@
 import { defineConfig } from '@playwright/test'
+import path from 'path'
+
+const ROOT = path.resolve(__dirname, '..')
 
 export default defineConfig({
   testDir: '.',
@@ -23,9 +26,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run build && npx serve -s build -l 3000',
+    command: 'env PUBLIC_URL=/ npm run build && npx serve -s build -l 3000',
+    cwd: ROOT,
     url: 'http://localhost:3000',
     reuseExistingServer: true,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 })
