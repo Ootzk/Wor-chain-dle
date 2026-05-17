@@ -174,6 +174,18 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     }),
   },
   {
+    id: 'played_v1_7_0_5',
+    category: 'milestone',
+    modes: ['daily', 'practice', 'custom'],
+    difficulty: 1,
+    titleKey: 'achievement_played_v1_7_0_5_title',
+    descriptionKey: 'achievement_played_v1_7_0_5_desc',
+    progress: ({ progress }) => ({
+      current: progress.versions['1.7.0']?.gamesCompleted ?? 0,
+      target: 5,
+    }),
+  },
+  {
     id: 'practice_win_100',
     category: 'milestone',
     modes: ['practice'],
@@ -277,6 +289,15 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
   },
   {
+    id: 'streak_5',
+    category: 'streak',
+    modes: ['daily'],
+    difficulty: 5,
+    titleKey: 'achievement_streak_5_title',
+    descriptionKey: 'achievement_streak_5_desc',
+    progress: ({ stats }) => ({ current: stats.bestStreak, target: 5 }),
+  },
+  {
     id: 'streak_7',
     category: 'streak',
     modes: ['daily'],
@@ -376,7 +397,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 // --- localStorage ---
 
 const STORAGE_KEY = 'achievementState'
-const ACHIEVEMENT_STATE_VERSION = 3
+const ACHIEVEMENT_STATE_VERSION = 4
 
 const defaultState: AchievementState = {
   version: ACHIEVEMENT_STATE_VERSION,
