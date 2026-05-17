@@ -50,6 +50,15 @@ export const CurrentRow = ({
     cells.push({ value: chainInfo.letter, isLocked: true, status: chainStatus })
   }
 
+  const cursorIndex = (() => {
+    if (!hideLetters) return undefined
+    if (!chainInfo) return Math.min(guess.length, CONFIG.wordLength - 1)
+    if (chainInfo.position === 'first') {
+      return Math.min(guess.length + 1, CONFIG.wordLength - 1)
+    }
+    return Math.min(guess.length, CONFIG.wordLength - 2)
+  })()
+
   return (
     <div className="flex justify-center mb-1">
       {cells.map((cell, i) => (
@@ -61,6 +70,7 @@ export const CurrentRow = ({
           chainTop={i === chainTopIndex}
           chainBottom={i === chainBottomIndex}
           hideLetter={hideLetters}
+          showCursor={i === cursorIndex}
         />
       ))}
     </div>
