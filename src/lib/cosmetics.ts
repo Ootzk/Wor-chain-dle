@@ -69,6 +69,8 @@ const SHARE_BADGES: Record<string, string> = {
   badge_star: '\u2B50',
   badge_hundred: '\uD83D\uDCAF',
   badge_wrestle: '\uD83E\uDD3C',
+  badge_apple: '\uD83C\uDF4F',
+  badge_milk: '\uD83E\uDD5B',
 }
 
 // --- Cell Font Options ---
@@ -236,6 +238,18 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_wrestle',
     requiresAchievement: 'custom_win_10',
+  },
+  {
+    id: 'badge_apple',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_apple',
+    requiresAchievement: 'no_present_win',
+  },
+  {
+    id: 'badge_milk',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_milk',
+    requiresAchievement: 'win_in_6_20',
   },
 
   // Cell Font
