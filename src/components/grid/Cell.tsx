@@ -14,6 +14,7 @@ type Props = {
   chainTop?: boolean
   chainBottom?: boolean
   hideLetter?: boolean
+  showCursor?: boolean
 }
 
 export const Cell = ({
@@ -23,6 +24,7 @@ export const Cell = ({
   chainTop,
   chainBottom,
   hideLetter,
+  showCursor,
 }: Props) => {
   const isChain = chainTop || chainBottom
   const cosmeticFont = getEquippedCellFont()
@@ -37,7 +39,7 @@ export const Cell = ({
     : 'border-solid'
 
   const classes = classnames(
-    'w-14 h-14 flex items-center justify-center mx-0.5 text-lg font-bold rounded',
+    'relative w-14 h-14 flex items-center justify-center mx-0.5 text-lg font-bold rounded',
     chainBorderWidth,
     chainBorderStyle,
     cosmeticFont,
@@ -65,6 +67,13 @@ export const Cell = ({
       <span className={hideLetter && value ? 'text-transparent' : undefined}>
         {value}
       </span>
+      {showCursor && (
+        <span
+          aria-hidden="true"
+          data-testid="transparent-letter-cursor"
+          className="absolute h-7 w-0.5 rounded-full bg-slate-900"
+        />
+      )}
     </div>
   )
 }

@@ -54,3 +54,19 @@ test('hides board letters without removing them from the layout', () => {
     getRow(container, 0).querySelectorAll('span.text-transparent')
   ).toHaveLength(5)
 })
+
+test('shows a cursor on the active transparent-letter cell', () => {
+  const { container } = render(
+    <Grid guesses={[]} currentGuess={['c', 'r']} solution="crane" hideLetters />
+  )
+
+  expect(getRow(container, 0)).toHaveTextContent('cr')
+  expect(
+    getRow(container, 0).querySelectorAll('span.text-transparent')
+  ).toHaveLength(2)
+  expect(
+    getRow(container, 0).querySelectorAll(
+      '[data-testid="transparent-letter-cursor"]'
+    )
+  ).toHaveLength(1)
+})
