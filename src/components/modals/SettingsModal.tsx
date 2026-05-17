@@ -34,6 +34,8 @@ type Props = {
   handleClose: () => void
   isUppercase: boolean
   onToggleUppercase: () => void
+  weekStartsOnMonday: boolean
+  onToggleWeekStartsOnMonday: () => void
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
   onNavigateToAchievement?: (achievementId: string) => void
@@ -324,6 +326,8 @@ export const SettingsModal = ({
   handleClose,
   isUppercase,
   onToggleUppercase,
+  weekStartsOnMonday,
+  onToggleWeekStartsOnMonday,
   excludeUrl,
   onToggleExcludeUrl,
   onNavigateToAchievement,
@@ -502,6 +506,15 @@ export const SettingsModal = ({
             {t('uppercaseLabel')}
           </span>
           <Toggle checked={isUppercase} onClick={onToggleUppercase} />
+        </div>
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm font-medium text-gray-700">
+            {t('weekStartLabel')}
+          </span>
+          <Toggle
+            checked={weekStartsOnMonday}
+            onClick={onToggleWeekStartsOnMonday}
+          />
         </div>
         <div className="flex items-center justify-between py-2">
           <span className="text-sm font-medium text-gray-700">

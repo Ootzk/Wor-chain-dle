@@ -163,7 +163,7 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
     await screenshot(gamePage, '01-settings-modal-open')
 
-    // Toggle uppercase on (first switch = uppercase, second = exclude URL)
+    // Toggle uppercase on (first switch = uppercase)
     const toggle = gamePage.locator('button[role="switch"]').first()
     await toggle.click()
     await screenshot(gamePage, '02-uppercase-toggle-on')
