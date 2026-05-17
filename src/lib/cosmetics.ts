@@ -71,6 +71,7 @@ const SHARE_BADGES: Record<string, string> = {
   badge_wrestle: '\uD83E\uDD3C',
   badge_apple: '\uD83C\uDF4F',
   badge_milk: '\uD83E\uDD5B',
+  badge_azure: '\uD83E\uDE75',
 }
 
 // --- Cell Font Options ---
@@ -126,6 +127,7 @@ export const CHAIN_COLOR_STYLES: Record<string, string> = {
   chaincolor_black: 'border-black',
   chaincolor_silver: 'border-gray-400',
   chaincolor_gold: 'border-yellow-500',
+  chaincolor_azure: 'border-sky-400',
 }
 
 // --- Alert Message Theme Emoji ---
@@ -251,6 +253,12 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     titleKey: 'cosmetic_badge_milk',
     requiresAchievement: 'win_in_6_20',
   },
+  {
+    id: 'badge_azure',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_azure',
+    requiresAchievement: 'played_v1_7_0_5',
+  },
 
   // Cell Font
   {
@@ -326,6 +334,12 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_gold',
     requiresAchievement: 'win_in_1',
+  },
+  {
+    id: 'chaincolor_azure',
+    category: 'chainColor',
+    titleKey: 'cosmetic_chaincolor_azure',
+    requiresAchievement: 'streak_5',
   },
 
   // Alert Message

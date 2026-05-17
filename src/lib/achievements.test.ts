@@ -10,6 +10,7 @@ import {
 import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
 import {
+  CHAIN_COLOR_STYLES,
   getRewardsForAchievement,
   getShareBadge,
   getShareEmojiSet,
@@ -132,12 +133,14 @@ describe('share badge achievements', () => {
         'play_150',
         'fail_100',
         'streak_14',
+        'streak_5',
         'win_in_6_20',
       ])
     )
     expect(loadAchievementState().unlocked.play_150).toBeTruthy()
     expect(loadAchievementState().unlocked.fail_100).toBeTruthy()
     expect(loadAchievementState().unlocked.streak_14).toBeTruthy()
+    expect(loadAchievementState().unlocked.streak_5).toBeTruthy()
     expect(loadAchievementState().unlocked.win_in_6_20).toBeTruthy()
   })
 
@@ -154,6 +157,8 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_wrestle')).toBe('\uD83E\uDD3C')
     expect(getShareBadge('badge_apple')).toBe('\uD83C\uDF4F')
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
+    expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
+    expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -184,6 +189,12 @@ describe('share badge achievements', () => {
     expect(getRewardsForAchievement('win_in_6_20').map((r) => r.id)).toContain(
       'badge_milk'
     )
+    expect(
+      getRewardsForAchievement('played_v1_7_0_5').map((r) => r.id)
+    ).toContain('badge_azure')
+    expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
+      'chaincolor_azure'
+    )
   })
 
   it('connects game-event achievements to share emoji rewards', () => {
@@ -210,6 +221,7 @@ describe('share badge achievements', () => {
       'play_150',
       'fail_100',
       'streak_14',
+      'streak_5',
       'win_in_6_20',
       'no_present_win',
     ]) {
@@ -250,10 +262,11 @@ describe('share badge achievements', () => {
         'play_150',
         'fail_100',
         'streak_14',
+        'streak_5',
         'win_in_6_20',
       ])
     )
-    expect(loadAchievementState().version).toBe(3)
+    expect(loadAchievementState().version).toBe(4)
     expect(loadAchievementState().retroCompleted).toBe(true)
   })
 
@@ -326,6 +339,7 @@ describe('share badge achievements', () => {
   it('unlocks version and mode-count badges from tracked progress', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.versions['1.6.0'] = { gamesCompleted: 5 }
+    progress.versions['1.7.0'] = { gamesCompleted: 5 }
     progress.modes.practice.gamesWon = 100
     progress.modes.custom.gamesWon = 10
 
@@ -334,7 +348,13 @@ describe('share badge achievements', () => {
         mode: 'practice',
         progress,
       })
-    ).toEqual(expect.arrayContaining(['played_v1_6_0_5', 'practice_win_100']))
+    ).toEqual(
+      expect.arrayContaining([
+        'played_v1_6_0_5',
+        'played_v1_7_0_5',
+        'practice_win_100',
+      ])
+    )
 
     expect(
       evaluateAchievements(stats, dailyHistory, {
