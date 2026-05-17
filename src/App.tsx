@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
-import { InfoModal } from './components/modals/InfoModal'
+import { InfoModal, InfoTab } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
@@ -69,6 +69,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
+  const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [statsInitialTab, setStatsInitialTab] = useState<
@@ -361,7 +362,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         </div>
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
-          onClick={() => setIsInfoModalOpen(true)}
+          onClick={() => {
+            setInfoInitialTab('mode')
+            setIsInfoModalOpen(true)
+          }}
         />
         {isDaily && (
           <ClipboardListIcon
@@ -398,6 +402,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsInfoModalOpen(false)}
         mode={mode}
         questioner={questioner}
+        initialTab={infoInitialTab}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -425,6 +430,11 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         questioner={questioner}
         excludeUrl={excludeUrl}
         weekStartsOnMonday={weekStartsOnMonday}
+        onOpenDeadEndHelp={() => {
+          setIsStatsModalOpen(false)
+          setInfoInitialTab('howToPlay')
+          setTimeout(() => setIsInfoModalOpen(true), 300)
+        }}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}

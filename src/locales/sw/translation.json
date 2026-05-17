@@ -11,6 +11,8 @@
   "gameCopied": "Umenakili mchezo",
   "howToPlay": "Elezo za kucheza",
   "instructions": "Bahitisha neno kwa mara {{tries}}. Baada ya bahitisho, rangi wa mraba itageuza kuonekana kama bahitisho iko karibu na neno sahihi.",
+  "chainDeadEndInstructions": "Ikiwa herufi iliyofungwa ya mnyororo si sahihi kwa nafasi ya jibu, mchezo unaisha mapema kwa sababu hakuna jaribio lililobaki linaloweza kuwa neno sahihi. Kwa mfano, ikiwa herufi ya mwisho inayotoka mstari wa 5 si herufi ya mwisho ya jibu, mstari wa 6 hauwezi kutatua fumbo.",
+  "deadEndRuleLink": "Kanuni ya Dead End",
   "pickYourLanguage": "Chagua lugha",
   "correctSpotInstructions": "Herufi M iko kwa neno, na iko pahali sahihi.",
   "wrongSpotInstructions": "Herufi U iko kwa neno, lakini pahali si sahihi.",

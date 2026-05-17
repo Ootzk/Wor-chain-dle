@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Cell } from '../grid/Cell'
 import { ChainBridge } from '../grid/ChainBridge'
 import { BaseModal } from './BaseModal'
@@ -15,7 +15,10 @@ type Props = {
   handleClose: () => void
   mode: GameMode
   questioner?: string
+  initialTab?: InfoTab
 }
+
+export type InfoTab = 'mode' | 'howToPlay' | 'patchNotes' | 'about'
 
 interface Letter {
   letter: string
@@ -214,16 +217,26 @@ const AboutContent = () => {
   )
 }
 
-export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
+export const InfoModal = ({
+  isOpen,
+  handleClose,
+  mode,
+  questioner,
+  initialTab = 'mode',
+}: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState('mode')
+  const [activeTab, setActiveTab] = useState<InfoTab>('mode')
 
   const tabs = [
-    { id: 'mode', label: t(MODE_TITLE_KEY[mode]) },
-    { id: 'howToPlay', label: t('howToPlay') },
-    { id: 'patchNotes', label: t('patchNotes') },
-    { id: 'about', label: t('about') },
+    { id: 'mode' as const, label: t(MODE_TITLE_KEY[mode]) },
+    { id: 'howToPlay' as const, label: t('howToPlay') },
+    { id: 'patchNotes' as const, label: t('patchNotes') },
+    { id: 'about' as const, label: t('about') },
   ]
+
+  useEffect(() => {
+    if (isOpen) setActiveTab(initialTab)
+  }, [isOpen, initialTab])
 
   return (
     <BaseModal

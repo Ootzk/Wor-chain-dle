@@ -29,6 +29,7 @@ type Props = {
   weekStartsOnMonday: boolean
   initialTab?: 'stats' | 'calendar' | 'achievements'
   scrollToAchievement?: string
+  onOpenDeadEndHelp?: () => void
 }
 
 export const StatsModal = ({
@@ -47,6 +48,7 @@ export const StatsModal = ({
   weekStartsOnMonday,
   initialTab,
   scrollToAchievement,
+  onOpenDeadEndHelp,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<
@@ -214,7 +216,10 @@ export const StatsModal = ({
         )}
 
         {activeTab === 'achievements' && (
-          <AchievementList scrollToId={scrollToAchievement} />
+          <AchievementList
+            scrollToId={scrollToAchievement}
+            onOpenDeadEndHelp={onOpenDeadEndHelp}
+          />
         )}
       </div>
     </BaseModal>
