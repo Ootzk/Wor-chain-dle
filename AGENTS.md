@@ -140,17 +140,20 @@ Choose verification based on risk. Documentation-only changes do not need the fu
 Required PR metadata:
 
 - Labels matching the change type. Available labels include:
-  - `✨ enhancement`: new feature.
+  - `✨ enhancement`: new feature or new content that did not exist before, such as a new game mode, dictionary feature, achievement, or cosmetic.
   - `🐛 bug`: bug fix.
   - `📝 documentation`: documentation.
   - `🎨 UI/UX`: design or UI improvement.
   - `💰 donation`: donation-related change.
   - `🔖 versioning`: release-to-main PRs.
   - `🧑‍💻 devops`: development environment, CI, or testing.
+  - `♻️ reorganize`: restructure or reposition existing features without introducing a new standalone feature, such as moving Achievements and Cosmetics into a Rewards experience.
+  - `🏆 rewards`: Achievements, Cosmetics, unlocks, and reward-related UX.
   - `💥 breaking change`: incompatible behavior.
   - `🌐 i18n`: translations or locale behavior.
   - `browser: chrome`, `browser: safari`: browser-specific change.
   - `platform: PC`, `platform: mobile`: platform-specific change.
+- Use new labels for new and ongoing work only. Do not retroactively label already-completed historical issues or PRs unless the developer explicitly asks.
 - Assignee: `Ootzk`.
 - Milestone: target release version such as `v1.6.0`. Create the milestone first if it does not exist.
 - Feature PR body should include related issues with `Closes #issue` as a reference. Because feature PRs target release branches, GitHub may not auto-close those issues until the release PR.
