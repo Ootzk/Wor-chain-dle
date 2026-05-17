@@ -34,13 +34,16 @@ export const CreatePuzzlePage = () => {
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
+  const [hideLetters, setHideLetters] = useState(
+    () => loadSettings().hideLetters
+  )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl])
+    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl, hideLetters })
+  }, [isUppercase, weekStartsOnMonday, excludeUrl, hideLetters])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -278,6 +281,8 @@ export const CreatePuzzlePage = () => {
         }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
+        hideLetters={hideLetters}
+        onToggleHideLetters={() => setHideLetters(!hideLetters)}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

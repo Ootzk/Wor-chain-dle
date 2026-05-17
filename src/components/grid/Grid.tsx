@@ -10,6 +10,7 @@ type Props = {
   currentGuess: string[]
   solution: string
   isGameComplete?: boolean
+  hideLetters?: boolean
 }
 
 function getChainPositions(rowIndex: number) {
@@ -37,6 +38,7 @@ export const Grid = ({
   currentGuess,
   solution,
   isGameComplete = false,
+  hideLetters = false,
 }: Props) => {
   const elements: React.ReactNode[] = []
 
@@ -51,6 +53,7 @@ export const Grid = ({
           solution={solution}
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
+          hideLetters={hideLetters}
         />
       )
     } else if (i === guesses.length && !isGameComplete) {
@@ -62,6 +65,7 @@ export const Grid = ({
           solution={solution}
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
+          hideLetters={hideLetters}
         />
       )
     } else {

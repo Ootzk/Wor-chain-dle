@@ -9,6 +9,7 @@ type Props = {
   solution: string
   chainTopIndex?: number
   chainBottomIndex?: number
+  hideLetters?: boolean
 }
 
 export const CurrentRow = ({
@@ -17,6 +18,7 @@ export const CurrentRow = ({
   solution,
   chainTopIndex,
   chainBottomIndex,
+  hideLetters,
 }: Props) => {
   const chainInfo = getChainInfo(guesses)
 
@@ -24,8 +26,7 @@ export const CurrentRow = ({
   if (chainInfo) {
     const prev = guesses[guesses.length - 1]
     const prevStatuses = getGuessStatuses(prev, solution)
-    const chainPos =
-      chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
+    const chainPos = chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
     chainStatus = prevStatuses[chainPos]
   }
 
@@ -59,6 +60,7 @@ export const CurrentRow = ({
           isLocked={cell.isLocked}
           chainTop={i === chainTopIndex}
           chainBottom={i === chainBottomIndex}
+          hideLetter={hideLetters}
         />
       ))}
     </div>

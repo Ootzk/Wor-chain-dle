@@ -91,6 +91,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
+  const [hideLetters, setHideLetters] = useState(
+    () => loadSettings().hideLetters
+  )
+  const [resultHideLettersOverride, setResultHideLettersOverride] = useState<
+    boolean | undefined
+  >(undefined)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -147,8 +153,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl])
+    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl, hideLetters })
+  }, [isUppercase, weekStartsOnMonday, excludeUrl, hideLetters])
+
+  useEffect(() => {
+    if (!isGameWon && !isGameLost) {
+      setResultHideLettersOverride(undefined)
+    }
+  }, [isGameWon, isGameLost, mode, solution])
 
   useEffect(() => {
     const alertKeys = getEquippedAlertMessageKeys()
@@ -335,6 +347,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
+  const effectiveHideLetters = resultHideLettersOverride ?? hideLetters
 
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -388,6 +401,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           currentGuess={currentGuess}
           solution={solution}
           isGameComplete={isGameWon || isGameLost}
+          hideLetters={effectiveHideLetters}
         />
         <Keyboard
           onChar={onChar}
@@ -430,6 +444,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         questioner={questioner}
         excludeUrl={excludeUrl}
         weekStartsOnMonday={weekStartsOnMonday}
+        lettersHidden={effectiveHideLetters}
+        onToggleLettersHidden={() =>
+          setResultHideLettersOverride(!effectiveHideLetters)
+        }
         onOpenDeadEndHelp={() => {
           setIsStatsModalOpen(false)
           setInfoInitialTab('howToPlay')
@@ -447,6 +465,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
+        hideLetters={hideLetters}
+        onToggleHideLetters={() => setHideLetters(!hideLetters)}
         onNavigateToAchievement={(id) => {
           setIsSettingsModalOpen(false)
           setStatsInitialTab('achievements')

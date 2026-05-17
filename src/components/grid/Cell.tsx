@@ -1,6 +1,11 @@
 import { CharStatus } from '../../lib/statuses'
 import classnames from 'classnames'
-import { getEquippedCellFont, getEquippedCellColor, getEquippedChainStyle, getEquippedChainColor } from '../../lib/cosmetics'
+import {
+  getEquippedCellFont,
+  getEquippedCellColor,
+  getEquippedChainStyle,
+  getEquippedChainColor,
+} from '../../lib/cosmetics'
 
 type Props = {
   value?: string
@@ -8,6 +13,7 @@ type Props = {
   isLocked?: boolean
   chainTop?: boolean
   chainBottom?: boolean
+  hideLetter?: boolean
 }
 
 export const Cell = ({
@@ -16,14 +22,19 @@ export const Cell = ({
   isLocked,
   chainTop,
   chainBottom,
+  hideLetter,
 }: Props) => {
   const isChain = chainTop || chainBottom
   const cosmeticFont = getEquippedCellFont()
   const cosmeticColor = getEquippedCellColor()
   const chainStyle = getEquippedChainStyle()
   const chainColor = getEquippedChainColor()
-  const chainBorderWidth = isChain ? chainStyle.borderWidth || 'border-2' : 'border-2'
-  const chainBorderStyle = isChain ? chainStyle.borderStyle || 'border-solid' : 'border-solid'
+  const chainBorderWidth = isChain
+    ? chainStyle.borderWidth || 'border-2'
+    : 'border-2'
+  const chainBorderStyle = isChain
+    ? chainStyle.borderStyle || 'border-solid'
+    : 'border-solid'
 
   const classes = classnames(
     'w-14 h-14 flex items-center justify-center mx-0.5 text-lg font-bold rounded',
@@ -49,5 +60,11 @@ export const Cell = ({
     }
   )
 
-  return <div className={classes}>{value}</div>
+  return (
+    <div className={classes}>
+      <span className={hideLetter && value ? 'text-transparent' : undefined}>
+        {value}
+      </span>
+    </div>
+  )
 }
