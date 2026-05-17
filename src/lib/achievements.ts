@@ -13,7 +13,13 @@ import { CharStatus, getGuessStatuses } from './statuses'
 
 // --- Type Definitions ---
 
-export type AchievementCategory = 'milestone' | 'guess' | 'streak' | 'event'
+export type AchievementCategory =
+  | 'milestone'
+  | 'guess'
+  | 'streak'
+  | 'event'
+  | 'collection'
+  | 'performance'
 
 export type AchievementEndReason = 'win' | 'fail' | 'deadEnd'
 

@@ -17,6 +17,8 @@ const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   guess: '\uD83C\uDFB2',
   streak: '\uD83D\uDD25',
   event: '\uD83E\uDDE9',
+  collection: '\uD83D\uDDC4\uFE0F',
+  performance: '\uD83D\uDCCA',
 }
 
 const MODE_BADGE_CLASSES: Record<GameMode, string> = {
