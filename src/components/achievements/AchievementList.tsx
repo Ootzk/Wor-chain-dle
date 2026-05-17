@@ -86,7 +86,13 @@ const ProgressBar = ({
   )
 }
 
-export const AchievementList = ({ scrollToId }: { scrollToId?: string }) => {
+export const AchievementList = ({
+  scrollToId,
+  onOpenDeadEndHelp,
+}: {
+  scrollToId?: string
+  onOpenDeadEndHelp?: () => void
+}) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyHistory()
@@ -157,6 +163,15 @@ export const AchievementList = ({ scrollToId }: { scrollToId?: string }) => {
                 </span>
                 <span>{t(achievement.descriptionKey)}</span>
               </p>
+              {achievement.id === 'dead_end_tail' && onOpenDeadEndHelp && (
+                <button
+                  type="button"
+                  className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 underline"
+                  onClick={onOpenDeadEndHelp}
+                >
+                  {t('deadEndRuleLink')}
+                </button>
+              )}
               {(() => {
                 const rewards = getRewardsForAchievement(achievement.id)
                 if (rewards.length === 0) return null

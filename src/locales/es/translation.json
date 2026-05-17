@@ -11,6 +11,8 @@
   "gameCopied": "Juego copiado al portapapeles",
   "howToPlay": "Cómo jugar",
   "instructions": "Adivina la palabra en {{tries}} intentos. Después de cada intento, el color de las letras cambiará para mostrar qué tan cerca estás de acertar la palabra.",
+  "chainDeadEndInstructions": "Si la letra encadenada fija no coincide con esa posición de la respuesta, el juego termina antes porque ninguna jugada restante puede formar la palabra correcta. Por ejemplo, si la última letra que viene de la fila 5 no es la última letra de la respuesta, la fila 6 nunca podrá resolver el puzzle.",
+  "deadEndRuleLink": "Regla de Dead End",
   "pickYourLanguage": "Elige un idioma",
   "correctSpotInstructions": "La letra T se encuentra en la palabra y está en la posición correcta.",
   "wrongSpotInstructions": "La letra N se encuentra en la palabra pero en la posición incorrecta.",

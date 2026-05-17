@@ -155,6 +155,27 @@ test.describe('Modals', () => {
     ).not.toBeVisible()
   })
 
+  test('dead end achievement help opens the chain rule explanation', async ({
+    gamePage,
+  }) => {
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await gamePage.locator('button', { hasText: 'Achievements' }).click()
+
+    await gamePage.locator('button', { hasText: 'Dead End rule' }).click()
+
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).not.toBeVisible({ timeout: 1000 })
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible({ timeout: 5000 })
+    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await expect(
+      gamePage.locator('text=no remaining guess can become the correct word')
+    ).toBeVisible()
+    await screenshot(gamePage, '01-dead-end-achievement-help')
+  })
+
   test('settings modal with uppercase toggle', async ({ gamePage }) => {
     // Click settings icon (CogIcon) — 3rd icon (0:info, 1:stats, 2:settings)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
