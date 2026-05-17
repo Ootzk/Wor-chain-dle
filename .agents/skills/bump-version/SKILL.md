@@ -1,4 +1,10 @@
-# Version Bump Workflow
+---
+name: bump-version
+description: 프로젝트 내 모든 버전 정보를 일괄 업데이트합니다.
+argument-hint: <version> (e.g. 1.6.0)
+---
+
+# Version Bump
 
 Use this workflow to update project version metadata before a release PR.
 

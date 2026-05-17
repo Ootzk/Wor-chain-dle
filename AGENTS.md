@@ -259,7 +259,7 @@ npm run readme:screenshots
 ## Agent Workflow Notes
 
 - Read this file before implementing non-trivial changes.
-- Shared workflow docs live in `docs/agent-workflows/`. Use them for version bumps, PR creation, and post-merge cleanup.
+- Repository-scoped agent skills live in `.agents/skills/`. Use them for version bumps, PR creation, and post-merge cleanup.
 - Keep edits scoped to the issue or user request.
 - Do not revert user changes or unrelated dirty worktree changes.
 - Prefer existing helpers and local patterns over new abstractions.
@@ -271,9 +271,9 @@ npm run readme:screenshots
 
 - `AGENTS.md`: canonical, tool-neutral guide.
 - `CLAUDE.md`: Claude Code compatibility wrapper that imports `AGENTS.md`.
-- `docs/agent-workflows/`: shared workflow docs for agents and humans.
-- `.claude/skills/`: Claude Code slash-command entrypoints. Keep them as wrappers around shared workflows.
-- If a workflow becomes useful to multiple agents, document it in `docs/agent-workflows/` and keep tool-specific files as thin wrappers.
+- `.agents/skills/`: repository-scoped agent skills. Keep reusable agent workflow details here.
+- `.claude/skills/`: Claude Code slash-command entrypoints. Keep them as wrappers around `.agents/skills/`.
+- If a workflow becomes useful to multiple agents, document it as a repository skill in `.agents/skills/` and keep tool-specific files as thin wrappers.
 
 ## Version History
 
