@@ -9,6 +9,7 @@ type Props = {
   guesses: string[][]
   currentGuess: string[]
   solution: string
+  isGameComplete?: boolean
 }
 
 function getChainPositions(rowIndex: number) {
@@ -31,7 +32,12 @@ function getBridgeChainIndex(rowIndex: number) {
   return rowIndex % 2 === 0 ? CONFIG.wordLength - 1 : 0
 }
 
-export const Grid = ({ guesses, currentGuess, solution }: Props) => {
+export const Grid = ({
+  guesses,
+  currentGuess,
+  solution,
+  isGameComplete = false,
+}: Props) => {
   const elements: React.ReactNode[] = []
 
   for (let i = 0; i < CONFIG.tries; i++) {
@@ -47,7 +53,7 @@ export const Grid = ({ guesses, currentGuess, solution }: Props) => {
           chainBottomIndex={chainBottomIndex}
         />
       )
-    } else if (i === guesses.length) {
+    } else if (i === guesses.length && !isGameComplete) {
       elements.push(
         <CurrentRow
           key={`row-${i}`}
@@ -70,10 +76,7 @@ export const Grid = ({ guesses, currentGuess, solution }: Props) => {
 
     if (i < CONFIG.tries - 1) {
       elements.push(
-        <ChainBridge
-          key={`bridge-${i}`}
-          chainIndex={getBridgeChainIndex(i)}
-        />
+        <ChainBridge key={`bridge-${i}`} chainIndex={getBridgeChainIndex(i)} />
       )
     }
   }

@@ -381,6 +381,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           guesses={guesses}
           currentGuess={currentGuess}
           solution={solution}
+          isGameComplete={isGameWon || isGameLost}
         />
         <Keyboard
           onChar={onChar}
