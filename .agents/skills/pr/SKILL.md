@@ -1,4 +1,9 @@
-# Pull Request Workflow
+---
+name: pr
+description: 현재 브랜치의 PR을 생성합니다 (label, assignee, milestone, development 자동 설정).
+---
+
+# PR Creation
 
 Use this workflow to create pull requests for feature branches and release branches.
 
