@@ -1,6 +1,7 @@
 import {
   ACHIEVEMENTS,
   AchievementDef,
+  countStatusesForGame,
   evaluateAchievementDefinitions,
   evaluateAchievements,
   getAchievementModes,
@@ -156,6 +157,7 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_hundred')).toBe('\uD83D\uDCAF')
     expect(getShareBadge('badge_wrestle')).toBe('\uD83E\uDD3C')
     expect(getShareBadge('badge_apple')).toBe('\uD83C\uDF4F')
+    expect(getShareBadge('badge_grape')).toBe('\uD83C\uDF47')
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
     expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
     expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
@@ -184,8 +186,11 @@ describe('share badge achievements', () => {
       getRewardsForAchievement('custom_win_10').map((r) => r.id)
     ).toContain('badge_wrestle')
     expect(
-      getRewardsForAchievement('no_present_win').map((r) => r.id)
+      getRewardsForAchievement('no_present_game').map((r) => r.id)
     ).toContain('badge_apple')
+    expect(
+      getRewardsForAchievement('no_correct_game').map((r) => r.id)
+    ).toContain('badge_grape')
     expect(getRewardsForAchievement('win_in_6_20').map((r) => r.id)).toContain(
       'badge_milk'
     )
@@ -223,7 +228,8 @@ describe('share badge achievements', () => {
       'streak_14',
       'streak_5',
       'win_in_6_20',
-      'no_present_win',
+      'no_present_game',
+      'no_correct_game',
     ]) {
       const achievement = ACHIEVEMENTS.find((a) => a.id === id)
       expect(achievement).toBeTruthy()
@@ -407,22 +413,45 @@ describe('share badge achievements', () => {
     ).toContain('yogurt_recipe')
   })
 
-  it('unlocks apple from a daily win with no present tiles', () => {
+  it('unlocks apple from a completed daily game with no present tiles', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
         game: {
           guesses: [
             ['x', 'x', 'x', 'x', 'x'],
-            ['c', 'h', 'a', 'i', 'n'],
+            ['c', 'x', 'x', 'x', 'x'],
           ],
           solution: 'chain',
-          won: true,
-          lost: false,
+          won: false,
+          lost: true,
           guessCount: 2,
-          endReason: 'win',
+          endReason: 'fail',
         },
       })
-    ).toContain('no_present_win')
+    ).toContain('no_present_game')
+  })
+
+  it('unlocks grape from a completed daily game with no correct tiles', () => {
+    const guesses = [
+      ['h', 'x', 'x', 'x', 'x'],
+      ['x', 'c', 'x', 'x', 'x'],
+    ]
+
+    expect(countStatusesForGame(guesses, 'chain').correct).toBe(0)
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        game: {
+          guesses,
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
+      })
+    ).toContain('no_correct_game')
   })
 })
