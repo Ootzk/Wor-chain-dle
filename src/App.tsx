@@ -86,7 +86,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
-  const [weekStartsOnMonday] = useState(() => loadSettings().weekStartsOnMonday)
+  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
+    () => loadSettings().weekStartsOnMonday
+  )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
@@ -429,6 +431,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        weekStartsOnMonday={weekStartsOnMonday}
+        onToggleWeekStartsOnMonday={() =>
+          setWeekStartsOnMonday(!weekStartsOnMonday)
+        }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         onNavigateToAchievement={(id) => {

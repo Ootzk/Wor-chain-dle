@@ -1,5 +1,10 @@
 import { Temporal } from 'temporal-polyfill'
-import { test, expect, waitForGameReady, screenshot } from './fixtures/game.fixture'
+import {
+  test,
+  expect,
+  waitForGameReady,
+  screenshot,
+} from './fixtures/game.fixture'
 import { Page } from '@playwright/test'
 
 /** Format a date key as "yyyy-mm-dd" */
@@ -9,7 +14,13 @@ const toDateKey = (y: number, m: number, d: number) =>
 /** Inject fake dailyHistory into localStorage and reload */
 async function injectHistory(
   page: Page,
-  entries: { y: number; m: number; d: number; guessCount: number; won: boolean }[]
+  entries: {
+    y: number
+    m: number
+    d: number
+    guessCount: number
+    won: boolean
+  }[]
 ) {
   const history: Record<string, { guessCount: number; won: boolean }> = {}
   let minKey = ''
@@ -52,11 +63,16 @@ test.describe('Calendar', () => {
     // Current month label (e.g. "March 2026") — uses local time
     const today = Temporal.Now.plainDateISO()
     const firstOfMonth = today.with({ day: 1 })
-    const monthLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+    const monthLabel = firstOfMonth.toLocaleString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    })
     await expect(gamePage.locator(`text=${monthLabel}`)).toBeVisible()
 
     // Weekday header — Sunday start by default
-    const weekdayHeaders = gamePage.locator('.w-10.text-center.text-xs.font-medium')
+    const weekdayHeaders = gamePage.locator(
+      '.w-10.text-center.text-xs.font-medium'
+    )
     await expect(weekdayHeaders).toHaveCount(7)
     await expect(weekdayHeaders.first()).toHaveText('Su')
     await expect(weekdayHeaders.last()).toHaveText('Sa')
@@ -65,13 +81,17 @@ test.describe('Calendar', () => {
     await expect(gamePage.locator('text=🔥')).toBeVisible()
 
     // Share month button
-    await expect(gamePage.locator('button', { hasText: 'Share month' })).toBeVisible()
+    await expect(
+      gamePage.locator('button', { hasText: 'Share month' })
+    ).toBeVisible()
 
     await screenshot(gamePage, '01-calendar-tab')
 
     // Close via Escape
     await gamePage.keyboard.press('Escape')
-    await expect(gamePage.getByRole('heading', { name: 'Records' })).not.toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).not.toBeVisible()
   })
 
   test('displays win and loss indicators', async ({ gamePage }) => {
@@ -103,7 +123,10 @@ test.describe('Calendar', () => {
 
     const today = Temporal.Now.plainDateISO()
     const firstOfMonth = today.with({ day: 1 })
-    const currentLabel = firstOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+    const currentLabel = firstOfMonth.toLocaleString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    })
     await expect(gamePage.locator(`text=${currentLabel}`)).toBeVisible()
 
     // Today button disabled on current month
@@ -123,9 +146,41 @@ test.describe('Calendar', () => {
     await screenshot(gamePage, '02-back-to-current')
   })
 
-  // weekStart setting removed in v1.5.0
+  test('week start setting switches calendar to Monday start', async ({
+    gamePage,
+  }) => {
+    await gamePage
+      .locator('svg.h-6.w-6.cursor-pointer')
+      .nth(SETTINGS_ICON)
+      .click()
+    await expect(gamePage.locator('text=Settings')).toBeVisible()
+    await expect(gamePage.locator('text=Start Week on Monday')).toBeVisible()
 
-  test('share button disabled without data, enabled with data', async ({ gamePage }) => {
+    const weekStartToggle = gamePage.locator('button[role="switch"]').nth(1)
+    await expect(weekStartToggle).toHaveAttribute('aria-checked', 'false')
+    await weekStartToggle.click()
+    await expect(weekStartToggle).toHaveAttribute('aria-checked', 'true')
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
+
+    await openCalendarTab(gamePage)
+    const weekdayHeaders = gamePage.locator(
+      '.w-10.text-center.text-xs.font-medium'
+    )
+    await expect(weekdayHeaders.first()).toHaveText('Mo')
+    await expect(weekdayHeaders.last()).toHaveText('Su')
+    await screenshot(gamePage, '01-calendar-monday-start')
+    await gamePage.keyboard.press('Escape')
+
+    await gamePage.reload()
+    await waitForGameReady(gamePage)
+    await openCalendarTab(gamePage)
+    await expect(weekdayHeaders.first()).toHaveText('Mo')
+    await expect(weekdayHeaders.last()).toHaveText('Su')
+  })
+
+  test('share button disabled without data, enabled with data', async ({
+    gamePage,
+  }) => {
     await openCalendarTab(gamePage)
     const shareBtn = gamePage.locator('button', { hasText: 'Share month' })
 
@@ -148,11 +203,15 @@ test.describe('Calendar', () => {
 
     // Click share → success alert
     await shareBtn.click()
-    await expect(gamePage.locator('text=Calendar copied to clipboard')).toBeVisible()
+    await expect(
+      gamePage.locator('text=Calendar copied to clipboard')
+    ).toBeVisible()
     await screenshot(gamePage, '02-share-enabled-and-copied')
   })
 
-  test('stats icon visible in daily, hidden in practice (no calendar tab)', async ({ gamePage }) => {
+  test('stats icon visible in daily, hidden in practice (no calendar tab)', async ({
+    gamePage,
+  }) => {
     // Daily: 4 icons (info, stats, settings, donate)
     await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(4)
 
