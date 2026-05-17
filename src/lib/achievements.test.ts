@@ -121,17 +121,24 @@ describe('share badge achievements', () => {
   it('unlocks stats-based share badge achievements in daily mode', () => {
     const badgeStats: GameStats = {
       ...stats,
+      winDistribution: [0, 0, 0, 0, 0, 20],
       totalGames: 150,
       gamesFailed: 100,
       bestStreak: 14,
     }
 
     expect(evaluateAchievements(badgeStats, dailyHistory)).toEqual(
-      expect.arrayContaining(['play_150', 'fail_100', 'streak_14'])
+      expect.arrayContaining([
+        'play_150',
+        'fail_100',
+        'streak_14',
+        'win_in_6_20',
+      ])
     )
     expect(loadAchievementState().unlocked.play_150).toBeTruthy()
     expect(loadAchievementState().unlocked.fail_100).toBeTruthy()
     expect(loadAchievementState().unlocked.streak_14).toBeTruthy()
+    expect(loadAchievementState().unlocked.win_in_6_20).toBeTruthy()
   })
 
   it('connects stats-based achievements to share badge rewards', () => {
@@ -145,6 +152,8 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_star')).toBe('\u2B50')
     expect(getShareBadge('badge_hundred')).toBe('\uD83D\uDCAF')
     expect(getShareBadge('badge_wrestle')).toBe('\uD83E\uDD3C')
+    expect(getShareBadge('badge_apple')).toBe('\uD83C\uDF4F')
+    expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -169,6 +178,12 @@ describe('share badge achievements', () => {
     expect(
       getRewardsForAchievement('custom_win_10').map((r) => r.id)
     ).toContain('badge_wrestle')
+    expect(
+      getRewardsForAchievement('no_present_win').map((r) => r.id)
+    ).toContain('badge_apple')
+    expect(getRewardsForAchievement('win_in_6_20').map((r) => r.id)).toContain(
+      'badge_milk'
+    )
   })
 
   it('connects game-event achievements to share emoji rewards', () => {
@@ -191,7 +206,13 @@ describe('share badge achievements', () => {
   })
 
   it('keeps new share badge achievements daily-only', () => {
-    for (const id of ['play_150', 'fail_100', 'streak_14']) {
+    for (const id of [
+      'play_150',
+      'fail_100',
+      'streak_14',
+      'win_in_6_20',
+      'no_present_win',
+    ]) {
       const achievement = ACHIEVEMENTS.find((a) => a.id === id)
       expect(achievement).toBeTruthy()
       expect(getAchievementModes(achievement!)).toEqual(['daily'])
@@ -218,15 +239,21 @@ describe('share badge achievements', () => {
 
     const badgeStats: GameStats = {
       ...stats,
+      winDistribution: [0, 0, 0, 0, 0, 20],
       totalGames: 150,
       gamesFailed: 100,
       bestStreak: 14,
     }
 
     expect(retroUnlockAchievements(badgeStats, dailyHistory)).toEqual(
-      expect.arrayContaining(['play_150', 'fail_100', 'streak_14'])
+      expect.arrayContaining([
+        'play_150',
+        'fail_100',
+        'streak_14',
+        'win_in_6_20',
+      ])
     )
-    expect(loadAchievementState().version).toBe(2)
+    expect(loadAchievementState().version).toBe(3)
     expect(loadAchievementState().retroCompleted).toBe(true)
   })
 
@@ -358,5 +385,24 @@ describe('share badge achievements', () => {
         },
       })
     ).toContain('yogurt_recipe')
+  })
+
+  it('unlocks apple from a daily win with no present tiles', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        game: {
+          guesses: [
+            ['x', 'x', 'x', 'x', 'x'],
+            ['c', 'h', 'a', 'i', 'n'],
+          ],
+          solution: 'chain',
+          won: true,
+          lost: false,
+          guessCount: 2,
+          endReason: 'win',
+        },
+      })
+    ).toContain('no_present_win')
   })
 })

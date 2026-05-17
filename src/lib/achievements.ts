@@ -253,6 +253,18 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
   },
+  {
+    id: 'win_in_6_20',
+    category: 'guess',
+    modes: ['daily'],
+    difficulty: 6,
+    titleKey: 'achievement_win_in_6_20_title',
+    descriptionKey: 'achievement_win_in_6_20_desc',
+    progress: ({ stats }) => ({
+      current: stats.winDistribution[5],
+      target: 20,
+    }),
+  },
 
   // Streak
   {
@@ -343,12 +355,28 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       target: 1,
     }),
   },
+  {
+    id: 'no_present_win',
+    category: 'performance',
+    modes: ['daily'],
+    difficulty: 5,
+    titleKey: 'achievement_no_present_win_title',
+    descriptionKey: 'achievement_no_present_win_desc',
+    progress: ({ game }) => {
+      if (!game?.won) {
+        return { current: 0, target: 1 }
+      }
+
+      const counts = countStatusesForGame(game.guesses, game.solution)
+      return { current: counts.present === 0 ? 1 : 0, target: 1 }
+    },
+  },
 ]
 
 // --- localStorage ---
 
 const STORAGE_KEY = 'achievementState'
-const ACHIEVEMENT_STATE_VERSION = 2
+const ACHIEVEMENT_STATE_VERSION = 3
 
 const defaultState: AchievementState = {
   version: ACHIEVEMENT_STATE_VERSION,
