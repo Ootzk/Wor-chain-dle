@@ -134,23 +134,29 @@ Choose verification based on risk. Documentation-only changes do not need the fu
 - Release branches PR into `main`.
 - Release PR titles must be `Release v{version}`.
 - PR merges are always performed by the developer, not by agents.
+- Feature PRs are squash-merged. Prefer adding follow-up commits instead of amending existing commits, except for truly tiny local-only fixes before review.
 - Always pass `--repo Ootzk/Wor-chain-dle` to `gh pr create` and other GitHub CLI commands that can infer a repository. This repo has an upstream fork remote, so implicit repo detection can target the wrong repository.
 - Use full semantic versions in branch names, issue/PR text, screenshots, and docs. Write the full form such as `v1.6.0`; do not omit the patch component.
 
 Required PR metadata:
 
 - Labels matching the change type. Available labels include:
-  - `✨ enhancement`: new feature.
+  - `development: enhancement`: new standalone feature, such as a new game mode, dictionary feature, or major tool.
+  - `development: reorganize`: reposition or restructure existing user-facing features, such as moving Achievements and Cosmetics into a Rewards experience.
+  - `development: content`: content added to existing systems, such as achievements, cosmetics, words, or patch notes.
+  - `development: refactor`: internal code restructuring without intended user-facing behavior changes.
+  - `development: devops`: development environment, CI, deployment, tooling, or agent workflow changes.
   - `🐛 bug`: bug fix.
   - `📝 documentation`: documentation.
   - `🎨 UI/UX`: design or UI improvement.
   - `💰 donation`: donation-related change.
   - `🔖 versioning`: release-to-main PRs.
-  - `🧑‍💻 devops`: development environment, CI, or testing.
+  - `🏆 rewards`: Achievements, Cosmetics, unlocks, and reward-related UX.
   - `💥 breaking change`: incompatible behavior.
   - `🌐 i18n`: translations or locale behavior.
   - `browser: chrome`, `browser: safari`: browser-specific change.
   - `platform: PC`, `platform: mobile`: platform-specific change.
+- Use new labels for new and ongoing work only. Do not retroactively label already-completed historical issues or PRs unless the developer explicitly asks. The `development:*` label taxonomy migration was a one-time exception.
 - Assignee: `Ootzk`.
 - Milestone: target release version such as `v1.6.0`. Create the milestone first if it does not exist.
 - Feature PR body should include related issues with `Closes #issue` as a reference. Because feature PRs target release branches, GitHub may not auto-close those issues until the release PR.
