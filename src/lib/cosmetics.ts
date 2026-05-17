@@ -70,6 +70,7 @@ const SHARE_BADGES: Record<string, string> = {
   badge_hundred: '\uD83D\uDCAF',
   badge_wrestle: '\uD83E\uDD3C',
   badge_apple: '\uD83C\uDF4F',
+  badge_grape: '\uD83C\uDF47',
   badge_milk: '\uD83E\uDD5B',
   badge_azure: '\uD83E\uDE75',
 }
@@ -245,7 +246,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'badge_apple',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_apple',
-    requiresAchievement: 'no_present_win',
+    requiresAchievement: 'no_present_game',
+  },
+  {
+    id: 'badge_grape',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_grape',
+    requiresAchievement: 'no_correct_game',
   },
   {
     id: 'badge_milk',

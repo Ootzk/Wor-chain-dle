@@ -377,19 +377,35 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     }),
   },
   {
-    id: 'no_present_win',
+    id: 'no_present_game',
     category: 'performance',
     modes: ['daily'],
     difficulty: 5,
-    titleKey: 'achievement_no_present_win_title',
-    descriptionKey: 'achievement_no_present_win_desc',
+    titleKey: 'achievement_no_present_game_title',
+    descriptionKey: 'achievement_no_present_game_desc',
     progress: ({ game }) => {
-      if (!game?.won) {
+      if (!game) {
         return { current: 0, target: 1 }
       }
 
       const counts = countStatusesForGame(game.guesses, game.solution)
       return { current: counts.present === 0 ? 1 : 0, target: 1 }
+    },
+  },
+  {
+    id: 'no_correct_game',
+    category: 'performance',
+    modes: ['daily'],
+    difficulty: 6,
+    titleKey: 'achievement_no_correct_game_title',
+    descriptionKey: 'achievement_no_correct_game_desc',
+    progress: ({ game }) => {
+      if (!game) {
+        return { current: 0, target: 1 }
+      }
+
+      const counts = countStatusesForGame(game.guesses, game.solution)
+      return { current: counts.correct === 0 ? 1 : 0, target: 1 }
     },
   },
 ]
@@ -399,17 +415,23 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 const STORAGE_KEY = 'achievementState'
 const ACHIEVEMENT_STATE_VERSION = 4
 
-const defaultState: AchievementState = {
+const createDefaultState = (): AchievementState => ({
   version: ACHIEVEMENT_STATE_VERSION,
   unlocked: {},
   retroCompleted: false,
-}
+})
 
 export const loadAchievementState = (): AchievementState => {
   const data = localStorage.getItem(STORAGE_KEY)
-  return data
-    ? { ...defaultState, ...(JSON.parse(data) as Partial<AchievementState>) }
-    : { ...defaultState }
+  const defaults = createDefaultState()
+  if (!data) return defaults
+
+  const parsed = JSON.parse(data) as Partial<AchievementState>
+  return {
+    ...defaults,
+    ...parsed,
+    unlocked: { ...(parsed.unlocked ?? {}) },
+  }
 }
 
 const saveAchievementState = (state: AchievementState): void => {
