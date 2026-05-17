@@ -1,6 +1,6 @@
 import { KeyValue } from '../../lib/keyboard'
 import { getStatuses } from '../../lib/statuses'
-import { Key } from './Key'
+import { Key, KeyVariant } from './Key'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -16,6 +16,7 @@ type Props = {
   onEnter: () => void
   guesses: string[][]
   solution: string
+  enterHint?: KeyVariant
 }
 
 export const Keyboard = ({
@@ -24,6 +25,7 @@ export const Keyboard = ({
   onEnter,
   guesses,
   solution,
+  enterHint,
 }: Props) => {
   const { t } = useTranslation()
   const charStatuses = getStatuses(guesses, solution)
@@ -78,7 +80,13 @@ export const Keyboard = ({
         ))}
       </div>
       <div className="flex justify-center">
-        <Key key="enterKey" width={65.4} value="ENTER" onClick={onClick}>
+        <Key
+          key="enterKey"
+          width={65.4}
+          value="ENTER"
+          onClick={onClick}
+          variant={enterHint}
+        >
           {t('enterKey')}
         </Key>
         {KEYBOARD_ROWS[2].map((char) => (
