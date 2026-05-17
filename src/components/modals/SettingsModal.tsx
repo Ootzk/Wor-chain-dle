@@ -38,6 +38,8 @@ type Props = {
   onToggleWeekStartsOnMonday: () => void
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
+  hideLetters: boolean
+  onToggleHideLetters: () => void
   onNavigateToAchievement?: (achievementId: string) => void
 }
 
@@ -330,6 +332,8 @@ export const SettingsModal = ({
   onToggleWeekStartsOnMonday,
   excludeUrl,
   onToggleExcludeUrl,
+  hideLetters,
+  onToggleHideLetters,
   onNavigateToAchievement,
 }: Props) => {
   const { t, i18n } = useTranslation()
@@ -521,6 +525,12 @@ export const SettingsModal = ({
             {t('excludeUrlLabel')}
           </span>
           <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
+        </div>
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm font-medium text-gray-700">
+            {t('hideLettersLabel')}
+          </span>
+          <Toggle checked={hideLetters} onClick={onToggleHideLetters} />
         </div>
 
         {/* Cosmetic pickers */}

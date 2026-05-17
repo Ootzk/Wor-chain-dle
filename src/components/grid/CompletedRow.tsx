@@ -6,6 +6,7 @@ type Props = {
   solution: string
   chainTopIndex?: number
   chainBottomIndex?: number
+  hideLetters?: boolean
 }
 
 export const CompletedRow = ({
@@ -13,6 +14,7 @@ export const CompletedRow = ({
   solution,
   chainTopIndex,
   chainBottomIndex,
+  hideLetters,
 }: Props) => {
   const statuses = getGuessStatuses(guess, solution)
 
@@ -25,6 +27,7 @@ export const CompletedRow = ({
           status={statuses[i]}
           chainTop={i === chainTopIndex}
           chainBottom={i === chainBottomIndex}
+          hideLetter={hideLetters}
         />
       ))}
     </div>

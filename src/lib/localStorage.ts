@@ -43,6 +43,7 @@ export type Settings = {
   isUppercase: boolean
   weekStartsOnMonday: boolean
   excludeUrl: boolean
+  hideLetters: boolean
 }
 
 export const saveSettings = (settings: Settings) => {
@@ -51,9 +52,15 @@ export const saveSettings = (settings: Settings) => {
 
 export const loadSettings = (): Settings => {
   const settings = localStorage.getItem(settingsKey)
+  const defaults = {
+    isUppercase: false,
+    weekStartsOnMonday: false,
+    excludeUrl: false,
+    hideLetters: false,
+  }
   return settings
-    ? { isUppercase: false, weekStartsOnMonday: false, excludeUrl: false, ...(JSON.parse(settings) as Partial<Settings>) }
-    : { isUppercase: false, weekStartsOnMonday: false, excludeUrl: false }
+    ? { ...defaults, ...(JSON.parse(settings) as Partial<Settings>) }
+    : defaults
 }
 
 const seenPatchNotesVersionKey = 'seenPatchNotesVersion'

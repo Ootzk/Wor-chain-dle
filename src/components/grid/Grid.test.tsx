@@ -38,3 +38,19 @@ test('hides the next row chain letter after game completion', () => {
   expect(getRow(container, 0)).toHaveTextContent('crane')
   expect(getRow(container, 1)).not.toHaveTextContent('e')
 })
+
+test('hides board letters without removing them from the layout', () => {
+  const { container } = render(
+    <Grid
+      guesses={[winningGuess]}
+      currentGuess={[]}
+      solution="crane"
+      hideLetters
+    />
+  )
+
+  expect(getRow(container, 0)).toHaveTextContent('crane')
+  expect(
+    getRow(container, 0).querySelectorAll('span.text-transparent')
+  ).toHaveLength(5)
+})
