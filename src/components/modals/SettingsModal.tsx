@@ -40,6 +40,8 @@ type Props = {
   onToggleExcludeUrl: () => void
   hideLetters: boolean
   onToggleHideLetters: () => void
+  enterValidationHint: boolean
+  onToggleEnterValidationHint: () => void
   onNavigateToAchievement?: (achievementId: string) => void
 }
 
@@ -334,6 +336,8 @@ export const SettingsModal = ({
   onToggleExcludeUrl,
   hideLetters,
   onToggleHideLetters,
+  enterValidationHint,
+  onToggleEnterValidationHint,
   onNavigateToAchievement,
 }: Props) => {
   const { t, i18n } = useTranslation()
@@ -531,6 +535,15 @@ export const SettingsModal = ({
             {t('hideLettersLabel')}
           </span>
           <Toggle checked={hideLetters} onClick={onToggleHideLetters} />
+        </div>
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm font-medium text-gray-700">
+            {t('enterValidationHintLabel')}
+          </span>
+          <Toggle
+            checked={enterValidationHint}
+            onClick={onToggleEnterValidationHint}
+          />
         </div>
 
         {/* Cosmetic pickers */}

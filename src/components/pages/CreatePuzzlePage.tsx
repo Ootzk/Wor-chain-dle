@@ -37,13 +37,28 @@ export const CreatePuzzlePage = () => {
   const [hideLetters, setHideLetters] = useState(
     () => loadSettings().hideLetters
   )
+  const [enterValidationHint, setEnterValidationHint] = useState(
+    () => loadSettings().enterValidationHint
+  )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl, hideLetters })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl, hideLetters])
+    saveSettings({
+      isUppercase,
+      weekStartsOnMonday,
+      excludeUrl,
+      hideLetters,
+      enterValidationHint,
+    })
+  }, [
+    isUppercase,
+    weekStartsOnMonday,
+    excludeUrl,
+    hideLetters,
+    enterValidationHint,
+  ])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -283,6 +298,10 @@ export const CreatePuzzlePage = () => {
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         hideLetters={hideLetters}
         onToggleHideLetters={() => setHideLetters(!hideLetters)}
+        enterValidationHint={enterValidationHint}
+        onToggleEnterValidationHint={() =>
+          setEnterValidationHint(!enterValidationHint)
+        }
       />
       <DonateModal
         isOpen={isDonateModalOpen}

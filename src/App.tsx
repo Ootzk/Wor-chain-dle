@@ -31,7 +31,7 @@ import {
 } from './lib/localStorage'
 
 import { CONFIG, PATCH_NOTES_VERSION } from './constants/config'
-import { getChainInfo, isChainDeadEnd } from './lib/chain'
+import { buildFullGuess, getChainInfo, isChainDeadEnd } from './lib/chain'
 import { ORTHOGRAPHY_PATTERN } from './lib/tokenizer'
 import {
   DeadEndContext,
@@ -94,6 +94,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [hideLetters, setHideLetters] = useState(
     () => loadSettings().hideLetters
   )
+  const [enterValidationHint, setEnterValidationHint] = useState(
+    () => loadSettings().enterValidationHint
+  )
   const [resultHideLettersOverride, setResultHideLettersOverride] = useState<
     boolean | undefined
   >(undefined)
@@ -153,8 +156,20 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses, isDaily, solution])
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl, hideLetters })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl, hideLetters])
+    saveSettings({
+      isUppercase,
+      weekStartsOnMonday,
+      excludeUrl,
+      hideLetters,
+      enterValidationHint,
+    })
+  }, [
+    isUppercase,
+    weekStartsOnMonday,
+    excludeUrl,
+    hideLetters,
+    enterValidationHint,
+  ])
 
   useEffect(() => {
     if (!isGameWon && !isGameLost) {
@@ -250,12 +265,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       return
     }
 
-    const chainInfo = getChainInfo(guesses)
-    const fullGuess = chainInfo
-      ? chainInfo.position === 'first'
-        ? [chainInfo.letter, ...currentGuess]
-        : [...currentGuess, chainInfo.letter]
-      : currentGuess
+    const fullGuess = buildFullGuess(currentGuess, guesses)
 
     if (fullGuess.length !== CONFIG.wordLength) {
       setIsNotEnoughLetters(true)
@@ -348,6 +358,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
   const effectiveHideLetters = resultHideLettersOverride ?? hideLetters
+  const enterHint = (() => {
+    if (!enterValidationHint || isGameWon || isGameLost) return undefined
+
+    const fullGuess = buildFullGuess(currentGuess, guesses)
+    if (fullGuess.length !== CONFIG.wordLength) return 'incomplete'
+    if (!isWordInWordList(fullGuess.join(''))) return 'invalid'
+    return 'valid'
+  })()
 
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -409,6 +427,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           onEnter={onEnter}
           guesses={guesses}
           solution={solution}
+          enterHint={enterHint}
         />
       </div>
       <InfoModal
@@ -467,6 +486,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         hideLetters={hideLetters}
         onToggleHideLetters={() => setHideLetters(!hideLetters)}
+        enterValidationHint={enterValidationHint}
+        onToggleEnterValidationHint={() =>
+          setEnterValidationHint(!enterValidationHint)
+        }
         onNavigateToAchievement={(id) => {
           setIsSettingsModalOpen(false)
           setStatsInitialTab('achievements')

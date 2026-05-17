@@ -14,13 +14,24 @@ export function getChainInfo(guesses: string[][]): ChainInfo | null {
   }
 }
 
+export function buildFullGuess(
+  currentGuess: string[],
+  guesses: string[][]
+): string[] {
+  const chainInfo = getChainInfo(guesses)
+  if (!chainInfo) return currentGuess
+
+  return chainInfo.position === 'first'
+    ? [chainInfo.letter, ...currentGuess]
+    : [...currentGuess, chainInfo.letter]
+}
+
 export function isChainDeadEnd(
   guesses: string[][],
   solutionChars: string[]
 ): boolean {
   const chainInfo = getChainInfo(guesses)
   if (!chainInfo) return false
-  const chainPos =
-    chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
+  const chainPos = chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
   return solutionChars[chainPos] !== chainInfo.letter
 }

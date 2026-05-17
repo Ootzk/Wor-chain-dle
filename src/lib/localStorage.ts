@@ -44,6 +44,7 @@ export type Settings = {
   weekStartsOnMonday: boolean
   excludeUrl: boolean
   hideLetters: boolean
+  enterValidationHint: boolean
 }
 
 export const saveSettings = (settings: Settings) => {
@@ -57,6 +58,7 @@ export const loadSettings = (): Settings => {
     weekStartsOnMonday: false,
     excludeUrl: false,
     hideLetters: false,
+    enterValidationHint: false,
   }
   return settings
     ? { ...defaults, ...(JSON.parse(settings) as Partial<Settings>) }
