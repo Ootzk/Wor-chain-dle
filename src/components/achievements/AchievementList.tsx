@@ -10,7 +10,7 @@ import { loadDailyHistory } from '../../lib/dailyHistory'
 import { loadStats } from '../../lib/stats'
 import { getRewardsForAchievement } from '../../lib/cosmetics'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
-import { GameMode } from '../../lib/gameMode'
+import { GAME_MODE_LABELS, GameMode } from '../../lib/gameMode'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
@@ -30,14 +30,14 @@ const ALL_MODE_BADGE_CLASS = 'bg-yellow-50 text-yellow-700 border-yellow-200'
 
 const getModeBadgeItems = (
   modes: GameMode[]
-): Array<{ id: string; labelKey: string; className: string }> => {
+): Array<{ id: string; label: string; className: string }> => {
   const includesAllModes = ALL_MODES.every((mode) => modes.includes(mode))
 
   if (includesAllModes) {
     return [
       {
         id: 'all',
-        labelKey: 'allModes',
+        label: 'All',
         className: ALL_MODE_BADGE_CLASS,
       },
     ]
@@ -45,7 +45,7 @@ const getModeBadgeItems = (
 
   return modes.map((mode) => ({
     id: mode,
-    labelKey: mode,
+    label: GAME_MODE_LABELS[mode],
     className: MODE_BADGE_CLASSES[mode],
   }))
 }
@@ -148,7 +148,7 @@ export const AchievementList = ({ scrollToId }: { scrollToId?: string }) => {
                         key={badge.id}
                         className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none ${badge.className}`}
                       >
-                        {t(badge.labelKey)}
+                        {badge.label}
                       </span>
                     )
                   )}

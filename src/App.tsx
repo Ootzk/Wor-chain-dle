@@ -41,7 +41,7 @@ import {
   ACHIEVEMENTS,
 } from './lib/achievements'
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
-import { GameMode } from './lib/gameMode'
+import { CREATE_MODE_LABEL, GAME_MODE_LABELS, GameMode } from './lib/gameMode'
 import { recordCompletedGameProgress } from './lib/achievementProgress'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
@@ -340,13 +340,20 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="text-sm text-gray-500">
             {isDaily ? (
-              <>Daily | {localDateStr}</>
+              <>
+                {GAME_MODE_LABELS.daily} | {localDateStr}
+              </>
             ) : isCustom ? (
               <>
-                <span className="text-green-500">Custom</span> | {questioner}
+                <span className="text-green-500">
+                  {GAME_MODE_LABELS.custom}
+                </span>{' '}
+                | {questioner}
               </>
             ) : (
-              <span className="text-purple-500">{t('practice')}</span>
+              <span className="text-purple-500">
+                {GAME_MODE_LABELS.practice}
+              </span>
             )}
           </p>
         </div>
@@ -446,14 +453,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           to={isDaily ? '/practice' : '/'}
           className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
         >
-          {isDaily ? t('practice') : t('daily')}
+          {isDaily ? GAME_MODE_LABELS.practice : GAME_MODE_LABELS.daily}
         </Link>
         {isDaily && (
           <Link
             to="/create"
             className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
           >
-            {t('createPuzzleNav')}
+            {CREATE_MODE_LABEL}
           </Link>
         )}
       </div>
