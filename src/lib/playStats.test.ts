@@ -6,8 +6,11 @@ import {
   getFirstInputDelayMs,
   getIncompleteEnterPresses,
   getInvalidEnterPresses,
+  getLongPauseCount,
+  getMaxLongPauseMs,
   getPlayDurationMs,
   getSubmitAccuracy,
+  getTotalLongPauseMs,
   getTotalDeletePresses,
   getTotalEnterPresses,
   getValidSubmissions,
@@ -110,6 +113,39 @@ test('records each guess duration and input counts separately', () => {
   expect(getTotalEnterPresses(stats)).toBe(3)
   expect(getTotalDeletePresses(stats)).toBe(2)
   expect(getDeletePressesByFilledLength(stats)).toEqual([1, 0, 0, 0, 0, 1])
+})
+
+test('records long pauses on the active guess without excluding duration', () => {
+  let stats = createPlayStats({
+    mode: 'daily',
+    solution: 'chain',
+    dateKey: '2026-05-18',
+    enterValidationHint: false,
+    now: 1000,
+  })
+
+  stats = recordInputActivity(stats, 1500)
+  stats = recordEnterAttempt(stats, 'valid', 302000)
+  stats = startNextGuess(stats, 302000)
+  stats = recordDeletePress(stats, 0, 603000)
+  stats = recordEnterAttempt(stats, 'valid', 604000)
+
+  expect(stats.guessStats[0]).toMatchObject({
+    durationMs: 301000,
+    longPauseCount: 1,
+    totalLongPauseMs: 300500,
+    maxLongPauseMs: 300500,
+  })
+  expect(stats.guessStats[1]).toMatchObject({
+    durationMs: 302000,
+    longPauseCount: 1,
+    totalLongPauseMs: 301000,
+    maxLongPauseMs: 301000,
+  })
+  expect(getLongPauseCount(stats)).toBe(2)
+  expect(getTotalLongPauseMs(stats)).toBe(601500)
+  expect(getMaxLongPauseMs(stats)).toBe(301000)
+  expect(getAverageGuessTimeMs(stats)).toBe(301500)
 })
 
 test('saves and summarizes daily play stats', () => {

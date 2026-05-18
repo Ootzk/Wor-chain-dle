@@ -3,6 +3,7 @@ import { CONFIG } from '../constants/config'
 
 const currentPlayStatsKey = 'currentPlayStats'
 const dailyPlayStatsKey = 'dailyPlayStats'
+const longPauseThresholdMs = 5 * 60 * 1000
 
 export type EnterAttemptKind = 'incomplete' | 'invalid' | 'valid'
 
@@ -20,6 +21,9 @@ export type GuessStats = {
   validEnterPresses: number
   deletePresses: number
   deletePressesByFilledLength: number[]
+  longPauseCount: number
+  totalLongPauseMs: number
+  maxLongPauseMs: number
 }
 
 export type PlayStats = {
@@ -79,6 +83,9 @@ const createGuessStats = (startedAt: number): GuessStats => ({
   validEnterPresses: 0,
   deletePresses: 0,
   deletePressesByFilledLength: emptyDeleteDistribution(),
+  longPauseCount: 0,
+  totalLongPauseMs: 0,
+  maxLongPauseMs: 0,
 })
 
 const normalizeDeleteDistribution = (values?: number[]) => {
@@ -107,6 +114,9 @@ const normalizeGuessStats = (guess: Partial<GuessStats>): GuessStats => {
     deletePressesByFilledLength: normalizeDeleteDistribution(
       guess.deletePressesByFilledLength
     ),
+    longPauseCount: guess.longPauseCount ?? 0,
+    totalLongPauseMs: guess.totalLongPauseMs ?? 0,
+    maxLongPauseMs: guess.maxLongPauseMs ?? 0,
   }
 }
 
@@ -202,9 +212,10 @@ export const recordInputActivity = (
   stats: PlayStats,
   now = nowMs()
 ): PlayStats => {
-  const pause = Math.max(0, now - stats.lastActivityAt)
+  const { pause, guessStats } = updateLastActivity(stats, now, (guess) => guess)
   return {
     ...stats,
+    guessStats,
     firstInputAt: stats.firstInputAt || now,
     lastActivityAt: now,
     longestPauseMs: Math.max(stats.longestPauseMs, pause),
@@ -220,15 +231,36 @@ const activeGuessIndex = (stats: PlayStats) => {
 const updateActiveGuess = (
   stats: PlayStats,
   now: number,
+  pause: number,
   updater: (guess: GuessStats) => GuessStats
 ) => {
   const guessStats = [...(stats.guessStats || [])]
   const index = activeGuessIndex(stats)
-  const currentGuess = normalizeGuessStats(
+  let currentGuess = normalizeGuessStats(
     guessStats[index] || createGuessStats(now)
   )
+  if (pause >= longPauseThresholdMs) {
+    currentGuess = {
+      ...currentGuess,
+      longPauseCount: currentGuess.longPauseCount + 1,
+      totalLongPauseMs: currentGuess.totalLongPauseMs + pause,
+      maxLongPauseMs: Math.max(currentGuess.maxLongPauseMs, pause),
+    }
+  }
   guessStats[index] = updater(currentGuess)
   return guessStats
+}
+
+const updateLastActivity = (
+  stats: PlayStats,
+  now: number,
+  updater: (guess: GuessStats) => GuessStats
+) => {
+  const pause = Math.max(0, now - stats.lastActivityAt)
+  return {
+    pause,
+    guessStats: updateActiveGuess(stats, now, pause, updater),
+  }
 }
 
 export const recordEnterAttempt = (
@@ -236,8 +268,7 @@ export const recordEnterAttempt = (
   kind: EnterAttemptKind,
   now = nowMs()
 ): PlayStats => {
-  const pause = Math.max(0, now - stats.lastActivityAt)
-  const guessStats = updateActiveGuess(stats, now, (guess) => {
+  const { pause, guessStats } = updateLastActivity(stats, now, (guess) => {
     const next = {
       ...guess,
       enterPresses: guess.enterPresses + 1,
@@ -295,9 +326,8 @@ export const recordDeletePress = (
   filledLength: number,
   now = nowMs()
 ): PlayStats => {
-  const pause = Math.max(0, now - stats.lastActivityAt)
   const filledIndex = Math.max(0, Math.min(filledLength, CONFIG.wordLength))
-  const guessStats = updateActiveGuess(stats, now, (guess) => {
+  const { pause, guessStats } = updateLastActivity(stats, now, (guess) => {
     const deletePressesByFilledLength = normalizeDeleteDistribution(
       guess.deletePressesByFilledLength
     )
@@ -440,6 +470,24 @@ export const getDeletePressesByFilledLength = (stats?: PlayStats | null) => {
 export const getTotalDeletePresses = (stats?: PlayStats | null) => {
   if (!stats) return 0
   return stats.guessStats.reduce((sum, guess) => sum + guess.deletePresses, 0)
+}
+
+export const getLongPauseCount = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce((sum, guess) => sum + guess.longPauseCount, 0)
+}
+
+export const getTotalLongPauseMs = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce(
+    (sum, guess) => sum + guess.totalLongPauseMs,
+    0
+  )
+}
+
+export const getMaxLongPauseMs = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return Math.max(0, ...stats.guessStats.map((guess) => guess.maxLongPauseMs))
 }
 
 export const hasPlayStatsActivity = (stats?: PlayStats | null) => {

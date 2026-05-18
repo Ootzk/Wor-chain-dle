@@ -12,8 +12,11 @@ import {
   getFirstInputDelayMs,
   getIncompleteEnterPresses,
   getInvalidEnterPresses,
+  getLongPauseCount,
+  getMaxLongPauseMs,
   getPlayDurationMs,
   getSubmitAccuracy,
+  getTotalLongPauseMs,
   getTotalDeletePresses,
   getTotalEnterPresses,
   getValidSubmissions,
@@ -68,17 +71,21 @@ const GuessDetailRow = ({
   duration,
   enterPresses,
   deletePresses,
+  longPauseCount,
   enterLabel,
   deleteLabel,
+  pauseLabel,
 }: {
   label: string
   duration: string
   enterPresses: number
   deletePresses: number
+  longPauseCount: number
   enterLabel: string
   deleteLabel: string
+  pauseLabel: string
 }) => (
-  <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-gray-100 py-1.5 text-sm last:border-b-0">
+  <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-2 border-b border-gray-100 py-1.5 text-sm last:border-b-0">
     <span className="text-gray-500">{label}</span>
     <span className="font-semibold text-gray-900">{duration}</span>
     <span className="text-xs font-medium text-gray-500">
@@ -86,6 +93,9 @@ const GuessDetailRow = ({
     </span>
     <span className="text-xs font-medium text-gray-500">
       {deleteLabel} {deletePresses}
+    </span>
+    <span className="text-xs font-medium text-gray-500">
+      {pauseLabel} {longPauseCount}
     </span>
   </div>
 )
@@ -336,6 +346,18 @@ export const StatsModal = ({
                   value={formatSeconds(playStats.longestPauseMs)}
                 />
                 <DetailRow
+                  label={t('playStatsLongPauses')}
+                  value={String(getLongPauseCount(playStats))}
+                />
+                <DetailRow
+                  label={t('playStatsLongPauseTime')}
+                  value={formatSeconds(getTotalLongPauseMs(playStats))}
+                />
+                <DetailRow
+                  label={t('playStatsMaxLongPause')}
+                  value={formatSeconds(getMaxLongPauseMs(playStats))}
+                />
+                <DetailRow
                   label={t('playStatsEnterPresses')}
                   value={String(getTotalEnterPresses(playStats))}
                 />
@@ -397,8 +419,10 @@ export const StatsModal = ({
                         }
                         enterPresses={guess.enterPresses}
                         deletePresses={guess.deletePresses}
+                        longPauseCount={guess.longPauseCount}
                         enterLabel={t('playStatsEnterShort')}
                         deleteLabel={t('playStatsDeleteShort')}
+                        pauseLabel={t('playStatsPauseShort')}
                       />
                     ))}
                   </div>
