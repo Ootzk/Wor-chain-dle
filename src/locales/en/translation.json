@@ -29,7 +29,7 @@
   "loseReasonUnknownInfoTitle": "Why Unknown?",
   "loseReasonUnknownInfoClose": "Close Unknown reason guide",
   "loseReasonUnknownInfoBody": "Older records only stored whether the game was won or lost, not why it was lost. Those legacy losses are counted as Unknown.",
-  "loseReasonOutOfGuesses": "Out of guesses",
+  "loseReasonOutOfGuesses": "Guess limit",
   "loseReasonDeadEnd": "Dead end",
   "today": "Today",
   "statsShort": "Stats",
