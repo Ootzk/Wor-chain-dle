@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BaseModal } from './BaseModal'
 import { CogIcon } from '@heroicons/react/outline'
@@ -51,6 +51,33 @@ const Toggle = ({
       }`}
     />
   </button>
+)
+
+const SettingRow = ({
+  label,
+  description,
+  caution,
+  children,
+}: {
+  label: string
+  description?: string
+  caution?: string
+  children: ReactNode
+}) => (
+  <div className="flex items-center justify-between gap-4 border-b border-gray-200 py-3 last:border-b-0">
+    <div className="min-w-0 text-left">
+      <div className="text-sm font-medium text-gray-900">{label}</div>
+      {description && (
+        <div className="mt-1 text-xs leading-4 text-gray-500">
+          {description}
+        </div>
+      )}
+      {caution && (
+        <div className="mt-1 text-xs leading-4 text-purple-600">{caution}</div>
+      )}
+    </div>
+    <div className="flex-shrink-0">{children}</div>
+  </div>
 )
 
 export const SettingsModal = ({
@@ -135,10 +162,7 @@ export const SettingsModal = ({
         <div className="max-h-[70vh] overflow-y-auto">
           {/* Language */}
           {CONFIG.availableLangs.length > 1 && (
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-medium text-gray-700">
-                {t('pickYourLanguage')}
-              </span>
+            <SettingRow label={t('pickYourLanguage')}>
               <button
                 type="button"
                 className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
@@ -156,40 +180,41 @@ export const SettingsModal = ({
                   </span>
                 </span>
               </button>
-            </div>
+            </SettingRow>
           )}
 
           {/* Display settings */}
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm font-medium text-gray-700">
-              {t('uppercaseLabel')}
-            </span>
+          <SettingRow
+            label={t('uppercaseLabel')}
+            description={t('uppercaseDescription')}
+          >
             <Toggle checked={isUppercase} onClick={onToggleUppercase} />
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm font-medium text-gray-700">
-              {t('weekStartLabel')}
-            </span>
+          </SettingRow>
+          <SettingRow
+            label={t('weekStartLabel')}
+            description={t('weekStartDescription')}
+          >
             <Toggle
               checked={weekStartsOnMonday}
               onClick={onToggleWeekStartsOnMonday}
             />
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm font-medium text-gray-700">
-              {t('excludeUrlLabel')}
-            </span>
+          </SettingRow>
+          <SettingRow
+            label={t('excludeUrlLabel')}
+            description={t('excludeUrlDescription')}
+          >
             <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm font-medium text-gray-700">
-              {t('enterValidationHintLabel')}
-            </span>
+          </SettingRow>
+          <SettingRow
+            label={t('enterValidationHintLabel')}
+            description={t('enterValidationHintDescription')}
+            caution={t('enterValidationHintCaution')}
+          >
             <Toggle
               checked={enterValidationHint}
               onClick={onToggleEnterValidationHint}
             />
-          </div>
+          </SettingRow>
         </div>
       </BaseModal>
       {languagePicker}
