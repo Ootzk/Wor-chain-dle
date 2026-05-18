@@ -5,6 +5,7 @@ import { GameStats } from '../../lib/localStorage'
 
 type Props = {
   gameStats: GameStats
+  onOpenDeadEndHelp?: () => void
 }
 
 type LoseReasonItem = {
@@ -13,7 +14,10 @@ type LoseReasonItem = {
   colorClass: string
 }
 
-export const LoseReasonDistribution = ({ gameStats }: Props) => {
+export const LoseReasonDistribution = ({
+  gameStats,
+  onOpenDeadEndHelp,
+}: Props) => {
   const { t } = useTranslation()
   const [isUnknownInfoOpen, setIsUnknownInfoOpen] = useState(false)
   const losses = gameStats.gamesFailed
@@ -60,7 +64,25 @@ export const LoseReasonDistribution = ({ gameStats }: Props) => {
       {distribution.map((item) => (
         <div key={item.label} className="my-0.5 flex items-center">
           <div className="flex w-16 shrink-0 items-center gap-0.5 text-xs text-gray-900">
-            <span>{item.label}</span>
+            {item.label === t('loseReasonDeadEnd') && onOpenDeadEndHelp ? (
+              <button
+                type="button"
+                className="text-left font-medium text-indigo-600 underline hover:text-indigo-700"
+                onClick={onOpenDeadEndHelp}
+              >
+                {item.label}
+              </button>
+            ) : (
+              <span
+                className={
+                  item.label === t('loseReasonOutOfGuesses')
+                    ? 'text-[0.625rem] leading-3'
+                    : ''
+                }
+              >
+                {item.label}
+              </span>
+            )}
             {item.label === t('loseReasonUnknown') && (
               <button
                 type="button"

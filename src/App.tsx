@@ -608,6 +608,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setRewardsInitialTab('cosmetics')
           setTimeout(() => setIsRewardsModalOpen(true), 300)
         }}
+        onOpenDeadEndHelp={() => {
+          setIsStatsModalOpen(false)
+          setInfoInitialTab('howToPlay')
+          setInfoInitialSection('deadEnd')
+          setTimeout(() => setIsInfoModalOpen(true), 300)
+        }}
         isUppercase={isUppercase}
         playStats={playStats}
         playStatsSummary={dailyPlayStatsSummary}

@@ -50,6 +50,7 @@ type Props = {
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
+  onOpenDeadEndHelp?: () => void
   initialTab?: 'today' | 'calendar' | 'summary' | 'behavior'
   isUppercase: boolean
   playStats: PlayStats
@@ -130,6 +131,7 @@ export const StatsModal = ({
   weekStartsOnMonday,
   onToggleWeekStartsOnMonday,
   onOpenCosmetics,
+  onOpenDeadEndHelp,
   initialTab,
   isUppercase,
   playStats,
@@ -696,7 +698,10 @@ export const StatsModal = ({
                 <h4 className="text-sm leading-5 font-semibold text-gray-900">
                   {t('loseReasonDistribution')}
                 </h4>
-                <LoseReasonDistribution gameStats={gameStats} />
+                <LoseReasonDistribution
+                  gameStats={gameStats}
+                  onOpenDeadEndHelp={onOpenDeadEndHelp}
+                />
               </section>
               <section className="mt-2 border-t border-gray-200 pt-2">
                 <StatBar gameStats={gameStats} />
