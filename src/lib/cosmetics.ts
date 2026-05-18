@@ -1,3 +1,5 @@
+import { REWARD_METADATA, RewardMetadata } from './rewardMetadata'
+
 // --- Type Definitions ---
 
 export type CosmeticCategory =
@@ -20,6 +22,7 @@ export type CosmeticOption = {
   category: CosmeticCategory
   titleKey: string
   requiresAchievement?: string
+  metadata?: RewardMetadata
 }
 
 type CosmeticState = {
@@ -162,30 +165,35 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'emoji_default',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'emoji_circle',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_circle',
     requiresAchievement: 'play_10',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'emoji_heart',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_heart',
     requiresAchievement: 'win_in_3',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'emoji_bibimbap',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_bibimbap',
     requiresAchievement: 'bibimbap_balance',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'emoji_yogurt',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_yogurt',
     requiresAchievement: 'yogurt_recipe',
+    metadata: REWARD_METADATA.v1_6_0,
   },
 
   // Share Badge
@@ -193,78 +201,91 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'badge_chain',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_chain',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_fire',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_fire',
     requiresAchievement: 'streak_14',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_calendar',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_calendar',
     requiresAchievement: 'monthly_attendance',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_lizard',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_lizard',
     requiresAchievement: 'dead_end_tail',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_six',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_six',
     requiresAchievement: 'played_v1_6_0_5',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_skull',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_skull',
     requiresAchievement: 'fail_100',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_star',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_star',
     requiresAchievement: 'play_150',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_hundred',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_hundred',
     requiresAchievement: 'practice_win_100',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_wrestle',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_wrestle',
     requiresAchievement: 'custom_win_10',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_apple',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_apple',
     requiresAchievement: 'no_present_game',
+    metadata: REWARD_METADATA.v1_7_0,
   },
   {
     id: 'badge_grape',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_grape',
     requiresAchievement: 'no_correct_game',
+    metadata: REWARD_METADATA.v1_7_0,
   },
   {
     id: 'badge_milk',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_milk',
     requiresAchievement: 'win_in_6_20',
+    metadata: REWARD_METADATA.v1_7_0,
   },
   {
     id: 'badge_azure',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_azure',
     requiresAchievement: 'played_v1_7_0_5',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Cell Font
@@ -272,18 +293,21 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'font_default',
     category: 'cellFont',
     titleKey: 'cosmetic_font_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'font_pixel',
     category: 'cellFont',
     titleKey: 'cosmetic_font_pixel',
     requiresAchievement: 'win_in_4',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'font_marker',
     category: 'cellFont',
     titleKey: 'cosmetic_font_marker',
     requiresAchievement: 'play_50',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 
   // Cell Color
@@ -291,18 +315,21 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'color_default',
     category: 'cellColor',
     titleKey: 'cosmetic_color_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'color_gold',
     category: 'cellColor',
     titleKey: 'cosmetic_color_gold',
     requiresAchievement: 'win_in_2',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'color_black',
     category: 'cellColor',
     titleKey: 'cosmetic_color_black',
     requiresAchievement: 'win_in_5',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 
   // Chain Style
@@ -310,18 +337,21 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chain_default',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chain_dashed',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_dashed',
     requiresAchievement: 'streak_3',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chain_thick',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_thick',
     requiresAchievement: 'streak_7',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 
   // Chain Color
@@ -329,24 +359,28 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chaincolor_black',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_black',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chaincolor_silver',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_silver',
     requiresAchievement: 'play_100',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chaincolor_gold',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_gold',
     requiresAchievement: 'win_in_1',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chaincolor_azure',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_azure',
     requiresAchievement: 'streak_5',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Alert Message
@@ -354,12 +388,14 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'msg_classic',
     category: 'endMessage',
     titleKey: 'cosmetic_msg_classic',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'msg_phrase',
     category: 'endMessage',
     titleKey: 'cosmetic_msg_phrase',
     requiresAchievement: 'win_in_6',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   // {
   //   id: 'msg_chill',
@@ -384,6 +420,7 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'endMessage',
     titleKey: 'cosmetic_msg_emoji',
     requiresAchievement: 'streak_30',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 ]
 
