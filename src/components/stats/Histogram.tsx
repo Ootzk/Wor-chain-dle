@@ -20,7 +20,7 @@ export const Histogram = ({ gameStats }: Props) => {
         {t('playStatsBreakdownGuess')}
       </div>
       {distribution.map((item) => (
-        <div key={item.label} className="my-0.5 flex items-center">
+        <div key={item.label} className="my-px flex h-4 items-center">
           <div className="w-16 shrink-0 text-right">{item.label}</div>
           <div className="ml-2 w-full rounded-full">
             <div

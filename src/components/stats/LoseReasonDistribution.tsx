@@ -62,7 +62,7 @@ export const LoseReasonDistribution = ({
         </div>
       )}
       {distribution.map((item) => (
-        <div key={item.label} className="my-0.5 flex items-center">
+        <div key={item.label} className="my-px flex h-4 items-center">
           <div className="flex w-16 shrink-0 items-center gap-0.5 text-xs text-gray-900">
             {item.label === t('loseReasonDeadEnd') && onOpenDeadEndHelp ? (
               <button
@@ -73,15 +73,7 @@ export const LoseReasonDistribution = ({
                 {item.label}
               </button>
             ) : (
-              <span
-                className={
-                  item.label === t('loseReasonOutOfGuesses')
-                    ? 'text-[0.625rem] leading-3'
-                    : ''
-                }
-              >
-                {item.label}
-              </span>
+              <span>{item.label}</span>
             )}
             {item.label === t('loseReasonUnknown') && (
               <button
