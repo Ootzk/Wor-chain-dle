@@ -1,4 +1,10 @@
-import { test, expect, customPuzzlePath, waitForGameReady, screenshot } from './fixtures/game.fixture'
+import {
+  test,
+  expect,
+  customPuzzlePath,
+  waitForGameReady,
+  screenshot,
+} from './fixtures/game.fixture'
 
 test.describe('Navigation', () => {
   test('daily page renders with date subtitle', async ({ gamePage }) => {
@@ -20,7 +26,9 @@ test.describe('Navigation', () => {
     await screenshot(gamePage, '01-practice-page')
   })
 
-  test('navigate from daily to practice via bottom button', async ({ gamePage }) => {
+  test('navigate from daily to practice via bottom button', async ({
+    gamePage,
+  }) => {
     await gamePage.goto('/')
     await waitForGameReady(gamePage)
     await screenshot(gamePage, '01-daily-before-navigate')
@@ -31,7 +39,9 @@ test.describe('Navigation', () => {
     await screenshot(gamePage, '02-practice-after-navigate')
   })
 
-  test('navigate from practice to daily via bottom button', async ({ gamePage }) => {
+  test('navigate from practice to daily via bottom button', async ({
+    gamePage,
+  }) => {
     await gamePage.goto('/#/practice')
     await waitForGameReady(gamePage)
     await screenshot(gamePage, '01-practice-before-navigate')
@@ -45,12 +55,18 @@ test.describe('Navigation', () => {
     await gamePage.goto('/#/create')
     await waitForGameReady(gamePage)
 
-    await expect(gamePage.locator('p.text-green-500', { hasText: 'Create' })).toBeVisible()
-    await expect(gamePage.locator('input[placeholder="Enter your name"]')).toBeVisible()
+    await expect(
+      gamePage.locator('p.text-green-500', { hasText: 'Create' })
+    ).toBeVisible()
+    await expect(
+      gamePage.locator('input[placeholder="Enter your name"]')
+    ).toBeVisible()
     await screenshot(gamePage, '01-create-puzzle-page')
   })
 
-  test('navigate from daily to create via bottom button', async ({ gamePage }) => {
+  test('navigate from daily to create via bottom button', async ({
+    gamePage,
+  }) => {
     await gamePage.goto('/')
     await waitForGameReady(gamePage)
 
@@ -77,7 +93,9 @@ test.describe('Navigation', () => {
     await screenshot(gamePage, '01-redirected-to-daily')
   })
 
-  test('stats icon visible on daily, hidden on practice', async ({ gamePage }) => {
+  test('stats icon visible on daily, hidden on practice', async ({
+    gamePage,
+  }) => {
     // Daily: stats icon visible
     await gamePage.goto('/')
     await waitForGameReady(gamePage)
@@ -92,9 +110,9 @@ test.describe('Navigation', () => {
     // Count cursor-pointer SVG icons in header
     const headerIcons = gamePage.locator('.flex.w-80 svg.cursor-pointer')
     const count = await headerIcons.count()
-    // Daily has: info, stats, settings, donate (4)
-    // Practice has: info, settings, donate (3)
-    expect(count).toBeLessThan(4)
+    // Daily has: info, stats, rewards, settings, donate (5)
+    // Practice has: info, rewards, settings, donate (4)
+    expect(count).toBe(4)
     await screenshot(gamePage, '02-practice-without-stats-icon')
   })
 })

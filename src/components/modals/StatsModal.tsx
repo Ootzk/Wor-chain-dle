@@ -3,7 +3,6 @@ import Countdown from 'react-countdown'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { Calendar } from '../calendar/Calendar'
-import { AchievementList } from '../achievements/AchievementList'
 import { GameStats } from '../../lib/localStorage'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -29,9 +28,7 @@ type Props = {
   weekStartsOnMonday: boolean
   lettersHidden: boolean
   onToggleLettersHidden: () => void
-  initialTab?: 'stats' | 'calendar' | 'achievements'
-  scrollToAchievement?: string
-  onOpenDeadEndHelp?: () => void
+  initialTab?: 'stats' | 'calendar'
 }
 
 export const StatsModal = ({
@@ -51,13 +48,9 @@ export const StatsModal = ({
   lettersHidden,
   onToggleLettersHidden,
   initialTab,
-  scrollToAchievement,
-  onOpenDeadEndHelp,
 }: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<
-    'stats' | 'calendar' | 'achievements'
-  >('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('stats')
 
   useEffect(() => {
     if (isOpen) setActiveTab(initialTab || 'stats')
@@ -148,7 +141,6 @@ export const StatsModal = ({
   const tabs = [
     { id: 'stats' as const, label: t('statistics') },
     { id: 'calendar' as const, label: t('calendar') },
-    { id: 'achievements' as const, label: t('achievements') },
   ]
 
   return (
@@ -232,13 +224,6 @@ export const StatsModal = ({
             handleShare={handleCalendarShare}
             weekStartsOnMonday={weekStartsOnMonday}
             excludeUrl={excludeUrl}
-          />
-        )}
-
-        {activeTab === 'achievements' && (
-          <AchievementList
-            scrollToId={scrollToAchievement}
-            onOpenDeadEndHelp={onOpenDeadEndHelp}
           />
         )}
       </div>
