@@ -15,8 +15,6 @@ export const LoseReasonDistribution = ({ gameStats }: Props) => {
   const { t } = useTranslation()
   const losses = gameStats.gamesFailed
 
-  if (losses <= 0) return null
-
   const distribution: LoseReasonItem[] = [
     {
       label: t('loseReasonUnknown'),
@@ -30,7 +28,7 @@ export const LoseReasonDistribution = ({ gameStats }: Props) => {
     <div className="m-2 text-sm">
       {distribution.map((item) => (
         <div key={item.label} className="m-1 flex items-center">
-          <div className="w-20 shrink-0 text-xs text-gray-500">
+          <div className="w-16 shrink-0 text-xs text-gray-900">
             {item.label}
           </div>
           <div className="ml-2 w-full rounded-full">

@@ -692,14 +692,12 @@ export const StatsModal = ({
                 </h4>
                 <Histogram gameStats={gameStats} />
               </section>
-              {gameStats.gamesFailed > 0 && (
-                <section className="mt-3 border-t border-gray-200 pt-3">
-                  <h4 className="text-lg leading-6 font-medium text-gray-900">
-                    {t('loseReasonDistribution')}
-                  </h4>
-                  <LoseReasonDistribution gameStats={gameStats} />
-                </section>
-              )}
+              <section className="mt-3 border-t border-gray-200 pt-3">
+                <h4 className="text-lg leading-6 font-medium text-gray-900">
+                  {t('loseReasonDistribution')}
+                </h4>
+                <LoseReasonDistribution gameStats={gameStats} />
+              </section>
               <section className="mt-3 border-t border-gray-200 pt-3">
                 <StatBar gameStats={gameStats} />
               </section>

@@ -1,11 +1,12 @@
 import { GameStats } from '../../lib/localStorage'
-import { Progress } from './Progress'
+import { useTranslation } from 'react-i18next'
 
 type Props = {
   gameStats: GameStats
 }
 
 export const Histogram = ({ gameStats }: Props) => {
+  const { t } = useTranslation()
   const distribution = gameStats.winDistribution.map((value, index) => ({
     label: String(index + 1),
     value,
@@ -14,15 +15,22 @@ export const Histogram = ({ gameStats }: Props) => {
   const maxValue = Math.max(...distribution.map((item) => item.value), 1)
 
   return (
-    <div className="columns-1 justify-left m-2 text-sm">
+    <div className="relative m-2 text-sm">
+      <div className="pointer-events-none absolute left-0 top-1/2 w-16 -translate-y-1/2 text-xs text-gray-900">
+        {t('playStatsBreakdownGuess')}
+      </div>
       {distribution.map((item) => (
-        <Progress
-          key={item.label}
-          label={item.label}
-          size={90 * (item.value / maxValue)}
-          value={String(item.value)}
-          variant={item.variant}
-        />
+        <div key={item.label} className="m-1 flex items-center">
+          <div className="w-16 shrink-0 text-right">{item.label}</div>
+          <div className="ml-2 w-full rounded-full">
+            <div
+              style={{ width: `${5 + 90 * (item.value / maxValue)}%` }}
+              className="rounded-l-full bg-green-500 p-0.5 text-center text-xs font-medium text-green-50"
+            >
+              {item.value}
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   )
