@@ -26,7 +26,10 @@ import { PlayStatsPanel } from '../stats/PlayStatsPanel'
 import { CONFIG } from '../../constants/config'
 import { Cell } from '../grid/Cell'
 import { CharStatus } from '../../lib/statuses'
-import { getAchievementsUnlockedTodayCount } from '../../lib/achievements'
+import {
+  getAchievementsUnlockedTodayCount,
+  hasNewAchievementsUnlockedToday,
+} from '../../lib/achievements'
 
 type Props = {
   isOpen: boolean
@@ -249,6 +252,7 @@ export const StatsModal = ({
     ? getFirstInputDelayMs(playStats)
     : undefined
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
+  const hasNewAchievementsToday = hasNewAchievementsUnlockedToday()
   const activeGuessIndex = playStats.guessStats.findIndex(
     (guess) => !guess.completedAt
   )
@@ -640,6 +644,7 @@ export const StatsModal = ({
                     excludeUrl={excludeUrl}
                     onToggleExcludeUrl={onToggleExcludeUrl}
                     onOpenCosmetics={onOpenCosmetics}
+                    hasNewRewards={hasNewAchievementsToday}
                   />
                 </div>
               </div>

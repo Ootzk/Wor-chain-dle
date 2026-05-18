@@ -481,6 +481,18 @@ export const getAchievementsUnlockedTodayCount = (): number => {
   ).length
 }
 
+export const hasNewAchievementsUnlockedToday = (): boolean => {
+  const todayKey = dateToKey(Temporal.Now.plainDateISO())
+  const state = loadAchievementState()
+  const lastSeen = state.lastSeenAt || 0
+
+  return Object.values(state.unlocked).some(
+    (unlock) =>
+      unlock.unlockedAt > lastSeen &&
+      epochMsToLocalDateKey(unlock.unlockedAt) === todayKey
+  )
+}
+
 const saveAchievementState = (state: AchievementState): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
 }
