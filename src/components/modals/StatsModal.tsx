@@ -8,17 +8,18 @@ import {
   PlayStats,
   PlayStatsSummary,
   getAverageGuessTimeMs,
+  getCurrentPlayDurationMs,
   getDeletePressesByFilledLength,
   getFirstInputDelayMs,
   getIncompleteEnterPresses,
   getInvalidEnterPresses,
   getLongPauseCount,
-  getPlayDurationMs,
   getSubmitAccuracy,
   getTotalLongPauseMs,
   getTotalDeletePresses,
   getTotalEnterPresses,
   getValidSubmissions,
+  hasPlayStatsActivity,
 } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -57,6 +58,7 @@ type Props = {
 }
 
 const formatSeconds = (ms: number) => `${Math.round(ms / 1000)}s`
+const EMPTY_VALUE = '-'
 
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between border-b border-gray-100 py-1.5 text-sm last:border-b-0">
@@ -163,10 +165,20 @@ export const StatsModal = ({
   const [activeTab, setActiveTab] = useState<'today' | 'calendar' | 'stats'>(
     'today'
   )
+  const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
     if (isOpen) setActiveTab(initialTab || 'today')
   }, [isOpen, initialTab])
+
+  useEffect(() => {
+    if (!isOpen || playStats.completedAt || !hasPlayStatsActivity(playStats)) {
+      return
+    }
+    setNowMs(Date.now())
+    const interval = window.setInterval(() => setNowMs(Date.now()), 1000)
+    return () => window.clearInterval(interval)
+  }, [isOpen, playStats])
 
   if (mode === 'practice') {
     return (
@@ -257,16 +269,16 @@ export const StatsModal = ({
     : isGameLost
     ? 'present'
     : 'absent'
-  const playDuration = playStats.completedAt
-    ? formatSeconds(getPlayDurationMs(playStats))
-    : t('playStatsNotFinished')
+  const playDuration = hasPlayStatsActivity(playStats)
+    ? formatSeconds(getCurrentPlayDurationMs(playStats, nowMs))
+    : EMPTY_VALUE
   const firstInputDelay = playStats.firstInputAt
     ? formatSeconds(getFirstInputDelayMs(playStats))
-    : t('playStatsNotStarted')
+    : EMPTY_VALUE
   const averageGuessTime =
     getAverageGuessTimeMs(playStats) > 0
       ? formatSeconds(getAverageGuessTimeMs(playStats))
-      : t('playStatsNotAvailable')
+      : EMPTY_VALUE
   const deletePressesByFilledLength = getDeletePressesByFilledLength(playStats)
 
   // Daily mode — Today + Calendar + Stats
@@ -410,7 +422,7 @@ export const StatsModal = ({
                         duration={
                           guess.durationMs !== undefined
                             ? formatSeconds(guess.durationMs)
-                            : t('playStatsNotFinished')
+                            : EMPTY_VALUE
                         }
                         enterPresses={guess.enterPresses}
                         deletePresses={guess.deletePresses}

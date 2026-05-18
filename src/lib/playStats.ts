@@ -397,6 +397,14 @@ export const getPlayDurationMs = (stats?: PlayStats | null) => {
   return Math.max(0, stats.completedAt - stats.startedAt)
 }
 
+export const getCurrentPlayDurationMs = (
+  stats?: PlayStats | null,
+  now = nowMs()
+) => {
+  if (!stats || !hasPlayStatsActivity(stats)) return 0
+  return Math.max(0, (stats.completedAt || now) - stats.startedAt)
+}
+
 export const getFirstInputDelayMs = (stats?: PlayStats | null) => {
   if (!stats?.firstInputAt) return 0
   return Math.max(0, stats.firstInputAt - stats.startedAt)
