@@ -17,6 +17,16 @@ export const LoseReasonDistribution = ({ gameStats }: Props) => {
 
   const distribution: LoseReasonItem[] = [
     {
+      label: t('loseReasonOutOfGuesses'),
+      value: 0,
+      colorClass: 'bg-purple-500 text-purple-50',
+    },
+    {
+      label: t('loseReasonDeadEnd'),
+      value: 0,
+      colorClass: 'bg-purple-500 text-purple-50',
+    },
+    {
       label: t('loseReasonUnknown'),
       value: losses,
       colorClass: 'bg-gray-400 text-gray-50',

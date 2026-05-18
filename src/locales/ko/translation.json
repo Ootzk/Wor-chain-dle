@@ -26,6 +26,8 @@
   "winGuessDistribution": "승리 추측 분포",
   "loseReasonDistribution": "패배 사유 분포",
   "loseReasonUnknown": "알 수 없음",
+  "loseReasonOutOfGuesses": "기회 소진",
+  "loseReasonDeadEnd": "Dead end",
   "today": "오늘",
   "statsShort": "통계",
   "statsSummary": "요약",

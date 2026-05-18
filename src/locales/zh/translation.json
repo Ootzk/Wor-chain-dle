@@ -26,6 +26,8 @@
   "winGuessDistribution": "Win Guess Distribution",
   "loseReasonDistribution": "Lose Reason Distribution",
   "loseReasonUnknown": "Unknown",
+  "loseReasonOutOfGuesses": "Out of guesses",
+  "loseReasonDeadEnd": "Dead end",
   "today": "今天",
   "statsShort": "统计",
   "statsSummary": "Summary",
