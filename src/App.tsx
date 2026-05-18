@@ -584,6 +584,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setRewardsInitialTab('cosmetics')
           setTimeout(() => setIsRewardsModalOpen(true), 300)
         }}
+        isUppercase={isUppercase}
         playStats={playStats}
         playStatsSummary={dailyPlayStatsSummary}
       />

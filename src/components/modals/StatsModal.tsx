@@ -4,7 +4,14 @@ import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { Calendar } from '../calendar/Calendar'
 import { GameStats } from '../../lib/localStorage'
-import { PlayStats, PlayStatsSummary } from '../../lib/playStats'
+import {
+  PlayStats,
+  PlayStatsSummary,
+  getAverageGuessTimeMs,
+  getFirstInputDelayMs,
+  getPlayDurationMs,
+  getSubmitAccuracy,
+} from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { tomorrow } from '../../lib/words'
@@ -14,6 +21,9 @@ import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { PlayStatsPanel } from '../stats/PlayStatsPanel'
+import { CONFIG } from '../../constants/config'
+import { Cell } from '../grid/Cell'
+import { CharStatus } from '../../lib/statuses'
 
 type Props = {
   isOpen: boolean
@@ -32,9 +42,57 @@ type Props = {
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
-  initialTab?: 'stats' | 'calendar'
+  initialTab?: 'today' | 'calendar' | 'stats'
+  isUppercase: boolean
   playStats: PlayStats
   playStatsSummary: PlayStatsSummary
+}
+
+const formatSeconds = (ms: number) => `${Math.round(ms / 1000)}s`
+
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-center justify-between border-b border-gray-100 py-1.5 text-sm last:border-b-0">
+    <span className="text-gray-500">{label}</span>
+    <span className="font-semibold text-gray-900">{value}</span>
+  </div>
+)
+
+const TodayMetric = ({
+  label,
+  value,
+  cellStatus,
+  title,
+  tone = 'default',
+}: {
+  label: string
+  value: string
+  cellStatus?: CharStatus
+  title?: string
+  tone?: 'default' | 'success' | 'pending' | 'muted'
+}) => {
+  const valueClass = {
+    default: 'text-gray-900',
+    success: 'text-green-600',
+    pending: 'text-purple-600',
+    muted: 'text-gray-400',
+  }[tone]
+
+  return (
+    <div className="m-1 min-w-0 flex-1 text-center">
+      {cellStatus ? (
+        <div className="flex justify-center" title={title}>
+          <Cell value={value} status={cellStatus} />
+        </div>
+      ) : (
+        <div className="flex h-14 items-center justify-center">
+          <div className={`truncate text-3xl font-bold ${valueClass}`}>
+            {value}
+          </div>
+        </div>
+      )}
+      <div className="text-xs">{label}</div>
+    </div>
+  )
 }
 
 export const StatsModal = ({
@@ -55,14 +113,17 @@ export const StatsModal = ({
   onToggleWeekStartsOnMonday,
   onOpenCosmetics,
   initialTab,
+  isUppercase,
   playStats,
   playStatsSummary,
 }: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('stats')
+  const [activeTab, setActiveTab] = useState<'today' | 'calendar' | 'stats'>(
+    'today'
+  )
 
   useEffect(() => {
-    if (isOpen) setActiveTab(initialTab || 'stats')
+    if (isOpen) setActiveTab(initialTab || 'today')
   }, [isOpen, initialTab])
 
   if (mode === 'practice') {
@@ -139,10 +200,37 @@ export const StatsModal = ({
     )
   }
 
-  // Daily mode — tabbed UI (Statistics + Calendar)
+  const completedToday = isGameWon || isGameLost
+  const todayResultChar = isGameWon ? 'w' : isGameLost ? 'l' : 'x'
+  const todayResult = isUppercase
+    ? todayResultChar.toUpperCase()
+    : todayResultChar
+  const todayResultTitle = isGameWon
+    ? t('playStatsResultWin')
+    : isGameLost
+    ? t('playStatsResultLose')
+    : t('playStatsResultYet')
+  const todayResultStatus: CharStatus = isGameWon
+    ? 'correct'
+    : isGameLost
+    ? 'present'
+    : 'absent'
+  const playDuration = playStats.completedAt
+    ? formatSeconds(getPlayDurationMs(playStats))
+    : t('playStatsNotFinished')
+  const firstInputDelay = playStats.firstInputAt
+    ? formatSeconds(getFirstInputDelayMs(playStats))
+    : t('playStatsNotStarted')
+  const averageGuessTime =
+    playStats.guessDurationsMs.length > 0
+      ? formatSeconds(getAverageGuessTimeMs(playStats))
+      : t('playStatsNotAvailable')
+
+  // Daily mode — Today + Calendar + Stats
   const tabs = [
-    { id: 'stats' as const, label: t('statistics') },
+    { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
+    { id: 'stats' as const, label: t('statsShort') },
   ]
 
   return (
@@ -169,21 +257,96 @@ export const StatsModal = ({
       </div>
 
       <div className="h-[26rem]">
-        {activeTab === 'stats' && (
+        {activeTab === 'today' && (
           <div className="relative flex h-full flex-col pb-20">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <StatBar gameStats={gameStats} />
-              {gameStats.totalGames > 0 && (
-                <>
-                  <h4 className="text-lg leading-6 font-medium text-gray-900">
-                    {t('guessDistribution')}
-                  </h4>
-                  <Histogram gameStats={gameStats} />
-                </>
-              )}
-              <PlayStatsPanel current={playStats} summary={playStatsSummary} />
+              <div className="flex justify-center my-2">
+                <TodayMetric
+                  label={t('playStatsResult')}
+                  value={todayResult}
+                  cellStatus={todayResultStatus}
+                  title={todayResultTitle}
+                />
+                <TodayMetric
+                  label={t('playStatsGuessCount')}
+                  value={`${guesses.length}/${CONFIG.tries}`}
+                />
+                <TodayMetric
+                  label={t('currentStreak')}
+                  value={String(gameStats.currentStreak)}
+                />
+                <TodayMetric
+                  label={t('playStatsDuration')}
+                  value={playDuration}
+                />
+              </div>
+
+              <h4 className="mb-2 mt-3 text-sm font-semibold text-gray-900">
+                {t('playStatsTitle')}
+              </h4>
+              <div className="rounded border border-gray-100 px-3 py-2">
+                <DetailRow
+                  label={t('playStatsDuration')}
+                  value={playDuration}
+                />
+                <DetailRow
+                  label={t('playStatsFirstInput')}
+                  value={firstInputDelay}
+                />
+                <DetailRow
+                  label={t('playStatsAverageGuess')}
+                  value={averageGuessTime}
+                />
+                <DetailRow
+                  label={t('playStatsLongestPause')}
+                  value={formatSeconds(playStats.longestPauseMs)}
+                />
+                <DetailRow
+                  label={t('playStatsEnterPresses')}
+                  value={String(playStats.totalEnterPresses)}
+                />
+                <DetailRow
+                  label={t('playStatsIncompleteEnterPresses')}
+                  value={String(playStats.incompleteEnterPresses)}
+                />
+                <DetailRow
+                  label={t('playStatsInvalidEnterPresses')}
+                  value={String(playStats.invalidEnterPresses)}
+                />
+                <DetailRow
+                  label={t('playStatsDeletePresses')}
+                  value={String(playStats.deletePresses)}
+                />
+                <DetailRow
+                  label={t('playStatsEmptyDeletePresses')}
+                  value={String(playStats.deletePressesByFilledLength[0] || 0)}
+                />
+                <DetailRow
+                  label={t('playStatsFullGuessDeletePresses')}
+                  value={String(
+                    playStats.deletePressesByFilledLength[CONFIG.wordLength] ||
+                      0
+                  )}
+                />
+                <DetailRow
+                  label={t('playStatsValidSubmissions')}
+                  value={String(playStats.validSubmissions)}
+                />
+                <DetailRow
+                  label={t('playStatsSubmitAccuracy')}
+                  value={`${getSubmitAccuracy(playStats)}%`}
+                />
+                <DetailRow
+                  label={t('playStatsEnterHintAssist')}
+                  value={
+                    playStats.assistFlags.enterValidationHint
+                      ? t('playStatsYes')
+                      : t('playStatsNo')
+                  }
+                />
+              </div>
             </div>
-            {isGameLost || isGameWon ? (
+            {completedToday ? (
               <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
                 <div>
                   <h5>{t('newWordCountdown')}</h5>
@@ -214,6 +377,23 @@ export const StatsModal = ({
             ) : (
               <div />
             )}
+          </div>
+        )}
+
+        {activeTab === 'stats' && (
+          <div className="flex h-full flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+              <StatBar gameStats={gameStats} />
+              {gameStats.totalGames > 0 && (
+                <>
+                  <h4 className="text-lg leading-6 font-medium text-gray-900">
+                    {t('guessDistribution')}
+                  </h4>
+                  <Histogram gameStats={gameStats} />
+                </>
+              )}
+              <PlayStatsPanel current={null} summary={playStatsSummary} />
+            </div>
           </div>
         )}
 
