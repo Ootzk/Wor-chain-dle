@@ -734,6 +734,7 @@ export const StatsModal = ({
             excludeUrl={excludeUrl}
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
+            hasNewRewards={hasNewAchievementsToday}
           />
         )}
       </div>

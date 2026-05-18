@@ -30,6 +30,7 @@ type Props = {
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
   onOpenCosmetics: () => void
+  hasNewRewards?: boolean
 }
 
 const MiniToggle = ({
@@ -64,6 +65,7 @@ export const Calendar = ({
   excludeUrl,
   onToggleExcludeUrl,
   onOpenCosmetics,
+  hasNewRewards = false,
 }: Props) => {
   const { t } = useTranslation()
   const today = Temporal.Now.plainDateISO()
@@ -111,6 +113,9 @@ export const Calendar = ({
     ? (sundayBasedDow + 6) % 7 // Mon=0, Tue=1, ..., Sun=6
     : sundayBasedDow
   const daysInMonth = monthResults.length
+  const monthlyPlayedCount = monthResults.filter(Boolean).length
+  const monthlyWinCount = monthResults.filter((result) => result?.won).length
+  const monthlyLossCount = monthlyPlayedCount - monthlyWinCount
 
   const calendarStartDate = getDailyHistoryStartDate()
 
@@ -271,13 +276,23 @@ export const Calendar = ({
         </div>
       </div>
 
-      {/* Streak + Share button */}
-      <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
-        <div>
-          <h5>{t('currentStreak')}</h5>
-          <span className="text-lg font-semibold text-gray-900">
-            🔥 {gameStats.currentStreak}
-          </span>
+      {/* Monthly attendance + Share button */}
+      <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 items-center gap-3">
+        <div className="flex items-center justify-center gap-3 pl-8">
+          <div>
+            <h5>{t('monthlyAttendance')}</h5>
+            <span className="text-lg font-medium text-gray-900">
+              {monthlyPlayedCount}/{daysInMonth}
+            </span>
+          </div>
+          <div>
+            <h5>{t('statsRecord')}</h5>
+            <span className="text-lg font-medium">
+              <span className="text-green-500">{monthlyWinCount}</span>
+              <span className="text-gray-900">/</span>
+              <span className="text-purple-500">{monthlyLossCount}</span>
+            </span>
+          </div>
         </div>
         <div className="space-y-2">
           <button
@@ -306,6 +321,7 @@ export const Calendar = ({
             excludeUrl={excludeUrl}
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
+            hasNewRewards={hasNewRewards}
           />
         </div>
       </div>
