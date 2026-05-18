@@ -1,3 +1,5 @@
+import { RELEASE_METADATA } from './releaseMetadata'
+
 export type RewardMetadata = {
   introducedInVersion: string
 }
@@ -33,6 +35,18 @@ export const filterRewardsByMetadata = <T extends RewardMetadataCarrier>(
   filter: RewardMetadataFilter
 ): T[] =>
   rewards.filter((reward) => matchesRewardMetadata(reward.metadata, filter))
+
+export const getRewardMetadataLabel = (
+  metadata: RewardMetadata | undefined
+): string => {
+  if (!metadata) {
+    return ''
+  }
+
+  const version = metadata.introducedInVersion
+  const theme = RELEASE_METADATA[version]?.theme
+  return theme ? `v${version} (${theme})` : `v${version}`
+}
 
 export const REWARD_METADATA: Record<
   'v1_5_0' | 'v1_6_0' | 'v1_7_0',

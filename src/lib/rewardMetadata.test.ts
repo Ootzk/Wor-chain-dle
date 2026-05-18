@@ -1,7 +1,10 @@
 import { ACHIEVEMENTS } from './achievements'
 import { COSMETIC_OPTIONS } from './cosmetics'
 import { RELEASE_METADATA } from './releaseMetadata'
-import { filterRewardsByMetadata } from './rewardMetadata'
+import {
+  filterRewardsByMetadata,
+  getRewardMetadataLabel,
+} from './rewardMetadata'
 
 describe('reward metadata', () => {
   it('tracks introduced version for every achievement and cosmetic option', () => {
@@ -51,5 +54,14 @@ describe('reward metadata', () => {
     expect(RELEASE_METADATA['1.7.0']).toMatchObject({
       theme: 'summer garden',
     })
+  })
+
+  it('formats reward metadata labels from release metadata', () => {
+    expect(getRewardMetadataLabel({ introducedInVersion: '1.7.0' })).toBe(
+      'v1.7.0 (summer garden)'
+    )
+    expect(getRewardMetadataLabel({ introducedInVersion: '1.3.0' })).toBe(
+      'v1.3.0'
+    )
   })
 })

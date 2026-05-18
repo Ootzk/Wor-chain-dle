@@ -11,6 +11,7 @@ import { loadStats } from '../../lib/stats'
 import { getRewardsForAchievement } from '../../lib/cosmetics'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
 import { GAME_MODE_LABELS, GameMode } from '../../lib/gameMode'
+import { getRewardMetadataLabel } from '../../lib/rewardMetadata'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
@@ -205,6 +206,11 @@ export const AchievementList = ({
                 current={achievement.currentProgress.current}
                 target={achievement.currentProgress.target}
               />
+              {achievement.metadata && (
+                <div className="mt-0.5 text-right text-[0.625rem] text-gray-400">
+                  {getRewardMetadataLabel(achievement.metadata)}
+                </div>
+              )}
             </div>
           </div>
         </div>

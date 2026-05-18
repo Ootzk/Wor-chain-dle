@@ -7,6 +7,7 @@ import { localeLanguageKey } from '../../i18n'
 import { CompletedRow } from '../grid/CompletedRow'
 import { ChainBridge } from '../grid/ChainBridge'
 import { generateShareText } from '../../lib/share'
+import { getRewardMetadataLabel } from '../../lib/rewardMetadata'
 import { Temporal } from 'temporal-polyfill'
 import {
   COSMETIC_OPTIONS,
@@ -105,6 +106,8 @@ const CosmeticPicker = ({
   )
 
   const equippedOption = options.find((o) => o.id === equipped)
+  const getOptionMetadataLabel = (option: typeof COSMETIC_OPTIONS[number]) =>
+    getRewardMetadataLabel(option.metadata)
 
   return (
     <>
@@ -172,8 +175,13 @@ const CosmeticPicker = ({
                   <span className="flex-shrink-0 flex items-center">
                     {renderPreview(option.id)}
                   </span>
-                  <span className="flex-1 text-right">
-                    {t(option.titleKey)}
+                  <span className="flex-1 text-right min-w-0">
+                    <span className="block truncate">{t(option.titleKey)}</span>
+                    {getOptionMetadataLabel(option) && (
+                      <span className="block text-[0.625rem] leading-tight text-gray-400">
+                        {getOptionMetadataLabel(option)}
+                      </span>
+                    )}
                   </span>
                   <span className="w-5 text-center flex-shrink-0">
                     {!unlocked && '\uD83D\uDD12'}
@@ -231,13 +239,20 @@ const CosmeticPicker = ({
                   >
                     {'<'}
                   </button>
-                  <span
-                    className={`text-sm font-semibold ${
-                      selected ? 'text-indigo-600' : 'text-gray-900'
-                    }`}
-                  >
-                    {MSG_THEME_EMOJI[currentOption.id] || ''}{' '}
-                    {t(currentOption.titleKey)}
+                  <span className="min-w-0 text-center">
+                    <span
+                      className={`block truncate text-sm font-semibold ${
+                        selected ? 'text-indigo-600' : 'text-gray-900'
+                      }`}
+                    >
+                      {MSG_THEME_EMOJI[currentOption.id] || ''}{' '}
+                      {t(currentOption.titleKey)}
+                    </span>
+                    {getOptionMetadataLabel(currentOption) && (
+                      <span className="block text-[0.625rem] leading-tight text-gray-400">
+                        {getOptionMetadataLabel(currentOption)}
+                      </span>
+                    )}
                   </span>
                   <button
                     type="button"
