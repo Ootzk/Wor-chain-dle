@@ -255,7 +255,7 @@ export const StatsModal = ({
   }
 
   const completedToday = isGameWon || isGameLost
-  const todayResultChar = isGameWon ? 'w' : isGameLost ? 'l' : 'x'
+  const todayResultChar = isGameWon ? 'w' : isGameLost ? 'l' : '-'
   const todayResult = isUppercase
     ? todayResultChar.toUpperCase()
     : todayResultChar
