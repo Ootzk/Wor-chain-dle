@@ -106,6 +106,7 @@
   "totalTries": "総ゲーム数",
   "successRate": "成功率",
   "statsRecord": "Record",
+  "statsTotal": "Total",
   "statsAverageGuesses": "Guesses",
   "statsAchievements": "Achievements",
   "statsWinsOnly": "wins only",

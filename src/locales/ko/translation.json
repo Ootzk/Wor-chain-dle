@@ -106,6 +106,7 @@
   "totalTries": "총 게임 수",
   "successRate": "성공률",
   "statsRecord": "전적",
+  "statsTotal": "Total",
   "statsAverageGuesses": "추측 수",
   "statsAchievements": "업적",
   "statsWinsOnly": "성공 게임",

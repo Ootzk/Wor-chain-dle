@@ -59,7 +59,6 @@ export const StatBar = ({ gameStats }: Props) => {
       <StatItem
         label={t('statsRecord')}
         value={`${wins}/${gameStats.totalGames}`}
-        subValue={`${gameStats.successRate}%`}
       />
       <StatItem
         label={t('statsAverageGuesses')}

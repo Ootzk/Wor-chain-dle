@@ -106,6 +106,7 @@
   "totalTries": "Versuche gesamt",
   "successRate": "Erfolgsquote",
   "statsRecord": "Record",
+  "statsTotal": "Total",
   "statsAverageGuesses": "Guesses",
   "statsAchievements": "Achievements",
   "statsWinsOnly": "wins only",

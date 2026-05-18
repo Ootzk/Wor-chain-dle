@@ -106,6 +106,7 @@
   "totalTries": "Jugadas",
   "successRate": "Victorias",
   "statsRecord": "Record",
+  "statsTotal": "Total",
   "statsAverageGuesses": "Guesses",
   "statsAchievements": "Achievements",
   "statsWinsOnly": "wins only",
