@@ -33,6 +33,7 @@ import { PlayStatsPanel } from '../stats/PlayStatsPanel'
 import { CONFIG } from '../../constants/config'
 import { Cell } from '../grid/Cell'
 import { CharStatus } from '../../lib/statuses'
+import { getAchievementsUnlockedTodayCount } from '../../lib/achievements'
 
 type Props = {
   isOpen: boolean
@@ -122,7 +123,7 @@ const TodayMetric = ({
   }[tone]
 
   return (
-    <div className="m-1 min-w-0 flex-1 text-center">
+    <div className="m-1 min-w-0 text-center">
       {cellStatus ? (
         <div className="flex justify-center" title={title}>
           <Cell value={value} status={cellStatus} />
@@ -280,6 +281,7 @@ export const StatsModal = ({
       ? formatSeconds(getAverageGuessTimeMs(playStats))
       : EMPTY_VALUE
   const deletePressesByFilledLength = getDeletePressesByFilledLength(playStats)
+  const unlockedTodayCount = getAchievementsUnlockedTodayCount()
 
   // Daily mode — Today + Calendar + Stats
   const tabs = [
@@ -315,7 +317,7 @@ export const StatsModal = ({
         {activeTab === 'today' && (
           <div className="relative flex h-full flex-col pb-20">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <div className="flex justify-center my-2">
+              <div className="my-2 grid grid-cols-5 gap-y-2">
                 <TodayMetric
                   label={t('playStatsResult')}
                   value={todayResult}
@@ -327,12 +329,16 @@ export const StatsModal = ({
                   value={`${guesses.length}/${CONFIG.tries}`}
                 />
                 <TodayMetric
-                  label={t('currentStreak')}
-                  value={String(gameStats.currentStreak)}
-                />
-                <TodayMetric
                   label={t('playStatsDuration')}
                   value={playDuration}
+                />
+                <TodayMetric
+                  label={t('playStatsUnlockedToday')}
+                  value={String(unlockedTodayCount)}
+                />
+                <TodayMetric
+                  label={t('playStatsStreak')}
+                  value={String(gameStats.currentStreak)}
                 />
               </div>
 

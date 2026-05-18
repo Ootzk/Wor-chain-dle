@@ -3,7 +3,9 @@ import {
   DailyHistory,
   getDailyHistoryStartDate,
   getBestMonthlyAttendanceProgress,
+  dateToKey,
 } from './dailyHistory'
+import { Temporal } from 'temporal-polyfill'
 import { GameMode } from './gameMode'
 import {
   AchievementTrackingState,
@@ -461,6 +463,22 @@ export const loadAchievementState = (): AchievementState => {
     ...parsed,
     unlocked: { ...(parsed.unlocked ?? {}) },
   }
+}
+
+const epochMsToLocalDateKey = (epochMs: number): string =>
+  dateToKey(
+    Temporal.Instant.fromEpochMilliseconds(epochMs)
+      .toZonedDateTimeISO(Temporal.Now.timeZoneId())
+      .toPlainDate()
+  )
+
+export const getAchievementsUnlockedTodayCount = (): number => {
+  const todayKey = dateToKey(Temporal.Now.plainDateISO())
+  const state = loadAchievementState()
+
+  return Object.values(state.unlocked).filter(
+    (unlock) => epochMsToLocalDateKey(unlock.unlockedAt) === todayKey
+  ).length
 }
 
 const saveAchievementState = (state: AchievementState): void => {
