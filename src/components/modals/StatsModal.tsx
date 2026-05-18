@@ -7,18 +7,11 @@ import { GameStats } from '../../lib/localStorage'
 import {
   PlayStats,
   PlayStatsSummary,
-  getAverageGuessTimeMs,
   getCurrentPlayDurationMs,
-  getDeletePressesByFilledLength,
   getFirstInputDelayMs,
-  getIncompleteEnterPresses,
-  getInvalidEnterPresses,
-  getLongPauseCount,
-  getSubmitAccuracy,
   getTotalLongPauseMs,
   getTotalDeletePresses,
   getTotalEnterPresses,
-  getValidSubmissions,
   hasPlayStatsActivity,
 } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
@@ -58,7 +51,6 @@ type Props = {
   playStatsSummary: PlayStatsSummary
 }
 
-const formatSeconds = (ms: number) => `${Math.round(ms / 1000)}s`
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
 const formatAverageSecondsValue = (ms: number) => (ms / 1000).toFixed(1)
 const EMPTY_VALUE = '-'
@@ -77,13 +69,6 @@ type GuessBreakdownRow = {
   deleteValue?: string
   isSummary?: boolean
 }
-
-const DetailRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-center justify-between border-b border-gray-100 py-1.5 text-sm last:border-b-0">
-    <span className="text-gray-500">{label}</span>
-    <span className="font-semibold text-gray-900">{value}</span>
-  </div>
-)
 
 const TodayMetric = ({
   label,
@@ -113,12 +98,12 @@ const TodayMetric = ({
         </div>
       ) : (
         <div className="flex h-14 items-center justify-center">
-          <div className={`truncate text-3xl font-bold ${valueClass}`}>
+          <div className={`min-w-0 text-2xl font-bold ${valueClass}`}>
             {value}
           </div>
         </div>
       )}
-      <div className="text-xs">{label}</div>
+      <div className="text-[10px] leading-3">{label}</div>
     </div>
   )
 }
@@ -257,23 +242,12 @@ export const StatsModal = ({
     : isGameLost
     ? 'present'
     : 'absent'
-  const playDuration = hasPlayStatsActivity(playStats)
-    ? formatSeconds(getCurrentPlayDurationMs(playStats, nowMs))
-    : EMPTY_VALUE
   const playDurationValue = hasPlayStatsActivity(playStats)
     ? formatSecondsValue(getCurrentPlayDurationMs(playStats, nowMs))
-    : EMPTY_VALUE
-  const firstInputDelay = playStats.firstInputAt
-    ? formatSeconds(getFirstInputDelayMs(playStats))
     : EMPTY_VALUE
   const firstInputDelayMs = playStats.firstInputAt
     ? getFirstInputDelayMs(playStats)
     : undefined
-  const averageGuessTime =
-    getAverageGuessTimeMs(playStats) > 0
-      ? formatSeconds(getAverageGuessTimeMs(playStats))
-      : EMPTY_VALUE
-  const deletePressesByFilledLength = getDeletePressesByFilledLength(playStats)
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
   const activeGuessIndex = playStats.guessStats.findIndex(
     (guess) => !guess.completedAt
@@ -426,7 +400,7 @@ export const StatsModal = ({
         {activeTab === 'today' && (
           <div className="relative flex h-full flex-col pb-20">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <div className="my-2 grid grid-cols-5 gap-y-2">
+              <div className="mb-2 grid grid-cols-5 gap-y-2">
                 <TodayMetric
                   label={t('playStatsResult')}
                   value={todayResult}
@@ -506,7 +480,7 @@ export const StatsModal = ({
                     </div>
                   </div>
                 )}
-                <div className="overflow-hidden rounded border border-gray-100 text-xs">
+                <div className="overflow-hidden rounded border border-gray-100 text-[11px] leading-4">
                   <table className="w-full table-fixed border-collapse">
                     <colgroup>
                       <col className="w-16" />
@@ -518,10 +492,10 @@ export const StatsModal = ({
                     </colgroup>
                     <thead className="font-semibold text-gray-500">
                       <tr>
-                        <th className="border-b border-gray-200 bg-gray-100 px-2 py-1 text-center">
+                        <th className="border-b border-slate-500 bg-slate-400 px-1.5 py-0.5 text-center text-white">
                           <button
                             type="button"
-                            className="inline-flex h-5 w-5 items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500"
                             onClick={() =>
                               setIsBreakdownInfoOpen(!isBreakdownInfoOpen)
                             }
@@ -532,13 +506,13 @@ export const StatsModal = ({
                         </th>
                         <th
                           colSpan={3}
-                          className="border-b border-l border-gray-200 bg-green-50 px-2 py-1 text-center text-green-700"
+                          className="border-b border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white"
                         >
                           {t('playStatsBreakdownDurationSeconds')}
                         </th>
                         <th
                           colSpan={2}
-                          className="border-b border-l border-gray-200 bg-purple-50 px-2 py-1 text-center text-purple-700"
+                          className="border-b border-l border-purple-600 bg-purple-500 px-1.5 py-0.5 text-center text-white"
                         >
                           {t('playStatsBreakdownAction')}
                           {playStats.assistFlags.enterValidationHint
@@ -547,22 +521,22 @@ export const StatsModal = ({
                         </th>
                       </tr>
                       <tr>
-                        <th className="bg-gray-100 px-2 py-1 text-center">
+                        <th className="bg-slate-400 px-1.5 py-0.5 text-center text-white">
                           {t('playStatsBreakdownRow')}
                         </th>
-                        <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                        <th className="border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white">
                           {t('playStatsBreakdownTotal')}
                         </th>
-                        <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                        <th className="border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white">
                           {t('playStatsBreakdownGuess')}
                         </th>
-                        <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                        <th className="border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white">
                           {t('playStatsBreakdownPause')}
                         </th>
-                        <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
+                        <th className="border-l border-purple-600 bg-purple-500 px-1.5 py-0.5 text-center text-white">
                           {t('playStatsBreakdownEnter')}
                         </th>
-                        <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
+                        <th className="border-l border-purple-600 bg-purple-500 px-1.5 py-0.5 text-center text-white">
                           {t('playStatsBreakdownDelete')}
                         </th>
                       </tr>
@@ -571,32 +545,64 @@ export const StatsModal = ({
                       {guessBreakdownRows.map((row) => (
                         <tr
                           key={row.row}
-                          className={`border-t border-gray-100 ${
-                            row.isSummary ? 'bg-gray-50 font-semibold' : ''
+                          className={`border-t ${
+                            row.isSummary
+                              ? 'border-gray-200 bg-gray-100 font-semibold'
+                              : 'border-gray-100'
                           }`}
                         >
-                          <td className="px-2 py-1.5 text-gray-500">
+                          <td className="px-1.5 py-0.5 text-gray-500">
                             {row.row}
                           </td>
-                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          <td
+                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
+                              row.isSummary
+                                ? 'border-gray-200'
+                                : 'border-gray-100'
+                            }`}
+                          >
                             {row.totalValue ??
                               formatOptionalSecondsValue(row.totalMs)}
                           </td>
-                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          <td
+                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
+                              row.isSummary
+                                ? 'border-gray-200'
+                                : 'border-gray-100'
+                            }`}
+                          >
                             {row.guessValue ??
                               formatOptionalSecondsValue(row.guessMs)}
                           </td>
-                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          <td
+                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
+                              row.isSummary
+                                ? 'border-gray-200'
+                                : 'border-gray-100'
+                            }`}
+                          >
                             {row.pauseValue ??
                               formatOptionalSecondsValue(row.pauseMs)}
                           </td>
-                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          <td
+                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
+                              row.isSummary
+                                ? 'border-gray-200'
+                                : 'border-gray-100'
+                            }`}
+                          >
                             {row.enterValue ??
                               (row.enterPresses === undefined
                                 ? EMPTY_VALUE
                                 : row.enterPresses)}
                           </td>
-                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          <td
+                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
+                              row.isSummary
+                                ? 'border-gray-200'
+                                : 'border-gray-100'
+                            }`}
+                          >
                             {row.deleteValue ??
                               (row.deletePresses === undefined
                                 ? EMPTY_VALUE
@@ -607,78 +613,6 @@ export const StatsModal = ({
                     </tbody>
                   </table>
                 </div>
-              </div>
-
-              <h4 className="mb-2 mt-3 text-sm font-semibold text-gray-900">
-                {t('playStatsTitle')}
-              </h4>
-              <div className="rounded border border-gray-100 px-3 py-2">
-                <DetailRow
-                  label={t('playStatsDuration')}
-                  value={playDuration}
-                />
-                <DetailRow
-                  label={t('playStatsFirstInput')}
-                  value={firstInputDelay}
-                />
-                <DetailRow
-                  label={t('playStatsAverageGuess')}
-                  value={averageGuessTime}
-                />
-                <DetailRow
-                  label={t('playStatsLongestPause')}
-                  value={formatSeconds(playStats.longestPauseMs)}
-                />
-                <DetailRow
-                  label={t('playStatsLongPauses')}
-                  value={String(getLongPauseCount(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsLongPauseTime')}
-                  value={formatSeconds(getTotalLongPauseMs(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsEnterPresses')}
-                  value={String(getTotalEnterPresses(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsIncompleteEnterPresses')}
-                  value={String(getIncompleteEnterPresses(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsInvalidEnterPresses')}
-                  value={String(getInvalidEnterPresses(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsDeletePresses')}
-                  value={String(getTotalDeletePresses(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsEmptyDeletePresses')}
-                  value={String(deletePressesByFilledLength[0] || 0)}
-                />
-                <DetailRow
-                  label={t('playStatsFullGuessDeletePresses')}
-                  value={String(
-                    deletePressesByFilledLength[CONFIG.wordLength] || 0
-                  )}
-                />
-                <DetailRow
-                  label={t('playStatsValidSubmissions')}
-                  value={String(getValidSubmissions(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsSubmitAccuracy')}
-                  value={`${getSubmitAccuracy(playStats)}%`}
-                />
-                <DetailRow
-                  label={t('playStatsEnterHintAssist')}
-                  value={
-                    playStats.assistFlags.enterValidationHint
-                      ? t('playStatsYes')
-                      : t('playStatsNo')
-                  }
-                />
               </div>
             </div>
             {completedToday ? (
