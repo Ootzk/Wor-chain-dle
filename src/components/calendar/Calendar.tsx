@@ -172,10 +172,10 @@ export const Calendar = ({
     })
   }
 
-  const monthLabel = firstDay.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
-  })
+  const monthLabel = `${firstDay.year}-${String(firstDay.month).padStart(
+    2,
+    '0'
+  )}`
 
   const fallbackWeekdays = weekStartsOnMonday ? WEEKDAYS_MON : WEEKDAYS_SUN
   const weekdayKeys = t('weekdays', { returnObjects: true }) as string[]
@@ -195,50 +195,52 @@ export const Calendar = ({
   return (
     <div className="relative flex h-full flex-col items-center pb-20">
       {/* Month navigation */}
-      <div className="mb-2 flex w-[17.5rem] items-center gap-1">
-        <span className="min-w-0 flex-1 text-left text-base font-semibold text-gray-900">
-          {monthLabel}
-        </span>
-        <div
-          className="flex items-center gap-1 text-[0.625rem] font-medium text-gray-400"
-          title={t('weekStartLabel')}
-        >
-          <span>{t('mondayStartShortLabel')}</span>
-          <MiniToggle
-            checked={weekStartsOnMonday}
-            onClick={onToggleWeekStartsOnMonday}
-          />
-        </div>
+      <div className="relative mb-2 flex h-7 w-full items-center justify-center">
         <button
           onClick={goBack}
           type="button"
-          className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+          className="absolute left-0 p-1 rounded hover:bg-gray-100 cursor-pointer"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            setYear(today.year)
-            setMonth(today.month - 1)
-          }}
-          disabled={year === today.year && month === today.month - 1}
-          className={`p-1 rounded ${
-            year === today.year && month === today.month - 1
-              ? 'opacity-30 cursor-default'
-              : 'hover:bg-gray-100 cursor-pointer'
-          }`}
-          title="Today"
-        >
-          <RefreshIcon className="h-5 w-5" />
-        </button>
-        <button
-          onClick={goForward}
-          type="button"
-          className="p-1 rounded hover:bg-gray-100 cursor-pointer"
-        >
-          <ChevronRightIcon className="h-5 w-5" />
-        </button>
+        <span className="whitespace-nowrap text-center text-base font-semibold text-gray-900">
+          {monthLabel}
+        </span>
+        <div className="absolute right-0 flex items-center gap-1">
+          <div
+            className="flex items-center gap-1 text-[0.625rem] font-medium text-gray-400"
+            title={t('weekStartLabel')}
+          >
+            <span>{t('mondayStartShortLabel')}</span>
+            <MiniToggle
+              checked={weekStartsOnMonday}
+              onClick={onToggleWeekStartsOnMonday}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setYear(today.year)
+              setMonth(today.month - 1)
+            }}
+            disabled={year === today.year && month === today.month - 1}
+            className={`p-1 rounded ${
+              year === today.year && month === today.month - 1
+                ? 'opacity-30 cursor-default'
+                : 'hover:bg-gray-100 cursor-pointer'
+            }`}
+            title="Today"
+          >
+            <RefreshIcon className="h-5 w-5" />
+          </button>
+          <button
+            onClick={goForward}
+            type="button"
+            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Weekday header + Day grid */}
