@@ -2,6 +2,7 @@ import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ClipboardListIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
+import { SparklesIcon } from '@heroicons/react/outline'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
@@ -12,6 +13,7 @@ import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal } from './components/modals/StatsModal'
+import { RewardsModal } from './components/modals/RewardsModal'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
@@ -72,11 +74,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
-  const [statsInitialTab, setStatsInitialTab] = useState<
-    'stats' | 'calendar' | 'achievements' | undefined
-  >(undefined)
-  const [scrollToAchievement, setScrollToAchievement] = useState<
-    string | undefined
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
+  const [rewardsInitialTab, setRewardsInitialTab] = useState<
+    'achievements' | 'cosmetics' | undefined
   >(undefined)
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
@@ -404,6 +404,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             onClick={() => setIsStatsModalOpen(true)}
           />
         )}
+        <SparklesIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => {
+            setRewardsInitialTab('achievements')
+            setIsRewardsModalOpen(true)
+          }}
+        />
         <CogIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsSettingsModalOpen(true)}
@@ -441,11 +448,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         isOpen={isStatsModalOpen}
         handleClose={() => {
           setIsStatsModalOpen(false)
-          setStatsInitialTab(undefined)
-          setScrollToAchievement(undefined)
         }}
-        initialTab={statsInitialTab}
-        scrollToAchievement={scrollToAchievement}
         guesses={guesses}
         gameStats={stats}
         isGameLost={isGameLost}
@@ -467,8 +470,18 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleLettersHidden={() =>
           setResultHideLettersOverride(!effectiveHideLetters)
         }
+      />
+      <RewardsModal
+        isOpen={isRewardsModalOpen}
+        handleClose={() => {
+          setIsRewardsModalOpen(false)
+          setRewardsInitialTab(undefined)
+        }}
+        isUppercase={isUppercase}
+        excludeUrl={excludeUrl}
+        initialTab={rewardsInitialTab}
         onOpenDeadEndHelp={() => {
-          setIsStatsModalOpen(false)
+          setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
@@ -490,12 +503,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
         }
-        onNavigateToAchievement={(id) => {
-          setIsSettingsModalOpen(false)
-          setStatsInitialTab('achievements')
-          setScrollToAchievement(id)
-          setTimeout(() => setIsStatsModalOpen(true), 300)
-        }}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

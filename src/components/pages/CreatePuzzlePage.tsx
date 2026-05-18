@@ -5,15 +5,17 @@ import {
   InformationCircleIcon,
   CogIcon,
   CurrencyDollarIcon,
+  SparklesIcon,
 } from '@heroicons/react/outline'
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { loadSettings, saveSettings } from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
-import { InfoModal } from '../modals/InfoModal'
+import { InfoModal, InfoTab } from '../modals/InfoModal'
 import { SettingsModal } from '../modals/SettingsModal'
 import { DonateModal } from '../modals/DonateModal'
+import { RewardsModal } from '../modals/RewardsModal'
 import { CONFIG } from '../../constants/config'
 import { CREATE_MODE_LABEL, GAME_MODE_LABELS } from '../../lib/gameMode'
 
@@ -41,6 +43,8 @@ export const CreatePuzzlePage = () => {
     () => loadSettings().enterValidationHint
   )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
+  const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
 
@@ -172,7 +176,14 @@ export const CreatePuzzlePage = () => {
         </div>
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
-          onClick={() => setIsInfoModalOpen(true)}
+          onClick={() => {
+            setInfoInitialTab('mode')
+            setIsInfoModalOpen(true)
+          }}
+        />
+        <SparklesIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsRewardsModalOpen(true)}
         />
         <CogIcon
           className="h-6 w-6 cursor-pointer"
@@ -284,6 +295,18 @@ export const CreatePuzzlePage = () => {
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
         mode="create"
+        initialTab={infoInitialTab}
+      />
+      <RewardsModal
+        isOpen={isRewardsModalOpen}
+        handleClose={() => setIsRewardsModalOpen(false)}
+        isUppercase={isUppercase}
+        excludeUrl={excludeUrl}
+        onOpenDeadEndHelp={() => {
+          setIsRewardsModalOpen(false)
+          setInfoInitialTab('howToPlay')
+          setTimeout(() => setIsInfoModalOpen(true), 300)
+        }}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}

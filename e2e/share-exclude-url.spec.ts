@@ -14,7 +14,7 @@ test.describe('Share — Exclude URL setting', () => {
     'Clipboard API requires Chromium'
   )
 
-  const SETTINGS_ICON_DAILY = 2 // 0:info, 1:stats, 2:settings
+  const SETTINGS_ICON_DAILY = 3 // 0:info, 1:stats, 2:rewards, 3:settings
 
   /** Grant clipboard permissions and navigate to a custom puzzle */
   async function setupCustomGame(gamePage: import('@playwright/test').Page) {
@@ -46,8 +46,8 @@ test.describe('Share — Exclude URL setting', () => {
 
   /** Toggle the Exclude URL setting on/off */
   async function toggleExcludeUrl(gamePage: import('@playwright/test').Page) {
-    // Custom mode: 0:info, 1:settings, 2:donate
-    const settingsIndex = 1
+    // Custom mode: 0:info, 1:rewards, 2:settings, 3:donate
+    const settingsIndex = 2
     await gamePage
       .locator('svg.h-6.w-6.cursor-pointer')
       .nth(settingsIndex)

@@ -41,9 +41,9 @@ async function injectHistory(
 }
 
 // Daily mode header icons:
-// 0:Info  1:Stats  2:Settings  3:Donate
+// 0:Info  1:Stats  2:Rewards  3:Settings  4:Donate
 const STATS_ICON = 1
-const SETTINGS_ICON = 2
+const SETTINGS_ICON = 3
 
 /** Open the Stats modal and switch to the Calendar tab */
 async function openCalendarTab(page: Page) {
@@ -212,13 +212,13 @@ test.describe('Calendar', () => {
   test('stats icon visible in daily, hidden in practice (no calendar tab)', async ({
     gamePage,
   }) => {
-    // Daily: 4 icons (info, stats, settings, donate)
-    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(4)
+    // Daily: 5 icons (info, stats, rewards, settings, donate)
+    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(5)
 
-    // Practice: 3 icons (no stats)
+    // Practice: 4 icons (no stats)
     await gamePage.goto('/#/practice')
     await waitForGameReady(gamePage)
-    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(3)
+    await expect(gamePage.locator('svg.h-6.w-6.cursor-pointer')).toHaveCount(4)
     await screenshot(gamePage, '01-no-stats-in-practice')
   })
 })

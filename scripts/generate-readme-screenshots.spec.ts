@@ -240,8 +240,8 @@ test('settings with language selector (Korean)', async ({ page }) => {
   await page.goto('/')
   await page.locator('button:text-is("q")').waitFor({ state: 'visible' })
 
-  // Open Settings modal (icon index 2)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  // Open Settings modal (icon index 3)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
   await page.waitForTimeout(500)
   await save(page, 'settings-kor')
 })
@@ -286,8 +286,8 @@ test('settings modal with all toggles', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings (Daily mode: icon index 2)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  // Open settings (Daily mode: icon index 3)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
   await page.locator('text=Settings').waitFor({ state: 'visible' })
   await page.waitForTimeout(300)
   await save(page, 'settings')
@@ -298,8 +298,8 @@ test('donate modal', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Click donate icon (Daily mode: icon index 3)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+  // Click donate icon (Daily mode: icon index 4)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
   await page.locator('h3:has-text("Donate")').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'donation')
@@ -393,15 +393,14 @@ test('achievements tab with unlocked and locked', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open Stats → Achievements tab
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-  await page.locator('text=Statistics').waitFor({ state: 'visible' })
-  await page.locator('text=Achievements').click()
+  // Open Rewards → Achievements tab
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'achievements')
 })
 
-test('settings with cosmetics and sample view', async ({ page }) => {
+test('rewards with cosmetics and sample view', async ({ page }) => {
   await initPage(page)
 
   // Unlock some achievements for cosmetic options
@@ -442,9 +441,10 @@ test('settings with cosmetics and sample view', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings
+  // Open rewards
   await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
+  await page.locator('text=Cosmetics').click()
   await page.waitForTimeout(300)
   await save(page, 'settings-cosmetics')
 })
@@ -473,9 +473,10 @@ test('cosmetic picker popup', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings → click Share Emoji picker
+  // Open rewards → click Share Emoji picker
   await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
+  await page.locator('text=Cosmetics').click()
   await page.locator('text=Share Emoji').locator('..').locator('button').click()
   await page.waitForTimeout(300)
   await save(page, 'cosmetic-picker')
@@ -502,9 +503,10 @@ test('alert message theme picker', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings → click Alert Message picker
+  // Open rewards → click Alert Message picker
   await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
+  await page.locator('text=Cosmetics').click()
   await page.locator('text=Win Message').locator('..').locator('button').click()
   await page.waitForTimeout(300)
   await save(page, 'alert-message-picker')

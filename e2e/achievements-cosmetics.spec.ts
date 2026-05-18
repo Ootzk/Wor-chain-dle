@@ -11,22 +11,19 @@ test.describe('Achievements & Cosmetics', () => {
     await waitForGameReady(gamePage)
   })
 
-  test('achievements tab shows in stats modal', async ({ gamePage }) => {
-    // Open stats modal (icon index 1 in daily mode)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+  test('achievements tab shows in rewards modal', async ({ gamePage }) => {
+    // Open rewards modal (icon index 2 in daily mode)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await expect(
-      gamePage.getByRole('heading', { name: 'Records' })
+      gamePage.getByRole('heading', { name: 'Rewards' })
     ).toBeVisible()
-
-    // Click Achievements tab
-    await gamePage.locator('button', { hasText: 'Achievements' }).click()
 
     // Should show achievement cards
     await expect(gamePage.locator('text=Getting Started')).toBeVisible()
     await expect(
       gamePage.locator('[data-achievement-id="play_10"]')
     ).toContainText('Daily')
-    await expect(gamePage.locator('text=Play 10 games')).toBeVisible()
+    await expect(gamePage.locator('text=Complete 10 games')).toBeVisible()
     await screenshot(gamePage, '01-achievements-tab')
 
     // Progress bar container should be visible
@@ -53,9 +50,8 @@ test.describe('Achievements & Cosmetics', () => {
     await gamePage.reload()
     await waitForGameReady(gamePage)
 
-    // Open stats → achievements
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-    await gamePage.locator('button', { hasText: 'Achievements' }).click()
+    // Open rewards
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
     // Getting Started should have green border (unlocked)
     const card = gamePage.locator('[data-achievement-id="play_10"]')
@@ -90,9 +86,8 @@ test.describe('Achievements & Cosmetics', () => {
     expect(state.unlocked.play_10).toBeTruthy()
     expect(state.unlocked.streak_3).toBeTruthy()
 
-    // Open achievements tab to verify visually
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-    await gamePage.locator('button', { hasText: 'Achievements' }).click()
+    // Open rewards to verify visually
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
     const play10 = gamePage.locator('[data-achievement-id="play_10"]')
     await expect(play10).toHaveClass(/border-green-400/)
@@ -101,17 +96,18 @@ test.describe('Achievements & Cosmetics', () => {
     await screenshot(gamePage, '01-retro-unlock')
   })
 
-  test('cosmetics section in settings modal', async ({ gamePage }) => {
-    // Open settings (icon index 2 in daily mode)
+  test('cosmetics section in rewards modal', async ({ gamePage }) => {
+    // Open rewards (icon index 2 in daily mode)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
+    await expect(gamePage.locator('text=Rewards')).toBeVisible()
+    await gamePage.locator('button', { hasText: 'Cosmetics' }).click()
 
     // Sample grid should be visible
     await expect(gamePage.locator('text=Share Emoji')).toBeVisible()
     await expect(gamePage.locator('text=Share Badge')).toBeVisible()
     await expect(gamePage.locator('text=Cell Font')).toBeVisible()
     await expect(gamePage.locator('text=Chain Style')).toBeVisible()
-    await screenshot(gamePage, '01-settings-cosmetics')
+    await screenshot(gamePage, '01-rewards-cosmetics')
   })
 
   test('share emoji cosmetic changes share output', async ({ gamePage }) => {
@@ -134,8 +130,9 @@ test.describe('Achievements & Cosmetics', () => {
     await gamePage.reload()
     await waitForGameReady(gamePage)
 
-    // Open settings to verify sample view uses circle emoji
+    // Open rewards to verify sample view uses circle emoji
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    await gamePage.locator('button', { hasText: 'Cosmetics' }).click()
 
     // Share preview should contain circle emoji
     const sharePreview = gamePage.locator('pre')
@@ -158,8 +155,9 @@ test.describe('Achievements & Cosmetics', () => {
     await gamePage.reload()
     await waitForGameReady(gamePage)
 
-    // Open settings
+    // Open rewards
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    await gamePage.locator('button', { hasText: 'Cosmetics' }).click()
 
     // Click Share Emoji picker button (first cosmetic picker)
     await gamePage.locator('button:has-text("Square")').click()
@@ -180,8 +178,9 @@ test.describe('Achievements & Cosmetics', () => {
   })
 
   test('locked cosmetic shows lock icon', async ({ gamePage }) => {
-    // Open settings
+    // Open rewards
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    await gamePage.locator('button', { hasText: 'Cosmetics' }).click()
 
     // Click Share Emoji picker
     await gamePage.locator('button:has-text("Square")').click()
