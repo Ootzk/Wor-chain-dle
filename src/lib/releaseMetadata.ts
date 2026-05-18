@@ -36,34 +36,6 @@ export const RELEASE_METADATA: Record<string, ReleaseMetadata> = {
   },
   '1.7.0': {
     version: '1.7.0',
-    theme: 'summer',
-    events: [
-      {
-        id: 'hardcore',
-        mode: 'hardcore',
-        ruleTags: [
-          'forced-word',
-          'hidden-letters',
-          'hidden-keyboard-status',
-          'time-limit',
-          'limited-enter',
-        ],
-      },
-    ],
-  },
-  '1.8.0': {
-    version: '1.8.0',
-    theme: 'horror',
-    events: [
-      {
-        id: 'ai',
-        mode: 'ai',
-        ruleTags: [
-          'alternating-turns',
-          'themed-prefer-word-list',
-          'theme-cosmetic-overrides',
-        ],
-      },
-    ],
+    theme: 'summer garden',
   },
 }

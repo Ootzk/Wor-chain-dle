@@ -49,12 +49,7 @@ describe('reward metadata', () => {
 
   it('keeps release-level theme and event metadata separate from rewards', () => {
     expect(RELEASE_METADATA['1.7.0']).toMatchObject({
-      theme: 'summer',
-      events: [expect.objectContaining({ id: 'hardcore' })],
-    })
-    expect(RELEASE_METADATA['1.8.0']).toMatchObject({
-      theme: 'horror',
-      events: [expect.objectContaining({ id: 'ai' })],
+      theme: 'summer garden',
     })
   })
 })
