@@ -160,6 +160,15 @@ export const CreatePuzzlePage = () => {
     handleCreate()
   }, [handleCreate])
 
+  const enterHint = (() => {
+    if (!enterValidationHint || copied) return undefined
+    if (!questioner.trim() || !isFilled) return 'incomplete'
+
+    const word = getWord().toLowerCase()
+    if (!isWordInWordList(word)) return 'invalid'
+    return 'valid'
+  })()
+
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div className="flex w-80 mx-auto items-center mb-8">
@@ -282,6 +291,7 @@ export const CreatePuzzlePage = () => {
           onEnter={onEnter}
           guesses={copied ? [getWord().toLowerCase().split('')] : []}
           solution={copied ? getWord().toLowerCase() : ''}
+          enterHint={enterHint}
         />
       </div>
 
