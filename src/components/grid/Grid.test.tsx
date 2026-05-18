@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { Grid } from './Grid'
 
 const winningGuess = ['c', 'r', 'a', 'n', 'e']
@@ -69,4 +69,22 @@ test('shows a cursor on the active transparent-letter cell', () => {
       '[data-testid="transparent-letter-cursor"]'
     )
   ).toHaveLength(1)
+})
+
+test('shows the transparent-letter toggle beside the final row', () => {
+  const onToggleHideLetters = jest.fn()
+  const { getByLabelText } = render(
+    <Grid
+      guesses={[winningGuess]}
+      currentGuess={[]}
+      solution="crane"
+      isGameComplete
+      showHideLettersToggle
+      onToggleHideLetters={onToggleHideLetters}
+    />
+  )
+
+  fireEvent.click(getByLabelText('Toggle transparent letters'))
+
+  expect(onToggleHideLetters).toHaveBeenCalledTimes(1)
 })

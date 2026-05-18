@@ -26,8 +26,6 @@ type Props = {
   questioner?: string
   excludeUrl: boolean
   weekStartsOnMonday: boolean
-  lettersHidden: boolean
-  onToggleLettersHidden: () => void
   initialTab?: 'stats' | 'calendar'
 }
 
@@ -45,8 +43,6 @@ export const StatsModal = ({
   questioner,
   excludeUrl,
   weekStartsOnMonday,
-  lettersHidden,
-  onToggleLettersHidden,
   initialTab,
 }: Props) => {
   const { t } = useTranslation()
@@ -101,13 +97,6 @@ export const StatsModal = ({
         )}
         {(isGameLost || isGameWon) && (
           <div className="mt-5 sm:mt-6 space-y-2">
-            <button
-              type="button"
-              className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-              onClick={onToggleLettersHidden}
-            >
-              {lettersHidden ? t('showLetters') : t('hideLetters')}
-            </button>
             <button
               type="button"
               className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
@@ -193,13 +182,6 @@ export const StatsModal = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <button
-                    type="button"
-                    className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                    onClick={onToggleLettersHidden}
-                  >
-                    {lettersHidden ? t('showLetters') : t('hideLetters')}
-                  </button>
                   <button
                     type="button"
                     className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"

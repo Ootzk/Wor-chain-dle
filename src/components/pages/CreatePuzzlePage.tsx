@@ -36,9 +36,6 @@ export const CreatePuzzlePage = () => {
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
-  const [hideLetters, setHideLetters] = useState(
-    () => loadSettings().hideLetters
-  )
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
@@ -56,16 +53,9 @@ export const CreatePuzzlePage = () => {
       isUppercase,
       weekStartsOnMonday,
       excludeUrl,
-      hideLetters,
       enterValidationHint,
     })
-  }, [
-    isUppercase,
-    weekStartsOnMonday,
-    excludeUrl,
-    hideLetters,
-    enterValidationHint,
-  ])
+  }, [isUppercase, weekStartsOnMonday, excludeUrl, enterValidationHint])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -328,8 +318,6 @@ export const CreatePuzzlePage = () => {
         }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
-        hideLetters={hideLetters}
-        onToggleHideLetters={() => setHideLetters(!hideLetters)}
         enterValidationHint={enterValidationHint}
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)

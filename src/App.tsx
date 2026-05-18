@@ -94,15 +94,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
-  const [hideLetters, setHideLetters] = useState(
-    () => loadSettings().hideLetters
-  )
+  const [lettersHidden, setLettersHidden] = useState(false)
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
-  const [resultHideLettersOverride, setResultHideLettersOverride] = useState<
-    boolean | undefined
-  >(undefined)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -163,20 +158,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       isUppercase,
       weekStartsOnMonday,
       excludeUrl,
-      hideLetters,
       enterValidationHint,
     })
-  }, [
-    isUppercase,
-    weekStartsOnMonday,
-    excludeUrl,
-    hideLetters,
-    enterValidationHint,
-  ])
+  }, [isUppercase, weekStartsOnMonday, excludeUrl, enterValidationHint])
 
   useEffect(() => {
     if (!isGameWon && !isGameLost) {
-      setResultHideLettersOverride(undefined)
+      setLettersHidden(false)
     }
   }, [isGameWon, isGameLost, mode, solution])
 
@@ -360,7 +348,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
-  const effectiveHideLetters = resultHideLettersOverride ?? hideLetters
   const enterHint = (() => {
     if (!enterValidationHint || isGameWon || isGameLost) return undefined
 
@@ -430,7 +417,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           currentGuess={currentGuess}
           solution={solution}
           isGameComplete={isGameWon || isGameLost}
-          hideLetters={effectiveHideLetters}
+          hideLetters={lettersHidden}
+          showHideLettersToggle
+          onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
         />
         <Keyboard
           onChar={onChar}
@@ -474,10 +463,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         questioner={questioner}
         excludeUrl={excludeUrl}
         weekStartsOnMonday={weekStartsOnMonday}
-        lettersHidden={effectiveHideLetters}
-        onToggleLettersHidden={() =>
-          setResultHideLettersOverride(!effectiveHideLetters)
-        }
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
@@ -506,8 +491,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
-        hideLetters={hideLetters}
-        onToggleHideLetters={() => setHideLetters(!hideLetters)}
         enterValidationHint={enterValidationHint}
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
