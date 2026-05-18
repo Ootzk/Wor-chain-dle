@@ -3,7 +3,7 @@ import { ClipboardListIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { SparklesIcon } from '@heroicons/react/outline'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
@@ -50,6 +50,7 @@ import {
   PlayStats,
   clearCurrentPlayStats,
   completePlayStats,
+  hasPlayStatsActivity,
   loadCurrentPlayStats,
   loadDailyPlayStats,
   loadDailyPlayStatsHistory,
@@ -167,8 +168,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [dailyPlayStatsSummary, setDailyPlayStatsSummary] = useState(() =>
     summarizePlayStats(loadDailyPlayStatsHistory())
   )
+  const playStatsRef = useRef(playStats)
 
   const updatePlayStats = (next: PlayStats) => {
+    playStatsRef.current = next
     setPlayStats(next)
     if (isDaily) {
       saveCurrentPlayStats(next)
@@ -176,12 +179,28 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
 
   const saveCompletedPlayStats = (completed: CompletedPlayStats) => {
+    playStatsRef.current = completed
     setPlayStats(completed)
     if (isDaily) {
       saveDailyPlayStats(localDateStr, completed)
       setDailyPlayStatsSummary(summarizePlayStats(loadDailyPlayStatsHistory()))
     }
   }
+
+  useEffect(() => {
+    if (!isDaily) return
+
+    const clearUnstartedPlayStats = () => {
+      if (!hasPlayStatsActivity(playStatsRef.current)) {
+        clearCurrentPlayStats()
+      }
+    }
+
+    window.addEventListener('pagehide', clearUnstartedPlayStats)
+    return () => {
+      window.removeEventListener('pagehide', clearUnstartedPlayStats)
+    }
+  }, [isDaily])
 
   useEffect(() => {
     if (isDaily) {
@@ -233,6 +252,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           enterValidationHint,
         })
     setPlayStats(next)
+    playStatsRef.current = next
     if (!isDaily) {
       clearCurrentPlayStats()
     }

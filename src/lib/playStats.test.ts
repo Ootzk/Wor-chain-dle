@@ -11,6 +11,7 @@ import {
   getTotalDeletePresses,
   getTotalEnterPresses,
   getValidSubmissions,
+  hasPlayStatsActivity,
   loadDailyPlayStatsHistory,
   loadDailyPlayStats,
   recordDeletePress,
@@ -57,6 +58,23 @@ test('records enter attempt categories and derived values', () => {
   expect(getFirstInputDelayMs(completed)).toBe(500)
   expect(getAverageGuessTimeMs(completed)).toBe(3000)
   expect(getSubmitAccuracy(completed)).toBe(33)
+})
+
+test('detects whether play stats have user activity', () => {
+  const stats = createPlayStats({
+    mode: 'daily',
+    solution: 'chain',
+    dateKey: '2026-05-18',
+    enterValidationHint: false,
+    now: 1000,
+  })
+
+  expect(hasPlayStatsActivity(stats)).toBe(false)
+  expect(hasPlayStatsActivity(recordInputActivity(stats, 1500))).toBe(true)
+  expect(
+    hasPlayStatsActivity(recordEnterAttempt(stats, 'incomplete', 1500))
+  ).toBe(true)
+  expect(hasPlayStatsActivity(recordDeletePress(stats, 0, 1500))).toBe(true)
 })
 
 test('records each guess duration and input counts separately', () => {

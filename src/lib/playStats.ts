@@ -442,6 +442,15 @@ export const getTotalDeletePresses = (stats?: PlayStats | null) => {
   return stats.guessStats.reduce((sum, guess) => sum + guess.deletePresses, 0)
 }
 
+export const hasPlayStatsActivity = (stats?: PlayStats | null) => {
+  if (!stats) return false
+  return (
+    !!stats.firstInputAt ||
+    getTotalEnterPresses(stats) > 0 ||
+    getTotalDeletePresses(stats) > 0
+  )
+}
+
 export const getSubmitAccuracy = (stats?: PlayStats | null) => {
   const totalEnterPresses = getTotalEnterPresses(stats)
   if (totalEnterPresses === 0) return 0
