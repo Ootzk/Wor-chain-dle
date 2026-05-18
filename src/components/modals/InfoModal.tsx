@@ -92,6 +92,9 @@ const HowToPlayContent = () => {
 
   return (
     <>
+      <h4 className="text-md font-bold text-gray-900 mb-2">
+        {t('basicWordleRuleTitle')}
+      </h4>
       <p className="text-sm text-gray-500">
         {t('instructions', { tries: CONFIG.tries })}
       </p>
@@ -164,8 +167,14 @@ const HowToPlayContent = () => {
       <p className="text-sm text-gray-500 mt-2">
         {t('chainPatternInstructions')}
       </p>
+
+      <hr className="my-4 border-gray-300" />
+
+      <h4 className="text-md font-bold text-gray-900 mb-2">
+        ⚠️ {t('deadEndRuleTitle')}
+      </h4>
       <p className="text-sm text-gray-500 mt-2">
-        ⚠️ {t('chainDeadEndInstructions')}
+        {t('chainDeadEndInstructions')}
       </p>
     </>
   )
