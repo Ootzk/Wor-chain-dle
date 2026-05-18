@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { BaseModal } from './BaseModal'
 import { CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
@@ -66,18 +67,74 @@ export const SettingsModal = ({
 }: Props) => {
   const { t, i18n } = useTranslation()
   const [isLangOpen, setIsLangOpen] = useState(false)
+  const closeSettings = () => {
+    setIsLangOpen(false)
+    handleClose()
+  }
+  const languagePicker =
+    isOpen && isLangOpen
+      ? createPortal(
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30 px-4"
+            onClick={() => setIsLangOpen(false)}
+          >
+            <div
+              className="bg-white rounded-lg shadow-xl w-72 max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 py-3 border-b border-gray-200">
+                <span className="text-sm font-bold text-gray-900">
+                  {t('pickYourLanguage')}
+                </span>
+              </div>
+              {CONFIG.availableLangs.map((lang) => {
+                const selected = i18n.language?.split('-')[0] === lang
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 ${
+                      selected
+                        ? 'bg-indigo-50 text-indigo-600'
+                        : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                    onClick={() => {
+                      i18n.changeLanguage(lang)
+                      localStorage.setItem(localeLanguageKey, lang)
+                      setIsLangOpen(false)
+                    }}
+                  >
+                    <span className="flex-shrink-0 flex items-center">
+                      {langFlags[lang]}
+                    </span>
+                    <span className="flex-1 text-right">
+                      {t(`languages.${lang}`)}
+                    </span>
+                    <span className="w-5 text-center flex-shrink-0">
+                      {selected && (
+                        <span className="text-indigo-600">{'\u2713'}</span>
+                      )}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>,
+          document.body
+        )
+      : null
 
   return (
-    <BaseModal
-      title={t('settings')}
-      icon={<CogIcon />}
-      isOpen={isOpen}
-      handleClose={handleClose}
-    >
-      <div className="max-h-[70vh] overflow-y-auto">
-        {/* Language */}
-        {CONFIG.availableLangs.length > 1 && (
-          <>
+    <>
+      <BaseModal
+        title={t('settings')}
+        icon={<CogIcon />}
+        isOpen={isOpen}
+        handleClose={closeSettings}
+      >
+        <div className="max-h-[70vh] overflow-y-auto">
+          {/* Language */}
+          {CONFIG.availableLangs.length > 1 && (
             <div className="flex items-center justify-between py-2">
               <span className="text-sm font-medium text-gray-700">
                 {t('pickYourLanguage')}
@@ -100,89 +157,42 @@ export const SettingsModal = ({
                 </span>
               </button>
             </div>
-            {isLangOpen && (
-              <div
-                className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30"
-                onClick={() => setIsLangOpen(false)}
-              >
-                <div
-                  className="bg-white rounded-lg shadow-xl w-72 max-h-96 overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <span className="text-sm font-bold text-gray-900">
-                      {t('pickYourLanguage')}
-                    </span>
-                  </div>
-                  {CONFIG.availableLangs.map((lang) => {
-                    const selected = i18n.language?.split('-')[0] === lang
-                    return (
-                      <button
-                        key={lang}
-                        type="button"
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left border-b border-gray-50 ${
-                          selected
-                            ? 'bg-indigo-50 text-indigo-600'
-                            : 'hover:bg-gray-50 text-gray-700'
-                        }`}
-                        onClick={() => {
-                          i18n.changeLanguage(lang)
-                          localStorage.setItem(localeLanguageKey, lang)
-                          setIsLangOpen(false)
-                        }}
-                      >
-                        <span className="flex-shrink-0 flex items-center">
-                          {langFlags[lang]}
-                        </span>
-                        <span className="flex-1 text-right">
-                          {t(`languages.${lang}`)}
-                        </span>
-                        <span className="w-5 text-center flex-shrink-0">
-                          {selected && (
-                            <span className="text-indigo-600">{'\u2713'}</span>
-                          )}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+          )}
 
-        {/* Display settings */}
-        <div className="flex items-center justify-between py-2">
-          <span className="text-sm font-medium text-gray-700">
-            {t('uppercaseLabel')}
-          </span>
-          <Toggle checked={isUppercase} onClick={onToggleUppercase} />
+          {/* Display settings */}
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm font-medium text-gray-700">
+              {t('uppercaseLabel')}
+            </span>
+            <Toggle checked={isUppercase} onClick={onToggleUppercase} />
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm font-medium text-gray-700">
+              {t('weekStartLabel')}
+            </span>
+            <Toggle
+              checked={weekStartsOnMonday}
+              onClick={onToggleWeekStartsOnMonday}
+            />
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm font-medium text-gray-700">
+              {t('excludeUrlLabel')}
+            </span>
+            <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm font-medium text-gray-700">
+              {t('enterValidationHintLabel')}
+            </span>
+            <Toggle
+              checked={enterValidationHint}
+              onClick={onToggleEnterValidationHint}
+            />
+          </div>
         </div>
-        <div className="flex items-center justify-between py-2">
-          <span className="text-sm font-medium text-gray-700">
-            {t('weekStartLabel')}
-          </span>
-          <Toggle
-            checked={weekStartsOnMonday}
-            onClick={onToggleWeekStartsOnMonday}
-          />
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <span className="text-sm font-medium text-gray-700">
-            {t('excludeUrlLabel')}
-          </span>
-          <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <span className="text-sm font-medium text-gray-700">
-            {t('enterValidationHintLabel')}
-          </span>
-          <Toggle
-            checked={enterValidationHint}
-            onClick={onToggleEnterValidationHint}
-          />
-        </div>
-      </div>
-    </BaseModal>
+      </BaseModal>
+      {languagePicker}
+    </>
   )
 }
