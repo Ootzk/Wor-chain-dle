@@ -671,13 +671,13 @@ export const StatsModal = ({
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
               <section>
-                <h4 className="text-lg leading-6 font-medium text-gray-900">
+                <h4 className="text-sm leading-5 font-semibold text-gray-900">
                   {t('statsRecord')}
                 </h4>
                 <WinLossBar gameStats={gameStats} />
               </section>
-              <section className="mt-3 border-t border-gray-200 pt-3">
-                <h4 className="text-lg leading-6 font-medium text-gray-900">
+              <section className="mt-2 border-t border-gray-200 pt-2">
+                <h4 className="text-sm leading-5 font-semibold text-gray-900">
                   {t('winGuessDistribution')}:{' '}
                   <span
                     className={
@@ -692,13 +692,13 @@ export const StatsModal = ({
                 </h4>
                 <Histogram gameStats={gameStats} />
               </section>
-              <section className="mt-3 border-t border-gray-200 pt-3">
-                <h4 className="text-lg leading-6 font-medium text-gray-900">
+              <section className="mt-2 border-t border-gray-200 pt-2">
+                <h4 className="text-sm leading-5 font-semibold text-gray-900">
                   {t('loseReasonDistribution')}
                 </h4>
                 <LoseReasonDistribution gameStats={gameStats} />
               </section>
-              <section className="mt-3 border-t border-gray-200 pt-3">
+              <section className="mt-2 border-t border-gray-200 pt-2">
                 <StatBar gameStats={gameStats} />
               </section>
             </div>

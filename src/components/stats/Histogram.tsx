@@ -15,17 +15,17 @@ export const Histogram = ({ gameStats }: Props) => {
   const maxValue = Math.max(...distribution.map((item) => item.value), 1)
 
   return (
-    <div className="relative m-2 text-sm">
+    <div className="relative my-1 text-sm">
       <div className="pointer-events-none absolute left-0 top-1/2 w-16 -translate-y-1/2 text-xs text-gray-900">
         {t('playStatsBreakdownGuess')}
       </div>
       {distribution.map((item) => (
-        <div key={item.label} className="m-1 flex items-center">
+        <div key={item.label} className="my-0.5 flex items-center">
           <div className="w-16 shrink-0 text-right">{item.label}</div>
           <div className="ml-2 w-full rounded-full">
             <div
               style={{ width: `${5 + 90 * (item.value / maxValue)}%` }}
-              className="rounded-l-full bg-green-500 p-0.5 text-center text-xs font-medium text-green-50"
+              className="rounded-l-full bg-green-500 px-1 py-0 text-center text-xs font-medium leading-4 text-green-50"
             >
               {item.value}
             </div>

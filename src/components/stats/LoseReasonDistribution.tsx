@@ -35,16 +35,16 @@ export const LoseReasonDistribution = ({ gameStats }: Props) => {
   const maxValue = Math.max(...distribution.map((item) => item.value), 1)
 
   return (
-    <div className="m-2 text-sm">
+    <div className="my-1 text-sm">
       {distribution.map((item) => (
-        <div key={item.label} className="m-1 flex items-center">
+        <div key={item.label} className="my-0.5 flex items-center">
           <div className="w-16 shrink-0 text-xs text-gray-900">
             {item.label}
           </div>
           <div className="ml-2 w-full rounded-full">
             <div
               style={{ width: `${5 + 90 * (item.value / maxValue)}%` }}
-              className={`${item.colorClass} rounded-l-full p-0.5 text-center text-xs font-medium`}
+              className={`${item.colorClass} rounded-l-full px-1 py-0 text-center text-xs font-medium leading-4`}
             >
               {item.value}
             </div>

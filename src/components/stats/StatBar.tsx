@@ -15,8 +15,10 @@ const SummaryItem = ({
 }) => {
   return (
     <div className="min-w-0">
-      <h4 className="text-lg leading-6 font-medium text-gray-900">{title}</h4>
-      <div className="mt-1 text-center text-2xl font-bold leading-7 text-gray-900">
+      <h4 className="text-sm leading-5 font-semibold text-gray-900">
+        {title}
+      </h4>
+      <div className="mt-0.5 text-center text-xl font-bold leading-6 text-gray-900">
         {value}
       </div>
     </div>
@@ -31,7 +33,7 @@ export const StatBar = ({ gameStats }: Props) => {
   ).length
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3">
       <SummaryItem
         title={t('statsAchievements')}
         value={`${unlockedAchievements}/${ACHIEVEMENTS.length}`}

@@ -16,8 +16,8 @@ export const WinLossBar = ({ gameStats }: Props) => {
   const lossPercent = 100 - winPercent
 
   return (
-    <div className="m-2 text-sm">
-      <div className="flex h-8 overflow-hidden rounded-full bg-gray-100">
+    <div className="my-1 text-sm">
+      <div className="flex h-7 overflow-hidden rounded-full bg-gray-100">
         {gameStats.totalGames <= 0 ? (
           <div className="h-full w-full rounded-full bg-gray-200" />
         ) : (
