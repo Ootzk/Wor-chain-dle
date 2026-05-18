@@ -7,7 +7,6 @@ import {
   getIncompleteEnterPresses,
   getInvalidEnterPresses,
   getLongPauseCount,
-  getMaxLongPauseMs,
   getPlayDurationMs,
   getSubmitAccuracy,
   getTotalLongPauseMs,
@@ -134,17 +133,14 @@ test('records long pauses on the active guess without excluding duration', () =>
     durationMs: 301000,
     longPauseCount: 1,
     totalLongPauseMs: 300500,
-    maxLongPauseMs: 300500,
   })
   expect(stats.guessStats[1]).toMatchObject({
     durationMs: 302000,
     longPauseCount: 1,
     totalLongPauseMs: 301000,
-    maxLongPauseMs: 301000,
   })
   expect(getLongPauseCount(stats)).toBe(2)
   expect(getTotalLongPauseMs(stats)).toBe(601500)
-  expect(getMaxLongPauseMs(stats)).toBe(301000)
   expect(getAverageGuessTimeMs(stats)).toBe(301500)
 })
 

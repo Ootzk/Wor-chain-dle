@@ -23,7 +23,6 @@ export type GuessStats = {
   deletePressesByFilledLength: number[]
   longPauseCount: number
   totalLongPauseMs: number
-  maxLongPauseMs: number
 }
 
 export type PlayStats = {
@@ -85,7 +84,6 @@ const createGuessStats = (startedAt: number): GuessStats => ({
   deletePressesByFilledLength: emptyDeleteDistribution(),
   longPauseCount: 0,
   totalLongPauseMs: 0,
-  maxLongPauseMs: 0,
 })
 
 const normalizeDeleteDistribution = (values?: number[]) => {
@@ -116,7 +114,6 @@ const normalizeGuessStats = (guess: Partial<GuessStats>): GuessStats => {
     ),
     longPauseCount: guess.longPauseCount ?? 0,
     totalLongPauseMs: guess.totalLongPauseMs ?? 0,
-    maxLongPauseMs: guess.maxLongPauseMs ?? 0,
   }
 }
 
@@ -244,7 +241,6 @@ const updateActiveGuess = (
       ...currentGuess,
       longPauseCount: currentGuess.longPauseCount + 1,
       totalLongPauseMs: currentGuess.totalLongPauseMs + pause,
-      maxLongPauseMs: Math.max(currentGuess.maxLongPauseMs, pause),
     }
   }
   guessStats[index] = updater(currentGuess)
@@ -483,11 +479,6 @@ export const getTotalLongPauseMs = (stats?: PlayStats | null) => {
     (sum, guess) => sum + guess.totalLongPauseMs,
     0
   )
-}
-
-export const getMaxLongPauseMs = (stats?: PlayStats | null) => {
-  if (!stats) return 0
-  return Math.max(0, ...stats.guessStats.map((guess) => guess.maxLongPauseMs))
 }
 
 export const hasPlayStatsActivity = (stats?: PlayStats | null) => {

@@ -13,7 +13,6 @@ import {
   getIncompleteEnterPresses,
   getInvalidEnterPresses,
   getLongPauseCount,
-  getMaxLongPauseMs,
   getPlayDurationMs,
   getSubmitAccuracy,
   getTotalLongPauseMs,
@@ -352,10 +351,6 @@ export const StatsModal = ({
                 <DetailRow
                   label={t('playStatsLongPauseTime')}
                   value={formatSeconds(getTotalLongPauseMs(playStats))}
-                />
-                <DetailRow
-                  label={t('playStatsMaxLongPause')}
-                  value={formatSeconds(getMaxLongPauseMs(playStats))}
                 />
                 <DetailRow
                   label={t('playStatsEnterPresses')}
