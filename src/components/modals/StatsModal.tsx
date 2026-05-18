@@ -104,7 +104,9 @@ const TodayMetric = ({
         </div>
       ) : (
         <div className="flex h-14 items-center justify-center">
-          <div className={`min-w-0 text-2xl font-bold ${valueClass}`}>
+          <div
+            className={`min-w-0 whitespace-nowrap text-xl font-bold sm:text-2xl ${valueClass}`}
+          >
             {value}
           </div>
         </div>
@@ -440,7 +442,11 @@ export const StatsModal = ({
                 />
                 <TodayMetric
                   label={t('playStatsStreak')}
-                  value={String(gameStats.currentStreak)}
+                  value={
+                    completedToday
+                      ? `🔥${gameStats.currentStreak}`
+                      : String(gameStats.currentStreak)
+                  }
                 />
               </div>
 
@@ -634,38 +640,39 @@ export const StatsModal = ({
                 </div>
               </div>
             </div>
-            {completedToday ? (
-              <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
-                <div>
-                  <h5>{t('newWordCountdown')}</h5>
-                  <Countdown
-                    className="text-lg font-medium text-gray-900"
-                    date={tomorrow}
-                    daysInHours={true}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                    onClick={() => {
-                      shareStatus(guesses, isGameLost, solution, excludeUrl)
-                      handleShare()
-                    }}
-                  >
-                    {t('share')}
-                  </button>
-                  <ShareOptionsRow
-                    excludeUrl={excludeUrl}
-                    onToggleExcludeUrl={onToggleExcludeUrl}
-                    onOpenCosmetics={onOpenCosmetics}
-                    hasNewRewards={hasNewAchievementsToday}
-                  />
-                </div>
+            <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 items-center gap-3">
+              <div>
+                <h5>{t('newWordCountdown')}</h5>
+                <Countdown
+                  className="text-lg font-medium text-gray-900"
+                  date={tomorrow}
+                  daysInHours={true}
+                />
               </div>
-            ) : (
-              <div />
-            )}
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  disabled={!completedToday}
+                  className={`w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${
+                    completedToday
+                      ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'
+                      : 'bg-gray-300 cursor-default'
+                  }`}
+                  onClick={() => {
+                    shareStatus(guesses, isGameLost, solution, excludeUrl)
+                    handleShare()
+                  }}
+                >
+                  {t('share')}
+                </button>
+                <ShareOptionsRow
+                  excludeUrl={excludeUrl}
+                  onToggleExcludeUrl={onToggleExcludeUrl}
+                  onOpenCosmetics={onOpenCosmetics}
+                  hasNewRewards={hasNewAchievementsToday}
+                />
+              </div>
+            </div>
           </div>
         )}
 
