@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
-import { InfoModal, InfoTab } from './components/modals/InfoModal'
+import { InfoModal, InfoSection, InfoTab } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
@@ -72,6 +72,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
+  const [infoInitialSection, setInfoInitialSection] = useState<
+    InfoSection | undefined
+  >(undefined)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
@@ -91,15 +94,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
-  const [hideLetters, setHideLetters] = useState(
-    () => loadSettings().hideLetters
-  )
+  const [lettersHidden, setLettersHidden] = useState(false)
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
-  const [resultHideLettersOverride, setResultHideLettersOverride] = useState<
-    boolean | undefined
-  >(undefined)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -160,20 +158,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       isUppercase,
       weekStartsOnMonday,
       excludeUrl,
-      hideLetters,
       enterValidationHint,
     })
-  }, [
-    isUppercase,
-    weekStartsOnMonday,
-    excludeUrl,
-    hideLetters,
-    enterValidationHint,
-  ])
+  }, [isUppercase, weekStartsOnMonday, excludeUrl, enterValidationHint])
 
   useEffect(() => {
     if (!isGameWon && !isGameLost) {
-      setResultHideLettersOverride(undefined)
+      setLettersHidden(false)
     }
   }, [isGameWon, isGameLost, mode, solution])
 
@@ -357,7 +348,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
-  const effectiveHideLetters = resultHideLettersOverride ?? hideLetters
   const enterHint = (() => {
     if (!enterValidationHint || isGameWon || isGameLost) return undefined
 
@@ -395,6 +385,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => {
             setInfoInitialTab('mode')
+            setInfoInitialSection(undefined)
             setIsInfoModalOpen(true)
           }}
         />
@@ -426,7 +417,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           currentGuess={currentGuess}
           solution={solution}
           isGameComplete={isGameWon || isGameLost}
-          hideLetters={effectiveHideLetters}
+          hideLetters={lettersHidden}
+          showHideLettersToggle
+          onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
         />
         <Keyboard
           onChar={onChar}
@@ -439,10 +432,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       </div>
       <InfoModal
         isOpen={isInfoModalOpen}
-        handleClose={() => setIsInfoModalOpen(false)}
+        handleClose={() => {
+          setIsInfoModalOpen(false)
+          setInfoInitialSection(undefined)
+        }}
         mode={mode}
         questioner={questioner}
         initialTab={infoInitialTab}
+        initialSection={infoInitialSection}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -465,11 +462,16 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         solution={solution}
         questioner={questioner}
         excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         weekStartsOnMonday={weekStartsOnMonday}
-        lettersHidden={effectiveHideLetters}
-        onToggleLettersHidden={() =>
-          setResultHideLettersOverride(!effectiveHideLetters)
+        onToggleWeekStartsOnMonday={() =>
+          setWeekStartsOnMonday(!weekStartsOnMonday)
         }
+        onOpenCosmetics={() => {
+          setIsStatsModalOpen(false)
+          setRewardsInitialTab('cosmetics')
+          setTimeout(() => setIsRewardsModalOpen(true), 300)
+        }}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
@@ -478,11 +480,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setRewardsInitialTab(undefined)
         }}
         isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')
+          setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
       />
@@ -497,8 +502,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
-        hideLetters={hideLetters}
-        onToggleHideLetters={() => setHideLetters(!hideLetters)}
         enterValidationHint={enterValidationHint}
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)

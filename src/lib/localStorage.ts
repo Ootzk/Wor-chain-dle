@@ -43,7 +43,6 @@ export type Settings = {
   isUppercase: boolean
   weekStartsOnMonday: boolean
   excludeUrl: boolean
-  hideLetters: boolean
   enterValidationHint: boolean
 }
 
@@ -57,7 +56,6 @@ export const loadSettings = (): Settings => {
     isUppercase: false,
     weekStartsOnMonday: false,
     excludeUrl: false,
-    hideLetters: false,
     enterValidationHint: false,
   }
   return settings

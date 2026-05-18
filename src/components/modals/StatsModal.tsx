@@ -11,6 +11,7 @@ import { BaseModal } from './BaseModal'
 import { ClipboardListIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
+import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 
 type Props = {
   isOpen: boolean
@@ -25,9 +26,10 @@ type Props = {
   solution: string
   questioner?: string
   excludeUrl: boolean
+  onToggleExcludeUrl: () => void
   weekStartsOnMonday: boolean
-  lettersHidden: boolean
-  onToggleLettersHidden: () => void
+  onToggleWeekStartsOnMonday: () => void
+  onOpenCosmetics: () => void
   initialTab?: 'stats' | 'calendar'
 }
 
@@ -44,9 +46,10 @@ export const StatsModal = ({
   solution,
   questioner,
   excludeUrl,
+  onToggleExcludeUrl,
   weekStartsOnMonday,
-  lettersHidden,
-  onToggleLettersHidden,
+  onToggleWeekStartsOnMonday,
+  onOpenCosmetics,
   initialTab,
 }: Props) => {
   const { t } = useTranslation()
@@ -101,13 +104,6 @@ export const StatsModal = ({
         )}
         {(isGameLost || isGameWon) && (
           <div className="mt-5 sm:mt-6 space-y-2">
-            <button
-              type="button"
-              className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-              onClick={onToggleLettersHidden}
-            >
-              {lettersHidden ? t('showLetters') : t('hideLetters')}
-            </button>
             <button
               type="button"
               className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
@@ -168,7 +164,7 @@ export const StatsModal = ({
 
       <div className="h-[26rem]">
         {activeTab === 'stats' && (
-          <div className="flex flex-col justify-between h-full">
+          <div className="relative flex h-full flex-col pb-20">
             <div>
               <StatBar gameStats={gameStats} />
             </div>
@@ -183,7 +179,7 @@ export const StatsModal = ({
               )}
             </div>
             {isGameLost || isGameWon ? (
-              <div className="columns-2">
+              <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
                 <div>
                   <h5>{t('newWordCountdown')}</h5>
                   <Countdown
@@ -195,13 +191,6 @@ export const StatsModal = ({
                 <div className="space-y-2">
                   <button
                     type="button"
-                    className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                    onClick={onToggleLettersHidden}
-                  >
-                    {lettersHidden ? t('showLetters') : t('hideLetters')}
-                  </button>
-                  <button
-                    type="button"
                     className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
                     onClick={() => {
                       shareStatus(guesses, isGameLost, solution, excludeUrl)
@@ -210,6 +199,11 @@ export const StatsModal = ({
                   >
                     {t('share')}
                   </button>
+                  <ShareOptionsRow
+                    excludeUrl={excludeUrl}
+                    onToggleExcludeUrl={onToggleExcludeUrl}
+                    onOpenCosmetics={onOpenCosmetics}
+                  />
                 </div>
               </div>
             ) : (
@@ -223,7 +217,10 @@ export const StatsModal = ({
             gameStats={gameStats}
             handleShare={handleCalendarShare}
             weekStartsOnMonday={weekStartsOnMonday}
+            onToggleWeekStartsOnMonday={onToggleWeekStartsOnMonday}
             excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
+            onOpenCosmetics={onOpenCosmetics}
           />
         )}
       </div>

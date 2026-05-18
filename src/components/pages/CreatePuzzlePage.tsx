@@ -12,7 +12,7 @@ import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { loadSettings, saveSettings } from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
-import { InfoModal, InfoTab } from '../modals/InfoModal'
+import { InfoModal, InfoSection, InfoTab } from '../modals/InfoModal'
 import { SettingsModal } from '../modals/SettingsModal'
 import { DonateModal } from '../modals/DonateModal'
 import { RewardsModal } from '../modals/RewardsModal'
@@ -36,14 +36,14 @@ export const CreatePuzzlePage = () => {
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
-  const [hideLetters, setHideLetters] = useState(
-    () => loadSettings().hideLetters
-  )
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
+  const [infoInitialSection, setInfoInitialSection] = useState<
+    InfoSection | undefined
+  >(undefined)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
@@ -53,16 +53,9 @@ export const CreatePuzzlePage = () => {
       isUppercase,
       weekStartsOnMonday,
       excludeUrl,
-      hideLetters,
       enterValidationHint,
     })
-  }, [
-    isUppercase,
-    weekStartsOnMonday,
-    excludeUrl,
-    hideLetters,
-    enterValidationHint,
-  ])
+  }, [isUppercase, weekStartsOnMonday, excludeUrl, enterValidationHint])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -167,6 +160,15 @@ export const CreatePuzzlePage = () => {
     handleCreate()
   }, [handleCreate])
 
+  const enterHint = (() => {
+    if (!enterValidationHint || copied) return undefined
+    if (!questioner.trim() || !isFilled) return 'incomplete'
+
+    const word = getWord().toLowerCase()
+    if (!isWordInWordList(word)) return 'invalid'
+    return 'valid'
+  })()
+
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div className="flex w-80 mx-auto items-center mb-8">
@@ -178,6 +180,7 @@ export const CreatePuzzlePage = () => {
           className="h-6 w-6 cursor-pointer"
           onClick={() => {
             setInfoInitialTab('mode')
+            setInfoInitialSection(undefined)
             setIsInfoModalOpen(true)
           }}
         />
@@ -288,23 +291,31 @@ export const CreatePuzzlePage = () => {
           onEnter={onEnter}
           guesses={copied ? [getWord().toLowerCase().split('')] : []}
           solution={copied ? getWord().toLowerCase() : ''}
+          enterHint={enterHint}
         />
       </div>
 
       <InfoModal
         isOpen={isInfoModalOpen}
-        handleClose={() => setIsInfoModalOpen(false)}
+        handleClose={() => {
+          setIsInfoModalOpen(false)
+          setInfoInitialSection(undefined)
+        }}
         mode="create"
         initialTab={infoInitialTab}
+        initialSection={infoInitialSection}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
         handleClose={() => setIsRewardsModalOpen(false)}
         isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')
+          setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
       />
@@ -319,8 +330,6 @@ export const CreatePuzzlePage = () => {
         }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
-        hideLetters={hideLetters}
-        onToggleHideLetters={() => setHideLetters(!hideLetters)}
         enterValidationHint={enterValidationHint}
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
