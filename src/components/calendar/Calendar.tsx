@@ -1,6 +1,10 @@
 import { Temporal } from 'temporal-polyfill'
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '@heroicons/react/outline'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  RefreshIcon,
+} from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CalendarDay } from './CalendarDay'
 import { GameStats } from '../../lib/localStorage'
@@ -13,6 +17,7 @@ import {
 } from '../../lib/dailyHistory'
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
+import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 
 const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
@@ -21,10 +26,45 @@ type Props = {
   gameStats: GameStats
   handleShare: () => void
   weekStartsOnMonday: boolean
+  onToggleWeekStartsOnMonday: () => void
   excludeUrl: boolean
+  onToggleExcludeUrl: () => void
+  onOpenCosmetics: () => void
 }
 
-export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUrl }: Props) => {
+const MiniToggle = ({
+  checked,
+  onClick,
+}: {
+  checked: boolean
+  onClick: () => void
+}) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+      checked ? 'bg-green-500' : 'bg-gray-300'
+    }`}
+    onClick={onClick}
+  >
+    <span
+      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+        checked ? 'translate-x-5' : 'translate-x-1'
+      }`}
+    />
+  </button>
+)
+
+export const Calendar = ({
+  gameStats,
+  handleShare,
+  weekStartsOnMonday,
+  onToggleWeekStartsOnMonday,
+  excludeUrl,
+  onToggleExcludeUrl,
+  onOpenCosmetics,
+}: Props) => {
   const { t } = useTranslation()
   const today = Temporal.Now.plainDateISO()
 
@@ -104,7 +144,8 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
     const key = dateToKey(date)
     const isToday = Temporal.PlainDate.compare(date, today) === 0
     const isFuture = Temporal.PlainDate.compare(date, today) > 0
-    const isBeforeEpoch = Temporal.PlainDate.compare(date, epoch) < 0 ||
+    const isBeforeEpoch =
+      Temporal.PlainDate.compare(date, epoch) < 0 ||
       (calendarStartDate !== null && key < calendarStartDate)
     const isCalendarEpoch = calendarStartDate === key
 
@@ -152,31 +193,48 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   )
 
   return (
-    <div className="flex flex-col items-center justify-between h-full">
+    <div className="relative flex h-full flex-col items-center pb-20">
       {/* Month navigation */}
-      <div className="flex items-center w-full mb-3">
+      <div className="mb-2 flex w-[17.5rem] items-center gap-1">
+        <span className="min-w-0 flex-1 text-left text-base font-semibold text-gray-900">
+          {monthLabel}
+        </span>
+        <div
+          className="flex items-center gap-1 text-[0.625rem] font-medium text-gray-400"
+          title={t('weekStartLabel')}
+        >
+          <span>{t('mondayStartShortLabel')}</span>
+          <MiniToggle
+            checked={weekStartsOnMonday}
+            onClick={onToggleWeekStartsOnMonday}
+          />
+        </div>
         <button
           onClick={goBack}
+          type="button"
           className="p-1 rounded hover:bg-gray-100 cursor-pointer"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        <span className="flex-1 text-center text-base font-semibold text-gray-900 -mr-7">
-          {monthLabel}
-        </span>
         <button
+          type="button"
           onClick={() => {
             setYear(today.year)
             setMonth(today.month - 1)
           }}
           disabled={year === today.year && month === today.month - 1}
-          className={`p-1 rounded ${year === today.year && month === today.month - 1 ? 'opacity-30 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}`}
+          className={`p-1 rounded ${
+            year === today.year && month === today.month - 1
+              ? 'opacity-30 cursor-default'
+              : 'hover:bg-gray-100 cursor-pointer'
+          }`}
           title="Today"
         >
           <RefreshIcon className="h-5 w-5" />
         </button>
         <button
           onClick={goForward}
+          type="button"
           className="p-1 rounded hover:bg-gray-100 cursor-pointer"
         >
           <ChevronRightIcon className="h-5 w-5" />
@@ -212,24 +270,42 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
       </div>
 
       {/* Streak + Share button */}
-      <div className="columns-2 w-full">
+      <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
         <div>
           <h5>{t('currentStreak')}</h5>
           <span className="text-lg font-semibold text-gray-900">
             🔥 {gameStats.currentStreak}
           </span>
         </div>
-        <button
-          type="button"
-          disabled={!hasAnyData}
-          className={`mt-2 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
-          onClick={() => {
-            shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
-            handleShare()
-          }}
-        >
-          {t('shareMonth')}
-        </button>
+        <div className="space-y-2">
+          <button
+            type="button"
+            disabled={!hasAnyData}
+            className={`w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${
+              hasAnyData
+                ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'
+                : 'bg-gray-300 cursor-default'
+            }`}
+            onClick={() => {
+              shareCalendar(
+                year,
+                month,
+                history,
+                gameStats.currentStreak,
+                weekStartsOnMonday,
+                excludeUrl
+              )
+              handleShare()
+            }}
+          >
+            {t('share')}
+          </button>
+          <ShareOptionsRow
+            excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
+            onOpenCosmetics={onOpenCosmetics}
+          />
+        </div>
       </div>
     </div>
   )

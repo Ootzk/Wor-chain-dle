@@ -462,7 +462,16 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         solution={solution}
         questioner={questioner}
         excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         weekStartsOnMonday={weekStartsOnMonday}
+        onToggleWeekStartsOnMonday={() =>
+          setWeekStartsOnMonday(!weekStartsOnMonday)
+        }
+        onOpenCosmetics={() => {
+          setIsStatsModalOpen(false)
+          setRewardsInitialTab('cosmetics')
+          setTimeout(() => setIsRewardsModalOpen(true), 300)
+        }}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
