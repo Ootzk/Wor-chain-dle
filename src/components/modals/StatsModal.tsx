@@ -59,46 +59,29 @@ type Props = {
 }
 
 const formatSeconds = (ms: number) => `${Math.round(ms / 1000)}s`
+const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
+const formatAverageSecondsValue = (ms: number) => (ms / 1000).toFixed(1)
 const EMPTY_VALUE = '-'
+
+type GuessBreakdownRow = {
+  row: string
+  totalMs?: number
+  guessMs?: number
+  pauseMs?: number
+  totalValue?: string
+  guessValue?: string
+  pauseValue?: string
+  enterPresses?: number
+  deletePresses?: number
+  enterValue?: string
+  deleteValue?: string
+  isSummary?: boolean
+}
 
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between border-b border-gray-100 py-1.5 text-sm last:border-b-0">
     <span className="text-gray-500">{label}</span>
     <span className="font-semibold text-gray-900">{value}</span>
-  </div>
-)
-
-const GuessDetailRow = ({
-  label,
-  duration,
-  enterPresses,
-  deletePresses,
-  longPauseCount,
-  enterLabel,
-  deleteLabel,
-  pauseLabel,
-}: {
-  label: string
-  duration: string
-  enterPresses: number
-  deletePresses: number
-  longPauseCount: number
-  enterLabel: string
-  deleteLabel: string
-  pauseLabel: string
-}) => (
-  <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-2 border-b border-gray-100 py-1.5 text-sm last:border-b-0">
-    <span className="text-gray-500">{label}</span>
-    <span className="font-semibold text-gray-900">{duration}</span>
-    <span className="text-xs font-medium text-gray-500">
-      {enterLabel} {enterPresses}
-    </span>
-    <span className="text-xs font-medium text-gray-500">
-      {deleteLabel} {deletePresses}
-    </span>
-    <span className="text-xs font-medium text-gray-500">
-      {pauseLabel} {longPauseCount}
-    </span>
   </div>
 )
 
@@ -273,15 +256,137 @@ export const StatsModal = ({
   const playDuration = hasPlayStatsActivity(playStats)
     ? formatSeconds(getCurrentPlayDurationMs(playStats, nowMs))
     : EMPTY_VALUE
+  const playDurationValue = hasPlayStatsActivity(playStats)
+    ? formatSecondsValue(getCurrentPlayDurationMs(playStats, nowMs))
+    : EMPTY_VALUE
   const firstInputDelay = playStats.firstInputAt
     ? formatSeconds(getFirstInputDelayMs(playStats))
     : EMPTY_VALUE
+  const firstInputDelayMs = playStats.firstInputAt
+    ? getFirstInputDelayMs(playStats)
+    : undefined
   const averageGuessTime =
     getAverageGuessTimeMs(playStats) > 0
       ? formatSeconds(getAverageGuessTimeMs(playStats))
       : EMPTY_VALUE
   const deletePressesByFilledLength = getDeletePressesByFilledLength(playStats)
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
+  const activeGuessIndex = playStats.guessStats.findIndex(
+    (guess) => !guess.completedAt
+  )
+  const getGuessDurationMs = (index: number) => {
+    const guess = playStats.guessStats[index]
+    if (!guess) return undefined
+
+    const offsetMs = index === 0 ? firstInputDelayMs ?? 0 : 0
+    if (guess.durationMs !== undefined) {
+      return Math.max(0, guess.durationMs - offsetMs)
+    }
+
+    if (index !== activeGuessIndex || !hasPlayStatsActivity(playStats)) {
+      return undefined
+    }
+
+    if (index === 0 && !playStats.firstInputAt) {
+      return undefined
+    }
+
+    const startMs =
+      index === 0 ? playStats.firstInputAt || guess.startedAt : guess.startedAt
+    return Math.max(0, nowMs - startMs)
+  }
+  const formatOptionalSecondsValue = (ms?: number) =>
+    ms === undefined ? EMPTY_VALUE : formatSecondsValue(ms)
+  const average = (values: number[]) => {
+    if (values.length === 0) return undefined
+    return values.reduce((sum, value) => sum + value, 0) / values.length
+  }
+  const formatAverageMs = (values: (number | undefined)[]) => {
+    const numericValues = values.filter(
+      (value): value is number => value !== undefined
+    )
+    const value = average(numericValues)
+    return value === undefined ? EMPTY_VALUE : formatAverageSecondsValue(value)
+  }
+  const formatAverageCount = (values: (number | undefined)[]) => {
+    const numericValues = values.filter(
+      (value): value is number => value !== undefined
+    )
+    const value = average(numericValues)
+    return value === undefined ? EMPTY_VALUE : value.toFixed(1)
+  }
+  const sumOptional = (values: (number | undefined)[]) => {
+    const numericValues = values.filter(
+      (value): value is number => value !== undefined
+    )
+    if (numericValues.length === 0) return undefined
+    return numericValues.reduce((sum, value) => sum + value, 0)
+  }
+  const guessBreakdownBaseRows: GuessBreakdownRow[] = [
+    {
+      row: t('playStatsBreakdownBefore'),
+      totalMs: firstInputDelayMs,
+      guessMs: undefined,
+      pauseMs: undefined,
+      enterPresses: undefined,
+      deletePresses: undefined,
+    },
+    ...Array.from({ length: CONFIG.tries }, (_, index) => {
+      const guess = playStats.guessStats[index]
+      const hasGuessActivity =
+        !!guess &&
+        (guess.completedAt !== undefined ||
+          guess.enterPresses > 0 ||
+          guess.deletePresses > 0 ||
+          guess.longPauseCount > 0 ||
+          (index === activeGuessIndex && !!playStats.firstInputAt))
+      const totalMs = hasGuessActivity ? getGuessDurationMs(index) : undefined
+      const pauseMs = hasGuessActivity ? guess.totalLongPauseMs : undefined
+      return {
+        row: String(index + 1),
+        totalMs,
+        guessMs:
+          totalMs === undefined || pauseMs === undefined
+            ? undefined
+            : Math.max(0, totalMs - pauseMs),
+        pauseMs,
+        enterPresses: hasGuessActivity ? guess.enterPresses : undefined,
+        deletePresses: hasGuessActivity ? guess.deletePresses : undefined,
+      }
+    }),
+  ]
+  const guessBreakdownGuessRows = guessBreakdownBaseRows.slice(1)
+  const guessBreakdownRows: GuessBreakdownRow[] = [
+    ...guessBreakdownBaseRows,
+    {
+      row: t('playStatsBreakdownSum'),
+      totalMs: hasPlayStatsActivity(playStats)
+        ? getCurrentPlayDurationMs(playStats, nowMs)
+        : undefined,
+      pauseMs: getTotalLongPauseMs(playStats),
+      guessMs: sumOptional(guessBreakdownGuessRows.map((row) => row.guessMs)),
+      enterPresses: getTotalEnterPresses(playStats),
+      deletePresses: getTotalDeletePresses(playStats),
+      isSummary: true,
+    },
+    {
+      row: t('playStatsBreakdownAvgGuess'),
+      totalValue: EMPTY_VALUE,
+      guessValue: formatAverageMs(
+        guessBreakdownGuessRows.map((row) => row.guessMs)
+      ),
+      pauseValue: formatAverageMs(
+        guessBreakdownGuessRows.map((row) => row.pauseMs)
+      ),
+      enterValue: formatAverageCount(
+        guessBreakdownGuessRows.map((row) => row.enterPresses)
+      ),
+      deleteValue: formatAverageCount(
+        guessBreakdownGuessRows.map((row) => row.deletePresses)
+      ),
+      isSummary: true,
+    },
+  ]
 
   // Daily mode — Today + Calendar + Stats
   const tabs = [
@@ -329,8 +434,8 @@ export const StatsModal = ({
                   value={`${guesses.length}/${CONFIG.tries}`}
                 />
                 <TodayMetric
-                  label={t('playStatsDuration')}
-                  value={playDuration}
+                  label={t('playStatsDurationSeconds')}
+                  value={playDurationValue}
                 />
                 <TodayMetric
                   label={t('playStatsUnlockedToday')}
@@ -340,6 +445,94 @@ export const StatsModal = ({
                   label={t('playStatsStreak')}
                   value={String(gameStats.currentStreak)}
                 />
+              </div>
+
+              <div className="overflow-hidden rounded border border-gray-100 text-xs">
+                <table className="w-full table-fixed border-collapse">
+                  <colgroup>
+                    <col className="w-16" />
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                  </colgroup>
+                  <thead className="font-semibold text-gray-500">
+                    <tr>
+                      <th
+                        rowSpan={2}
+                        className="bg-gray-100 px-2 py-1.5 text-center align-middle"
+                      >
+                        {t('playStatsBreakdownRow')}
+                      </th>
+                      <th
+                        colSpan={3}
+                        className="border-b border-l border-gray-200 bg-green-50 px-2 py-1 text-center text-green-700"
+                      >
+                        {t('playStatsBreakdownDurationSeconds')}
+                      </th>
+                      <th
+                        colSpan={2}
+                        className="border-b border-l border-gray-200 bg-purple-50 px-2 py-1 text-center text-purple-700"
+                      >
+                        {t('playStatsBreakdownInput')}
+                      </th>
+                    </tr>
+                    <tr>
+                      <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                        {t('playStatsBreakdownTotal')}
+                      </th>
+                      <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                        {t('playStatsBreakdownGuess')}
+                      </th>
+                      <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                        {t('playStatsBreakdownPause')}
+                      </th>
+                      <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
+                        {t('playStatsBreakdownEnter')}
+                      </th>
+                      <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
+                        {t('playStatsBreakdownDelete')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {guessBreakdownRows.map((row) => (
+                      <tr
+                        key={row.row}
+                        className={`border-t border-gray-100 ${
+                          row.isSummary ? 'bg-gray-50 font-semibold' : ''
+                        }`}
+                      >
+                        <td className="px-2 py-1.5 text-gray-500">{row.row}</td>
+                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          {row.totalValue ??
+                            formatOptionalSecondsValue(row.totalMs)}
+                        </td>
+                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          {row.guessValue ??
+                            formatOptionalSecondsValue(row.guessMs)}
+                        </td>
+                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          {row.pauseValue ??
+                            formatOptionalSecondsValue(row.pauseMs)}
+                        </td>
+                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          {row.enterValue ??
+                            (row.enterPresses === undefined
+                              ? EMPTY_VALUE
+                              : row.enterPresses)}
+                        </td>
+                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                          {row.deleteValue ??
+                            (row.deletePresses === undefined
+                              ? EMPTY_VALUE
+                              : row.deletePresses)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               <h4 className="mb-2 mt-3 text-sm font-semibold text-gray-900">
@@ -413,34 +606,6 @@ export const StatsModal = ({
                   }
                 />
               </div>
-              {playStats.guessStats.length > 0 && (
-                <>
-                  <h4 className="mb-2 mt-3 text-sm font-semibold text-gray-900">
-                    {t('playStatsGuessBreakdown')}
-                  </h4>
-                  <div className="rounded border border-gray-100 px-3 py-2">
-                    {playStats.guessStats.map((guess, index) => (
-                      <GuessDetailRow
-                        key={index}
-                        label={t('playStatsGuessNumber', {
-                          count: index + 1,
-                        })}
-                        duration={
-                          guess.durationMs !== undefined
-                            ? formatSeconds(guess.durationMs)
-                            : EMPTY_VALUE
-                        }
-                        enterPresses={guess.enterPresses}
-                        deletePresses={guess.deletePresses}
-                        longPauseCount={guess.longPauseCount}
-                        enterLabel={t('playStatsEnterShort')}
-                        deleteLabel={t('playStatsDeleteShort')}
-                        pauseLabel={t('playStatsPauseShort')}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
             {completedToday ? (
               <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
