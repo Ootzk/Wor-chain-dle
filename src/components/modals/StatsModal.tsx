@@ -150,9 +150,13 @@ export const StatsModal = ({
     'today'
   )
   const [nowMs, setNowMs] = useState(() => Date.now())
+  const [isBreakdownInfoOpen, setIsBreakdownInfoOpen] = useState(false)
 
   useEffect(() => {
-    if (isOpen) setActiveTab(initialTab || 'today')
+    if (isOpen) {
+      setActiveTab(initialTab || 'today')
+      setIsBreakdownInfoOpen(false)
+    }
   }, [isOpen, initialTab])
 
   useEffect(() => {
@@ -447,92 +451,162 @@ export const StatsModal = ({
                 />
               </div>
 
-              <div className="overflow-hidden rounded border border-gray-100 text-xs">
-                <table className="w-full table-fixed border-collapse">
-                  <colgroup>
-                    <col className="w-16" />
-                    <col />
-                    <col />
-                    <col />
-                    <col />
-                    <col />
-                  </colgroup>
-                  <thead className="font-semibold text-gray-500">
-                    <tr>
-                      <th
-                        rowSpan={2}
-                        className="bg-gray-100 px-2 py-1.5 text-center align-middle"
+              <div className="relative">
+                {isBreakdownInfoOpen && (
+                  <div className="absolute left-2 right-2 top-8 z-20 rounded border border-gray-200 bg-white p-3 text-left text-xs shadow-lg">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="font-semibold text-gray-900">
+                        {t('playStatsBreakdownInfoTitle')}
+                      </div>
+                      <button
+                        type="button"
+                        className="font-semibold text-gray-400 hover:text-gray-700"
+                        onClick={() => setIsBreakdownInfoOpen(false)}
+                        aria-label={t('playStatsBreakdownInfoClose')}
                       >
-                        {t('playStatsBreakdownRow')}
-                      </th>
-                      <th
-                        colSpan={3}
-                        className="border-b border-l border-gray-200 bg-green-50 px-2 py-1 text-center text-green-700"
-                      >
-                        {t('playStatsBreakdownDurationSeconds')}
-                      </th>
-                      <th
-                        colSpan={2}
-                        className="border-b border-l border-gray-200 bg-purple-50 px-2 py-1 text-center text-purple-700"
-                      >
-                        {t('playStatsBreakdownInput')}
-                      </th>
-                    </tr>
-                    <tr>
-                      <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
-                        {t('playStatsBreakdownTotal')}
-                      </th>
-                      <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
-                        {t('playStatsBreakdownGuess')}
-                      </th>
-                      <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
-                        {t('playStatsBreakdownPause')}
-                      </th>
-                      <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
-                        {t('playStatsBreakdownEnter')}
-                      </th>
-                      <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
-                        {t('playStatsBreakdownDelete')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {guessBreakdownRows.map((row) => (
-                      <tr
-                        key={row.row}
-                        className={`border-t border-gray-100 ${
-                          row.isSummary ? 'bg-gray-50 font-semibold' : ''
-                        }`}
-                      >
-                        <td className="px-2 py-1.5 text-gray-500">{row.row}</td>
-                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
-                          {row.totalValue ??
-                            formatOptionalSecondsValue(row.totalMs)}
-                        </td>
-                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
-                          {row.guessValue ??
-                            formatOptionalSecondsValue(row.guessMs)}
-                        </td>
-                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
-                          {row.pauseValue ??
-                            formatOptionalSecondsValue(row.pauseMs)}
-                        </td>
-                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
-                          {row.enterValue ??
-                            (row.enterPresses === undefined
-                              ? EMPTY_VALUE
-                              : row.enterPresses)}
-                        </td>
-                        <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
-                          {row.deleteValue ??
-                            (row.deletePresses === undefined
-                              ? EMPTY_VALUE
-                              : row.deletePresses)}
-                        </td>
+                        ×
+                      </button>
+                    </div>
+                    <div className="space-y-2 text-gray-600">
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          {t('playStatsBreakdownInfoRowLabel')}
+                        </p>
+                        <ul className="ml-4 list-disc space-y-1">
+                          <li>{t('playStatsBreakdownInfoRows')}</li>
+                          <li>{t('playStatsBreakdownInfoBefore')}</li>
+                          <li>{t('playStatsBreakdownInfoSummary')}</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-700">
+                          {t('playStatsBreakdownDurationSeconds')}
+                        </p>
+                        <ul className="ml-4 list-disc space-y-1">
+                          <li>{t('playStatsBreakdownInfoTotal')}</li>
+                          <li>{t('playStatsBreakdownInfoGuess')}</li>
+                          <li>{t('playStatsBreakdownInfoPause')}</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-purple-700">
+                          {t('playStatsBreakdownAction')}
+                        </p>
+                        <ul className="ml-4 list-disc space-y-1">
+                          <li>{t('playStatsBreakdownInfoEnter')}</li>
+                          <li>{t('playStatsBreakdownInfoDelete')}</li>
+                          <li className="text-purple-600">
+                            {t('playStatsBreakdownInfoHint')}
+                          </li>
+                        </ul>
+                      </div>
+                      <p className="border-t border-gray-100 pt-2 text-[11px] text-gray-400">
+                        {t('playStatsBreakdownInfoPrivacy')}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className="overflow-hidden rounded border border-gray-100 text-xs">
+                  <table className="w-full table-fixed border-collapse">
+                    <colgroup>
+                      <col className="w-16" />
+                      <col />
+                      <col />
+                      <col />
+                      <col />
+                      <col />
+                    </colgroup>
+                    <thead className="font-semibold text-gray-500">
+                      <tr>
+                        <th className="border-b border-gray-200 bg-gray-100 px-2 py-1 text-center">
+                          <button
+                            type="button"
+                            className="inline-flex h-5 w-5 items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            onClick={() =>
+                              setIsBreakdownInfoOpen(!isBreakdownInfoOpen)
+                            }
+                            aria-label={t('playStatsBreakdownInfoTitle')}
+                          >
+                            ℹ️
+                          </button>
+                        </th>
+                        <th
+                          colSpan={3}
+                          className="border-b border-l border-gray-200 bg-green-50 px-2 py-1 text-center text-green-700"
+                        >
+                          {t('playStatsBreakdownDurationSeconds')}
+                        </th>
+                        <th
+                          colSpan={2}
+                          className="border-b border-l border-gray-200 bg-purple-50 px-2 py-1 text-center text-purple-700"
+                        >
+                          {t('playStatsBreakdownAction')}
+                          {playStats.assistFlags.enterValidationHint
+                            ? ' ⚠️'
+                            : ''}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      <tr>
+                        <th className="bg-gray-100 px-2 py-1 text-center">
+                          {t('playStatsBreakdownRow')}
+                        </th>
+                        <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                          {t('playStatsBreakdownTotal')}
+                        </th>
+                        <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                          {t('playStatsBreakdownGuess')}
+                        </th>
+                        <th className="border-l border-gray-200 bg-green-50 px-2 py-1 text-center">
+                          {t('playStatsBreakdownPause')}
+                        </th>
+                        <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
+                          {t('playStatsBreakdownEnter')}
+                        </th>
+                        <th className="border-l border-gray-200 bg-purple-50 px-2 py-1 text-center">
+                          {t('playStatsBreakdownDelete')}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {guessBreakdownRows.map((row) => (
+                        <tr
+                          key={row.row}
+                          className={`border-t border-gray-100 ${
+                            row.isSummary ? 'bg-gray-50 font-semibold' : ''
+                          }`}
+                        >
+                          <td className="px-2 py-1.5 text-gray-500">
+                            {row.row}
+                          </td>
+                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                            {row.totalValue ??
+                              formatOptionalSecondsValue(row.totalMs)}
+                          </td>
+                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                            {row.guessValue ??
+                              formatOptionalSecondsValue(row.guessMs)}
+                          </td>
+                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                            {row.pauseValue ??
+                              formatOptionalSecondsValue(row.pauseMs)}
+                          </td>
+                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                            {row.enterValue ??
+                              (row.enterPresses === undefined
+                                ? EMPTY_VALUE
+                                : row.enterPresses)}
+                          </td>
+                          <td className="border-l border-gray-100 px-2 py-1.5 text-right text-gray-900">
+                            {row.deleteValue ??
+                              (row.deletePresses === undefined
+                                ? EMPTY_VALUE
+                                : row.deletePresses)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <h4 className="mb-2 mt-3 text-sm font-semibold text-gray-900">
