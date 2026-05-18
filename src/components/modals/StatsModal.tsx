@@ -48,7 +48,7 @@ type Props = {
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
-  initialTab?: 'today' | 'calendar' | 'stats'
+  initialTab?: 'today' | 'calendar' | 'summary' | 'behavior'
   isUppercase: boolean
   playStats: PlayStats
   playStatsSummary: PlayStatsSummary
@@ -134,9 +134,9 @@ export const StatsModal = ({
   playStatsSummary,
 }: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'today' | 'calendar' | 'stats'>(
-    'today'
-  )
+  const [activeTab, setActiveTab] = useState<
+    'today' | 'calendar' | 'summary' | 'behavior'
+  >('today')
   const [nowMs, setNowMs] = useState(() => Date.now())
   const [isBreakdownInfoOpen, setIsBreakdownInfoOpen] = useState(false)
 
@@ -374,7 +374,8 @@ export const StatsModal = ({
   const tabs = [
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
-    { id: 'stats' as const, label: t('statsShort') },
+    { id: 'summary' as const, label: t('statsSummary') },
+    { id: 'behavior' as const, label: t('statsBehavior') },
   ]
 
   return (
@@ -654,7 +655,7 @@ export const StatsModal = ({
           </div>
         )}
 
-        {activeTab === 'stats' && (
+        {activeTab === 'summary' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
               <StatBar gameStats={gameStats} />
@@ -666,7 +667,14 @@ export const StatsModal = ({
                   <Histogram gameStats={gameStats} />
                 </>
               )}
-              <PlayStatsPanel current={null} summary={playStatsSummary} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'behavior' && (
+          <div className="flex h-full flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+              <PlayStatsPanel summary={playStatsSummary} />
             </div>
           </div>
         )}

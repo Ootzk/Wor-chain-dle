@@ -1,20 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import {
-  PlayStats,
-  PlayStatsSummary,
-  getAverageGuessTimeMs,
-  getFirstInputDelayMs,
-  getPlayDurationMs,
-  getSubmitAccuracy,
-  getTotalEnterPresses,
-} from '../../lib/playStats'
+import { PlayStatsSummary } from '../../lib/playStats'
 
 type Props = {
-  current?: PlayStats | null
   summary: PlayStatsSummary
 }
 
-const formatSeconds = (ms: number) => `${Math.round(ms / 1000)}s`
+const EMPTY_VALUE = '-'
+const formatSeconds = (ms: number) => String(Math.round(ms / 1000))
+const formatAverageCount = (value: number) => value.toFixed(1)
 
 const Metric = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded bg-gray-50 px-2 py-1.5">
@@ -23,72 +16,46 @@ const Metric = ({ label, value }: { label: string; value: string }) => (
   </div>
 )
 
-export const PlayStatsPanel = ({ current, summary }: Props) => {
+export const PlayStatsPanel = ({ summary }: Props) => {
   const { t } = useTranslation()
-  const showCurrent = current?.completedAt
-  const showSummary = summary.totalGames > 0
-
-  if (!showCurrent && !showSummary) return null
+  const hasTrackedGames = summary.totalGames > 0
+  const averageDeletePresses = hasTrackedGames
+    ? summary.totalDeletePresses / summary.totalGames
+    : 0
 
   return (
-    <div className="mt-3 space-y-2">
-      <h4 className="text-sm font-semibold text-gray-900">
-        {t('playStatsTitle')}
-      </h4>
-      {showCurrent && (
-        <div>
-          <p className="mb-1 text-xs font-medium text-gray-500">
-            {t('playStatsThisGame')}
-          </p>
-          <div className="grid grid-cols-3 gap-1.5">
-            <Metric
-              label={t('playStatsDuration')}
-              value={formatSeconds(getPlayDurationMs(current))}
-            />
-            <Metric
-              label={t('playStatsEnterPresses')}
-              value={String(getTotalEnterPresses(current))}
-            />
-            <Metric
-              label={t('playStatsSubmitAccuracy')}
-              value={`${getSubmitAccuracy(current)}%`}
-            />
-            <Metric
-              label={t('playStatsFirstInput')}
-              value={formatSeconds(getFirstInputDelayMs(current))}
-            />
-            <Metric
-              label={t('playStatsAverageGuess')}
-              value={formatSeconds(getAverageGuessTimeMs(current))}
-            />
-            <Metric
-              label={t('playStatsLongestPause')}
-              value={formatSeconds(current.longestPauseMs)}
-            />
-          </div>
-        </div>
-      )}
-      {showSummary && (
-        <div>
-          <p className="mb-1 text-xs font-medium text-gray-500">
-            {t('playStatsAllGames')}
-          </p>
-          <div className="grid grid-cols-3 gap-1.5">
-            <Metric
-              label={t('playStatsAverageDuration')}
-              value={formatSeconds(summary.averageDurationMs)}
-            />
-            <Metric
-              label={t('playStatsAverageEnterPresses')}
-              value={String(summary.averageEnterPresses)}
-            />
-            <Metric
-              label={t('playStatsAverageAccuracy')}
-              value={`${summary.averageSubmitAccuracy}%`}
-            />
-          </div>
-        </div>
-      )}
+    <div className="space-y-2">
+      <p className="text-xs text-gray-500">{t('behaviorStatsNote')}</p>
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        <Metric
+          label={t('behaviorTrackedGames')}
+          value={String(summary.totalGames)}
+        />
+        <Metric
+          label={t('behaviorGuessTimeSeconds')}
+          value={
+            hasTrackedGames
+              ? formatSeconds(summary.averageGuessTimeMs)
+              : EMPTY_VALUE
+          }
+        />
+        <Metric
+          label={t('playStatsAverageEnterPresses')}
+          value={
+            hasTrackedGames
+              ? formatAverageCount(summary.averageEnterPresses)
+              : EMPTY_VALUE
+          }
+        />
+        <Metric
+          label={t('playStatsDeletePresses')}
+          value={
+            hasTrackedGames
+              ? formatAverageCount(averageDeletePresses)
+              : EMPTY_VALUE
+          }
+        />
+      </div>
     </div>
   )
 }
