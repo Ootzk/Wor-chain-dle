@@ -23,6 +23,7 @@
   "wrongSpotInstructions": "La letra N se encuentra en la palabra pero en la posición incorrecta.",
   "notInWordInstructions": "La letra O no se encuentra en la palabra.",
   "guessDistribution": "Distribución de aciertos",
+  "winGuessDistribution": "Win Guess Distribution",
   "today": "Hoy",
   "statsShort": "Stats",
   "statsSummary": "Summary",

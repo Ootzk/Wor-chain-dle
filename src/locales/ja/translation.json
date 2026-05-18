@@ -23,6 +23,7 @@
   "chainDeadEndInstructions": "固定されたチェイン文字が答えのその位置と違う場合、残りのどの推測でも正解を作れないためゲームは早期終了します。たとえば5行目から引き継がれる最後の文字が答えの最後の文字と違うと、6行目ではどんな単語を入力しても解けません。",
   "deadEndRuleLink": "Dead End ルール",
   "guessDistribution": "推測の分布",
+  "winGuessDistribution": "Win Guess Distribution",
   "today": "今日",
   "statsShort": "統計",
   "statsSummary": "Summary",

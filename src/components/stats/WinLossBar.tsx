@@ -30,7 +30,7 @@ export const WinLossBar = ({ gameStats }: Props) => {
                 style={{ flexBasis: `${winPercent}%` }}
                 title={`${t('playStatsResultWin')}: ${wins} (${winPercent}%)`}
               >
-                {winPercent >= 18 ? `${wins} (${winPercent}%)` : ''}
+                {winPercent >= 18 ? `${winPercent}%` : ''}
               </div>
             )}
             {losses > 0 && (
@@ -41,7 +41,7 @@ export const WinLossBar = ({ gameStats }: Props) => {
                 style={{ flexBasis: `${lossPercent}%` }}
                 title={`${t('playStatsResultLose')}: ${losses} (${lossPercent}%)`}
               >
-                {lossPercent >= 18 ? `${losses} (${lossPercent}%)` : ''}
+                {lossPercent >= 18 ? `${lossPercent}%` : ''}
               </div>
             )}
           </>

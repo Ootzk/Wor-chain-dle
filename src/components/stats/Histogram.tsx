@@ -6,18 +6,11 @@ type Props = {
 }
 
 export const Histogram = ({ gameStats }: Props) => {
-  const distribution = [
-    ...gameStats.winDistribution.map((value, index) => ({
-      label: String(index + 1),
-      value,
-      variant: 'success' as const,
-    })),
-    {
-      label: 'X',
-      value: gameStats.gamesFailed,
-      variant: 'fail' as const,
-    },
-  ]
+  const distribution = gameStats.winDistribution.map((value, index) => ({
+    label: String(index + 1),
+    value,
+    variant: 'success' as const,
+  }))
   const maxValue = Math.max(...distribution.map((item) => item.value), 1)
 
   return (

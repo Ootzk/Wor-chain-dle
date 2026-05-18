@@ -23,6 +23,7 @@
   "chainDeadEndInstructions": "고정된 체인 글자가 정답의 해당 위치와 다르면, 남은 어떤 추측으로도 정답을 만들 수 없기 때문에 게임이 조기 종료됩니다. 예를 들어 5번째 줄에서 이어질 마지막 글자가 정답의 마지막 글자와 다르면, 6번째 줄에서는 어떤 단어를 입력해도 퍼즐을 풀 수 없습니다.",
   "deadEndRuleLink": "Dead End 규칙",
   "guessDistribution": "추측 분포",
+  "winGuessDistribution": "승리 추측 분포",
   "today": "오늘",
   "statsShort": "통계",
   "statsSummary": "요약",

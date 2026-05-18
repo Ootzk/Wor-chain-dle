@@ -254,6 +254,16 @@ export const StatsModal = ({
     : undefined
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
   const hasNewAchievementsToday = hasNewAchievementsUnlockedToday()
+  const summaryWins = gameStats.totalGames - gameStats.gamesFailed
+  const averageWinGuesses =
+    summaryWins > 0
+      ? (
+          gameStats.winDistribution.reduce(
+            (sum, value, index) => sum + value * (index + 1),
+            0
+          ) / summaryWins
+        ).toFixed(1)
+      : EMPTY_VALUE
   const activeGuessIndex = playStats.guessStats.findIndex(
     (guess) => !guess.completedAt
   )
@@ -659,12 +669,31 @@ export const StatsModal = ({
         {activeTab === 'summary' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <StatBar gameStats={gameStats} />
-              <WinLossBar gameStats={gameStats} />
-              <h4 className="text-lg leading-6 font-medium text-gray-900">
-                {t('guessDistribution')}
-              </h4>
-              <Histogram gameStats={gameStats} />
+              <section>
+                <h4 className="text-lg leading-6 font-medium text-gray-900">
+                  {t('statsRecord')}
+                </h4>
+                <WinLossBar gameStats={gameStats} />
+              </section>
+              <section className="mt-3 border-t border-gray-200 pt-3">
+                <h4 className="text-lg leading-6 font-medium text-gray-900">
+                  {t('winGuessDistribution')}:{' '}
+                  <span
+                    className={
+                      averageWinGuesses === EMPTY_VALUE
+                        ? 'text-gray-400'
+                        : 'text-green-600'
+                    }
+                  >
+                    {averageWinGuesses}
+                  </span>
+                  /{CONFIG.tries}
+                </h4>
+                <Histogram gameStats={gameStats} />
+              </section>
+              <section className="mt-3 border-t border-gray-200 pt-3">
+                <StatBar gameStats={gameStats} />
+              </section>
             </div>
           </div>
         )}

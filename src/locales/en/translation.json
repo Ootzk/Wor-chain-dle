@@ -23,6 +23,7 @@
   "chainDeadEndInstructions": "If the locked chain letter is wrong for the answer, the game ends early because no remaining guess can become the correct word. For example, if the last letter carried from row 5 is not the answer's last letter, row 6 can never solve the puzzle.",
   "deadEndRuleLink": "Dead End rule",
   "guessDistribution": "Guess Distribution",
+  "winGuessDistribution": "Win Guess Distribution",
   "today": "Today",
   "statsShort": "Stats",
   "statsSummary": "Summary",

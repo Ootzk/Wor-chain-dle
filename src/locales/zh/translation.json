@@ -23,6 +23,7 @@
   "wrongSpotInstructions": "字母 L 出現在正解當中，但不在正確的位置。",
   "notInWordInstructions": "字母 U 不在正解當中。",
   "guessDistribution": "猜詞分佈",
+  "winGuessDistribution": "Win Guess Distribution",
   "today": "今天",
   "statsShort": "统计",
   "statsSummary": "Summary",

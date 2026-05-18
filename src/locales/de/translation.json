@@ -23,6 +23,7 @@
   "chainDeadEndInstructions": "Wenn der gesperrte Kettenbuchstabe an dieser Position nicht zur Lösung passt, endet das Spiel vorzeitig, weil kein verbleibender Versuch mehr das richtige Wort ergeben kann. Wenn zum Beispiel der aus Zeile 5 übernommene letzte Buchstabe nicht der letzte Buchstabe der Lösung ist, kann Zeile 6 das Rätsel nicht mehr lösen.",
   "deadEndRuleLink": "Dead-End-Regel",
   "guessDistribution": "Versuchsverteilung",
+  "winGuessDistribution": "Win Guess Distribution",
   "today": "Heute",
   "statsShort": "Stats",
   "statsSummary": "Summary",
