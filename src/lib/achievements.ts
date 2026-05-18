@@ -10,6 +10,7 @@ import {
   loadAchievementProgress,
 } from './achievementProgress'
 import { CharStatus, getGuessStatuses } from './statuses'
+import { REWARD_METADATA, RewardMetadata } from './rewardMetadata'
 
 // --- Type Definitions ---
 
@@ -58,6 +59,7 @@ export type AchievementDef = {
   category: AchievementCategory
   modes?: GameMode[]
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
+  metadata?: RewardMetadata
   progress: (ctx: AchievementContext) => AchievementProgress
   titleKey: string
   descriptionKey: string
@@ -109,6 +111,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily'],
     difficulty: 1,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_play_10_title',
     descriptionKey: 'achievement_play_10_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 10 }),
@@ -118,6 +121,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily'],
     difficulty: 4,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_play_50_title',
     descriptionKey: 'achievement_play_50_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 50 }),
@@ -127,6 +131,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily'],
     difficulty: 6,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_play_100_title',
     descriptionKey: 'achievement_play_100_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 100 }),
@@ -136,6 +141,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily'],
     difficulty: 8,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_play_150_title',
     descriptionKey: 'achievement_play_150_desc',
     progress: ({ stats }) => ({ current: stats.totalGames, target: 150 }),
@@ -145,6 +151,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily'],
     difficulty: 8,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_fail_100_title',
     descriptionKey: 'achievement_fail_100_desc',
     progress: ({ stats }) => ({ current: stats.gamesFailed, target: 100 }),
@@ -154,6 +161,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily'],
     difficulty: 9,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_monthly_attendance_title',
     descriptionKey: 'achievement_monthly_attendance_desc',
     progress: ({ dailyHistory }) =>
@@ -166,6 +174,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily', 'practice', 'custom'],
     difficulty: 1,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_played_v1_6_0_5_title',
     descriptionKey: 'achievement_played_v1_6_0_5_desc',
     progress: ({ progress }) => ({
@@ -178,6 +187,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['daily', 'practice', 'custom'],
     difficulty: 1,
+    metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_played_v1_7_0_5_title',
     descriptionKey: 'achievement_played_v1_7_0_5_desc',
     progress: ({ progress }) => ({
@@ -190,6 +200,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['practice'],
     difficulty: 8,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_practice_win_100_title',
     descriptionKey: 'achievement_practice_win_100_desc',
     progress: ({ progress }) => ({
@@ -202,6 +213,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'milestone',
     modes: ['custom'],
     difficulty: 4,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_custom_win_10_title',
     descriptionKey: 'achievement_custom_win_10_desc',
     progress: ({ progress }) => ({
@@ -216,6 +228,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 10,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_win_in_1_title',
     descriptionKey: 'achievement_win_in_1_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[0], target: 1 }),
@@ -225,6 +238,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 9,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_win_in_2_title',
     descriptionKey: 'achievement_win_in_2_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[1], target: 2 }),
@@ -234,6 +248,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 7,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_win_in_3_title',
     descriptionKey: 'achievement_win_in_3_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[2], target: 3 }),
@@ -243,6 +258,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 6,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_win_in_4_title',
     descriptionKey: 'achievement_win_in_4_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[3], target: 4 }),
@@ -252,6 +268,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 4,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_win_in_5_title',
     descriptionKey: 'achievement_win_in_5_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[4], target: 5 }),
@@ -261,6 +278,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 3,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_win_in_6_title',
     descriptionKey: 'achievement_win_in_6_desc',
     progress: ({ stats }) => ({ current: stats.winDistribution[5], target: 6 }),
@@ -270,6 +288,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'guess',
     modes: ['daily'],
     difficulty: 6,
+    metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_win_in_6_20_title',
     descriptionKey: 'achievement_win_in_6_20_desc',
     progress: ({ stats }) => ({
@@ -284,6 +303,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'streak',
     modes: ['daily'],
     difficulty: 3,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_streak_3_title',
     descriptionKey: 'achievement_streak_3_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
@@ -293,6 +313,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'streak',
     modes: ['daily'],
     difficulty: 5,
+    metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_streak_5_title',
     descriptionKey: 'achievement_streak_5_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 5 }),
@@ -302,6 +323,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'streak',
     modes: ['daily'],
     difficulty: 6,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_streak_7_title',
     descriptionKey: 'achievement_streak_7_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 7 }),
@@ -311,6 +333,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'streak',
     modes: ['daily'],
     difficulty: 8,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_streak_14_title',
     descriptionKey: 'achievement_streak_14_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 14 }),
@@ -320,6 +343,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'streak',
     modes: ['daily'],
     difficulty: 10,
+    metadata: REWARD_METADATA.v1_5_0,
     titleKey: 'achievement_streak_30_title',
     descriptionKey: 'achievement_streak_30_desc',
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 30 }),
@@ -331,6 +355,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'event',
     modes: ['daily'],
     difficulty: 7,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_dead_end_tail_title',
     descriptionKey: 'achievement_dead_end_tail_desc',
     progress: ({ game }) => ({
@@ -347,6 +372,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     id: 'bibimbap_balance',
     category: 'event',
     difficulty: 9,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_bibimbap_balance_title',
     descriptionKey: 'achievement_bibimbap_balance_desc',
     progress: ({ game }) => {
@@ -368,6 +394,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     id: 'yogurt_recipe',
     category: 'event',
     difficulty: 6,
+    metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_yogurt_recipe_title',
     descriptionKey: 'achievement_yogurt_recipe_desc',
     progress: ({ game }) => ({
@@ -381,6 +408,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'performance',
     modes: ['daily'],
     difficulty: 5,
+    metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_no_present_game_title',
     descriptionKey: 'achievement_no_present_game_desc',
     progress: ({ game }) => {
@@ -397,6 +425,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: 'performance',
     modes: ['daily'],
     difficulty: 6,
+    metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_no_correct_game_title',
     descriptionKey: 'achievement_no_correct_game_desc',
     progress: ({ game }) => {
