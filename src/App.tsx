@@ -45,6 +45,19 @@ import {
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
 import { CREATE_MODE_LABEL, GAME_MODE_LABELS, GameMode } from './lib/gameMode'
 import { recordCompletedGameProgress } from './lib/achievementProgress'
+import {
+  CompletedPlayStats,
+  PlayStats,
+  clearCurrentPlayStats,
+  completePlayStats,
+  loadCurrentPlayStats,
+  loadDailyPlayStatsHistory,
+  recordEnterAttempt,
+  recordInputActivity,
+  saveCurrentPlayStats,
+  saveDailyPlayStats,
+  summarizePlayStats,
+} from './lib/playStats'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -67,6 +80,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 }) => {
   const isDaily = mode === 'daily'
   const isCustom = mode === 'custom'
+  const localDateStr = dateToKey(Temporal.Now.plainDateISO())
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
@@ -132,6 +146,32 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     ReactGA.pageview(window.location.pathname)
   }
   const [stats, setStats] = useState(() => loadStats())
+  const [playStats, setPlayStats] = useState<PlayStats>(() =>
+    loadCurrentPlayStats({
+      mode,
+      solution,
+      dateKey: isDaily ? localDateStr : undefined,
+      enterValidationHint: loadSettings().enterValidationHint,
+    })
+  )
+  const [dailyPlayStatsSummary, setDailyPlayStatsSummary] = useState(() =>
+    summarizePlayStats(loadDailyPlayStatsHistory())
+  )
+
+  const updatePlayStats = (next: PlayStats) => {
+    setPlayStats(next)
+    if (isDaily) {
+      saveCurrentPlayStats(next)
+    }
+  }
+
+  const saveCompletedPlayStats = (completed: CompletedPlayStats) => {
+    setPlayStats(completed)
+    if (isDaily) {
+      saveDailyPlayStats(localDateStr, completed)
+      setDailyPlayStatsSummary(summarizePlayStats(loadDailyPlayStatsHistory()))
+    }
+  }
 
   useEffect(() => {
     if (isDaily) {
@@ -167,6 +207,33 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       setLettersHidden(false)
     }
   }, [isGameWon, isGameLost, mode, solution])
+
+  useEffect(() => {
+    const next = loadCurrentPlayStats({
+      mode,
+      solution,
+      dateKey: isDaily ? localDateStr : undefined,
+      enterValidationHint,
+    })
+    setPlayStats(next)
+    if (!isDaily) {
+      clearCurrentPlayStats()
+    }
+    setDailyPlayStatsSummary(summarizePlayStats(loadDailyPlayStatsHistory()))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, solution, localDateStr])
+
+  useEffect(() => {
+    if (playStats.completedAt || !enterValidationHint) return
+    updatePlayStats({
+      ...playStats,
+      assistFlags: {
+        ...playStats.assistFlags,
+        enterValidationHint: true,
+      },
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enterValidationHint])
 
   useEffect(() => {
     const alertKeys = getEquippedAlertMessageKeys()
@@ -244,6 +311,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     ) {
       let newGuess = currentGuess.concat([value])
       setCurrentGuess(newGuess)
+      updatePlayStats(recordInputActivity(playStats))
     }
   }
 
@@ -259,6 +327,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     const fullGuess = buildFullGuess(currentGuess, guesses)
 
     if (fullGuess.length !== CONFIG.wordLength) {
+      updatePlayStats(recordEnterAttempt(playStats, 'incomplete'))
       setIsNotEnoughLetters(true)
       return setTimeout(() => {
         setIsNotEnoughLetters(false)
@@ -266,11 +335,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
 
     if (!isWordInWordList(fullGuess.join(''))) {
+      updatePlayStats(recordEnterAttempt(playStats, 'invalid'))
       setIsWordNotFoundAlertOpen(true)
       return setTimeout(() => {
         setIsWordNotFoundAlertOpen(false)
       }, ALERT_TIME_MS)
     }
+    const submittedPlayStats = recordEnterAttempt(playStats, 'valid')
+    updatePlayStats(submittedPlayStats)
     const winningWord = isWinningWord(fullGuess.join(''), solution)
 
     if (guesses.length < CONFIG.tries && !isGameWon) {
@@ -293,6 +365,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           won: true,
           endReason: 'win',
         })
+        saveCompletedPlayStats(
+          completePlayStats({
+            stats: submittedPlayStats,
+            won: true,
+            guessCount: nextGuesses.length,
+          })
+        )
         return setIsGameWon(true)
       }
 
@@ -325,6 +404,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             endReason: 'deadEnd',
             deadEnd,
           })
+          saveCompletedPlayStats(
+            completePlayStats({
+              stats: submittedPlayStats,
+              won: false,
+              guessCount: nextGuesses.length,
+            })
+          )
           setIsGameLost(true)
           return
         }
@@ -343,11 +429,17 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           won: false,
           endReason: 'fail',
         })
+        saveCompletedPlayStats(
+          completePlayStats({
+            stats: submittedPlayStats,
+            won: false,
+            guessCount: nextGuesses.length,
+          })
+        )
         setIsGameLost(true)
       }
     }
   }
-  const localDateStr = dateToKey(Temporal.Now.plainDateISO())
   const enterHint = (() => {
     if (!enterValidationHint || isGameWon || isGameLost) return undefined
 
@@ -472,6 +564,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setRewardsInitialTab('cosmetics')
           setTimeout(() => setIsRewardsModalOpen(true), 300)
         }}
+        playStats={playStats}
+        playStatsSummary={dailyPlayStatsSummary}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}

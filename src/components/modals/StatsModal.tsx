@@ -4,6 +4,7 @@ import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { Calendar } from '../calendar/Calendar'
 import { GameStats } from '../../lib/localStorage'
+import { PlayStats, PlayStatsSummary } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { tomorrow } from '../../lib/words'
@@ -12,6 +13,7 @@ import { ClipboardListIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
+import { PlayStatsPanel } from '../stats/PlayStatsPanel'
 
 type Props = {
   isOpen: boolean
@@ -31,6 +33,8 @@ type Props = {
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
   initialTab?: 'stats' | 'calendar'
+  playStats: PlayStats
+  playStatsSummary: PlayStatsSummary
 }
 
 export const StatsModal = ({
@@ -51,6 +55,8 @@ export const StatsModal = ({
   onToggleWeekStartsOnMonday,
   onOpenCosmetics,
   initialTab,
+  playStats,
+  playStatsSummary,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('stats')
@@ -165,10 +171,8 @@ export const StatsModal = ({
       <div className="h-[26rem]">
         {activeTab === 'stats' && (
           <div className="relative flex h-full flex-col pb-20">
-            <div>
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
               <StatBar gameStats={gameStats} />
-            </div>
-            <div>
               {gameStats.totalGames > 0 && (
                 <>
                   <h4 className="text-lg leading-6 font-medium text-gray-900">
@@ -177,6 +181,7 @@ export const StatsModal = ({
                   <Histogram gameStats={gameStats} />
                 </>
               )}
+              <PlayStatsPanel current={playStats} summary={playStatsSummary} />
             </div>
             {isGameLost || isGameWon ? (
               <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
