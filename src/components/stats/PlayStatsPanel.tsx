@@ -6,6 +6,7 @@ import {
   getFirstInputDelayMs,
   getPlayDurationMs,
   getSubmitAccuracy,
+  getTotalEnterPresses,
 } from '../../lib/playStats'
 
 type Props = {
@@ -46,7 +47,7 @@ export const PlayStatsPanel = ({ current, summary }: Props) => {
             />
             <Metric
               label={t('playStatsEnterPresses')}
-              value={String(current.totalEnterPresses)}
+              value={String(getTotalEnterPresses(current))}
             />
             <Metric
               label={t('playStatsSubmitAccuracy')}

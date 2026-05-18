@@ -10,6 +10,18 @@ export type AssistFlags = {
   enterValidationHint: boolean
 }
 
+export type GuessStats = {
+  startedAt: number
+  completedAt?: number
+  durationMs?: number
+  enterPresses: number
+  incompleteEnterPresses: number
+  invalidEnterPresses: number
+  validEnterPresses: number
+  deletePresses: number
+  deletePressesByFilledLength: number[]
+}
+
 export type PlayStats = {
   mode: GameMode
   dateKey?: string
@@ -19,13 +31,7 @@ export type PlayStats = {
   firstInputAt?: number
   lastActivityAt: number
   longestPauseMs: number
-  incompleteEnterPresses: number
-  invalidEnterPresses: number
-  deletePresses: number
-  deletePressesByFilledLength: number[]
-  validSubmissions: number
-  totalEnterPresses: number
-  guessDurationsMs: number[]
+  guessStats: GuessStats[]
   assistFlags: AssistFlags
   won?: boolean
   guessCount?: number
@@ -65,6 +71,16 @@ const nowMs = () => Math.round(performance.timeOrigin + performance.now())
 
 const emptyDeleteDistribution = () => Array(CONFIG.wordLength + 1).fill(0)
 
+const createGuessStats = (startedAt: number): GuessStats => ({
+  startedAt,
+  enterPresses: 0,
+  incompleteEnterPresses: 0,
+  invalidEnterPresses: 0,
+  validEnterPresses: 0,
+  deletePresses: 0,
+  deletePressesByFilledLength: emptyDeleteDistribution(),
+})
+
 const normalizeDeleteDistribution = (values?: number[]) => {
   const normalized = emptyDeleteDistribution()
   values?.slice(0, normalized.length).forEach((value, index) => {
@@ -73,12 +89,30 @@ const normalizeDeleteDistribution = (values?: number[]) => {
   return normalized
 }
 
+const normalizeGuessStats = (guess: Partial<GuessStats>): GuessStats => {
+  const startedAt = guess.startedAt ?? 0
+  return {
+    startedAt,
+    completedAt: guess.completedAt,
+    durationMs:
+      guess.durationMs ??
+      (guess.completedAt
+        ? Math.max(0, guess.completedAt - startedAt)
+        : undefined),
+    enterPresses: guess.enterPresses ?? 0,
+    incompleteEnterPresses: guess.incompleteEnterPresses ?? 0,
+    invalidEnterPresses: guess.invalidEnterPresses ?? 0,
+    validEnterPresses: guess.validEnterPresses ?? 0,
+    deletePresses: guess.deletePresses ?? 0,
+    deletePressesByFilledLength: normalizeDeleteDistribution(
+      guess.deletePressesByFilledLength
+    ),
+  }
+}
+
 const normalizePlayStats = <T extends PlayStats>(stats: T): T => ({
   ...stats,
-  deletePresses: stats.deletePresses ?? 0,
-  deletePressesByFilledLength: normalizeDeleteDistribution(
-    stats.deletePressesByFilledLength
-  ),
+  guessStats: stats.guessStats?.map(normalizeGuessStats) || [],
 })
 
 export const createPlayStats = ({
@@ -100,13 +134,7 @@ export const createPlayStats = ({
   startedAt: now,
   lastActivityAt: now,
   longestPauseMs: 0,
-  incompleteEnterPresses: 0,
-  invalidEnterPresses: 0,
-  deletePresses: 0,
-  deletePressesByFilledLength: emptyDeleteDistribution(),
-  validSubmissions: 0,
-  totalEnterPresses: 0,
-  guessDurationsMs: [],
+  guessStats: [createGuessStats(now)],
   assistFlags: {
     enterValidationHint,
   },
@@ -183,37 +211,82 @@ export const recordInputActivity = (
   }
 }
 
+const activeGuessIndex = (stats: PlayStats) => {
+  const guessStats = stats.guessStats || []
+  const openIndex = guessStats.findIndex((guess) => !guess.completedAt)
+  return openIndex >= 0 ? openIndex : guessStats.length
+}
+
+const updateActiveGuess = (
+  stats: PlayStats,
+  now: number,
+  updater: (guess: GuessStats) => GuessStats
+) => {
+  const guessStats = [...(stats.guessStats || [])]
+  const index = activeGuessIndex(stats)
+  const currentGuess = normalizeGuessStats(
+    guessStats[index] || createGuessStats(now)
+  )
+  guessStats[index] = updater(currentGuess)
+  return guessStats
+}
+
 export const recordEnterAttempt = (
   stats: PlayStats,
   kind: EnterAttemptKind,
   now = nowMs()
 ): PlayStats => {
   const pause = Math.max(0, now - stats.lastActivityAt)
-  const base = {
-    ...stats,
-    lastActivityAt: now,
-    longestPauseMs: Math.max(stats.longestPauseMs, pause),
-    totalEnterPresses: stats.totalEnterPresses + 1,
-  }
-
-  if (kind === 'incomplete') {
-    return {
-      ...base,
-      incompleteEnterPresses: base.incompleteEnterPresses + 1,
+  const guessStats = updateActiveGuess(stats, now, (guess) => {
+    const next = {
+      ...guess,
+      enterPresses: guess.enterPresses + 1,
     }
-  }
 
-  if (kind === 'invalid') {
-    return {
-      ...base,
-      invalidEnterPresses: base.invalidEnterPresses + 1,
+    if (kind === 'incomplete') {
+      return {
+        ...next,
+        incompleteEnterPresses: next.incompleteEnterPresses + 1,
+      }
     }
-  }
+
+    if (kind === 'invalid') {
+      return {
+        ...next,
+        invalidEnterPresses: next.invalidEnterPresses + 1,
+      }
+    }
+
+    return {
+      ...next,
+      completedAt: now,
+      durationMs: Math.max(0, now - next.startedAt),
+      validEnterPresses: next.validEnterPresses + 1,
+    }
+  })
 
   return {
-    ...base,
-    validSubmissions: base.validSubmissions + 1,
-    guessDurationsMs: [...base.guessDurationsMs, pause],
+    ...stats,
+    guessStats,
+    lastActivityAt: now,
+    longestPauseMs: Math.max(stats.longestPauseMs, pause),
+  }
+}
+
+export const startNextGuess = (
+  stats: PlayStats,
+  now = stats.lastActivityAt
+): PlayStats => {
+  const guessStats = [...(stats.guessStats || [])]
+  if (
+    guessStats.length < CONFIG.tries &&
+    guessStats.every((guess) => guess.completedAt)
+  ) {
+    guessStats.push(createGuessStats(now))
+  }
+  return {
+    ...stats,
+    guessStats,
   }
 }
 
@@ -223,18 +296,25 @@ export const recordDeletePress = (
   now = nowMs()
 ): PlayStats => {
   const pause = Math.max(0, now - stats.lastActivityAt)
-  const index = Math.max(0, Math.min(filledLength, CONFIG.wordLength))
-  const deletePressesByFilledLength = normalizeDeleteDistribution(
-    stats.deletePressesByFilledLength
-  )
-  deletePressesByFilledLength[index] += 1
+  const filledIndex = Math.max(0, Math.min(filledLength, CONFIG.wordLength))
+  const guessStats = updateActiveGuess(stats, now, (guess) => {
+    const deletePressesByFilledLength = normalizeDeleteDistribution(
+      guess.deletePressesByFilledLength
+    )
+    deletePressesByFilledLength[filledIndex] += 1
+
+    return {
+      ...guess,
+      deletePresses: guess.deletePresses + 1,
+      deletePressesByFilledLength,
+    }
+  })
 
   return {
     ...stats,
+    guessStats,
     lastActivityAt: now,
     longestPauseMs: Math.max(stats.longestPauseMs, pause),
-    deletePresses: stats.deletePresses + 1,
-    deletePressesByFilledLength,
   }
 }
 
@@ -296,17 +376,76 @@ export const getFirstInputDelayMs = (stats?: PlayStats | null) => {
   return Math.max(0, stats.firstInputAt - stats.startedAt)
 }
 
-export const getAverageGuessTimeMs = (stats?: PlayStats | null) => {
-  if (!stats || stats.guessDurationsMs.length === 0) return 0
-  return Math.round(
-    stats.guessDurationsMs.reduce((sum, value) => sum + value, 0) /
-      stats.guessDurationsMs.length
+export const getGuessDurationsMs = (stats?: PlayStats | null) => {
+  return (
+    stats?.guessStats
+      ?.map((guess) => guess.durationMs)
+      .filter((duration): duration is number => duration !== undefined) || []
   )
 }
 
+export const getAverageGuessTimeMs = (stats?: PlayStats | null) => {
+  const guessDurations = getGuessDurationsMs(stats)
+  if (guessDurations.length === 0) return 0
+  return Math.round(
+    guessDurations.reduce((sum, value) => sum + value, 0) /
+      guessDurations.length
+  )
+}
+
+export const getTotalEnterPresses = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce((sum, guess) => sum + guess.enterPresses, 0)
+}
+
+export const getIncompleteEnterPresses = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce(
+    (sum, guess) => sum + guess.incompleteEnterPresses,
+    0
+  )
+}
+
+export const getInvalidEnterPresses = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce(
+    (sum, guess) => sum + guess.invalidEnterPresses,
+    0
+  )
+}
+
+export const getValidSubmissions = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce(
+    (sum, guess) => sum + guess.validEnterPresses,
+    0
+  )
+}
+
+export const getDeletePressesByFilledLength = (stats?: PlayStats | null) => {
+  const distribution = emptyDeleteDistribution()
+  if (!stats) return distribution
+
+  stats.guessStats.forEach((guess) => {
+    normalizeDeleteDistribution(guess.deletePressesByFilledLength).forEach(
+      (value, index) => {
+        distribution[index] += value
+      }
+    )
+  })
+
+  return distribution
+}
+
+export const getTotalDeletePresses = (stats?: PlayStats | null) => {
+  if (!stats) return 0
+  return stats.guessStats.reduce((sum, guess) => sum + guess.deletePresses, 0)
+}
+
 export const getSubmitAccuracy = (stats?: PlayStats | null) => {
-  if (!stats || stats.totalEnterPresses === 0) return 0
-  return Math.round((100 * stats.validSubmissions) / stats.totalEnterPresses)
+  const totalEnterPresses = getTotalEnterPresses(stats)
+  if (totalEnterPresses === 0) return 0
+  return Math.round((100 * getValidSubmissions(stats)) / totalEnterPresses)
 }
 
 export const summarizePlayStats = (
@@ -335,11 +474,9 @@ export const summarizePlayStats = (
     values.reduce((total, value) => total + value, 0)
   const deletePressesByFilledLength = emptyDeleteDistribution()
   games.forEach((game) => {
-    normalizeDeleteDistribution(game.deletePressesByFilledLength).forEach(
-      (value, index) => {
-        deletePressesByFilledLength[index] += value
-      }
-    )
+    getDeletePressesByFilledLength(game).forEach((value, index) => {
+      deletePressesByFilledLength[index] += value
+    })
   })
 
   return {
@@ -357,19 +494,14 @@ export const summarizePlayStats = (
       sum(games.map(getSubmitAccuracy)) / games.length
     ),
     averageEnterPresses:
-      Math.round(
-        (10 * sum(games.map((game) => game.totalEnterPresses))) / games.length
-      ) / 10,
-    totalIncompleteEnterPresses: sum(
-      games.map((game) => game.incompleteEnterPresses)
-    ),
-    totalInvalidEnterPresses: sum(
-      games.map((game) => game.invalidEnterPresses)
-    ),
-    totalDeletePresses: sum(games.map((game) => game.deletePresses)),
+      Math.round((10 * sum(games.map(getTotalEnterPresses))) / games.length) /
+      10,
+    totalIncompleteEnterPresses: sum(games.map(getIncompleteEnterPresses)),
+    totalInvalidEnterPresses: sum(games.map(getInvalidEnterPresses)),
+    totalDeletePresses: sum(games.map(getTotalDeletePresses)),
     totalEmptyDeletePresses: deletePressesByFilledLength[0],
     totalFullGuessDeletePresses: deletePressesByFilledLength[CONFIG.wordLength],
     deletePressesByFilledLength,
-    totalEnterPresses: sum(games.map((game) => game.totalEnterPresses)),
+    totalEnterPresses: sum(games.map(getTotalEnterPresses)),
   }
 }

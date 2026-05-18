@@ -2,15 +2,22 @@ import {
   completePlayStats,
   createPlayStats,
   getAverageGuessTimeMs,
+  getDeletePressesByFilledLength,
   getFirstInputDelayMs,
+  getIncompleteEnterPresses,
+  getInvalidEnterPresses,
   getPlayDurationMs,
   getSubmitAccuracy,
+  getTotalDeletePresses,
+  getTotalEnterPresses,
+  getValidSubmissions,
   loadDailyPlayStatsHistory,
   loadDailyPlayStats,
   recordDeletePress,
   recordEnterAttempt,
   recordInputActivity,
   saveDailyPlayStats,
+  startNextGuess,
   summarizePlayStats,
 } from './playStats'
 
@@ -35,19 +42,56 @@ test('records enter attempt categories and derived values', () => {
     now: 9000,
   })
 
-  expect(completed.incompleteEnterPresses).toBe(1)
-  expect(completed.invalidEnterPresses).toBe(1)
-  expect(completed.deletePresses).toBe(1)
-  expect(completed.deletePressesByFilledLength).toEqual([0, 0, 0, 1, 0, 0])
-  expect(completed.validSubmissions).toBe(1)
-  expect(completed.totalEnterPresses).toBe(3)
-  expect(completed.guessDurationsMs).toEqual([1500])
+  expect(getIncompleteEnterPresses(completed)).toBe(1)
+  expect(getInvalidEnterPresses(completed)).toBe(1)
+  expect(getTotalDeletePresses(completed)).toBe(1)
+  expect(getDeletePressesByFilledLength(completed)).toEqual([0, 0, 0, 1, 0, 0])
+  expect(getValidSubmissions(completed)).toBe(1)
+  expect(getTotalEnterPresses(completed)).toBe(3)
+  expect(completed.guessStats[0].durationMs).toBe(3000)
+  expect(completed.guessStats[0].enterPresses).toBe(3)
+  expect(completed.guessStats[0].deletePresses).toBe(1)
   expect(completed.longestPauseMs).toBe(1500)
   expect(completed.assistFlags.enterValidationHint).toBe(true)
   expect(getPlayDurationMs(completed)).toBe(8000)
   expect(getFirstInputDelayMs(completed)).toBe(500)
-  expect(getAverageGuessTimeMs(completed)).toBe(1500)
+  expect(getAverageGuessTimeMs(completed)).toBe(3000)
   expect(getSubmitAccuracy(completed)).toBe(33)
+})
+
+test('records each guess duration and input counts separately', () => {
+  let stats = createPlayStats({
+    mode: 'daily',
+    solution: 'chain',
+    dateKey: '2026-05-18',
+    enterValidationHint: false,
+    now: 1000,
+  })
+
+  stats = recordDeletePress(stats, 0, 1200)
+  stats = recordEnterAttempt(stats, 'valid', 3000)
+  stats = startNextGuess(stats, 3000)
+  stats = recordInputActivity(stats, 3500)
+  stats = recordDeletePress(stats, 5, 4000)
+  stats = recordEnterAttempt(stats, 'invalid', 4500)
+  stats = recordEnterAttempt(stats, 'valid', 7000)
+
+  expect(stats.guessStats).toHaveLength(2)
+  expect(stats.guessStats[0]).toMatchObject({
+    durationMs: 2000,
+    enterPresses: 1,
+    deletePresses: 1,
+  })
+  expect(stats.guessStats[1]).toMatchObject({
+    durationMs: 4000,
+    enterPresses: 2,
+    invalidEnterPresses: 1,
+    deletePresses: 1,
+  })
+  expect(getAverageGuessTimeMs(stats)).toBe(3000)
+  expect(getTotalEnterPresses(stats)).toBe(3)
+  expect(getTotalDeletePresses(stats)).toBe(2)
+  expect(getDeletePressesByFilledLength(stats)).toEqual([1, 0, 0, 0, 0, 1])
 })
 
 test('saves and summarizes daily play stats', () => {
@@ -112,35 +156,4 @@ test('saves and summarizes daily play stats', () => {
   expect(summary.totalEnterPresses).toBe(3)
   expect(loadDailyPlayStats('2026-05-18', 'chain')?.completedAt).toBe(5000)
   expect(loadDailyPlayStats('2026-05-18', 'other')).toBeNull()
-})
-
-test('normalizes old play stats without delete distribution', () => {
-  localStorage.clear()
-  localStorage.setItem(
-    'dailyPlayStats',
-    JSON.stringify({
-      '2026-05-18': {
-        mode: 'daily',
-        solution: 'chain',
-        dateKey: '2026-05-18',
-        startedAt: 1000,
-        completedAt: 5000,
-        lastActivityAt: 5000,
-        longestPauseMs: 0,
-        incompleteEnterPresses: 0,
-        invalidEnterPresses: 0,
-        deletePresses: 2,
-        validSubmissions: 1,
-        totalEnterPresses: 1,
-        guessDurationsMs: [1000],
-        assistFlags: { enterValidationHint: false },
-        won: true,
-        guessCount: 1,
-      },
-    })
-  )
-
-  const loaded = loadDailyPlayStats('2026-05-18', 'chain')
-  expect(loaded?.deletePresses).toBe(2)
-  expect(loaded?.deletePressesByFilledLength).toEqual([0, 0, 0, 0, 0, 0])
 })

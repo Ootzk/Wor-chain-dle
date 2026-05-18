@@ -58,6 +58,7 @@ import {
   recordInputActivity,
   saveCurrentPlayStats,
   saveDailyPlayStats,
+  startNextGuess,
   summarizePlayStats,
 } from './lib/playStats'
 import ReactGA from 'react-ga'
@@ -457,7 +458,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           })
         )
         setIsGameLost(true)
+        return
       }
+
+      updatePlayStats(startNextGuess(submittedPlayStats))
     }
   }
   const enterHint = (() => {

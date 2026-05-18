@@ -8,9 +8,15 @@ import {
   PlayStats,
   PlayStatsSummary,
   getAverageGuessTimeMs,
+  getDeletePressesByFilledLength,
   getFirstInputDelayMs,
+  getIncompleteEnterPresses,
+  getInvalidEnterPresses,
   getPlayDurationMs,
   getSubmitAccuracy,
+  getTotalDeletePresses,
+  getTotalEnterPresses,
+  getValidSubmissions,
 } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -54,6 +60,33 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between border-b border-gray-100 py-1.5 text-sm last:border-b-0">
     <span className="text-gray-500">{label}</span>
     <span className="font-semibold text-gray-900">{value}</span>
+  </div>
+)
+
+const GuessDetailRow = ({
+  label,
+  duration,
+  enterPresses,
+  deletePresses,
+  enterLabel,
+  deleteLabel,
+}: {
+  label: string
+  duration: string
+  enterPresses: number
+  deletePresses: number
+  enterLabel: string
+  deleteLabel: string
+}) => (
+  <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-gray-100 py-1.5 text-sm last:border-b-0">
+    <span className="text-gray-500">{label}</span>
+    <span className="font-semibold text-gray-900">{duration}</span>
+    <span className="text-xs font-medium text-gray-500">
+      {enterLabel} {enterPresses}
+    </span>
+    <span className="text-xs font-medium text-gray-500">
+      {deleteLabel} {deletePresses}
+    </span>
   </div>
 )
 
@@ -222,9 +255,10 @@ export const StatsModal = ({
     ? formatSeconds(getFirstInputDelayMs(playStats))
     : t('playStatsNotStarted')
   const averageGuessTime =
-    playStats.guessDurationsMs.length > 0
+    getAverageGuessTimeMs(playStats) > 0
       ? formatSeconds(getAverageGuessTimeMs(playStats))
       : t('playStatsNotAvailable')
+  const deletePressesByFilledLength = getDeletePressesByFilledLength(playStats)
 
   // Daily mode — Today + Calendar + Stats
   const tabs = [
@@ -303,34 +337,33 @@ export const StatsModal = ({
                 />
                 <DetailRow
                   label={t('playStatsEnterPresses')}
-                  value={String(playStats.totalEnterPresses)}
+                  value={String(getTotalEnterPresses(playStats))}
                 />
                 <DetailRow
                   label={t('playStatsIncompleteEnterPresses')}
-                  value={String(playStats.incompleteEnterPresses)}
+                  value={String(getIncompleteEnterPresses(playStats))}
                 />
                 <DetailRow
                   label={t('playStatsInvalidEnterPresses')}
-                  value={String(playStats.invalidEnterPresses)}
+                  value={String(getInvalidEnterPresses(playStats))}
                 />
                 <DetailRow
                   label={t('playStatsDeletePresses')}
-                  value={String(playStats.deletePresses)}
+                  value={String(getTotalDeletePresses(playStats))}
                 />
                 <DetailRow
                   label={t('playStatsEmptyDeletePresses')}
-                  value={String(playStats.deletePressesByFilledLength[0] || 0)}
+                  value={String(deletePressesByFilledLength[0] || 0)}
                 />
                 <DetailRow
                   label={t('playStatsFullGuessDeletePresses')}
                   value={String(
-                    playStats.deletePressesByFilledLength[CONFIG.wordLength] ||
-                      0
+                    deletePressesByFilledLength[CONFIG.wordLength] || 0
                   )}
                 />
                 <DetailRow
                   label={t('playStatsValidSubmissions')}
-                  value={String(playStats.validSubmissions)}
+                  value={String(getValidSubmissions(playStats))}
                 />
                 <DetailRow
                   label={t('playStatsSubmitAccuracy')}
@@ -345,6 +378,32 @@ export const StatsModal = ({
                   }
                 />
               </div>
+              {playStats.guessStats.length > 0 && (
+                <>
+                  <h4 className="mb-2 mt-3 text-sm font-semibold text-gray-900">
+                    {t('playStatsGuessBreakdown')}
+                  </h4>
+                  <div className="rounded border border-gray-100 px-3 py-2">
+                    {playStats.guessStats.map((guess, index) => (
+                      <GuessDetailRow
+                        key={index}
+                        label={t('playStatsGuessNumber', {
+                          count: index + 1,
+                        })}
+                        duration={
+                          guess.durationMs !== undefined
+                            ? formatSeconds(guess.durationMs)
+                            : t('playStatsNotFinished')
+                        }
+                        enterPresses={guess.enterPresses}
+                        deletePresses={guess.deletePresses}
+                        enterLabel={t('playStatsEnterShort')}
+                        deleteLabel={t('playStatsDeleteShort')}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             {completedToday ? (
               <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 gap-3">
