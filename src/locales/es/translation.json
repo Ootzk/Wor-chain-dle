@@ -341,7 +341,7 @@
   "achievement_monthly_attendance_title": "Mes perfecto",
   "achievement_monthly_attendance_desc": "Completar todos los puzzles diarios de un mes",
   "achievement_dead_end_tail_title": "Trampa de cola",
-  "achievement_dead_end_tail_desc": "Provocar un dead end con la última letra encadenada",
+  "achievement_dead_end_tail_desc": "Provocar un <deadEndLink>dead end</deadEndLink> con la última letra encadenada",
   "achievement_bibimbap_balance_title": "Equilibrio bibimbap",
   "achievement_bibimbap_balance_desc": "Ganar en el 6.º intento con 10 correctas, 10 presentes y 10 ausentes",
   "achievement_yogurt_recipe_title": "Receta de yogur",

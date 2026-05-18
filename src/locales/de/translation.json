@@ -296,7 +296,7 @@
   "achievement_monthly_attendance_title": "Perfekter Monat",
   "achievement_monthly_attendance_desc": "Schließe jeden täglichen Versuch eines Kalendermonats ab",
   "achievement_dead_end_tail_title": "Schwanzfalle",
-  "achievement_dead_end_tail_desc": "Löse ein dead end durch den letzten Kettenbuchstaben aus",
+  "achievement_dead_end_tail_desc": "Löse ein <deadEndLink>dead end</deadEndLink> durch den letzten Kettenbuchstaben aus",
   "achievement_bibimbap_balance_title": "Bibimbap-Balance",
   "achievement_bibimbap_balance_desc": "Gewinne im 6. Versuch mit je 10 richtigen, vorhandenen und fehlenden Feldern",
   "achievement_yogurt_recipe_title": "Joghurt-Rezept",

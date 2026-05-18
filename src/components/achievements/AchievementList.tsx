@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import {
   getAchievementModes,
   getAchievementsWithStatus,
@@ -87,6 +87,37 @@ const ProgressBar = ({
   )
 }
 
+const AchievementDescription = ({
+  achievementId,
+  descriptionKey,
+  onOpenDeadEndHelp,
+}: {
+  achievementId: string
+  descriptionKey: string
+  onOpenDeadEndHelp?: () => void
+}) => {
+  const { t } = useTranslation()
+
+  if (achievementId !== 'dead_end_tail' || !onOpenDeadEndHelp) {
+    return <>{t(descriptionKey)}</>
+  }
+
+  return (
+    <Trans
+      i18nKey={descriptionKey}
+      components={{
+        deadEndLink: (
+          <button
+            type="button"
+            className="font-medium text-indigo-600 hover:text-indigo-700 underline"
+            onClick={onOpenDeadEndHelp}
+          />
+        ),
+      }}
+    />
+  )
+}
+
 export const AchievementList = ({
   scrollToId,
   onOpenDeadEndHelp,
@@ -162,17 +193,14 @@ export const AchievementList = ({
                     )
                   )}
                 </span>
-                <span>{t(achievement.descriptionKey)}</span>
+                <span>
+                  <AchievementDescription
+                    achievementId={achievement.id}
+                    descriptionKey={achievement.descriptionKey}
+                    onOpenDeadEndHelp={onOpenDeadEndHelp}
+                  />
+                </span>
               </p>
-              {achievement.id === 'dead_end_tail' && onOpenDeadEndHelp && (
-                <button
-                  type="button"
-                  className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 underline"
-                  onClick={onOpenDeadEndHelp}
-                >
-                  {t('deadEndRuleLink')}
-                </button>
-              )}
               {(() => {
                 const rewards = getRewardsForAchievement(achievement.id)
                 if (rewards.length === 0) return null

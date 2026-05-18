@@ -12,7 +12,7 @@ import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { loadSettings, saveSettings } from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
-import { InfoModal, InfoTab } from '../modals/InfoModal'
+import { InfoModal, InfoSection, InfoTab } from '../modals/InfoModal'
 import { SettingsModal } from '../modals/SettingsModal'
 import { DonateModal } from '../modals/DonateModal'
 import { RewardsModal } from '../modals/RewardsModal'
@@ -44,6 +44,9 @@ export const CreatePuzzlePage = () => {
   )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
+  const [infoInitialSection, setInfoInitialSection] = useState<
+    InfoSection | undefined
+  >(undefined)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
@@ -178,6 +181,7 @@ export const CreatePuzzlePage = () => {
           className="h-6 w-6 cursor-pointer"
           onClick={() => {
             setInfoInitialTab('mode')
+            setInfoInitialSection(undefined)
             setIsInfoModalOpen(true)
           }}
         />
@@ -293,9 +297,13 @@ export const CreatePuzzlePage = () => {
 
       <InfoModal
         isOpen={isInfoModalOpen}
-        handleClose={() => setIsInfoModalOpen(false)}
+        handleClose={() => {
+          setIsInfoModalOpen(false)
+          setInfoInitialSection(undefined)
+        }}
         mode="create"
         initialTab={infoInitialTab}
+        initialSection={infoInitialSection}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
@@ -305,6 +313,7 @@ export const CreatePuzzlePage = () => {
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')
+          setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
       />

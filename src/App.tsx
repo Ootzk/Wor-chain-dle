@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
-import { InfoModal, InfoTab } from './components/modals/InfoModal'
+import { InfoModal, InfoSection, InfoTab } from './components/modals/InfoModal'
 import { DonateModal } from './components/modals/DonateModal'
 import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
@@ -72,6 +72,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
+  const [infoInitialSection, setInfoInitialSection] = useState<
+    InfoSection | undefined
+  >(undefined)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
@@ -395,6 +398,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => {
             setInfoInitialTab('mode')
+            setInfoInitialSection(undefined)
             setIsInfoModalOpen(true)
           }}
         />
@@ -439,10 +443,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       </div>
       <InfoModal
         isOpen={isInfoModalOpen}
-        handleClose={() => setIsInfoModalOpen(false)}
+        handleClose={() => {
+          setIsInfoModalOpen(false)
+          setInfoInitialSection(undefined)
+        }}
         mode={mode}
         questioner={questioner}
         initialTab={infoInitialTab}
+        initialSection={infoInitialSection}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -483,6 +491,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')
+          setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
       />

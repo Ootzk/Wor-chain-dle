@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Cell } from '../grid/Cell'
 import { ChainBridge } from '../grid/ChainBridge'
 import { BaseModal } from './BaseModal'
@@ -16,9 +16,11 @@ type Props = {
   mode: GameMode
   questioner?: string
   initialTab?: InfoTab
+  initialSection?: InfoSection
 }
 
 export type InfoTab = 'mode' | 'howToPlay' | 'patchNotes' | 'about'
+export type InfoSection = 'deadEnd'
 
 interface Letter {
   letter: string
@@ -78,8 +80,9 @@ const ModeContent = ({
   )
 }
 
-const HowToPlayContent = () => {
+const HowToPlayContent = ({ focusSection }: { focusSection?: InfoSection }) => {
   const { t } = useTranslation()
+  const deadEndRef = useRef<HTMLHeadingElement>(null)
   const firstExampleWord: Letter[] = t('firstExampleWord', {
     returnObjects: true,
   })
@@ -89,6 +92,19 @@ const HowToPlayContent = () => {
   const thirdExampleWord: Letter[] = t('thirdExampleWord', {
     returnObjects: true,
   })
+
+  useEffect(() => {
+    if (focusSection === 'deadEnd' && deadEndRef.current) {
+      setTimeout(
+        () =>
+          deadEndRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          }),
+        100
+      )
+    }
+  }, [focusSection])
 
   return (
     <>
@@ -170,12 +186,22 @@ const HowToPlayContent = () => {
 
       <hr className="my-4 border-gray-300" />
 
-      <h4 className="text-md font-bold text-gray-900 mb-2">
-        ⚠️ {t('deadEndRuleTitle')}
-      </h4>
-      <p className="text-sm text-gray-500 mt-2">
-        {t('chainDeadEndInstructions')}
-      </p>
+      <div
+        ref={deadEndRef}
+        data-info-section="dead-end"
+        className={`rounded-lg p-3 transition-colors ${
+          focusSection === 'deadEnd'
+            ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
+            : 'border border-transparent'
+        }`}
+      >
+        <h4 className="text-md font-bold text-gray-900 mb-2">
+          ⚠️ {t('deadEndRuleTitle')}
+        </h4>
+        <p className="text-sm text-gray-500 mt-2">
+          {t('chainDeadEndInstructions')}
+        </p>
+      </div>
     </>
   )
 }
@@ -232,6 +258,7 @@ export const InfoModal = ({
   mode,
   questioner,
   initialTab = 'mode',
+  initialSection,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<InfoTab>('mode')
@@ -274,7 +301,9 @@ export const InfoModal = ({
         <ModeContent mode={mode} questioner={questioner} />
       )}
 
-      {activeTab === 'howToPlay' && <HowToPlayContent />}
+      {activeTab === 'howToPlay' && (
+        <HowToPlayContent focusSection={initialSection} />
+      )}
 
       {activeTab === 'patchNotes' && <PatchNotesContent variant="history" />}
 

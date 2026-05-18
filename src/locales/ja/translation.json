@@ -296,7 +296,7 @@
   "achievement_monthly_attendance_title": "皆勤の一ヶ月",
   "achievement_monthly_attendance_desc": "1ヶ月間、毎日の問題をすべて完了する",
   "achievement_dead_end_tail_title": "しっぽの罠",
-  "achievement_dead_end_tail_desc": "最後の文字チェーンでデッドエンドになる",
+  "achievement_dead_end_tail_desc": "最後の文字チェーンで<deadEndLink>デッドエンド</deadEndLink>になる",
   "achievement_bibimbap_balance_title": "ビビンババランス",
   "achievement_bibimbap_balance_desc": "6回目で勝利し、正解/含む/不在タイルをそれぞれ10個にする",
   "achievement_yogurt_recipe_title": "ヨーグルトレシピ",

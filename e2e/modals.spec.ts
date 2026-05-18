@@ -160,7 +160,7 @@ test.describe('Modals', () => {
   }) => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
-    await gamePage.locator('button', { hasText: 'Dead End rule' }).click()
+    await gamePage.locator('button', { hasText: 'dead end' }).click()
 
     await expect(
       gamePage.getByRole('heading', { name: 'Rewards' })

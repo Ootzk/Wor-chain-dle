@@ -341,7 +341,7 @@
   "achievement_monthly_attendance_title": "Perfect Month",
   "achievement_monthly_attendance_desc": "Complete every Daily puzzle in a calendar month",
   "achievement_dead_end_tail_title": "Tail Trap",
-  "achievement_dead_end_tail_desc": "Trigger a dead end from the final chained letter",
+  "achievement_dead_end_tail_desc": "Trigger a <deadEndLink>dead end</deadEndLink> from the final chained letter",
   "achievement_bibimbap_balance_title": "Bibimbap Balance",
   "achievement_bibimbap_balance_desc": "Win on the 6th guess with 10 correct, 10 present, and 10 absent tiles",
   "achievement_yogurt_recipe_title": "Yogurt Recipe",

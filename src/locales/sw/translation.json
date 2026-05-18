@@ -334,7 +334,7 @@
   "achievement_monthly_attendance_title": "Mwezi kamili",
   "achievement_monthly_attendance_desc": "Kamilisha fumbo la kila siku kila siku kwa mwezi mzima",
   "achievement_dead_end_tail_title": "Mtego wa mkia",
-  "achievement_dead_end_tail_desc": "Sababisha dead end kutoka herufi ya mwisho ya mnyororo",
+  "achievement_dead_end_tail_desc": "Sababisha <deadEndLink>dead end</deadEndLink> kutoka herufi ya mwisho ya mnyororo",
   "achievement_bibimbap_balance_title": "Usawa wa bibimbap",
   "achievement_bibimbap_balance_desc": "Shinda kwenye jaribio la 6 ukiwa na vigae 10 sahihi, 10 karibu, na 10 visivyo",
   "achievement_yogurt_recipe_title": "Mapishi ya yogurt",

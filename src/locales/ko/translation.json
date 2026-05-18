@@ -289,7 +289,7 @@
   "achievement_monthly_attendance_title": "한 달 개근",
   "achievement_monthly_attendance_desc": "한 달 동안 Daily 문제를 하루도 빠짐없이 완료하세요",
   "achievement_dead_end_tail_title": "꼬리 함정",
-  "achievement_dead_end_tail_desc": "마지막 글자 체인으로 dead end에 빠지세요",
+  "achievement_dead_end_tail_desc": "마지막 글자 체인으로 <deadEndLink>dead end</deadEndLink>에 빠지세요",
   "achievement_bibimbap_balance_title": "비빔밥 밸런스",
   "achievement_bibimbap_balance_desc": "6번째 시도에서 승리하고 초록/보라/흰색 타일을 각각 10개씩 만드세요",
   "achievement_yogurt_recipe_title": "요거트 레시피",

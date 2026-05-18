@@ -334,7 +334,7 @@
   "achievement_monthly_attendance_title": "完美一月",
   "achievement_monthly_attendance_desc": "完成某个月的每一道每日谜题",
   "achievement_dead_end_tail_title": "尾巴陷阱",
-  "achievement_dead_end_tail_desc": "由最后一个链接字母触发 dead end",
+  "achievement_dead_end_tail_desc": "由最后一个链接字母触发 <deadEndLink>dead end</deadEndLink>",
   "achievement_bibimbap_balance_title": "拌饭平衡",
   "achievement_bibimbap_balance_desc": "第6次猜中，并让正确/存在/缺失格各为10个",
   "achievement_yogurt_recipe_title": "酸奶食谱",
