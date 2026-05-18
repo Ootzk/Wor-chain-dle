@@ -122,7 +122,7 @@
   "excludeUrlDescription": "Hide the game URL from shared results.",
   "enterValidationHintLabel": "Enable Enter Hints",
   "enterValidationHintDescription": "Color the Enter key by whether the current word can be submitted.",
-  "enterValidationHintCaution": "⚠️ This may affect behavior stats such as Enter click count.",
+  "enterValidationHintCaution": "⚠️ This may affect Action stats by revealing word validity before pressing Enter.",
   "enterValidationHintModeCaution": "⚠️ It may not apply in modes where hints are restricted, such as Event mode.",
   "donate": "Donate",
   "donateMonsterDrink": "Buy the developer a Monster Energy!",

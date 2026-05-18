@@ -122,7 +122,7 @@
   "excludeUrlDescription": "Ficha URL ya mchezo kwenye matokeo unayoshiriki.",
   "enterValidationHintLabel": "Washa vidokezo vya Enter",
   "enterValidationHintDescription": "Badilisha rangi ya kitufe cha Enter kulingana na kama neno la sasa linaweza kuwasilishwa.",
-  "enterValidationHintCaution": "⚠️ inaweza kuathiri takwimu za tabia kama idadi ya mibofyo ya Enter.",
+  "enterValidationHintCaution": "⚠️ inaweza kuathiri takwimu za Action kwa kuonyesha uhalali wa neno kabla ya kubonyeza Enter.",
   "enterValidationHintModeCaution": "⚠️ Huenda isitumike katika modi zinazozuia vidokezo, kama modi ya Tukio.",
   "donate": "Changia",
   "donateMonsterDrink": "Mnunulie msanidi kopo la Monster Energy!",

@@ -122,7 +122,7 @@
   "excludeUrlDescription": "共有結果からゲームURLを非表示にします。",
   "enterValidationHintLabel": "入力ボタンのヒントを有効化",
   "enterValidationHintDescription": "現在の単語を送信できるかどうかに応じてEnterボタンの色を変えます。",
-  "enterValidationHintCaution": "⚠️ Enterクリック回数などの行動統計に影響する場合があります。",
+  "enterValidationHintCaution": "⚠️ Enter を押す前に単語の有効性が分かるため、Action 統計に影響する場合があります。",
   "enterValidationHintModeCaution": "⚠️ イベントモードなどヒントが制限されるモードでは適用されない場合があります。",
   "donate": "寄付",
   "donateMonsterDrink": "開発者にモンスターエナジーを1本おごってください！",

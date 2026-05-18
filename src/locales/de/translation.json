@@ -122,7 +122,7 @@
   "excludeUrlDescription": "Blendet die Spiel-URL in geteilten Ergebnissen aus.",
   "enterValidationHintLabel": "Enter-Hinweise aktivieren",
   "enterValidationHintDescription": "Färbt die Enter-Taste danach, ob das aktuelle Wort gesendet werden kann.",
-  "enterValidationHintCaution": "⚠️ Dies kann Verhaltensstatistiken wie die Anzahl der Enter-Klicks beeinflussen.",
+  "enterValidationHintCaution": "⚠️ Dies kann Action-Statistiken beeinflussen, da die Wortgültigkeit vor dem Drücken von Enter sichtbar wird.",
   "enterValidationHintModeCaution": "⚠️ In Modi mit eingeschränkten Hinweisen, etwa Event-Modus, gilt dies möglicherweise nicht.",
   "donate": "Spenden",
   "donateMonsterDrink": "Spendiere dem Entwickler einen Monster Energy!",

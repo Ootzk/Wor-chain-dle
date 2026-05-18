@@ -122,7 +122,7 @@
   "excludeUrlDescription": "在分享结果中隐藏游戏链接。",
   "enterValidationHintLabel": "启用 Enter 提示",
   "enterValidationHintDescription": "根据当前单词是否可以提交来改变 Enter 键颜色。",
-  "enterValidationHintCaution": "⚠️ 这可能影响 Enter 点击次数等行为统计。",
+  "enterValidationHintCaution": "⚠️ 这可能在按 Enter 前显示单词是否有效，从而影响 Action 统计。",
   "enterValidationHintModeCaution": "⚠️ 在活动模式等限制提示的模式中可能不会生效。",
   "donate": "捐贈",
   "donateMonsterDrink": "请给开发者买一罐Monster Energy！",
