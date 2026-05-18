@@ -15,10 +15,10 @@ const SummaryItem = ({
 }) => {
   return (
     <div className="min-w-0">
-      <h4 className="text-sm leading-5 font-semibold text-gray-900">
+      <h4 className="text-base font-normal leading-6 text-gray-900">
         {title}
       </h4>
-      <div className="mt-0.5 text-center text-xl font-bold leading-6 text-gray-900">
+      <div className="mt-0.5 text-center text-xl font-normal leading-6 text-gray-900">
         {value}
       </div>
     </div>

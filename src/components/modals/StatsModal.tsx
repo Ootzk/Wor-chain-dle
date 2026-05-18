@@ -680,19 +680,19 @@ export const StatsModal = ({
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
               <section>
-                <h4 className="text-sm leading-5 font-semibold text-gray-900">
+                <h4 className="text-base font-normal leading-6 text-gray-900">
                   {t('statsRecord')}
                 </h4>
                 <WinLossBar gameStats={gameStats} />
               </section>
               <section className="mt-2 border-t border-gray-200 pt-2">
-                <h4 className="text-sm leading-5 font-semibold text-gray-900">
+                <h4 className="text-base font-normal leading-6 text-gray-900">
                   {t('winGuessDistribution')}:{' '}
                   <span
                     className={
                       averageWinGuesses === EMPTY_VALUE
                         ? 'text-gray-400'
-                        : 'text-green-600'
+                        : 'text-green-500'
                     }
                   >
                     {averageWinGuesses}
@@ -702,7 +702,7 @@ export const StatsModal = ({
                 <Histogram gameStats={gameStats} />
               </section>
               <section className="mt-2 border-t border-gray-200 pt-2">
-                <h4 className="text-sm leading-5 font-semibold text-gray-900">
+                <h4 className="text-base font-normal leading-6 text-gray-900">
                   {t('loseReasonDistribution')}
                 </h4>
                 <LoseReasonDistribution
