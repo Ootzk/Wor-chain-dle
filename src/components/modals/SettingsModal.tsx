@@ -57,14 +57,16 @@ const SettingRow = ({
   label,
   description,
   caution,
+  secondaryCaution,
   children,
 }: {
   label: string
   description?: string
   caution?: string
+  secondaryCaution?: string
   children: ReactNode
 }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-gray-200 py-3 last:border-b-0">
+  <div className="flex items-center justify-between gap-4 py-3">
     <div className="min-w-0 text-left">
       <div className="text-sm font-medium text-gray-900">{label}</div>
       {description && (
@@ -75,8 +77,29 @@ const SettingRow = ({
       {caution && (
         <div className="mt-1 text-xs leading-4 text-purple-600">{caution}</div>
       )}
+      {secondaryCaution && (
+        <div className="mt-1 text-xs leading-4 text-purple-600">
+          {secondaryCaution}
+        </div>
+      )}
     </div>
     <div className="flex-shrink-0">{children}</div>
+  </div>
+)
+
+const SettingsGroupTitle = ({
+  children,
+  separated = false,
+}: {
+  children: ReactNode
+  separated?: boolean
+}) => (
+  <div
+    className={`pb-1 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
+      separated ? 'mt-3 border-t border-gray-200 pt-4' : ''
+    }`}
+  >
+    {children}
   </div>
 )
 
@@ -162,34 +185,51 @@ export const SettingsModal = ({
         <div className="max-h-[70vh] overflow-y-auto">
           {/* Language */}
           {CONFIG.availableLangs.length > 1 && (
-            <SettingRow label={t('pickYourLanguage')}>
-              <button
-                type="button"
-                className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
-                onClick={() => setIsLangOpen(true)}
-              >
-                <span className="flex items-center justify-between w-full">
-                  <span className="flex items-center">
-                    {langFlags[i18n.language?.split('-')[0]] || ''}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="truncate">
-                      {t(`languages.${i18n.language?.split('-')[0]}`)}
+            <>
+              <SettingsGroupTitle>
+                {t('languageSettingsGroup')}
+              </SettingsGroupTitle>
+              <SettingRow label={t('pickYourLanguage')}>
+                <button
+                  type="button"
+                  className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
+                  onClick={() => setIsLangOpen(true)}
+                >
+                  <span className="flex items-center justify-between w-full">
+                    <span className="flex items-center">
+                      {langFlags[i18n.language?.split('-')[0]] || ''}
                     </span>
-                    <span className="text-xs text-gray-400">{'\u25BE'}</span>
+                    <span className="flex items-center gap-1">
+                      <span className="truncate">
+                        {t(`languages.${i18n.language?.split('-')[0]}`)}
+                      </span>
+                      <span className="text-xs text-gray-400">{'\u25BE'}</span>
+                    </span>
                   </span>
-                </span>
-              </button>
-            </SettingRow>
+                </button>
+              </SettingRow>
+            </>
           )}
 
-          {/* Display settings */}
+          <SettingsGroupTitle separated>
+            {t('displaySharingSettingsGroup')}
+          </SettingsGroupTitle>
           <SettingRow
             label={t('uppercaseLabel')}
             description={t('uppercaseDescription')}
           >
             <Toggle checked={isUppercase} onClick={onToggleUppercase} />
           </SettingRow>
+          <SettingRow
+            label={t('excludeUrlLabel')}
+            description={t('excludeUrlDescription')}
+          >
+            <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
+          </SettingRow>
+
+          <SettingsGroupTitle separated>
+            {t('calendarSettingsGroup')}
+          </SettingsGroupTitle>
           <SettingRow
             label={t('weekStartLabel')}
             description={t('weekStartDescription')}
@@ -199,16 +239,15 @@ export const SettingsModal = ({
               onClick={onToggleWeekStartsOnMonday}
             />
           </SettingRow>
-          <SettingRow
-            label={t('excludeUrlLabel')}
-            description={t('excludeUrlDescription')}
-          >
-            <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
-          </SettingRow>
+
+          <SettingsGroupTitle separated>
+            {t('gameplaySettingsGroup')}
+          </SettingsGroupTitle>
           <SettingRow
             label={t('enterValidationHintLabel')}
             description={t('enterValidationHintDescription')}
             caution={t('enterValidationHintCaution')}
+            secondaryCaution={t('enterValidationHintModeCaution')}
           >
             <Toggle
               checked={enterValidationHint}

@@ -309,7 +309,9 @@ export const CreatePuzzlePage = () => {
         isOpen={isRewardsModalOpen}
         handleClose={() => setIsRewardsModalOpen(false)}
         isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')

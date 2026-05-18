@@ -32,6 +32,52 @@ const cosmeticCategories: {
   { category: 'endMessage', labelKey: 'endMessageLabel' },
 ]
 
+const Toggle = ({
+  checked,
+  onClick,
+}: {
+  checked: boolean
+  onClick: () => void
+}) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+      checked ? 'bg-green-500' : 'bg-gray-300'
+    }`}
+    onClick={onClick}
+  >
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+        checked ? 'translate-x-6' : 'translate-x-1'
+      }`}
+    />
+  </button>
+)
+
+const CosmeticSettingRow = ({
+  label,
+  description,
+  checked,
+  onToggle,
+}: {
+  label: string
+  description: string
+  checked: boolean
+  onToggle: () => void
+}) => (
+  <div className="flex items-center justify-between gap-4 border-b border-gray-100 py-2.5 last:border-b-0">
+    <div className="min-w-0 text-left">
+      <div className="text-sm font-medium text-gray-900">{label}</div>
+      <div className="mt-1 text-xs leading-4 text-gray-500">{description}</div>
+    </div>
+    <div className="flex-shrink-0">
+      <Toggle checked={checked} onClick={onToggle} />
+    </div>
+  </div>
+)
+
 const CosmeticPicker = ({
   category,
   options,
@@ -303,11 +349,15 @@ const CosmeticPicker = ({
 
 export const CosmeticsPanel = ({
   isUppercase,
+  onToggleUppercase,
   excludeUrl,
+  onToggleExcludeUrl,
   onNavigateToAchievement,
 }: {
   isUppercase: boolean
+  onToggleUppercase: () => void
   excludeUrl: boolean
+  onToggleExcludeUrl: () => void
   onNavigateToAchievement?: (achievementId: string) => void
 }) => {
   const { t } = useTranslation()
@@ -372,6 +422,21 @@ export const CosmeticsPanel = ({
             excludeUrl
           )}
         </pre>
+      </div>
+
+      <div className="mb-3 rounded border border-gray-200 px-3">
+        <CosmeticSettingRow
+          label={t('uppercaseLabel')}
+          description={t('uppercaseDescription')}
+          checked={isUppercase}
+          onToggle={onToggleUppercase}
+        />
+        <CosmeticSettingRow
+          label={t('excludeUrlLabel')}
+          description={t('excludeUrlDescription')}
+          checked={excludeUrl}
+          onToggle={onToggleExcludeUrl}
+        />
       </div>
 
       {cosmeticCategories.map(({ category, labelKey }) => {

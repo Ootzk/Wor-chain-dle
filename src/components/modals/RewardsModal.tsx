@@ -11,7 +11,9 @@ type Props = {
   isOpen: boolean
   handleClose: () => void
   isUppercase: boolean
+  onToggleUppercase: () => void
   excludeUrl: boolean
+  onToggleExcludeUrl: () => void
   initialTab?: RewardsTab
   scrollToAchievement?: string
   onOpenDeadEndHelp?: () => void
@@ -21,7 +23,9 @@ export const RewardsModal = ({
   isOpen,
   handleClose,
   isUppercase,
+  onToggleUppercase,
   excludeUrl,
+  onToggleExcludeUrl,
   initialTab,
   scrollToAchievement,
   onOpenDeadEndHelp,
@@ -78,7 +82,9 @@ export const RewardsModal = ({
         {activeTab === 'cosmetics' && (
           <CosmeticsPanel
             isUppercase={isUppercase}
+            onToggleUppercase={onToggleUppercase}
             excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
             onNavigateToAchievement={(achievementId) => {
               setFocusedAchievement(achievementId)
               setActiveTab('achievements')

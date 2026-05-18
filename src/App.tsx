@@ -471,7 +471,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setRewardsInitialTab(undefined)
         }}
         isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
