@@ -24,6 +24,8 @@
   "notInWordInstructions": "La letra O no se encuentra en la palabra.",
   "guessDistribution": "Distribución de aciertos",
   "winGuessDistribution": "Win Guess Distribution",
+  "loseReasonDistribution": "Lose Reason Distribution",
+  "loseReasonUnknown": "Unknown",
   "today": "Hoy",
   "statsShort": "Stats",
   "statsSummary": "Summary",

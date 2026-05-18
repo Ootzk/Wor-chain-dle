@@ -24,6 +24,8 @@
   "deadEndRuleLink": "Dead End rule",
   "guessDistribution": "Guess Distribution",
   "winGuessDistribution": "Win Guess Distribution",
+  "loseReasonDistribution": "Lose Reason Distribution",
+  "loseReasonUnknown": "Unknown",
   "today": "Today",
   "statsShort": "Stats",
   "statsSummary": "Summary",

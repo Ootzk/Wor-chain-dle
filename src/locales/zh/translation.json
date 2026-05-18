@@ -24,6 +24,8 @@
   "notInWordInstructions": "字母 U 不在正解當中。",
   "guessDistribution": "猜詞分佈",
   "winGuessDistribution": "Win Guess Distribution",
+  "loseReasonDistribution": "Lose Reason Distribution",
+  "loseReasonUnknown": "Unknown",
   "today": "今天",
   "statsShort": "统计",
   "statsSummary": "Summary",

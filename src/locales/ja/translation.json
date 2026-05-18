@@ -24,6 +24,8 @@
   "deadEndRuleLink": "Dead End ルール",
   "guessDistribution": "推測の分布",
   "winGuessDistribution": "Win Guess Distribution",
+  "loseReasonDistribution": "Lose Reason Distribution",
+  "loseReasonUnknown": "Unknown",
   "today": "今日",
   "statsShort": "統計",
   "statsSummary": "Summary",

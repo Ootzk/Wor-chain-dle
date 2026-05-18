@@ -24,6 +24,8 @@
   "notInWordInstructions": "Herufi U haiko kwa neno, pahali yoyote.",
   "guessDistribution": "Usambazaji wa kubahatisha",
   "winGuessDistribution": "Win Guess Distribution",
+  "loseReasonDistribution": "Lose Reason Distribution",
+  "loseReasonUnknown": "Unknown",
   "today": "Leo",
   "statsShort": "Takwimu",
   "statsSummary": "Summary",

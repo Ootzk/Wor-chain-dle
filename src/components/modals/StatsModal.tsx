@@ -3,6 +3,7 @@ import Countdown from 'react-countdown'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { WinLossBar } from '../stats/WinLossBar'
+import { LoseReasonDistribution } from '../stats/LoseReasonDistribution'
 import { Calendar } from '../calendar/Calendar'
 import { GameStats } from '../../lib/localStorage'
 import {
@@ -691,6 +692,14 @@ export const StatsModal = ({
                 </h4>
                 <Histogram gameStats={gameStats} />
               </section>
+              {gameStats.gamesFailed > 0 && (
+                <section className="mt-3 border-t border-gray-200 pt-3">
+                  <h4 className="text-lg leading-6 font-medium text-gray-900">
+                    {t('loseReasonDistribution')}
+                  </h4>
+                  <LoseReasonDistribution gameStats={gameStats} />
+                </section>
+              )}
               <section className="mt-3 border-t border-gray-200 pt-3">
                 <StatBar gameStats={gameStats} />
               </section>
