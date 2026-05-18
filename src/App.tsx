@@ -51,7 +51,9 @@ import {
   clearCurrentPlayStats,
   completePlayStats,
   loadCurrentPlayStats,
+  loadDailyPlayStats,
   loadDailyPlayStatsHistory,
+  recordDeletePress,
   recordEnterAttempt,
   recordInputActivity,
   saveCurrentPlayStats,
@@ -147,12 +149,19 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
   const [stats, setStats] = useState(() => loadStats())
   const [playStats, setPlayStats] = useState<PlayStats>(() =>
-    loadCurrentPlayStats({
-      mode,
-      solution,
-      dateKey: isDaily ? localDateStr : undefined,
-      enterValidationHint: loadSettings().enterValidationHint,
-    })
+    isDaily
+      ? loadDailyPlayStats(localDateStr, solution) ||
+        loadCurrentPlayStats({
+          mode,
+          solution,
+          dateKey: localDateStr,
+          enterValidationHint: loadSettings().enterValidationHint,
+        })
+      : loadCurrentPlayStats({
+          mode,
+          solution,
+          enterValidationHint: loadSettings().enterValidationHint,
+        })
   )
   const [dailyPlayStatsSummary, setDailyPlayStatsSummary] = useState(() =>
     summarizePlayStats(loadDailyPlayStatsHistory())
@@ -209,12 +218,19 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [isGameWon, isGameLost, mode, solution])
 
   useEffect(() => {
-    const next = loadCurrentPlayStats({
-      mode,
-      solution,
-      dateKey: isDaily ? localDateStr : undefined,
-      enterValidationHint,
-    })
+    const next = isDaily
+      ? loadDailyPlayStats(localDateStr, solution) ||
+        loadCurrentPlayStats({
+          mode,
+          solution,
+          dateKey: localDateStr,
+          enterValidationHint,
+        })
+      : loadCurrentPlayStats({
+          mode,
+          solution,
+          enterValidationHint,
+        })
     setPlayStats(next)
     if (!isDaily) {
       clearCurrentPlayStats()
@@ -316,7 +332,11 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
 
   const onDelete = () => {
+    const filledLength = currentGuess.length
     setCurrentGuess(currentGuess.slice(0, -1))
+    if (!isGameWon && !isGameLost) {
+      updatePlayStats(recordDeletePress(playStats, filledLength))
+    }
   }
 
   const onEnter = () => {

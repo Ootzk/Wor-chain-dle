@@ -1,4 +1,5 @@
 import { GameMode } from './gameMode'
+import { CONFIG } from '../constants/config'
 
 const currentPlayStatsKey = 'currentPlayStats'
 const dailyPlayStatsKey = 'dailyPlayStats'
@@ -20,6 +21,8 @@ export type PlayStats = {
   longestPauseMs: number
   incompleteEnterPresses: number
   invalidEnterPresses: number
+  deletePresses: number
+  deletePressesByFilledLength: number[]
   validSubmissions: number
   totalEnterPresses: number
   guessDurationsMs: number[]
@@ -45,6 +48,10 @@ export type PlayStatsSummary = {
   averageEnterPresses: number
   totalIncompleteEnterPresses: number
   totalInvalidEnterPresses: number
+  totalDeletePresses: number
+  totalEmptyDeletePresses: number
+  totalFullGuessDeletePresses: number
+  deletePressesByFilledLength: number[]
   totalEnterPresses: number
 }
 
@@ -55,6 +62,24 @@ type StoredCurrentPlayStats = {
 }
 
 const nowMs = () => Math.round(performance.timeOrigin + performance.now())
+
+const emptyDeleteDistribution = () => Array(CONFIG.wordLength + 1).fill(0)
+
+const normalizeDeleteDistribution = (values?: number[]) => {
+  const normalized = emptyDeleteDistribution()
+  values?.slice(0, normalized.length).forEach((value, index) => {
+    normalized[index] = value
+  })
+  return normalized
+}
+
+const normalizePlayStats = <T extends PlayStats>(stats: T): T => ({
+  ...stats,
+  deletePresses: stats.deletePresses ?? 0,
+  deletePressesByFilledLength: normalizeDeleteDistribution(
+    stats.deletePressesByFilledLength
+  ),
+})
 
 export const createPlayStats = ({
   mode,
@@ -77,6 +102,8 @@ export const createPlayStats = ({
   longestPauseMs: 0,
   incompleteEnterPresses: 0,
   invalidEnterPresses: 0,
+  deletePresses: 0,
+  deletePressesByFilledLength: emptyDeleteDistribution(),
   validSubmissions: 0,
   totalEnterPresses: 0,
   guessDurationsMs: [],
@@ -116,7 +143,7 @@ export const loadCurrentPlayStats = ({
       parsed.dateKey === dateKey &&
       !parsed.stats.completedAt
     ) {
-      return parsed.stats
+      return normalizePlayStats(parsed.stats)
     }
   }
 
@@ -190,6 +217,27 @@ export const recordEnterAttempt = (
   }
 }
 
+export const recordDeletePress = (
+  stats: PlayStats,
+  filledLength: number,
+  now = nowMs()
+): PlayStats => {
+  const pause = Math.max(0, now - stats.lastActivityAt)
+  const index = Math.max(0, Math.min(filledLength, CONFIG.wordLength))
+  const deletePressesByFilledLength = normalizeDeleteDistribution(
+    stats.deletePressesByFilledLength
+  )
+  deletePressesByFilledLength[index] += 1
+
+  return {
+    ...stats,
+    lastActivityAt: now,
+    longestPauseMs: Math.max(stats.longestPauseMs, pause),
+    deletePresses: stats.deletePresses + 1,
+    deletePressesByFilledLength,
+  }
+}
+
 export const completePlayStats = ({
   stats,
   won,
@@ -211,6 +259,16 @@ export const completePlayStats = ({
 export const loadDailyPlayStatsHistory = (): DailyPlayStatsHistory => {
   const history = localStorage.getItem(dailyPlayStatsKey)
   return history ? (JSON.parse(history) as DailyPlayStatsHistory) : {}
+}
+
+export const loadDailyPlayStats = (
+  dateKey: string,
+  solution?: string
+): CompletedPlayStats | null => {
+  const stats = loadDailyPlayStatsHistory()[dateKey] ?? null
+  if (!stats) return null
+  if (solution && stats.solution !== solution) return null
+  return normalizePlayStats(stats)
 }
 
 export const saveDailyPlayStats = (
@@ -265,12 +323,24 @@ export const summarizePlayStats = (
       averageEnterPresses: 0,
       totalIncompleteEnterPresses: 0,
       totalInvalidEnterPresses: 0,
+      totalDeletePresses: 0,
+      totalEmptyDeletePresses: 0,
+      totalFullGuessDeletePresses: 0,
+      deletePressesByFilledLength: emptyDeleteDistribution(),
       totalEnterPresses: 0,
     }
   }
 
   const sum = (values: number[]) =>
     values.reduce((total, value) => total + value, 0)
+  const deletePressesByFilledLength = emptyDeleteDistribution()
+  games.forEach((game) => {
+    normalizeDeleteDistribution(game.deletePressesByFilledLength).forEach(
+      (value, index) => {
+        deletePressesByFilledLength[index] += value
+      }
+    )
+  })
 
   return {
     totalGames: games.length,
@@ -296,6 +366,10 @@ export const summarizePlayStats = (
     totalInvalidEnterPresses: sum(
       games.map((game) => game.invalidEnterPresses)
     ),
+    totalDeletePresses: sum(games.map((game) => game.deletePresses)),
+    totalEmptyDeletePresses: deletePressesByFilledLength[0],
+    totalFullGuessDeletePresses: deletePressesByFilledLength[CONFIG.wordLength],
+    deletePressesByFilledLength,
     totalEnterPresses: sum(games.map((game) => game.totalEnterPresses)),
   }
 }
