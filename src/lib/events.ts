@@ -9,6 +9,7 @@ export type EventDefinition = {
   titleKey: string
   descriptionKey: string
   modeKind: EventModeKind
+  themeKey: string
   answerSeed: string
 }
 
@@ -22,6 +23,7 @@ const ACTIVE_EVENT: EventDefinition = {
   titleKey: 'eventModeTitle',
   descriptionKey: 'eventModeDesc',
   modeKind: 'standard',
+  themeKey: 'eventThemeSummerGarden',
   answerSeed: 'v1.7.0-event',
 }
 

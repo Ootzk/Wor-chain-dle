@@ -380,6 +380,7 @@
   "customModeDesc": "Unacheza fumbo lililotengenezwa na {{questioner}}.\nUnaweza kushiriki matokeo yako au URL ya mchezo na marafiki.",
   "eventModeTitle": "Hali ya Tukio",
   "eventModeDesc": "Cheza fumbo la tukio la msimu lenye nafasi ya sheria maalum.\nKwa sasa tukio hili linatumia sheria za kawaida za mnyororo, na matukio yajayo yanaweza kuunganisha hali kama Hardcore au AI.",
+  "eventThemeSummerGarden": "Summer Garden",
   "howToCreate": "Jinsi ya kuunda",
   "createModeDesc": "Ingiza jina lako na andika neno la kubahatisha kwa kibodi.\nNeno lazima liwe neno la Kiingereza la herufi {{length}} kutoka orodha.\nBonyeza ENTER kunakili URL ya fumbo kwenye ubao wa kunakili.\nShiriki URL na marafiki ili watatue fumbo lako!",
   "calendar": "Kalenda",

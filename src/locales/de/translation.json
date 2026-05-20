@@ -387,6 +387,7 @@
   "customModeDesc": "Du spielst ein Rätsel, das von {{questioner}} erstellt wurde.\nDu kannst deine Ergebnisse oder die Spiel-URL mit Freunden teilen.",
   "eventModeTitle": "Event-Modus",
   "eventModeDesc": "Spiele ein saisonales Event-Rätsel mit einem Slot für besondere Regeln.\nDieses Event nutzt aktuell die normalen Kettenregeln; zukünftige Events können Modi wie Hardcore oder KI einbinden.",
+  "eventThemeSummerGarden": "Summer Garden",
   "howToCreate": "So erstellst du ein Rätsel",
   "createModeDesc": "Gib deinen Namen ein und tippe das zu erratende Wort über die Tastatur ein.\nDas Wort muss ein englisches Wort mit {{length}} Buchstaben aus der Wortliste sein.\nDrücke EINGABE, um die Rätsel-URL in die Zwischenablage zu kopieren.\nTeile die URL mit Freunden, damit sie dein Rätsel lösen können!",
   "calendar": "Kalender",

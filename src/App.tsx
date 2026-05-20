@@ -535,7 +535,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <div className="flex w-80 mx-auto items-center mb-8">
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
-          <p className="text-sm text-gray-500">
+          <p className="relative text-sm text-gray-500">
             {isDaily ? (
               <>
                 {GAME_MODE_LABELS.daily} | {localDateStr}
@@ -548,9 +548,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
                 | {questioner}
               </>
             ) : isEvent ? (
-              <span className="text-sky-500">
-                {event ? t(event.titleKey) : GAME_MODE_LABELS.event}
-              </span>
+              <>
+                <span className="text-sky-500">
+                  {GAME_MODE_LABELS.event} | {localDateStr}
+                </span>
+                <span className="absolute left-0 top-full text-sky-500 whitespace-nowrap">
+                  {event ? t(event.themeKey) : ''}
+                </span>
+              </>
             ) : (
               <span className="text-purple-500">
                 {GAME_MODE_LABELS.practice}
