@@ -526,6 +526,8 @@ export const StatsModal = ({
     event?.version === selectedVersion
       ? cosmeticOverrides
       : selectedEventCosmeticOverrides
+  const activeEventShareContext =
+    mode === 'event' && event ? event.shareContextLabel : undefined
   const selectedEventResults = eventResultsByVersion[selectedVersion] ?? {}
   const selectedEventStats = summarizeResultsAsGameStats(selectedEventResults)
   const selectedEventDetailSummary = summarizeDetailStats(
@@ -890,7 +892,8 @@ export const StatsModal = ({
                       isGameLost,
                       solution,
                       excludeUrl,
-                      cosmeticOverrides
+                      cosmeticOverrides,
+                      activeEventShareContext
                     )
                     handleShare()
                   }}

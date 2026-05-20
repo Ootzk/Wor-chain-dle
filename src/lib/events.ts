@@ -10,6 +10,7 @@ export type EventDefinition = {
   version: string
   titleKey: string
   descriptionKey: string
+  shareContextLabel: string
   modeKind: EventModeKind
   themeKey: string
   answerSeed: string
@@ -46,6 +47,7 @@ const ACTIVE_EVENT: EventDefinition = {
   version: 'v1.7.0',
   titleKey: 'eventModeTitle',
   descriptionKey: 'eventModeDesc',
+  shareContextLabel: 'Event: Summer Garden',
   modeKind: 'standard',
   themeKey: 'eventThemeSummerGarden',
   answerSeed: 'v1.7.0-event',

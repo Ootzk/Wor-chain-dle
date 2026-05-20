@@ -88,4 +88,23 @@ describe('share header badge', () => {
     expect(text.split('\n')[0]).toBe('Wor\uD83E\uDE75dle 2026-05-09 1/6')
     expect(localStorage.getItem('cosmeticState')).toContain('badge_fire')
   })
+
+  it('adds an event context label before the date', () => {
+    const text = generateShareText(
+      guesses,
+      false,
+      'chain',
+      6,
+      '2026-05-09',
+      true,
+      undefined,
+      { shareBadge: 'badge_azure' },
+      'Event: Summer Garden'
+    )
+
+    expect(text.split('\n').slice(0, 2)).toEqual([
+      'Wor\uD83E\uDE75dle 2026-05-09 1/6',
+      'Event: Summer Garden',
+    ])
+  })
 })

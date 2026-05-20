@@ -59,7 +59,8 @@ export const generateShareText = (
   dateLabel: string,
   excludeUrl: boolean = false,
   urlOverride?: string,
-  cosmeticOverrides?: CosmeticOverrides
+  cosmeticOverrides?: CosmeticOverrides,
+  contextLabel?: string
 ): string => {
   return (
     formatShareHeader(
@@ -67,6 +68,7 @@ export const generateShareText = (
       `${lost ? 'X' : guesses.length}/${tries.toString()}`,
       cosmeticOverrides
     ) +
+    (contextLabel ? `\n${contextLabel}` : '') +
     '\n\n' +
     generateEmojiGrid(guesses, solution, cosmeticOverrides) +
     (excludeUrl
@@ -84,7 +86,8 @@ export const shareStatus = (
   lost: boolean,
   solution: string,
   excludeUrl: boolean = false,
-  cosmeticOverrides?: CosmeticOverrides
+  cosmeticOverrides?: CosmeticOverrides,
+  contextLabel?: string
 ) => {
   const today = Temporal.Now.plainDateISO()
   const shareText = generateShareText(
@@ -95,7 +98,8 @@ export const shareStatus = (
     today.toString(),
     excludeUrl,
     undefined,
-    cosmeticOverrides
+    cosmeticOverrides,
+    contextLabel
   )
   navigator.clipboard.writeText(shareText)
 }
