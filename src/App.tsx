@@ -21,7 +21,9 @@ import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import { initDailyHistoryStartDate, dateToKey } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
+  loadEventGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
+  saveEventGameStateToLocalStorage,
   loadSettings,
   saveSettings,
   loadSeenPatchNotesVersion,
@@ -68,7 +70,11 @@ import {
   loadDailyResultHistory,
   saveDailyResult,
 } from './lib/dailyResults'
-import { loadEventResultsByVersion, saveEventResult } from './lib/eventResults'
+import {
+  loadEventResults,
+  loadEventResultsByVersion,
+  saveEventResult,
+} from './lib/eventResults'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -143,28 +149,45 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
   const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
-  const [guesses, setGuesses] = useState<string[][]>(() => {
-    if (!isDaily) return []
-    const loaded = loadGameStateFromLocalStorage()
-    if (loaded?.solution !== solution) {
-      return []
-    }
-    const gameWasWon = loaded.guesses
+  const applyLoadedGameStatus = (loadedGuesses: string[][]) => {
+    const gameWasWon = loadedGuesses
       .map((guess) => guess.join(''))
       .includes(solution)
     if (gameWasWon) {
       setIsGameWon(true)
     }
-    if (loaded.guesses.length === CONFIG.tries && !gameWasWon) {
+    if (loadedGuesses.length === CONFIG.tries && !gameWasWon) {
       setIsGameLost(true)
     }
-    if (!gameWasWon && loaded.guesses.length === CONFIG.tries - 1) {
+    if (!gameWasWon && loadedGuesses.length === CONFIG.tries - 1) {
       const solutionChars = solution.split(ORTHOGRAPHY_PATTERN).filter((i) => i)
-      if (isChainDeadEnd(loaded.guesses, solutionChars)) {
+      if (isChainDeadEnd(loadedGuesses, solutionChars)) {
         setIsGameLost(true)
       }
     }
-    return loaded.guesses
+  }
+  const [guesses, setGuesses] = useState<string[][]>(() => {
+    if (isDaily) {
+      const loaded = loadGameStateFromLocalStorage()
+      if (loaded?.solution === solution) {
+        applyLoadedGameStatus(loaded.guesses)
+        return loaded.guesses
+      }
+    }
+
+    if (isEvent && event) {
+      const loaded = loadEventGameStateFromLocalStorage()
+      if (
+        loaded?.version === event.version &&
+        loaded.dateKey === localDateStr &&
+        loaded.solution === solution
+      ) {
+        applyLoadedGameStatus(loaded.guesses)
+        return loaded.guesses
+      }
+    }
+
+    return []
   })
   const TRACKING_ID = CONFIG.googleAnalytics
 
@@ -173,21 +196,23 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     ReactGA.pageview(window.location.pathname)
   }
   const [stats, setStats] = useState(() => loadStats())
-  const [playStats, setPlayStats] = useState<PlayStats>(() =>
-    isDaily
-      ? loadDailyDetailStats(localDateStr, solution) ||
-        loadCurrentPlayStats({
-          mode,
-          solution,
-          dateKey: localDateStr,
-          enterValidationHint: effectiveEnterValidationHint,
-        })
-      : loadCurrentPlayStats({
-          mode,
-          solution,
-          enterValidationHint: effectiveEnterValidationHint,
-        })
-  )
+  const [playStats, setPlayStats] = useState<PlayStats>(() => {
+    const eventResult =
+      isEvent && event ? loadEventResults(event.version)[localDateStr] : null
+    const completedEventStats =
+      eventResult?.solution === solution ? eventResult.playStats : null
+
+    return (
+      (isDaily ? loadDailyDetailStats(localDateStr, solution) : null) ||
+      completedEventStats ||
+      loadCurrentPlayStats({
+        mode,
+        solution,
+        dateKey: isDaily || isEvent ? localDateStr : undefined,
+        enterValidationHint: effectiveEnterValidationHint,
+      })
+    )
+  })
   const [dailyDetailStatsSummary, setDailyDetailStatsSummary] = useState(() =>
     summarizeDetailStats(loadDailyDetailStatsHistory())
   )
@@ -200,7 +225,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const updatePlayStats = (next: PlayStats) => {
     playStatsRef.current = next
     setPlayStats(next)
-    if (isDaily) {
+    if (isDaily || isEvent) {
       saveCurrentPlayStats(next)
     }
   }
@@ -225,7 +250,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       setDailyDetailStatsSummary(
         summarizeDetailStats(loadDailyDetailStatsHistory())
       )
-      clearCurrentPlayStats()
+      clearCurrentPlayStats('daily')
     }
     if (isEvent && event) {
       saveEventResult(event.version, {
@@ -238,15 +263,16 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         playStats: completed,
       })
       setEventResultsByVersion(loadEventResultsByVersion())
+      clearCurrentPlayStats('event')
     }
   }
 
   useEffect(() => {
-    if (!isDaily) return
+    if (!isDaily && !isEvent) return
 
     const clearUnstartedPlayStats = () => {
       if (!hasPlayStatsActivity(playStatsRef.current)) {
-        clearCurrentPlayStats()
+        clearCurrentPlayStats(mode)
       }
     }
 
@@ -254,7 +280,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     return () => {
       window.removeEventListener('pagehide', clearUnstartedPlayStats)
     }
-  }, [isDaily])
+  }, [isDaily, isEvent, mode])
 
   useEffect(() => {
     if (isDaily) {
@@ -276,7 +302,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     if (isDaily) {
       saveGameStateToLocalStorage({ guesses, solution })
     }
-  }, [guesses, isDaily, solution])
+    if (isEvent && event) {
+      saveEventGameStateToLocalStorage({
+        version: event.version,
+        dateKey: localDateStr,
+        guesses,
+        solution,
+      })
+    }
+  }, [guesses, isDaily, isEvent, event, localDateStr, solution])
 
   useEffect(() => {
     saveSettings({
@@ -294,23 +328,27 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [isGameWon, isGameLost, mode, solution])
 
   useEffect(() => {
-    const next = isDaily
-      ? loadDailyDetailStats(localDateStr, solution) ||
-        loadCurrentPlayStats({
-          mode,
-          solution,
-          dateKey: localDateStr,
-          enterValidationHint: effectiveEnterValidationHint,
-        })
-      : loadCurrentPlayStats({
-          mode,
-          solution,
-          enterValidationHint: effectiveEnterValidationHint,
-        })
+    const shouldPersistPlayStats = isDaily || isEvent
+    const completedDailyStats = isDaily
+      ? loadDailyDetailStats(localDateStr, solution)
+      : null
+    const eventResult =
+      isEvent && event ? loadEventResults(event.version)[localDateStr] : null
+    const completedEventStats =
+      eventResult?.solution === solution ? eventResult.playStats : null
+    const next =
+      completedDailyStats ||
+      completedEventStats ||
+      loadCurrentPlayStats({
+        mode,
+        solution,
+        dateKey: shouldPersistPlayStats ? localDateStr : undefined,
+        enterValidationHint: effectiveEnterValidationHint,
+      })
     setPlayStats(next)
     playStatsRef.current = next
-    if (!isDaily) {
-      clearCurrentPlayStats()
+    if (!shouldPersistPlayStats) {
+      clearCurrentPlayStats(mode)
     }
     setDailyDetailStatsSummary(
       summarizeDetailStats(loadDailyDetailStatsHistory())

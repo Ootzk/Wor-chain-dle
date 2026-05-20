@@ -18,9 +18,11 @@ import {
   hasPlayStatsActivity,
   loadDailyDetailStatsHistory,
   loadDailyDetailStats,
+  loadCurrentPlayStats,
   recordDeletePress,
   recordEnterAttempt,
   recordInputActivity,
+  saveCurrentPlayStats,
   saveDailyDetailStats,
   startNextGuess,
   summarizeDetailStats,
@@ -80,6 +82,53 @@ test('detects whether play stats have user activity', () => {
     hasPlayStatsActivity(recordEnterAttempt(stats, 'incomplete', 1500))
   ).toBe(true)
   expect(hasPlayStatsActivity(recordDeletePress(stats, 0, 1500))).toBe(true)
+})
+
+test('persists current event play stats separately from daily stats', () => {
+  localStorage.clear()
+
+  const dailyStats = recordInputActivity(
+    createPlayStats({
+      mode: 'daily',
+      solution: 'chain',
+      dateKey: '2026-05-21',
+      enterValidationHint: false,
+      now: 1000,
+    }),
+    1200
+  )
+  const eventStats = recordInputActivity(
+    createPlayStats({
+      mode: 'event',
+      solution: 'crane',
+      dateKey: '2026-05-21',
+      enterValidationHint: true,
+      now: 2000,
+    }),
+    2500
+  )
+
+  saveCurrentPlayStats(dailyStats)
+  saveCurrentPlayStats(eventStats)
+
+  expect(
+    loadCurrentPlayStats({
+      mode: 'daily',
+      solution: 'chain',
+      dateKey: '2026-05-21',
+      enterValidationHint: false,
+      now: 3000,
+    }).solution
+  ).toBe('chain')
+  expect(
+    loadCurrentPlayStats({
+      mode: 'event',
+      solution: 'crane',
+      dateKey: '2026-05-21',
+      enterValidationHint: false,
+      now: 3000,
+    }).assistFlags.enterValidationHint
+  ).toBe(true)
 })
 
 test('records each guess duration and input counts separately', () => {
