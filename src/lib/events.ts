@@ -39,6 +39,8 @@ export type EventWordOfDay = {
   solutionIndex: number
 }
 
+const eventWordPermutations = new Map<string, number[]>()
+
 const ACTIVE_EVENT: EventDefinition = {
   id: 'v1.7.0-event',
   version: 'v1.7.0',
@@ -82,6 +84,35 @@ const hashSeed = (seed: string) =>
     return (hash * 31 + char.charCodeAt(0)) >>> 0
   }, 0)
 
+const createSeededRandom = (seed: number) => {
+  let state = seed
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0
+    let value = state
+    value = Math.imul(value ^ (value >>> 15), value | 1)
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61)
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+export const getEventWordPermutation = (answerSeed: string): number[] => {
+  const cached = eventWordPermutations.get(answerSeed)
+  if (cached) return cached
+
+  const random = createSeededRandom(hashSeed(answerSeed))
+  const permutation = Array.from({ length: WORDS.length }, (_, index) => index)
+
+  for (let i = permutation.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1))
+    const current = permutation[i]
+    permutation[i] = permutation[j]
+    permutation[j] = current
+  }
+
+  eventWordPermutations.set(answerSeed, permutation)
+  return permutation
+}
+
 export const getActiveEvent = (): EventDefinition => ACTIVE_EVENT
 
 export const getKnownEvents = (): EventDefinition[] => [ACTIVE_EVENT]
@@ -95,8 +126,10 @@ export const getEventWordOfDay = (
 ): EventWordOfDay => {
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
   const dayIndex = date.since(epoch).days
-  const seedOffset = hashSeed(event.answerSeed)
-  const solutionIndex = (dayIndex + seedOffset) % WORDS.length
+  const permutation = getEventWordPermutation(event.answerSeed)
+  const permutationIndex =
+    ((dayIndex % permutation.length) + permutation.length) % permutation.length
+  const solutionIndex = permutation[permutationIndex]
 
   return {
     solution: WORDS[solutionIndex],

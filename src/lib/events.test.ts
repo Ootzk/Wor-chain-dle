@@ -2,7 +2,11 @@ import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
 import { resolveCosmeticOverrides } from './cosmetics'
-import { getActiveEvent, getEventWordOfDay } from './events'
+import {
+  getActiveEvent,
+  getEventWordOfDay,
+  getEventWordPermutation,
+} from './events'
 
 test('selects deterministic event words from an event seed', () => {
   const event = getActiveEvent()
@@ -18,6 +22,16 @@ test('uses a different answer seed from Daily', () => {
   const dailyIndex = date.since(Temporal.PlainDate.from(CONFIG.startDate)).days
 
   expect(eventWord.solutionIndex).not.toEqual(dailyIndex % WORDS.length)
+})
+
+test('uses a seeded random word permutation for event answers', () => {
+  const permutation = getEventWordPermutation('v1.7.0-event')
+  const otherPermutation = getEventWordPermutation('different-event')
+
+  expect(permutation).toHaveLength(WORDS.length)
+  expect(new Set(permutation).size).toBe(WORDS.length)
+  expect(permutation).toEqual(getEventWordPermutation('v1.7.0-event'))
+  expect(permutation.slice(0, 20)).not.toEqual(otherPermutation.slice(0, 20))
 })
 
 test('defines cosmetic overrides for the active event theme', () => {
