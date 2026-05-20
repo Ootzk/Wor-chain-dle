@@ -26,8 +26,10 @@ const MODE_BADGE_CLASSES: Record<GameMode, string> = {
   daily: 'bg-gray-50 text-gray-500 border-gray-200',
   practice: 'bg-purple-50 text-purple-600 border-purple-100',
   custom: 'bg-green-50 text-green-600 border-green-100',
+  event: 'bg-sky-50 text-sky-600 border-sky-100',
 }
 
+// Keep the existing "All" badge meaning stable for the shipped core modes.
 const ALL_MODES: GameMode[] = ['daily', 'practice', 'custom']
 const ALL_MODE_BADGE_CLASS = 'bg-yellow-50 text-yellow-700 border-yellow-200'
 

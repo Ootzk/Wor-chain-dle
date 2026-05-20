@@ -27,6 +27,7 @@ import {
 } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
+import { EventDefinition } from '../../lib/events'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { DetailStatsPanel } from '../stats/DetailStatsPanel'
 import { CONFIG } from '../../constants/config'
@@ -61,6 +62,7 @@ type Props = {
   playStats: PlayStats
   detailStatsSummary: DetailStatsSummary
   dailyResults: DailyResults
+  event?: EventDefinition
 }
 
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
@@ -353,6 +355,7 @@ export const StatsModal = ({
   playStats,
   detailStatsSummary,
   dailyResults,
+  event,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<
@@ -394,6 +397,21 @@ export const StatsModal = ({
             </button>
           </div>
         )}
+      </BaseModal>
+    )
+  }
+
+  if (mode === 'event') {
+    return (
+      <BaseModal
+        title={t('records')}
+        icon={<ClipboardListIcon />}
+        isOpen={isOpen}
+        handleClose={handleClose}
+      >
+        <p className="text-sm text-gray-500 text-center whitespace-pre-line">
+          {event ? t(event.descriptionKey) : t('eventModeDesc')}
+        </p>
       </BaseModal>
     )
   }

@@ -22,6 +22,7 @@ export const createDefaultAchievementTrackingState =
       daily: { gamesCompleted: 0, gamesWon: 0 },
       practice: { gamesCompleted: 0, gamesWon: 0 },
       custom: { gamesCompleted: 0, gamesWon: 0 },
+      event: { gamesCompleted: 0, gamesWon: 0 },
     },
     versions: {},
   })
@@ -37,6 +38,7 @@ export const loadAchievementProgress = (): AchievementTrackingState => {
       daily: { ...defaults.modes.daily, ...parsed.modes?.daily },
       practice: { ...defaults.modes.practice, ...parsed.modes?.practice },
       custom: { ...defaults.modes.custom, ...parsed.modes?.custom },
+      event: { ...defaults.modes.event, ...parsed.modes?.event },
     },
     versions: parsed.versions ?? {},
   }

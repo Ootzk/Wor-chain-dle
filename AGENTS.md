@@ -35,6 +35,7 @@ src/
     statuses.ts                   correct/present/absent status calculation
     chain.ts                      chain-rule and dead-end helpers
     share.ts                      share text generation
+    events.ts                     active Event slot definition and seeded Event word selection
     dailyResults.ts               canonical Daily per-date results, loss reasons, and migration
     dailyHistory.ts               legacy Daily history migration and attendance helpers
     playStats.ts                  in-game detail stats, tile counts, and summaries
@@ -187,22 +188,23 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 
 ## Game Modes
 
-| Item                   | Daily                                                  | Practice                    | Custom                |
-| ---------------------- | ------------------------------------------------------ | --------------------------- | --------------------- |
-| Answer source          | `WORDS`, local midnight reset                          | random `WORDS` entry        | creator-selected word |
-| Stats                  | aggregate `gameStats`; date/detail `dailyResults`      | none currently              | `customGameStats`     |
-| Daily history          | `dailyResults`; legacy `dailyHistory` migrates into it | no                          | no                    |
-| Game state persistence | yes                                                    | no                          | no                    |
-| Share button           | yes                                                    | no                          | yes                   |
-| Calendar               | yes                                                    | no                          | no                    |
-| Route                  | `/#/`                                                  | `/#/` after Practice action | `/#/custom/:code`     |
+| Item                   | Daily                                                  | Practice             | Event                       | Custom                |
+| ---------------------- | ------------------------------------------------------ | -------------------- | --------------------------- | --------------------- |
+| Answer source          | `WORDS`, local midnight reset                          | random `WORDS` entry | active Event seeded `WORDS` | creator-selected word |
+| Stats                  | aggregate `gameStats`; date/detail `dailyResults`      | none currently       | none currently              | `customGameStats`     |
+| Daily history          | `dailyResults`; legacy `dailyHistory` migrates into it | no                   | no                          | no                    |
+| Game state persistence | yes                                                    | no                   | no                          | no                    |
+| Share button           | yes                                                    | no                   | no                          | yes                   |
+| Calendar               | yes                                                    | no                   | no                          | no                    |
+| Route                  | `/#/`                                                  | `/#/practice`        | `/#/event`                  | `/#/custom/:code`     |
 
 - Custom URL encoding: `btoa("word_questioner")`, converted to URL-safe Base64 by replacing `+` with `-`, `/` with `_`, and removing `=`.
 - Custom puzzle answers can come from `WORDS + VALIDGUESSES`.
 - Create Puzzle route: `/#/create`.
 - The Create Puzzle page reuses the Keyboard component and keeps cells read-only to suppress the mobile virtual keyboard.
 - Questioner names are limited to 10 characters to avoid overlay layout breakage.
-- Current achievements are Daily-only unless a task explicitly broadens mode support. When adding Practice or Custom achievements, keep existing Daily achievement behavior intact and add mode support deliberately.
+- Current achievements are Daily-only unless a task explicitly broadens mode support. When adding Practice, Event, or Custom achievements, keep existing Daily achievement behavior intact and add mode support deliberately.
+- Event mode is an infrastructure slot. The active Event definition lives in `events.ts`; plug special rules such as Hardcore or AI through that context instead of hard-coding them into Daily.
 
 ## Daily Records And Migration
 
@@ -241,13 +243,13 @@ Translations live in `src/locales/{lang}/translation.json` and are bundled throu
 
 Header icons by mode:
 
-| Icon     | Daily | Practice | Custom | Create |
-| -------- | ----- | -------- | ------ | ------ |
-| Info     | yes   | yes      | yes    | yes    |
-| Stats    | yes   | no       | no     | no     |
-| Rewards  | yes   | yes      | yes    | yes    |
-| Settings | yes   | yes      | yes    | yes    |
-| Donate   | yes   | yes      | yes    | yes    |
+| Icon     | Daily | Practice | Event | Custom | Create |
+| -------- | ----- | -------- | ----- | ------ | ------ |
+| Info     | yes   | yes      | yes   | yes    | yes    |
+| Stats    | yes   | no       | no    | no     | no     |
+| Rewards  | yes   | yes      | yes   | yes    | yes    |
+| Settings | yes   | yes      | yes   | yes    | yes    |
+| Donate   | yes   | yes      | yes   | yes    | yes    |
 
 Stats is Daily-only. Screenshot scripts rely on icon positions: Daily uses Info=0, Stats=1, Rewards=2, Settings=3, Donate=4; other modes use Info=0, Rewards=1, Settings=2, Donate=3.
 

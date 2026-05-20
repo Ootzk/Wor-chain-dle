@@ -12,6 +12,7 @@ import App from './App'
 import { solution as dailySolution, isWordInWordList } from './lib/words'
 import { getRandomWord } from './lib/words'
 import { decodeCustomPuzzle } from './lib/customPuzzle'
+import { getActiveEvent, getEventWordOfDay } from './lib/events'
 import { CreatePuzzlePage } from './components/pages/CreatePuzzlePage'
 import reportWebVitals from './reportWebVitals'
 
@@ -20,6 +21,13 @@ const DailyPage = () => <App mode="daily" solution={dailySolution} />
 const PracticePage = () => {
   const [practiceSolution] = useState(() => getRandomWord())
   return <App mode="practice" solution={practiceSolution} />
+}
+
+const EventPage = () => {
+  const event = getActiveEvent()
+  const { solution } = getEventWordOfDay(event)
+
+  return <App mode="event" solution={solution} event={event} />
 }
 
 const CustomPage = ({ match }: RouteComponentProps<{ code: string }>) => {
@@ -40,6 +48,7 @@ ReactDOM.render(
       <Switch>
         <Route exact path="/" component={DailyPage} />
         <Route path="/practice" component={PracticePage} />
+        <Route path="/event" component={EventPage} />
         <Route path="/create" component={CreatePuzzlePage} />
         <Route path="/custom/:code" component={CustomPage} />
       </Switch>

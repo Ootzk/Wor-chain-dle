@@ -39,6 +39,7 @@ import {
 } from './lib/achievements'
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
 import { CREATE_MODE_LABEL, GAME_MODE_LABELS, GameMode } from './lib/gameMode'
+import { EventDefinition } from './lib/events'
 import { recordCompletedGameProgress } from './lib/achievementProgress'
 import {
   CompletedPlayStats,
@@ -74,6 +75,7 @@ type AppOwnProps = {
   mode: GameMode
   solution: string
   questioner?: string
+  event?: EventDefinition
 }
 
 const App: React.FC<WithTranslation & AppOwnProps> = ({
@@ -82,9 +84,11 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   mode,
   solution,
   questioner,
+  event,
 }) => {
   const isDaily = mode === 'daily'
   const isCustom = mode === 'custom'
+  const isEvent = mode === 'event'
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
@@ -228,10 +232,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       document.title = `Wor\u{1F517}dle Daily | ${todayKey}`
     } else if (isCustom) {
       document.title = `Wor\u{1F517}dle Custom | ${questioner}`
+    } else if (isEvent) {
+      document.title = `Wor\u{1F517}dle Event`
     } else {
       document.title = `Wor\u{1F517}dle Practice`
     }
-  }, [isDaily, isCustom, questioner, stats])
+  }, [isDaily, isCustom, isEvent, questioner, stats])
 
   useEffect(() => {
     if (isDaily) {
@@ -541,6 +547,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
                 </span>{' '}
                 | {questioner}
               </>
+            ) : isEvent ? (
+              <span className="text-sky-500">
+                {event ? t(event.titleKey) : GAME_MODE_LABELS.event}
+              </span>
             ) : (
               <span className="text-purple-500">
                 {GAME_MODE_LABELS.practice}
@@ -605,6 +615,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }}
         mode={mode}
         questioner={questioner}
+        event={event}
         initialTab={infoInitialTab}
         initialSection={infoInitialSection}
       />
@@ -649,6 +660,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         playStats={playStats}
         detailStatsSummary={dailyDetailStatsSummary}
         dailyResults={dailyResults}
+        event={event}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
@@ -703,12 +715,20 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           {isDaily ? GAME_MODE_LABELS.practice : GAME_MODE_LABELS.daily}
         </Link>
         {isDaily && (
-          <Link
-            to="/create"
-            className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
-          >
-            {CREATE_MODE_LABEL}
-          </Link>
+          <>
+            <Link
+              to="/event"
+              className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-sky-700 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 select-none"
+            >
+              {GAME_MODE_LABELS.event}
+            </Link>
+            <Link
+              to="/create"
+              className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+            >
+              {CREATE_MODE_LABEL}
+            </Link>
+          </>
         )}
       </div>
 

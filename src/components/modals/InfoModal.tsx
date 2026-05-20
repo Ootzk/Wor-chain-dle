@@ -7,14 +7,17 @@ import { CONFIG } from '../../constants/config'
 import { Trans, useTranslation } from 'react-i18next'
 import 'i18next'
 import { PatchNotesContent } from './PatchNotesContent'
+import { GameMode } from '../../lib/gameMode'
+import { EventDefinition } from '../../lib/events'
 
-type GameMode = 'daily' | 'practice' | 'custom' | 'create'
+type InfoMode = GameMode | 'create'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
-  mode: GameMode
+  mode: InfoMode
   questioner?: string
+  event?: EventDefinition
   initialTab?: InfoTab
   initialSection?: InfoSection
 }
@@ -27,19 +30,22 @@ interface Letter {
   highlight: boolean
 }
 
-const MODE_TITLE_KEY: Record<GameMode, string> = {
+const MODE_TITLE_KEY: Record<InfoMode, string> = {
   daily: 'dailyModeTitle',
   practice: 'practiceModeTitle',
   custom: 'customModeTitle',
+  event: 'eventModeTitle',
   create: 'howToCreate',
 }
 
 const ModeContent = ({
   mode,
   questioner,
+  event,
 }: {
-  mode: GameMode
+  mode: InfoMode
   questioner?: string
+  event?: EventDefinition
 }) => {
   const { t } = useTranslation()
 
@@ -69,6 +75,14 @@ const ModeContent = ({
           ⚠️ {t('practiceModeWarning')}
         </p>
       </>
+    )
+  }
+
+  if (mode === 'event') {
+    return (
+      <p className="text-sm text-gray-500 whitespace-pre-line">
+        {event ? t(event.descriptionKey) : t('eventModeDesc')}
+      </p>
     )
   }
 
@@ -257,6 +271,7 @@ export const InfoModal = ({
   handleClose,
   mode,
   questioner,
+  event,
   initialTab = 'mode',
   initialSection,
 }: Props) => {
@@ -298,7 +313,7 @@ export const InfoModal = ({
       </div>
 
       {activeTab === 'mode' && (
-        <ModeContent mode={mode} questioner={questioner} />
+        <ModeContent mode={mode} questioner={questioner} event={event} />
       )}
 
       {activeTab === 'howToPlay' && (
