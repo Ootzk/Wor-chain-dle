@@ -76,6 +76,37 @@ test.describe('Event mode', () => {
     )
   })
 
+  test('replaces stale event progress from another event day', async ({
+    gamePage,
+  }) => {
+    await gamePage.addInitScript(() => {
+      localStorage.setItem(
+        'eventGameState',
+        JSON.stringify({
+          version: 'v1.7.0',
+          dateKey: '2026-05-20',
+          solution: 'class',
+          guesses: [['c', 'l', 'a', 's', 's']],
+        })
+      )
+    })
+
+    await gamePage.goto('/#/event')
+    await waitForGameReady(gamePage)
+
+    const eventState = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventGameState')
+      return raw ? JSON.parse(raw) : null
+    })
+
+    expect(eventState).toMatchObject({
+      version: 'v1.7.0',
+      dateKey: '2026-05-21',
+      guesses: [],
+    })
+    expect(eventState.solution).not.toBe('class')
+  })
+
   test('shows event records and rewards version controls', async ({
     gamePage,
   }) => {

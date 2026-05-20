@@ -32,6 +32,10 @@ export const loadEventGameStateFromLocalStorage = () => {
   return state ? (JSON.parse(state) as StoredEventGameState) : null
 }
 
+export const clearEventGameStateFromLocalStorage = () => {
+  localStorage.removeItem(eventGameStateKey)
+}
+
 const gameStatKey = 'gameStats'
 
 export type GameStats = {

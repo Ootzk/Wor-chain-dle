@@ -22,6 +22,7 @@ import { initDailyHistoryStartDate, dateToKey } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   loadEventGameStateFromLocalStorage,
+  clearEventGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
   saveEventGameStateToLocalStorage,
   loadSettings,
@@ -184,6 +185,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       ) {
         applyLoadedGameStatus(loaded.guesses)
         return loaded.guesses
+      }
+      if (loaded) {
+        clearEventGameStateFromLocalStorage()
       }
     }
 
