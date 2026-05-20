@@ -29,12 +29,14 @@ type Props = {
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
   onOpenCosmetics: () => void
+  hasNewRewards?: boolean
 }
 
 export const ShareOptionsRow = ({
   excludeUrl,
   onToggleExcludeUrl,
   onOpenCosmetics,
+  hasNewRewards = false,
 }: Props) => {
   const { t } = useTranslation()
 
@@ -44,16 +46,26 @@ export const ShareOptionsRow = ({
         <span>{t('excludeUrlShortLabel')}</span>
         <MiniToggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
       </div>
-      <div className="h-5 border-l border-gray-200" />
-      <button
-        type="button"
-        className="text-indigo-600 hover:text-indigo-700"
-        aria-label={t('shareAppearanceLabel')}
-        title={t('shareAppearanceLabel')}
-        onClick={onOpenCosmetics}
-      >
-        <SparklesIcon className="h-5 w-5" />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className={`flex items-center gap-1 ${
+            hasNewRewards
+              ? 'text-yellow-500 hover:text-yellow-600'
+              : 'text-gray-900 hover:text-gray-700'
+          }`}
+          aria-label={t('shareAppearanceLabel')}
+          title={t('shareAppearanceLabel')}
+          onClick={onOpenCosmetics}
+        >
+          <SparklesIcon className="h-5 w-5" />
+          {hasNewRewards && (
+            <span className="flex-shrink-0 rounded bg-yellow-100 px-1 py-0.5 text-[0.625rem] font-bold leading-none text-yellow-600">
+              NEW!
+            </span>
+          )}
+        </button>
+      </div>
     </div>
   )
 }
