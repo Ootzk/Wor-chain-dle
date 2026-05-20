@@ -1,6 +1,7 @@
 import {
   getPacmanCellEffects,
   getPacmanPath,
+  getPacmanStepMs,
   getVisibleRowValues,
   isPacmanCellRevealed,
 } from './pacman'
@@ -64,6 +65,48 @@ test('detects whether the next pacman cell has been filled', () => {
       currentGuess,
     })
   ).toBe(false)
+})
+
+test('uses status-specific stay times for evaluated cells', () => {
+  const stepMsByStatus = {
+    correct: 3000,
+    present: 2000,
+    absent: 1000,
+    default: 500,
+  }
+
+  expect(
+    getPacmanStepMs({
+      cell: { rowIndex: 0, colIndex: 0 },
+      guesses: [['s', 't', 'a', 'l', 'e']],
+      solution: 'spear',
+      stepMsByStatus,
+    })
+  ).toBe(3000)
+  expect(
+    getPacmanStepMs({
+      cell: { rowIndex: 0, colIndex: 2 },
+      guesses: [['s', 't', 'a', 'l', 'e']],
+      solution: 'spear',
+      stepMsByStatus,
+    })
+  ).toBe(2000)
+  expect(
+    getPacmanStepMs({
+      cell: { rowIndex: 0, colIndex: 1 },
+      guesses: [['s', 't', 'a', 'l', 'e']],
+      solution: 'spear',
+      stepMsByStatus,
+    })
+  ).toBe(1000)
+  expect(
+    getPacmanStepMs({
+      cell: { rowIndex: 1, colIndex: 4 },
+      guesses: [['s', 't', 'a', 'l', 'e']],
+      solution: 'spear',
+      stepMsByStatus,
+    })
+  ).toBe(500)
 })
 
 test('marks eaten cells as hidden and places the actor on the current cell', () => {

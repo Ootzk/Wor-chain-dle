@@ -1,5 +1,6 @@
 import { CONFIG } from '../constants/config'
 import { getChainInfo } from './chain'
+import { CharStatus, getGuessStatuses } from './statuses'
 
 export type PacmanCell = {
   rowIndex: number
@@ -15,8 +16,12 @@ export type PacmanCellEffects = Record<string, PacmanCellEffect>
 
 export type PacmanConfig = {
   actor: string
-  stepMs: number
+  stepMsByStatus: PacmanStepMsByStatus
   effect: 'hide-letter'
+}
+
+export type PacmanStepMsByStatus = Record<CharStatus, number> & {
+  default: number
 }
 
 export const getPacmanCellKey = ({ rowIndex, colIndex }: PacmanCell) =>
@@ -72,6 +77,37 @@ export const isPacmanCellRevealed = ({
     currentGuess,
   })
   return !!rowValues[cell.colIndex]
+}
+
+export const getPacmanCellStatus = ({
+  cell,
+  guesses,
+  solution,
+}: {
+  cell: PacmanCell
+  guesses: string[][]
+  solution: string
+}): CharStatus | undefined => {
+  const guess = guesses[cell.rowIndex]
+  if (!guess) return undefined
+  return getGuessStatuses(guess, solution)[cell.colIndex]
+}
+
+export const getPacmanStepMs = ({
+  cell,
+  guesses,
+  solution,
+  stepMsByStatus,
+}: {
+  cell?: PacmanCell
+  guesses: string[][]
+  solution: string
+  stepMsByStatus: PacmanStepMsByStatus
+}) => {
+  if (!cell) return stepMsByStatus.default
+
+  const status = getPacmanCellStatus({ cell, guesses, solution })
+  return status ? stepMsByStatus[status] : stepMsByStatus.default
 }
 
 export const getPacmanCellEffects = ({

@@ -80,6 +80,7 @@ import {
 import {
   getPacmanCellEffects,
   getPacmanPath,
+  getPacmanStepMs,
   isPacmanCellRevealed,
 } from './lib/pacman'
 import ReactGA from 'react-ga'
@@ -531,25 +532,38 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       return
     }
 
-    const timeout = window.setTimeout(() => {
-      const nextIndex = pacmanPathIndex + 1
-      const nextCell = pacmanPath[nextIndex]
-      if (!nextCell) return
+    const timeout = window.setTimeout(
+      () => {
+        const nextIndex = pacmanPathIndex + 1
+        const nextCell = pacmanPath[nextIndex]
+        if (!nextCell) return
 
-      if (
-        !isPacmanCellRevealed({
-          cell: nextCell,
-          guesses: guessesRef.current,
-          currentGuess: currentGuessRef.current,
-        })
-      ) {
+        if (
+          !isPacmanCellRevealed({
+            cell: nextCell,
+            guesses: guessesRef.current,
+            currentGuess: currentGuessRef.current,
+          })
+        ) {
+          setPacmanPathIndex(nextIndex)
+          finishPacmanLoss()
+          return
+        }
+
         setPacmanPathIndex(nextIndex)
-        finishPacmanLoss()
-        return
-      }
-
-      setPacmanPathIndex(nextIndex)
-    }, event?.pacman?.stepMs ?? 3000)
+      },
+      getPacmanStepMs({
+        cell: pacmanPath[pacmanPathIndex],
+        guesses,
+        solution,
+        stepMsByStatus: event?.pacman?.stepMsByStatus ?? {
+          correct: 3000,
+          present: 2000,
+          absent: 1000,
+          default: 1000,
+        },
+      })
+    )
 
     return () => window.clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -558,9 +572,11 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     isGameWon,
     isGameLost,
     guesses.length,
+    guesses,
     pacmanPathIndex,
     pacmanPath,
-    event?.pacman?.stepMs,
+    event?.pacman?.stepMsByStatus,
+    solution,
   ])
 
   const pacmanCellEffects =

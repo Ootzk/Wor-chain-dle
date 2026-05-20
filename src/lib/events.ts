@@ -55,7 +55,12 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
   answerSeed: 'v1.7.0-event',
   pacman: {
     actor: '🐇',
-    stepMs: 3000,
+    stepMsByStatus: {
+      correct: 3000,
+      present: 2000,
+      absent: 1000,
+      default: 1000,
+    },
     effect: 'hide-letter',
   },
   cosmeticOverrides: {
