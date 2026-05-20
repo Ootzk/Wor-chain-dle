@@ -88,7 +88,16 @@ test.describe('Event mode', () => {
     await expect(
       gamePage.getByRole('heading', { name: 'Records' })
     ).toBeVisible()
-    await expect(gamePage.getByRole('button', { name: /v1.7.0/ })).toBeVisible()
+    const recordsDialog = gamePage.getByRole('dialog')
+    await expect(
+      recordsDialog.getByRole('button', { name: 'Today' })
+    ).toHaveClass(/border-indigo-600/)
+    await expect(
+      recordsDialog.getByRole('button', { name: 'Event' })
+    ).toBeVisible()
+    await expect(
+      recordsDialog.getByRole('button', { name: /v1.7.0/ })
+    ).toBeVisible()
     await gamePage.keyboard.press('Escape')
     await expect(
       gamePage.getByRole('heading', { name: 'Records' })

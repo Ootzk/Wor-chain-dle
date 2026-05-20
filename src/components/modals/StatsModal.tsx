@@ -83,6 +83,8 @@ type Props = {
   cosmeticOverrides?: CosmeticOverrides
 }
 
+type RecordsTab = 'today' | 'calendar' | 'summary' | 'details' | 'event'
+
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
 const EMPTY_VALUE = '-'
 type SummaryInfoItem = string | { text: string; children?: SummaryInfoItem[] }
@@ -391,9 +393,7 @@ export const StatsModal = ({
 }: Props) => {
   const { t } = useTranslation()
   const isEventRecords = mode === 'event'
-  const [activeTab, setActiveTab] = useState<
-    'today' | 'calendar' | 'summary' | 'details'
-  >('today')
+  const [activeTab, setActiveTab] = useState<RecordsTab>('today')
   const [selectedEventVersion, setSelectedEventVersion] = useState(
     () => event?.version ?? ''
   )
@@ -403,7 +403,7 @@ export const StatsModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab(initialTab || (mode === 'event' ? 'summary' : 'today'))
+      setActiveTab(initialTab || 'today')
       if (mode === 'event' && event) {
         setSelectedEventVersion(event.version)
         setSelectedEventCosmeticOverrides(cosmeticOverrides)
@@ -620,12 +620,13 @@ export const StatsModal = ({
       />
     ) : undefined
 
-  // Daily/Event mode — Today + Calendar + Summary + Details
+  // Daily/Event mode — Today + Calendar + Summary + Details (+ seasonal Event)
   const tabs = [
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
     { id: 'summary' as const, label: t('statsSummary') },
     { id: 'details' as const, label: t('statsDetails') },
+    ...(isEventRecords ? [{ id: 'event' as const, label: t('event') }] : []),
   ]
 
   return (
@@ -636,11 +637,11 @@ export const StatsModal = ({
       isOpen={isOpen}
       handleClose={handleClose}
     >
-      <div className="flex border-b border-gray-200 mb-4">
+      <div className="flex overflow-x-auto border-b border-gray-200 mb-4">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`shrink-0 px-4 py-2 text-sm font-medium ${
               activeTab === tab.id
                 ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
                 : 'text-gray-400 hover:text-gray-600'
@@ -985,6 +986,10 @@ export const StatsModal = ({
               />
             </div>
           </div>
+        )}
+
+        {activeTab === 'event' && isEventRecords && (
+          <div className="h-full" aria-label="Event records panel" />
         )}
 
         {activeTab === 'calendar' && (
