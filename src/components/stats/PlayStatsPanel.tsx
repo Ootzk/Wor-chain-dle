@@ -185,7 +185,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
                 type="button"
                 className={`flex h-6 w-6 items-center justify-center leading-none ${
                   timeUnit === unit
-                    ? 'bg-gray-900 text-white'
+                    ? 'bg-green-500 text-white'
                     : 'bg-white text-gray-500 hover:bg-gray-50'
                 }`}
                 onClick={() => setTimeUnit(unit)}
