@@ -26,6 +26,7 @@ describe('reward metadata', () => {
     expect(achievementIds).toEqual(
       [
         'clover_collector',
+        'garden_set',
         'no_correct_game',
         'no_present_game',
         'played_v1_7_0_5',
@@ -44,6 +45,7 @@ describe('reward metadata', () => {
 
     expect(cosmeticIds.sort()).toEqual(
       [
+        'emoji_garden',
         'badge_apple',
         'badge_azure',
         'badge_clover',

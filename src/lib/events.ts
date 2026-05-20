@@ -81,6 +81,7 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
     },
   ],
   cosmeticOverrides: {
+    shareEmoji: 'emoji_garden',
     shareBadge: [
       'badge_apple',
       'badge_grape',

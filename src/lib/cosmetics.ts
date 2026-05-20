@@ -62,6 +62,11 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
     present: '\uD83C\uDF47',
     absent: '\uD83E\uDD5B',
   },
+  emoji_garden: {
+    correct: '\uD83C\uDF40',
+    present: '\uD83E\uDEBB',
+    absent: '\uD83D\uDC07',
+  },
 }
 
 // --- Share Badge Options ---
@@ -202,6 +207,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     titleKey: 'cosmetic_emoji_yogurt',
     requiresAchievement: 'yogurt_recipe',
     metadata: REWARD_METADATA.v1_6_0,
+  },
+  {
+    id: 'emoji_garden',
+    category: 'shareEmoji',
+    titleKey: 'cosmetic_emoji_garden',
+    requiresAchievement: 'garden_set',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Share Badge

@@ -81,6 +81,7 @@ export type AchievementDef = {
   id: string
   category: AchievementCategory
   modes?: GameMode[]
+  requiresAchievements?: string[]
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
   metadata?: RewardMetadata
   progress: (ctx: AchievementContext) => AchievementProgress
@@ -192,6 +193,11 @@ export const getTilePatternProgress = (
 
 const SUMMER_GARDEN_VERSION = 'v1.7.0'
 const ONE_MINUTE_MS = 60 * 1000
+const GARDEN_SET_COMPONENT_ACHIEVEMENTS = [
+  'clover_collector',
+  'practice_win_10',
+  'rabbit_speed',
+]
 
 const isFastWin = (result: {
   won: boolean
@@ -228,6 +234,14 @@ const getSummerGardenFastWinProgress = (
     target,
   }
 }
+
+const getRequiredAchievementProgress = (
+  ids: string[],
+  state: Pick<AchievementState, 'unlocked'> = loadAchievementState()
+): AchievementProgress => ({
+  current: ids.filter((id) => state.unlocked[id]).length,
+  target: ids.length,
+})
 
 // --- Achievement Definitions ---
 
@@ -366,6 +380,18 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_rabbit_speed_title',
     descriptionKey: 'achievement_rabbit_speed_desc',
     progress: getSummerGardenFastWinProgress,
+  },
+  {
+    id: 'garden_set',
+    category: 'collection',
+    modes: ['daily', 'practice', 'custom', 'event'],
+    requiresAchievements: GARDEN_SET_COMPONENT_ACHIEVEMENTS,
+    difficulty: 7,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_garden_set_title',
+    descriptionKey: 'achievement_garden_set_desc',
+    progress: () =>
+      getRequiredAchievementProgress(GARDEN_SET_COMPONENT_ACHIEVEMENTS),
   },
   {
     id: 'practice_win_100',
@@ -717,7 +743,9 @@ export const evaluateAchievementDefinitions = (
     if (state.unlocked[achievement.id]) continue
     if (!isAchievementAvailableInMode(achievement, ctx.mode)) continue
 
-    const { current, target } = achievement.progress(ctx)
+    const { current, target } = achievement.requiresAchievements?.length
+      ? getRequiredAchievementProgress(achievement.requiresAchievements, state)
+      : achievement.progress(ctx)
     if (current >= target) {
       state.unlocked[achievement.id] = { unlockedAt: Date.now() }
       newlyUnlocked.push(achievement.id)

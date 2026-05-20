@@ -327,12 +327,41 @@ describe('share badge achievements', () => {
       present: '\uD83C\uDF47',
       absent: '\uD83E\uDD5B',
     })
+    expect(getShareEmojiSet('emoji_garden')).toEqual({
+      correct: '\uD83C\uDF40',
+      present: '\uD83E\uDEBB',
+      absent: '\uD83D\uDC07',
+    })
     expect(
       getRewardsForAchievement('bibimbap_balance').map((r) => r.id)
     ).toContain('emoji_bibimbap')
     expect(
       getRewardsForAchievement('yogurt_recipe').map((r) => r.id)
     ).toContain('emoji_yogurt')
+    expect(getRewardsForAchievement('garden_set').map((r) => r.id)).toContain(
+      'emoji_garden'
+    )
+  })
+
+  it('unlocks the garden share emoji set from component reward achievements', () => {
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 'v1.7.0',
+        retroCompleted: true,
+        unlocked: {
+          clover_collector: { unlockedAt: 1 },
+          practice_win_10: { unlockedAt: 2 },
+          rabbit_speed: { unlockedAt: 3 },
+        },
+      })
+    )
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+      })
+    ).toContain('garden_set')
   })
 
   it('keeps new share badge achievements daily-only', () => {

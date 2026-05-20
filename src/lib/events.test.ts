@@ -50,6 +50,7 @@ test('defines cosmetic overrides for the active event theme', () => {
     }),
   ])
   expect(event.cosmeticOverrides).toMatchObject({
+    shareEmoji: 'emoji_garden',
     shareBadge: [
       'badge_apple',
       'badge_grape',
@@ -71,6 +72,7 @@ test('resolves random event cosmetic candidates without mutating the config', ()
   const resolved = resolveCosmeticOverrides(event.cosmeticOverrides)
 
   expect(resolved).toMatchObject({
+    shareEmoji: 'emoji_garden',
     shareBadge: 'badge_azure',
     chainColor: 'chaincolor_azure',
   })
