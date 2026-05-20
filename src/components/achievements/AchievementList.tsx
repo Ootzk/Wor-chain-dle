@@ -10,7 +10,11 @@ import { loadDailyResultHistory } from '../../lib/dailyResults'
 import { loadStats } from '../../lib/stats'
 import { getRewardsForAchievement } from '../../lib/cosmetics'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
-import { getRewardMetadataLabel } from '../../lib/rewardMetadata'
+import {
+  filterRewardsByMetadata,
+  getRewardMetadataLabel,
+  RewardMetadataFilter,
+} from '../../lib/rewardMetadata'
 import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
@@ -90,14 +94,21 @@ const AchievementDescription = ({
 export const AchievementList = ({
   scrollToId,
   onOpenDeadEndHelp,
+  metadataFilter,
 }: {
   scrollToId?: string
   onOpenDeadEndHelp?: () => void
+  metadataFilter?: RewardMetadataFilter
 }) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyResultHistory()
-  const achievements = getAchievementsWithStatus(stats, dailyHistory)
+  const achievements = metadataFilter
+    ? filterRewardsByMetadata(
+        getAchievementsWithStatus(stats, dailyHistory),
+        metadataFilter
+      )
+    : getAchievementsWithStatus(stats, dailyHistory)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

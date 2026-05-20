@@ -1,10 +1,15 @@
 import { GameStats } from '../../lib/localStorage'
 import { useTranslation } from 'react-i18next'
 import { ACHIEVEMENTS, loadAchievementState } from '../../lib/achievements'
+import {
+  filterRewardsByMetadata,
+  RewardMetadataFilter,
+} from '../../lib/rewardMetadata'
 
 type Props = {
   gameStats: GameStats
   averageWinGuesses: string
+  achievementMetadataFilter?: RewardMetadataFilter
 }
 
 const SummaryItem = ({
@@ -33,10 +38,17 @@ const SummaryItem = ({
 
 const EMPTY_VALUE = '-'
 
-export const StatBar = ({ gameStats, averageWinGuesses }: Props) => {
+export const StatBar = ({
+  gameStats,
+  averageWinGuesses,
+  achievementMetadataFilter,
+}: Props) => {
   const { t } = useTranslation()
   const achievementState = loadAchievementState()
-  const unlockedAchievements = ACHIEVEMENTS.filter(
+  const achievementScope = achievementMetadataFilter
+    ? filterRewardsByMetadata(ACHIEVEMENTS, achievementMetadataFilter)
+    : ACHIEVEMENTS
+  const unlockedAchievements = achievementScope.filter(
     (achievement) => achievementState.unlocked[achievement.id]
   ).length
   const wins = gameStats.totalGames - gameStats.gamesFailed
@@ -60,7 +72,7 @@ export const StatBar = ({ gameStats, averageWinGuesses }: Props) => {
       />
       <SummaryItem
         title={t('statsAchievements')}
-        value={`${unlockedAchievements}/${ACHIEVEMENTS.length}`}
+        value={`${unlockedAchievements}/${achievementScope.length}`}
       />
       <SummaryItem title={t('bestStreak')} value={gameStats.bestStreak} />
     </div>

@@ -48,6 +48,7 @@ import {
   hasNewAchievementsUnlockedToday,
 } from '../../lib/achievements'
 import { DailyResults } from '../../lib/dailyResults'
+import { normalizeRewardVersion } from '../../lib/rewardMetadata'
 
 type Props = {
   isOpen: boolean
@@ -493,6 +494,10 @@ export const StatsModal = ({
   const recordsDetailStatsSummary = isEventRecords
     ? selectedEventDetailSummary
     : detailStatsSummary
+  const achievementMetadataFilter =
+    isEventRecords && selectedVersion
+      ? { introducedInVersion: normalizeRewardVersion(selectedVersion) }
+      : undefined
 
   const completedToday = isGameWon || isGameLost
   const todayResult = isGameWon ? '😎' : isGameLost ? '🥲' : '😶‍🌫️'
@@ -873,6 +878,7 @@ export const StatsModal = ({
                 <StatBar
                   gameStats={recordsGameStats}
                   averageWinGuesses={averageWinGuesses}
+                  achievementMetadataFilter={achievementMetadataFilter}
                 />
               </section>
               <section>

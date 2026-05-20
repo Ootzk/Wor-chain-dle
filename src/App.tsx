@@ -695,6 +695,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
+        mode={mode}
+        event={event}
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')

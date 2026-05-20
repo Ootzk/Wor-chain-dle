@@ -12,7 +12,12 @@ import {
   loadAchievementProgress,
 } from './achievementProgress'
 import { CharStatus, getGuessStatuses } from './statuses'
-import { REWARD_METADATA, RewardMetadata } from './rewardMetadata'
+import {
+  matchesRewardMetadata,
+  REWARD_METADATA,
+  RewardMetadata,
+  RewardMetadataFilter,
+} from './rewardMetadata'
 import {
   DailyDetailStatsHistory,
   TileCounts,
@@ -529,25 +534,40 @@ const epochMsToLocalDateKey = (epochMs: number): string =>
       .toPlainDate()
   )
 
-export const getAchievementsUnlockedTodayCount = (): number => {
+export const getAchievementsUnlockedTodayCount = (
+  metadataFilter?: RewardMetadataFilter
+): number => {
   const todayKey = dateToKey(Temporal.Now.plainDateISO())
   const state = loadAchievementState()
 
-  return Object.values(state.unlocked).filter(
-    (unlock) => epochMsToLocalDateKey(unlock.unlockedAt) === todayKey
-  ).length
+  return Object.entries(state.unlocked).filter(([achievementId, unlock]) => {
+    if (epochMsToLocalDateKey(unlock.unlockedAt) !== todayKey) {
+      return false
+    }
+    if (!metadataFilter) return true
+    const achievement = ACHIEVEMENTS.find((def) => def.id === achievementId)
+    return matchesRewardMetadata(achievement?.metadata, metadataFilter)
+  }).length
 }
 
-export const hasNewAchievementsUnlockedToday = (): boolean => {
+export const hasNewAchievementsUnlockedToday = (
+  metadataFilter?: RewardMetadataFilter
+): boolean => {
   const todayKey = dateToKey(Temporal.Now.plainDateISO())
   const state = loadAchievementState()
   const lastSeen = state.lastSeenAt || 0
 
-  return Object.values(state.unlocked).some(
-    (unlock) =>
-      unlock.unlockedAt > lastSeen &&
-      epochMsToLocalDateKey(unlock.unlockedAt) === todayKey
-  )
+  return Object.entries(state.unlocked).some(([achievementId, unlock]) => {
+    if (
+      unlock.unlockedAt <= lastSeen ||
+      epochMsToLocalDateKey(unlock.unlockedAt) !== todayKey
+    ) {
+      return false
+    }
+    if (!metadataFilter) return true
+    const achievement = ACHIEVEMENTS.find((def) => def.id === achievementId)
+    return matchesRewardMetadata(achievement?.metadata, metadataFilter)
+  })
 }
 
 const saveAchievementState = (state: AchievementState): void => {
