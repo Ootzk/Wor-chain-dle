@@ -134,10 +134,7 @@ export const EventRecordsPanel = ({
                 key={rowIndex}
                 className="flex min-w-0 flex-col items-center justify-center"
               >
-                <Cell
-                  value={collected ? collectible.emoji : undefined}
-                  status={collected ? 'correct' : undefined}
-                />
+                <Cell value={collected ? collectible.emoji : undefined} />
                 <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
                   {t('eventRowLabel', { row: rowIndex + 1 })}
                 </div>
@@ -149,7 +146,7 @@ export const EventRecordsPanel = ({
 
       <section>
         <EventGroupTitle separated>{t('eventProgress')}</EventGroupTitle>
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-2 gap-y-4 pt-3">
+        <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-1.5 gap-y-4 pt-3">
           {targetRows.map((rowIndex) => {
             const itemId = getCollectibleProgressItemId(rowIndex)
             const target = progressTargets[itemId] ?? 1
@@ -157,7 +154,6 @@ export const EventRecordsPanel = ({
             const targetWidth = (target / maxTarget) * 100
             const progress = Math.min(1, count / target)
             const isClear = count >= target
-            const markerPosition = Math.min(96, Math.max(4, progress * 100))
 
             return (
               <Fragment key={rowIndex}>
@@ -179,13 +175,6 @@ export const EventRecordsPanel = ({
                       className="h-3 rounded-full bg-green-500"
                       style={{ width: `${progress * 100}%` }}
                     />
-                    <span
-                      aria-hidden="true"
-                      className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 text-base leading-none"
-                      style={{ left: `${markerPosition}%` }}
-                    >
-                      {collectible.emoji}
-                    </span>
                   </div>
                 </div>
                 <div
