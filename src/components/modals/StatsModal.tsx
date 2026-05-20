@@ -1005,6 +1005,14 @@ export const StatsModal = ({
             isGameLost={isGameLost}
             playStats={playStats.completedAt ? playStats : undefined}
             collectedRows={eventCollectedRows}
+            guesses={guesses}
+            solution={solution}
+            excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
+            onOpenCosmetics={onOpenCosmetics}
+            handleShare={handleShare}
+            cosmeticOverrides={selectedCosmeticOverrides}
+            hasNewRewards={hasNewAchievementsToday}
           />
         )}
 
