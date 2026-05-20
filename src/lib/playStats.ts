@@ -57,18 +57,10 @@ export type PlayStatsSummary = {
   totalGuessTimeMs: number
   totalFirstInputDelayMs: number
   totalLongPauseMs: number
-  averageDurationMs: number
-  averageFirstInputDelayMs: number
-  averageGuessTimeMs: number
-  averageSubmitAccuracy: number
-  averageEnterPresses: number
   averageFrictionPerSubmit: number
   totalIncompleteEnterPresses: number
   totalInvalidEnterPresses: number
   totalDeletePresses: number
-  totalEmptyDeletePresses: number
-  totalFullGuessDeletePresses: number
-  deletePressesByFilledLength: number[]
   totalEnterPresses: number
   tileCounts: TileCounts
 }
@@ -621,18 +613,10 @@ export const summarizePlayStats = (
       totalGuessTimeMs: 0,
       totalFirstInputDelayMs: 0,
       totalLongPauseMs: 0,
-      averageDurationMs: 0,
-      averageFirstInputDelayMs: 0,
-      averageGuessTimeMs: 0,
-      averageSubmitAccuracy: 0,
-      averageEnterPresses: 0,
       averageFrictionPerSubmit: 0,
       totalIncompleteEnterPresses: 0,
       totalInvalidEnterPresses: 0,
       totalDeletePresses: 0,
-      totalEmptyDeletePresses: 0,
-      totalFullGuessDeletePresses: 0,
-      deletePressesByFilledLength: emptyDeleteDistribution(),
       totalEnterPresses: 0,
       tileCounts: emptyTileCounts(),
     }
@@ -640,12 +624,6 @@ export const summarizePlayStats = (
 
   const sum = (values: number[]) =>
     values.reduce((total, value) => total + value, 0)
-  const deletePressesByFilledLength = emptyDeleteDistribution()
-  games.forEach((game) => {
-    getDeletePressesByFilledLength(game).forEach((value, index) => {
-      deletePressesByFilledLength[index] += value
-    })
-  })
   const tileCounts = games.reduce<TileCounts>((counts, game) => {
     const gameTileCounts = normalizeTileCounts(game.tileCounts)
     return {
@@ -662,29 +640,11 @@ export const summarizePlayStats = (
     totalGuessTimeMs: sum(games.map(getTotalGuessTimeMs)),
     totalFirstInputDelayMs: sum(games.map(getFirstInputDelayMs)),
     totalLongPauseMs: sum(games.map(getTotalLongPauseMs)),
-    averageDurationMs: Math.round(
-      sum(games.map(getPlayDurationMs)) / games.length
-    ),
-    averageFirstInputDelayMs: Math.round(
-      sum(games.map(getFirstInputDelayMs)) / games.length
-    ),
-    averageGuessTimeMs: Math.round(
-      sum(games.map(getTotalGuessTimeMs)) / games.length
-    ),
-    averageSubmitAccuracy: Math.round(
-      sum(games.map(getSubmitAccuracy)) / games.length
-    ),
-    averageEnterPresses:
-      Math.round((10 * sum(games.map(getTotalEnterPresses))) / games.length) /
-      10,
     averageFrictionPerSubmit:
       Math.round(10 * getFrictionPerSubmitFromGames(games)) / 10,
     totalIncompleteEnterPresses: sum(games.map(getIncompleteEnterPresses)),
     totalInvalidEnterPresses: sum(games.map(getInvalidEnterPresses)),
     totalDeletePresses: sum(games.map(getTotalDeletePresses)),
-    totalEmptyDeletePresses: deletePressesByFilledLength[0],
-    totalFullGuessDeletePresses: deletePressesByFilledLength[CONFIG.wordLength],
-    deletePressesByFilledLength,
     totalEnterPresses: sum(games.map(getTotalEnterPresses)),
     tileCounts,
   }

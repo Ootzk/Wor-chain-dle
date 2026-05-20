@@ -259,16 +259,9 @@ test('saves and summarizes daily play stats', () => {
   expect(summary.totalGuessTimeMs).toBe(6000)
   expect(summary.totalFirstInputDelayMs).toBe(0)
   expect(summary.totalLongPauseMs).toBe(0)
-  expect(summary.averageDurationMs).toBe(5000)
-  expect(summary.averageGuessTimeMs).toBe(3000)
-  expect(summary.averageEnterPresses).toBe(2)
   expect(summary.averageFrictionPerSubmit).toBe(0.7)
-  expect(summary.averageSubmitAccuracy).toBe(84)
   expect(summary.totalInvalidEnterPresses).toBe(1)
   expect(summary.totalDeletePresses).toBe(1)
-  expect(summary.totalEmptyDeletePresses).toBe(0)
-  expect(summary.totalFullGuessDeletePresses).toBe(1)
-  expect(summary.deletePressesByFilledLength).toEqual([0, 0, 0, 0, 0, 1])
   expect(summary.totalEnterPresses).toBe(4)
   expect(summary.tileCounts).toEqual({
     correct: 8,
