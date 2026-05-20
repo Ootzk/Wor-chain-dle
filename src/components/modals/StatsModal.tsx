@@ -55,6 +55,7 @@ import {
   CosmeticOverrides,
   resolveCosmeticOverrides,
 } from '../../lib/cosmetics'
+import { CollectedRowsByCollectible } from '../../lib/eventCollectibles'
 
 type Props = {
   isOpen: boolean
@@ -73,8 +74,9 @@ type Props = {
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
+  onOpenAchievement: (achievementId: string) => void
   onOpenDeadEndHelp?: () => void
-  initialTab?: 'today' | 'calendar' | 'summary' | 'details'
+  initialTab?: RecordsTab
   isUppercase: boolean
   playStats: PlayStats
   detailStatsSummary: DetailStatsSummary
@@ -82,6 +84,8 @@ type Props = {
   eventResultsByVersion: EventResultsByVersion
   event?: EventDefinition
   cosmeticOverrides?: CosmeticOverrides
+  currentDateKey?: string
+  eventCollectedRows?: CollectedRowsByCollectible
 }
 
 type RecordsTab = 'today' | 'calendar' | 'summary' | 'details' | 'event'
@@ -383,6 +387,7 @@ export const StatsModal = ({
   weekStartsOnMonday,
   onToggleWeekStartsOnMonday,
   onOpenCosmetics,
+  onOpenAchievement,
   onOpenDeadEndHelp,
   initialTab,
   playStats,
@@ -391,6 +396,8 @@ export const StatsModal = ({
   eventResultsByVersion,
   event,
   cosmeticOverrides,
+  currentDateKey = '',
+  eventCollectedRows = {},
 }: Props) => {
   const { t } = useTranslation()
   const isEventRecords = mode === 'event'
@@ -404,7 +411,7 @@ export const StatsModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab(initialTab || 'today')
+      setActiveTab(initialTab || (mode === 'event' ? 'event' : 'today'))
       if (mode === 'event' && event) {
         setSelectedEventVersion(event.version)
         setSelectedEventCosmeticOverrides(cosmeticOverrides)
@@ -621,13 +628,13 @@ export const StatsModal = ({
       />
     ) : undefined
 
-  // Daily/Event mode — Today + Calendar + Summary + Details (+ seasonal Event)
+  // Daily/Event mode — seasonal Event + Today + Calendar + Summary + Details
   const tabs = [
+    ...(isEventRecords ? [{ id: 'event' as const, label: t('event') }] : []),
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
     { id: 'summary' as const, label: t('statsSummary') },
     { id: 'details' as const, label: t('statsDetails') },
-    ...(isEventRecords ? [{ id: 'event' as const, label: t('event') }] : []),
   ]
 
   return (
@@ -993,6 +1000,22 @@ export const StatsModal = ({
           <EventRecordsPanel
             event={selectedEvent}
             selectedVersion={selectedVersion}
+            currentDateKey={currentDateKey}
+            results={selectedEventResults}
+            isCurrentEvent={event?.version === selectedVersion}
+            isGameWon={isGameWon}
+            isGameLost={isGameLost}
+            playStats={playStats.completedAt ? playStats : undefined}
+            collectedRows={eventCollectedRows}
+            guesses={guesses}
+            solution={solution}
+            excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
+            onOpenCosmetics={onOpenCosmetics}
+            onOpenAchievement={onOpenAchievement}
+            handleShare={handleShare}
+            cosmeticOverrides={selectedCosmeticOverrides}
+            hasNewRewards={hasNewAchievementsToday}
           />
         )}
 

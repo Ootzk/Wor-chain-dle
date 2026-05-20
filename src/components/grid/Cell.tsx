@@ -7,7 +7,7 @@ import {
   getEquippedChainColor,
   CosmeticOverrides,
 } from '../../lib/cosmetics'
-import { PacmanCellEffect } from '../../lib/pacman'
+import { GridCellEffect } from '../../lib/gridEffects'
 
 type Props = {
   value?: string
@@ -17,7 +17,7 @@ type Props = {
   chainBottom?: boolean
   hideLetter?: boolean
   showCursor?: boolean
-  cellEffect?: PacmanCellEffect
+  cellEffect?: GridCellEffect
   cosmeticOverrides?: CosmeticOverrides
 }
 
@@ -51,7 +51,8 @@ export const Cell = ({
     cosmeticFont,
     {
       'bg-white border-slate-200': !status && !isLocked && !isChain,
-      'border-black': value && !status && !isLocked && !isChain,
+      'border-black':
+        (value || cellEffect?.value) && !status && !isLocked && !isChain,
       [`bg-white ${chainColor}`]: isChain && !status && !isLocked,
       [`bg-slate-100 ${chainColor}`]: isLocked && !status && isChain,
       'bg-slate-100 border-black': isLocked && !status && !isChain,
@@ -68,12 +69,14 @@ export const Cell = ({
     }
   )
 
-  const shouldHideLetter = (hideLetter || cellEffect?.hideLetter) && value
+  const displayValue = value ?? cellEffect?.value
+  const shouldHideLetter =
+    (hideLetter || cellEffect?.hideLetter) && displayValue
 
   return (
     <div className={classes}>
       <span className={shouldHideLetter ? 'text-transparent' : undefined}>
-        {value}
+        {displayValue}
       </span>
       {cellEffect?.actor && (
         <span
@@ -82,6 +85,15 @@ export const Cell = ({
           className="absolute inset-0 flex items-center justify-center text-2xl leading-none"
         >
           {cellEffect.actor}
+        </span>
+      )}
+      {cellEffect?.marker && !cellEffect.actor && (
+        <span
+          aria-hidden="true"
+          data-testid="cell-marker"
+          className="absolute -right-1 -top-1 text-base leading-none drop-shadow-sm"
+        >
+          {cellEffect.marker}
         </span>
       )}
       {showCursor && (

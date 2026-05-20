@@ -47,7 +47,10 @@ import {
 } from './lib/cosmetics'
 import { GameMode } from './lib/gameMode'
 import { EventDefinition } from './lib/events'
-import { recordCompletedGameProgress } from './lib/achievementProgress'
+import {
+  recordCollectibleProgress,
+  recordCompletedGameProgress,
+} from './lib/achievementProgress'
 import {
   CompletedPlayStats,
   PlayStats,
@@ -78,11 +81,21 @@ import {
   saveEventResult,
 } from './lib/eventResults'
 import {
+  collectEventTargetsForSubmission,
+  CollectedRowsByCollectible,
+  getCollectibleCellEffects,
+  getCollectibleProgressItemId,
+  getCollectibleRowEffects,
+  getEventCollectibleTargets,
+  mergeCollectedRows,
+} from './lib/eventCollectibles'
+import {
   getPacmanCellEffects,
   getPacmanPath,
   getPacmanStepMs,
   isPacmanCellRevealed,
 } from './lib/pacman'
+import { mergeGridCellEffects } from './lib/gridEffects'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -129,6 +142,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [rewardsInitialTab, setRewardsInitialTab] = useState<
     'achievements' | 'cosmetics' | undefined
   >(undefined)
+  const [rewardsScrollToAchievement, setRewardsScrollToAchievement] = useState<
+    string | undefined
+  >(undefined)
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
@@ -174,6 +190,22 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       }
     }
   }
+  const loadMatchingEventGameState = () => {
+    if (!isEvent || !event) return null
+
+    const loaded = loadEventGameStateFromLocalStorage()
+    if (
+      loaded?.version === event.version &&
+      loaded.dateKey === localDateStr &&
+      loaded.solution === solution
+    ) {
+      return loaded
+    }
+    if (loaded) {
+      clearEventGameStateFromLocalStorage()
+    }
+    return null
+  }
   const [guesses, setGuesses] = useState<string[][]>(() => {
     if (isDaily) {
       const loaded = loadGameStateFromLocalStorage()
@@ -184,17 +216,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
 
     if (isEvent && event) {
-      const loaded = loadEventGameStateFromLocalStorage()
-      if (
-        loaded?.version === event.version &&
-        loaded.dateKey === localDateStr &&
-        loaded.solution === solution
-      ) {
+      const loaded = loadMatchingEventGameState()
+      if (loaded) {
         applyLoadedGameStatus(loaded.guesses)
         return loaded.guesses
-      }
-      if (loaded) {
-        clearEventGameStateFromLocalStorage()
       }
     }
 
@@ -241,16 +266,28 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const pacmanPath = useMemo(() => getPacmanPath(), [])
   const [pacmanPathIndex, setPacmanPathIndex] = useState(() => {
     if (!isPacmanEvent || !event) return -1
-    const loaded = loadEventGameStateFromLocalStorage()
-    if (
-      loaded?.version === event.version &&
-      loaded.dateKey === localDateStr &&
-      loaded.solution === solution
-    ) {
+    const loaded = loadMatchingEventGameState()
+    if (loaded) {
       return loaded.pacmanPathIndex ?? (loaded.guesses.length > 0 ? 0 : -1)
     }
     return -1
   })
+  const eventCollectibleTargets = useMemo(
+    () =>
+      isEvent && event?.collectibles
+        ? getEventCollectibleTargets({
+            eventId: event.id,
+            dateKey: localDateStr,
+            collectibles: event.collectibles,
+          })
+        : [],
+    [isEvent, event, localDateStr]
+  )
+  const [collectedRows, setCollectedRows] =
+    useState<CollectedRowsByCollectible>(() => {
+      const loaded = loadMatchingEventGameState()
+      return loaded?.collectedRows ?? {}
+    })
 
   const updatePlayStats = (next: PlayStats) => {
     playStatsRef.current = next
@@ -347,6 +384,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         guesses,
         solution,
         pacmanPathIndex: isPacmanEvent ? pacmanPathIndex : undefined,
+        collectedRows: event?.collectibles?.length ? collectedRows : undefined,
       })
     }
   }, [
@@ -355,6 +393,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     isEvent,
     isPacmanEvent,
     pacmanPathIndex,
+    collectedRows,
     event,
     localDateStr,
     solution,
@@ -519,6 +558,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     if (pacmanResetKeyRef.current === resetKey) return
     pacmanResetKeyRef.current = resetKey
     setPacmanPathIndex(-1)
+    setCollectedRows({})
     pacmanLossHandledRef.current = false
   }, [mode, solution])
 
@@ -587,6 +627,81 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           actor: event.pacman.actor,
         })
       : undefined
+  const collectibleCellEffects = getCollectibleCellEffects({
+    targets: eventCollectibleTargets,
+    collectedRows,
+    submittedRows: guesses.length,
+  })
+  const collectibleRowEffects = getCollectibleRowEffects({
+    targets: eventCollectibleTargets,
+    collectedRows,
+  })
+  const gridCellEffects = mergeGridCellEffects(
+    collectibleCellEffects,
+    pacmanCellEffects
+  )
+
+  const collectEventItemsForSubmission = ({
+    submittedRowIndex,
+    submittedGuess,
+    won,
+  }: {
+    submittedRowIndex: number
+    submittedGuess: string[]
+    won: boolean
+  }) => {
+    if (!event?.collectibles?.length || eventCollectibleTargets.length === 0) {
+      return
+    }
+
+    let nextCollectedRows = collectedRows
+    const progressItemIdsByCollection: Record<string, string[]> = {}
+
+    event.collectibles.forEach((collectible) => {
+      const rowIndexes = collectEventTargetsForSubmission({
+        config: collectible,
+        targets: eventCollectibleTargets,
+        submittedRowIndex,
+        submittedGuess,
+        solution,
+        won,
+        collectedRows: nextCollectedRows,
+      })
+      if (rowIndexes.length === 0) return
+
+      nextCollectedRows = mergeCollectedRows(
+        nextCollectedRows,
+        collectible.id,
+        rowIndexes
+      )
+      progressItemIdsByCollection[collectible.collectionId] = [
+        ...(progressItemIdsByCollection[collectible.collectionId] ?? []),
+        ...rowIndexes.map(getCollectibleProgressItemId),
+      ]
+    })
+
+    if (nextCollectedRows !== collectedRows) {
+      setCollectedRows(nextCollectedRows)
+    }
+
+    let updatedProgress: ReturnType<typeof recordCollectibleProgress> | null =
+      null
+
+    Object.entries(progressItemIdsByCollection).forEach(
+      ([collectionId, itemIds]) => {
+        updatedProgress = recordCollectibleProgress({ collectionId, itemIds })
+      }
+    )
+
+    if (updatedProgress) {
+      showAchievementAlert(
+        evaluateAchievements(stats, loadDailyResultHistory(), {
+          mode,
+          progress: updatedProgress,
+        })
+      )
+    }
+  }
 
   const onChar = (value: string) => {
     const chainInfo = getChainInfo(guesses)
@@ -641,6 +756,11 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       setCurrentGuess([])
       const nextGuesses = [...guesses, fullGuess]
       setGuesses(nextGuesses)
+      collectEventItemsForSubmission({
+        submittedRowIndex: guesses.length,
+        submittedGuess: fullGuess,
+        won: winningWord,
+      })
 
       if (winningWord) {
         const tileCounts = countTileStatusesForGame(nextGuesses, solution)
@@ -802,6 +922,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => {
             setRewardsInitialTab('achievements')
+            setRewardsScrollToAchievement(undefined)
             setIsRewardsModalOpen(true)
           }}
         />
@@ -823,7 +944,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           hideLetters={effectiveLettersHidden}
           showHideLettersToggle={canToggleLettersHidden}
           onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
-          cellEffects={pacmanCellEffects}
+          cellEffects={gridCellEffects}
+          rowEffects={collectibleRowEffects}
           cosmeticOverrides={cosmeticOverrides}
         />
         <Keyboard
@@ -876,6 +998,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onOpenCosmetics={() => {
           setIsStatsModalOpen(false)
           setRewardsInitialTab('cosmetics')
+          setRewardsScrollToAchievement(undefined)
+          setTimeout(() => setIsRewardsModalOpen(true), 300)
+        }}
+        onOpenAchievement={(achievementId) => {
+          setIsStatsModalOpen(false)
+          setRewardsInitialTab('achievements')
+          setRewardsScrollToAchievement(achievementId)
           setTimeout(() => setIsRewardsModalOpen(true), 300)
         }}
         onOpenDeadEndHelp={() => {
@@ -891,18 +1020,22 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         eventResultsByVersion={eventResultsByVersion}
         event={event}
         cosmeticOverrides={cosmeticOverrides}
+        currentDateKey={localDateStr}
+        eventCollectedRows={collectedRows}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
         handleClose={() => {
           setIsRewardsModalOpen(false)
           setRewardsInitialTab(undefined)
+          setRewardsScrollToAchievement(undefined)
         }}
         isUppercase={effectiveIsUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={effectiveExcludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
+        scrollToAchievement={rewardsScrollToAchievement}
         mode={mode}
         event={event}
         onOpenDeadEndHelp={() => {

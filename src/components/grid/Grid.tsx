@@ -7,10 +7,11 @@ import React from 'react'
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline'
 import { CosmeticOverrides } from '../../lib/cosmetics'
 import {
-  getPacmanCellKey,
-  PacmanCellEffect,
-  PacmanCellEffects,
-} from '../../lib/pacman'
+  getGridCellKey,
+  GridCellEffect,
+  GridCellEffects,
+  GridRowEffects,
+} from '../../lib/gridEffects'
 
 type Props = {
   guesses: string[][]
@@ -20,7 +21,8 @@ type Props = {
   hideLetters?: boolean
   showHideLettersToggle?: boolean
   onToggleHideLetters?: () => void
-  cellEffects?: PacmanCellEffects
+  cellEffects?: GridCellEffects
+  rowEffects?: GridRowEffects
   cosmeticOverrides?: CosmeticOverrides
 }
 
@@ -53,14 +55,15 @@ export const Grid = ({
   showHideLettersToggle = false,
   onToggleHideLetters,
   cellEffects,
+  rowEffects,
   cosmeticOverrides,
 }: Props) => {
   const elements: React.ReactNode[] = []
   const getRowCellEffects = (rowIndex: number) =>
     Array.from({ length: CONFIG.wordLength }).reduce<
-      Record<number, PacmanCellEffect>
+      Record<number, GridCellEffect>
     >((effects, _, colIndex) => {
-      const effect = cellEffects?.[getPacmanCellKey({ rowIndex, colIndex })]
+      const effect = cellEffects?.[getGridCellKey({ rowIndex, colIndex })]
       if (effect) {
         effects[colIndex] = effect
       }
@@ -109,6 +112,15 @@ export const Grid = ({
 
     elements.push(
       <div key={`row-${i}`} className="relative mx-auto w-80">
+        {rowEffects?.[i]?.prefix && (
+          <span
+            aria-hidden="true"
+            data-testid="row-prefix-effect"
+            className="absolute right-[calc(100%+0.25rem)] top-1/2 -translate-y-1/2 text-lg leading-none"
+          >
+            {rowEffects[i].prefix}
+          </span>
+        )}
         {row}
         {i === CONFIG.tries - 1 &&
           showHideLettersToggle &&

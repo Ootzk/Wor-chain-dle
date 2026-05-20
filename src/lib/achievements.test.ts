@@ -162,6 +162,7 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_grape')).toBe('\uD83C\uDF47')
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
     expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
+    expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
     expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
@@ -199,9 +200,46 @@ describe('share badge achievements', () => {
     expect(
       getRewardsForAchievement('played_v1_7_0_5').map((r) => r.id)
     ).toContain('badge_azure')
+    expect(
+      getRewardsForAchievement('clover_collector').map((r) => r.id)
+    ).toContain('badge_clover')
     expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
       'chaincolor_azure'
     )
+  })
+
+  it('unlocks the clover badge after meeting every event row target', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        progress,
+      })
+    ).toContain('clover_collector')
+  })
+
+  it('does not let extra clovers in one row replace another row target', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 20,
+      row_3: 20,
+      row_4: 20,
+      row_5: 14,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        progress,
+      })
+    ).not.toContain('clover_collector')
   })
 
   it('connects game-event achievements to share emoji rewards', () => {

@@ -2,6 +2,11 @@ import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
 import { CosmeticOverrideConfig } from './cosmetics'
+import {
+  EventCollectibleConfig,
+  SUMMER_GARDEN_CLOVER_COLLECTION_ID,
+  SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+} from './eventCollectibles'
 import { PacmanConfig } from './pacman'
 
 export type EventModeKind = 'standard' | 'pacman' | 'hardcore' | 'ai'
@@ -19,6 +24,7 @@ export type EventDefinition = {
   cosmeticOverrides?: CosmeticOverrideConfig
   settingOverrides?: EventSettingOverrides
   pacman?: PacmanConfig
+  collectibles?: EventCollectibleConfig[]
 }
 
 export type EventLoseReasonDefinition = {
@@ -63,8 +69,25 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
     },
     effect: 'hide-letter',
   },
+  collectibles: [
+    {
+      id: 'clover',
+      collectionId: SUMMER_GARDEN_CLOVER_COLLECTION_ID,
+      emoji: '🍀',
+      targetRows: [1, 2, 3, 4],
+      progressTargets: SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+      collectStatus: 'correct',
+      autoCollectRemainingOnWin: true,
+    },
+  ],
   cosmeticOverrides: {
-    shareBadge: ['badge_apple', 'badge_grape', 'badge_milk', 'badge_azure'],
+    shareBadge: [
+      'badge_apple',
+      'badge_grape',
+      'badge_milk',
+      'badge_azure',
+      'badge_clover',
+    ],
     chainColor: 'chaincolor_azure',
   },
   loseReasons: [

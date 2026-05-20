@@ -1,18 +1,16 @@
 import { CONFIG } from '../constants/config'
 import { getChainInfo } from './chain'
+import {
+  getGridCellKey,
+  GridCell,
+  GridCellEffect,
+  GridCellEffects,
+} from './gridEffects'
 import { CharStatus, getGuessStatuses } from './statuses'
 
-export type PacmanCell = {
-  rowIndex: number
-  colIndex: number
-}
-
-export type PacmanCellEffect = {
-  actor?: string
-  hideLetter?: boolean
-}
-
-export type PacmanCellEffects = Record<string, PacmanCellEffect>
+export type PacmanCell = GridCell
+export type PacmanCellEffect = GridCellEffect
+export type PacmanCellEffects = GridCellEffects
 
 export type PacmanConfig = {
   actor: string
@@ -23,9 +21,6 @@ export type PacmanConfig = {
 export type PacmanStepMsByStatus = Record<CharStatus, number> & {
   default: number
 }
-
-export const getPacmanCellKey = ({ rowIndex, colIndex }: PacmanCell) =>
-  `${rowIndex}:${colIndex}`
 
 export const getPacmanPath = (
   rows = CONFIG.tries,
@@ -123,7 +118,7 @@ export const getPacmanCellEffects = ({
 
   return Object.fromEntries(
     path.slice(0, pathIndex + 1).map((cell, index) => [
-      getPacmanCellKey(cell),
+      getGridCellKey(cell),
       {
         hideLetter: true,
         actor: index === pathIndex ? actor : undefined,

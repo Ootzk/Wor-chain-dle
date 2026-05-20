@@ -25,6 +25,7 @@ describe('reward metadata', () => {
 
     expect(achievementIds).toEqual(
       [
+        'clover_collector',
         'no_correct_game',
         'no_present_game',
         'played_v1_7_0_5',
@@ -43,6 +44,7 @@ describe('reward metadata', () => {
       [
         'badge_apple',
         'badge_azure',
+        'badge_clover',
         'badge_grape',
         'badge_milk',
         'chaincolor_azure',

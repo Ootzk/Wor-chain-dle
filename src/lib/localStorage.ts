@@ -9,6 +9,7 @@ type StoredEventGameState = StoredGameState & {
   version: string
   dateKey: string
   pacmanPathIndex?: number
+  collectedRows?: Record<string, number[]>
 }
 
 export const saveGameStateToLocalStorage = (gameState: StoredGameState) => {

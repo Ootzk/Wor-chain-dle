@@ -11,6 +11,10 @@ import {
   AchievementTrackingState,
   loadAchievementProgress,
 } from './achievementProgress'
+import {
+  SUMMER_GARDEN_CLOVER_COLLECTION_ID,
+  SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+} from './eventCollectibles'
 import { CharStatus, getGuessStatuses } from './statuses'
 import {
   matchesRewardMetadata,
@@ -274,6 +278,28 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       current: progress.versions['1.7.0']?.gamesCompleted ?? 0,
       target: 5,
     }),
+  },
+  {
+    id: 'clover_collector',
+    category: 'collection',
+    modes: ['event'],
+    difficulty: 7,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_clover_collector_title',
+    descriptionKey: 'achievement_clover_collector_desc',
+    progress: ({ progress }) => {
+      const collection =
+        progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
+      const rowTargets = Object.entries(SUMMER_GARDEN_CLOVER_ROW_TARGETS)
+      return {
+        current: rowTargets.reduce(
+          (sum, [itemId, target]) =>
+            sum + Math.min(collection[itemId] ?? 0, target),
+          0
+        ),
+        target: rowTargets.reduce((sum, [, target]) => sum + target, 0),
+      }
+    },
   },
   {
     id: 'practice_win_100',
