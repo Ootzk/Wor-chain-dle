@@ -208,13 +208,13 @@ describe('share badge achievements', () => {
     )
   })
 
-  it('unlocks the clover badge after collecting every event row 7 times', () => {
+  it('unlocks the clover badge after meeting every event row target', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.collectibles['v1.7.0-summer-garden-clover'] = {
-      row_2: 7,
-      row_3: 8,
-      row_4: 7,
-      row_5: 9,
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
     }
 
     expect(
@@ -223,6 +223,23 @@ describe('share badge achievements', () => {
         progress,
       })
     ).toContain('clover_collector')
+  })
+
+  it('does not let extra clovers in one row replace another row target', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 20,
+      row_3: 20,
+      row_4: 20,
+      row_5: 14,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        progress,
+      })
+    ).not.toContain('clover_collector')
   })
 
   it('connects game-event achievements to share emoji rewards', () => {

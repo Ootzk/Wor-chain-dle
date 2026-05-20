@@ -27,7 +27,12 @@ import {
 // --- Type Definitions ---
 
 const SUMMER_GARDEN_CLOVER_COLLECTION_ID = 'v1.7.0-summer-garden-clover'
-const SUMMER_GARDEN_CLOVER_ROW_ITEMS = ['row_2', 'row_3', 'row_4', 'row_5']
+const SUMMER_GARDEN_CLOVER_ROW_TARGETS = {
+  row_2: 3,
+  row_3: 7,
+  row_4: 10,
+  row_5: 15,
+}
 
 export type AchievementCategory =
   | 'milestone'
@@ -289,13 +294,14 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ progress }) => {
       const collection =
         progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
+      const rowTargets = Object.entries(SUMMER_GARDEN_CLOVER_ROW_TARGETS)
       return {
-        current: Math.min(
-          ...SUMMER_GARDEN_CLOVER_ROW_ITEMS.map(
-            (itemId) => collection[itemId] ?? 0
-          )
+        current: rowTargets.reduce(
+          (sum, [itemId, target]) =>
+            sum + Math.min(collection[itemId] ?? 0, target),
+          0
         ),
-        target: 7,
+        target: rowTargets.reduce((sum, [, target]) => sum + target, 0),
       }
     },
   },
