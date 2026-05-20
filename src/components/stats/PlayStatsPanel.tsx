@@ -2,6 +2,8 @@ import { ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { PlayStatsSummary } from '../../lib/playStats'
+import { CharStatus } from '../../lib/statuses'
+import { Cell } from '../grid/Cell'
 
 type Props = {
   summary: PlayStatsSummary
@@ -139,9 +141,11 @@ const GroupMetric = ({
   label,
   items,
   className = '',
+  separateFirstItem = false,
 }: {
   label: string
   className?: string
+  separateFirstItem?: boolean
   items: Array<{
     label: string
     value: string
@@ -158,7 +162,11 @@ const GroupMetric = ({
             label={item.label}
             value={item.value}
             labelClassName={item.labelClassName}
-            className={index === 0 ? 'border-r border-gray-300' : undefined}
+            className={
+              separateFirstItem && index === 0
+                ? 'border-r border-gray-300'
+                : undefined
+            }
           />
         ))}
       </div>
@@ -168,6 +176,68 @@ const GroupMetric = ({
     </div>
   </div>
 )
+
+const TileSample = ({
+  count,
+  labelClassName,
+  label,
+  status,
+}: {
+  count: number
+  labelClassName?: string
+  label: string
+  status?: CharStatus
+}) => (
+  <div className="flex min-w-0 flex-col items-center justify-center gap-0.5">
+    <div
+      aria-label={label}
+      className="flex h-14 w-14 shrink-0 items-center justify-center"
+    >
+      <Cell value={String(count)} status={status} />
+    </div>
+    <div
+      className={`min-h-[1.25rem] break-words text-center text-[10px] leading-[0.7rem] ${
+        labelClassName ?? 'text-gray-900'
+      }`}
+    >
+      {label}
+    </div>
+  </div>
+)
+
+const TileCountsRow = ({ summary }: { summary: PlayStatsSummary }) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="px-0.5">
+      <div className="grid grid-cols-4 gap-2">
+        <TileSample
+          label={t('behaviorTileCorrect')}
+          status="correct"
+          labelClassName="text-green-500"
+          count={summary.tileCounts.correct}
+        />
+        <TileSample
+          label={t('behaviorTilePresent')}
+          status="present"
+          labelClassName="text-purple-500"
+          count={summary.tileCounts.present}
+        />
+        <TileSample
+          label={t('behaviorTileAbsent')}
+          status="absent"
+          labelClassName="text-gray-500"
+          count={summary.tileCounts.absent}
+        />
+        <TileSample
+          label={t('behaviorTileUnrevealed')}
+          labelClassName="text-gray-500"
+          count={summary.tileCounts.unrevealed}
+        />
+      </div>
+    </div>
+  )
+}
 
 export const PlayStatsPanel = ({ summary }: Props) => {
   const { t } = useTranslation()
@@ -214,6 +284,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           <GroupMetric
             className="col-span-4"
             label={t('behaviorTime')}
+            separateFirstItem
             items={[
               {
                 label: t('behaviorTotalShort'),
@@ -249,6 +320,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           <GroupMetric
             className="col-span-4"
             label={t('playStatsBreakdownEnter')}
+            separateFirstItem
             items={[
               {
                 label: t('behaviorTotalShort'),
@@ -298,6 +370,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
             infoBody={t('behaviorFrictionPerSubmitInfoBody')}
           />
         </div>
+        <TileCountsRow summary={summary} />
       </Section>
     </div>
   )
