@@ -520,6 +520,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     showAchievementAlert(
       evaluateAchievements(nextStats, loadDailyResultHistory(), {
         mode,
+        eventVersion: isEvent ? event?.version : undefined,
         progress: achievementProgress,
         game: {
           dateKey: isDaily || isEvent ? localDateStr : undefined,
@@ -707,6 +708,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       showAchievementAlert(
         evaluateAchievements(stats, loadDailyResultHistory(), {
           mode,
+          eventVersion: isEvent ? event?.version : undefined,
           progress: updatedProgress,
         })
       )

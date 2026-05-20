@@ -270,9 +270,28 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'event',
+        eventVersion: 'v1.7.0',
         progress,
       })
     ).toContain('clover_collector')
+  })
+
+  it('does not unlock the clover badge while evaluating another event version', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.8.0',
+        progress,
+      })
+    ).not.toContain('clover_collector')
   })
 
   it('unlocks the rabbit badge after 7 fast Summer Garden wins', () => {
@@ -320,6 +339,7 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'event',
+        eventVersion: 'v1.7.0',
         progress,
       })
     ).not.toContain('clover_collector')

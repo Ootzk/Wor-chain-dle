@@ -69,6 +69,7 @@ export type AchievementContext = {
   dailyHistory: DailyHistory
   dailyDetailStatsHistory: DailyDetailStatsHistory
   mode: GameMode
+  eventVersion?: string
   progress: AchievementTrackingState
   game?: CompletedGameContext
 }
@@ -346,17 +347,21 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_clover_collector_title',
     descriptionKey: 'achievement_clover_collector_desc',
-    progress: ({ progress }) => {
+    progress: ({ progress, eventVersion }) => {
       const collection =
         progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
       const rowTargets = Object.entries(SUMMER_GARDEN_CLOVER_ROW_TARGETS)
+      const target = rowTargets.reduce((sum, [, target]) => sum + target, 0)
+      if (eventVersion && eventVersion !== SUMMER_GARDEN_VERSION) {
+        return { current: 0, target }
+      }
       return {
         current: rowTargets.reduce(
           (sum, [itemId, target]) =>
             sum + Math.min(collection[itemId] ?? 0, target),
           0
         ),
-        target: rowTargets.reduce((sum, [, target]) => sum + target, 0),
+        target,
       }
     },
   },
@@ -723,6 +728,7 @@ export const isAchievementAvailableInMode = (
 
 export type AchievementEvaluationOptions = {
   mode?: GameMode
+  eventVersion?: string
   game?: CompletedGameContext
   progress?: AchievementTrackingState
   dailyDetailStatsHistory?: DailyDetailStatsHistory
@@ -738,6 +744,7 @@ const createAchievementContext = (
   dailyDetailStatsHistory:
     options.dailyDetailStatsHistory ?? loadDailyDetailStatsHistory(),
   mode: options.mode ?? 'daily',
+  eventVersion: options.eventVersion,
   progress: options.progress ?? loadAchievementProgress(),
   game: options.game,
 })
