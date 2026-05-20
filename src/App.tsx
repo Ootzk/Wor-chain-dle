@@ -14,6 +14,7 @@ import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { RewardsModal } from './components/modals/RewardsModal'
+import { ModeBadge } from './components/modes/ModeBadge'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
@@ -38,7 +39,7 @@ import {
   ACHIEVEMENTS,
 } from './lib/achievements'
 import { getEquippedAlertMessageKeys } from './lib/cosmetics'
-import { CREATE_MODE_LABEL, GAME_MODE_LABELS, GameMode } from './lib/gameMode'
+import { GameMode } from './lib/gameMode'
 import { EventDefinition } from './lib/events'
 import { recordCompletedGameProgress } from './lib/achievementProgress'
 import {
@@ -532,34 +533,32 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-      <div className="flex w-80 mx-auto items-center mb-8">
+      <div className="flex h-12 w-80 mx-auto items-center mb-8">
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
           <p className="relative text-sm text-gray-500">
             {isDaily ? (
-              <>
-                {GAME_MODE_LABELS.daily} | {localDateStr}
-              </>
+              <span className="inline-flex items-center gap-1.5">
+                <ModeBadge mode="daily" />
+                <span>| {localDateStr}</span>
+              </span>
             ) : isCustom ? (
-              <>
-                <span className="text-green-500">
-                  {GAME_MODE_LABELS.custom}
-                </span>{' '}
-                | {questioner}
-              </>
+              <span className="inline-flex items-center gap-1.5">
+                <ModeBadge mode="custom" />
+                <span>| {questioner}</span>
+              </span>
             ) : isEvent ? (
               <>
-                <span className="text-sky-500">
-                  {GAME_MODE_LABELS.event} | {localDateStr}
+                <span className="inline-flex items-center gap-1.5">
+                  <ModeBadge mode="event" />
+                  <span>| {localDateStr}</span>
                 </span>
                 <span className="absolute left-0 top-full text-sky-500 whitespace-nowrap">
                   {event ? t(event.themeKey) : ''}
                 </span>
               </>
             ) : (
-              <span className="text-purple-500">
-                {GAME_MODE_LABELS.practice}
-              </span>
+              <ModeBadge mode="practice" />
             )}
           </p>
         </div>
@@ -715,23 +714,23 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <div className="mx-auto mt-8 flex items-center justify-center gap-2">
         <Link
           to={isDaily ? '/practice' : '/'}
-          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+          className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
         >
-          {isDaily ? GAME_MODE_LABELS.practice : GAME_MODE_LABELS.daily}
+          <ModeBadge mode={isDaily ? 'practice' : 'daily'} />
         </Link>
         {isDaily && (
           <>
             <Link
               to="/event"
-              className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-sky-700 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 select-none"
+              className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 select-none"
             >
-              {GAME_MODE_LABELS.event}
+              <ModeBadge mode="event" />
             </Link>
             <Link
               to="/create"
-              className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+              className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
             >
-              {CREATE_MODE_LABEL}
+              <ModeBadge mode="create" />
             </Link>
           </>
         )}
