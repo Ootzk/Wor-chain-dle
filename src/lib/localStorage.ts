@@ -5,6 +5,11 @@ type StoredGameState = {
   solution: string
 }
 
+type StoredEventGameState = StoredGameState & {
+  version: string
+  dateKey: string
+}
+
 export const saveGameStateToLocalStorage = (gameState: StoredGameState) => {
   localStorage.setItem(gameStateKey, JSON.stringify(gameState))
 }
@@ -12,6 +17,23 @@ export const saveGameStateToLocalStorage = (gameState: StoredGameState) => {
 export const loadGameStateFromLocalStorage = () => {
   const state = localStorage.getItem(gameStateKey)
   return state ? (JSON.parse(state) as StoredGameState) : null
+}
+
+const eventGameStateKey = 'eventGameState'
+
+export const saveEventGameStateToLocalStorage = (
+  gameState: StoredEventGameState
+) => {
+  localStorage.setItem(eventGameStateKey, JSON.stringify(gameState))
+}
+
+export const loadEventGameStateFromLocalStorage = () => {
+  const state = localStorage.getItem(eventGameStateKey)
+  return state ? (JSON.parse(state) as StoredEventGameState) : null
+}
+
+export const clearEventGameStateFromLocalStorage = () => {
+  localStorage.removeItem(eventGameStateKey)
 }
 
 const gameStatKey = 'gameStats'

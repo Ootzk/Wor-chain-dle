@@ -10,20 +10,21 @@ import { CalendarDay } from './CalendarDay'
 import { GameStats } from '../../lib/localStorage'
 import { dateToKey } from '../../lib/dailyHistory'
 import {
-  DailyResult,
   getDailyResultsStartDate,
-  getMonthDailyResults,
   loadDailyResults,
 } from '../../lib/dailyResults'
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
+import { CosmeticOverrides } from '../../lib/cosmetics'
 
 const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 type Props = {
   gameStats: GameStats
+  results?: Record<string, { won: boolean; guessCount: number }>
+  calendarStartDate?: string | null
   handleShare: () => void
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
@@ -31,6 +32,8 @@ type Props = {
   onToggleExcludeUrl: () => void
   onOpenCosmetics: () => void
   hasNewRewards?: boolean
+  cosmeticOverrides?: CosmeticOverrides
+  shareContextLabel?: string
 }
 
 const MiniToggle = ({
@@ -59,6 +62,8 @@ const MiniToggle = ({
 
 export const Calendar = ({
   gameStats,
+  results,
+  calendarStartDate,
   handleShare,
   weekStartsOnMonday,
   onToggleWeekStartsOnMonday,
@@ -66,6 +71,8 @@ export const Calendar = ({
   onToggleExcludeUrl,
   onOpenCosmetics,
   hasNewRewards = false,
+  cosmeticOverrides,
+  shareContextLabel,
 }: Props) => {
   const { t } = useTranslation()
   const today = Temporal.Now.plainDateISO()
@@ -98,8 +105,7 @@ export const Calendar = ({
     }
   }
 
-  const monthResults = getMonthDailyResults(year, month)
-  const dailyResults = loadDailyResults()
+  const storedResults = results ?? loadDailyResults()
 
   // Build calendar grid
   const firstDay = Temporal.PlainDate.from({
@@ -112,17 +118,24 @@ export const Calendar = ({
   const firstDayOfWeek = weekStartsOnMonday
     ? (sundayBasedDow + 6) % 7 // Mon=0, Tue=1, ..., Sun=6
     : sundayBasedDow
-  const daysInMonth = monthResults.length
+  const daysInMonth = firstDay.daysInMonth
+  const monthResults = Array.from({ length: daysInMonth }, (_, dayIndex) => {
+    const dateKey = dateToKey(firstDay.with({ day: dayIndex + 1 }))
+    return storedResults[dateKey] ?? null
+  })
   const monthlyPlayedCount = monthResults.filter(Boolean).length
   const monthlyWinCount = monthResults.filter((result) => result?.won).length
   const monthlyLossCount = monthlyPlayedCount - monthlyWinCount
   const monthlyAbsenceCount = daysInMonth - monthlyPlayedCount
 
-  const calendarStartDate = getDailyResultsStartDate()
+  const effectiveCalendarStartDate =
+    calendarStartDate === undefined
+      ? getDailyResultsStartDate()
+      : calendarStartDate
 
   type CellData = {
     day: number | null
-    result?: DailyResult | null
+    result?: { won: boolean; guessCount: number } | null
     isToday: boolean
     isFuture: boolean
     isBeforeEpoch: boolean
@@ -152,8 +165,8 @@ export const Calendar = ({
     const isFuture = Temporal.PlainDate.compare(date, today) > 0
     const isBeforeEpoch =
       Temporal.PlainDate.compare(date, epoch) < 0 ||
-      (calendarStartDate !== null && key < calendarStartDate)
-    const isCalendarEpoch = calendarStartDate === key
+      (effectiveCalendarStartDate !== null && key < effectiveCalendarStartDate)
+    const isCalendarEpoch = effectiveCalendarStartDate === key
 
     cells.push({
       day: d,
@@ -317,10 +330,13 @@ export const Calendar = ({
               shareCalendar(
                 year,
                 month,
-                dailyResults,
+                storedResults,
                 gameStats.currentStreak,
                 weekStartsOnMonday,
-                excludeUrl
+                excludeUrl,
+                effectiveCalendarStartDate,
+                cosmeticOverrides,
+                shareContextLabel
               )
               handleShare()
             }}

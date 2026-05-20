@@ -1,8 +1,6 @@
-import { DailyResult } from '../../lib/dailyResults'
-
 type Props = {
   day: number | null // null for placeholder cells (outside month)
-  result?: DailyResult | null
+  result?: { won: boolean; guessCount: number } | null
   isToday: boolean
   isFuture: boolean
   isBeforeEpoch: boolean

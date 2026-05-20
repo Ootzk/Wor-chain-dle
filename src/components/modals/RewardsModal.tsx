@@ -4,6 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { AchievementList } from '../achievements/AchievementList'
 import { CosmeticsPanel } from '../rewards/CosmeticsPanel'
 import { BaseModal } from './BaseModal'
+import { EventDefinition, getKnownEvents } from '../../lib/events'
+import { GameMode } from '../../lib/gameMode'
+import {
+  normalizeRewardVersion,
+  RewardMetadataFilter,
+} from '../../lib/rewardMetadata'
+import { EventVersionPicker } from '../events/EventVersionPicker'
 
 type RewardsTab = 'achievements' | 'cosmetics'
 
@@ -17,6 +24,8 @@ type Props = {
   initialTab?: RewardsTab
   scrollToAchievement?: string
   onOpenDeadEndHelp?: () => void
+  mode?: GameMode
+  event?: EventDefinition
 }
 
 export const RewardsModal = ({
@@ -29,10 +38,16 @@ export const RewardsModal = ({
   initialTab,
   scrollToAchievement,
   onOpenDeadEndHelp,
+  mode,
+  event,
 }: Props) => {
   const { t } = useTranslation()
+  const isEventRewards = mode === 'event'
   const [activeTab, setActiveTab] = useState<RewardsTab>(
-    initialTab || 'achievements'
+    isEventRewards ? 'achievements' : initialTab || 'achievements'
+  )
+  const [selectedEventVersion, setSelectedEventVersion] = useState(
+    () => event?.version ?? ''
   )
   const [focusedAchievement, setFocusedAchievement] = useState<
     string | undefined
@@ -40,18 +55,46 @@ export const RewardsModal = ({
 
   useEffect(() => {
     if (!isOpen) return
-    setActiveTab(initialTab || 'achievements')
+    setActiveTab(isEventRewards ? 'achievements' : initialTab || 'achievements')
     setFocusedAchievement(scrollToAchievement)
-  }, [isOpen, initialTab, scrollToAchievement])
+    if (isEventRewards && event) {
+      setSelectedEventVersion(event.version)
+    }
+  }, [isOpen, initialTab, scrollToAchievement, isEventRewards, event])
+
+  const eventVersions = Array.from(
+    new Set([
+      ...(event ? [event.version] : []),
+      ...getKnownEvents().map((knownEvent) => knownEvent.version),
+    ])
+  ).sort((a, b) => b.localeCompare(a))
+  const selectedVersion =
+    selectedEventVersion || event?.version || eventVersions[0] || ''
+  const achievementMetadataFilter: RewardMetadataFilter | undefined =
+    isEventRewards && selectedVersion
+      ? { introducedInVersion: normalizeRewardVersion(selectedVersion) }
+      : undefined
+  const titleAction =
+    isEventRewards && eventVersions.length > 0 ? (
+      <EventVersionPicker
+        versions={eventVersions}
+        selectedVersion={selectedVersion}
+        onChange={setSelectedEventVersion}
+        fallbackEvent={event}
+      />
+    ) : undefined
 
   const tabs = [
     { id: 'achievements' as const, label: t('achievements') },
-    { id: 'cosmetics' as const, label: t('cosmetics') },
+    ...(isEventRewards
+      ? []
+      : [{ id: 'cosmetics' as const, label: t('cosmetics') }]),
   ]
 
   return (
     <BaseModal
       title={t('rewards')}
+      titleAction={titleAction}
       icon={<SparklesIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
@@ -77,9 +120,10 @@ export const RewardsModal = ({
           <AchievementList
             scrollToId={focusedAchievement}
             onOpenDeadEndHelp={onOpenDeadEndHelp}
+            metadataFilter={achievementMetadataFilter}
           />
         )}
-        {activeTab === 'cosmetics' && (
+        {!isEventRewards && activeTab === 'cosmetics' && (
           <CosmeticsPanel
             isUppercase={isUppercase}
             onToggleUppercase={onToggleUppercase}

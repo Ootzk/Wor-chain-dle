@@ -3,7 +3,7 @@ import { ClipboardListIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { SparklesIcon } from '@heroicons/react/outline'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
@@ -14,13 +14,17 @@ import { PatchNotesModal } from './components/modals/PatchNotesModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { RewardsModal } from './components/modals/RewardsModal'
+import { ModeBadge } from './components/modes/ModeBadge'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import { initDailyHistoryStartDate, dateToKey } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
+  loadEventGameStateFromLocalStorage,
+  clearEventGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
+  saveEventGameStateToLocalStorage,
   loadSettings,
   saveSettings,
   loadSeenPatchNotesVersion,
@@ -37,8 +41,12 @@ import {
   retroUnlockAchievements,
   ACHIEVEMENTS,
 } from './lib/achievements'
-import { getEquippedAlertMessageKeys } from './lib/cosmetics'
-import { CREATE_MODE_LABEL, GAME_MODE_LABELS, GameMode } from './lib/gameMode'
+import {
+  getEquippedAlertMessageKeys,
+  resolveCosmeticOverrides,
+} from './lib/cosmetics'
+import { GameMode } from './lib/gameMode'
+import { EventDefinition } from './lib/events'
 import { recordCompletedGameProgress } from './lib/achievementProgress'
 import {
   CompletedPlayStats,
@@ -63,6 +71,11 @@ import {
   loadDailyResultHistory,
   saveDailyResult,
 } from './lib/dailyResults'
+import {
+  loadEventResults,
+  loadEventResultsByVersion,
+  saveEventResult,
+} from './lib/eventResults'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -74,6 +87,7 @@ type AppOwnProps = {
   mode: GameMode
   solution: string
   questioner?: string
+  event?: EventDefinition
 }
 
 const App: React.FC<WithTranslation & AppOwnProps> = ({
@@ -82,10 +96,18 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   mode,
   solution,
   questioner,
+  event,
 }) => {
   const isDaily = mode === 'daily'
   const isCustom = mode === 'custom'
+  const isEvent = mode === 'event'
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
+  const settingOverrides = isEvent ? event?.settingOverrides : undefined
+  const cosmeticOverrides = useMemo(
+    () =>
+      isEvent ? resolveCosmeticOverrides(event?.cosmeticOverrides) : undefined,
+    [isEvent, event?.cosmeticOverrides]
+  )
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
@@ -117,32 +139,59 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
+  const effectiveIsUppercase = settingOverrides?.isUppercase ?? isUppercase
+  const effectiveExcludeUrl = settingOverrides?.excludeUrl ?? excludeUrl
+  const effectiveEnterValidationHint =
+    settingOverrides?.enterValidationHint ?? enterValidationHint
+  const effectiveLettersHidden =
+    settingOverrides?.lettersHidden ?? lettersHidden
+  const canToggleLettersHidden = settingOverrides?.lettersHidden === undefined
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
   const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
-  const [guesses, setGuesses] = useState<string[][]>(() => {
-    if (!isDaily) return []
-    const loaded = loadGameStateFromLocalStorage()
-    if (loaded?.solution !== solution) {
-      return []
-    }
-    const gameWasWon = loaded.guesses
+  const applyLoadedGameStatus = (loadedGuesses: string[][]) => {
+    const gameWasWon = loadedGuesses
       .map((guess) => guess.join(''))
       .includes(solution)
     if (gameWasWon) {
       setIsGameWon(true)
     }
-    if (loaded.guesses.length === CONFIG.tries && !gameWasWon) {
+    if (loadedGuesses.length === CONFIG.tries && !gameWasWon) {
       setIsGameLost(true)
     }
-    if (!gameWasWon && loaded.guesses.length === CONFIG.tries - 1) {
+    if (!gameWasWon && loadedGuesses.length === CONFIG.tries - 1) {
       const solutionChars = solution.split(ORTHOGRAPHY_PATTERN).filter((i) => i)
-      if (isChainDeadEnd(loaded.guesses, solutionChars)) {
+      if (isChainDeadEnd(loadedGuesses, solutionChars)) {
         setIsGameLost(true)
       }
     }
-    return loaded.guesses
+  }
+  const [guesses, setGuesses] = useState<string[][]>(() => {
+    if (isDaily) {
+      const loaded = loadGameStateFromLocalStorage()
+      if (loaded?.solution === solution) {
+        applyLoadedGameStatus(loaded.guesses)
+        return loaded.guesses
+      }
+    }
+
+    if (isEvent && event) {
+      const loaded = loadEventGameStateFromLocalStorage()
+      if (
+        loaded?.version === event.version &&
+        loaded.dateKey === localDateStr &&
+        loaded.solution === solution
+      ) {
+        applyLoadedGameStatus(loaded.guesses)
+        return loaded.guesses
+      }
+      if (loaded) {
+        clearEventGameStateFromLocalStorage()
+      }
+    }
+
+    return []
   })
   const TRACKING_ID = CONFIG.googleAnalytics
 
@@ -151,31 +200,36 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     ReactGA.pageview(window.location.pathname)
   }
   const [stats, setStats] = useState(() => loadStats())
-  const [playStats, setPlayStats] = useState<PlayStats>(() =>
-    isDaily
-      ? loadDailyDetailStats(localDateStr, solution) ||
-        loadCurrentPlayStats({
-          mode,
-          solution,
-          dateKey: localDateStr,
-          enterValidationHint: loadSettings().enterValidationHint,
-        })
-      : loadCurrentPlayStats({
-          mode,
-          solution,
-          enterValidationHint: loadSettings().enterValidationHint,
-        })
-  )
+  const [playStats, setPlayStats] = useState<PlayStats>(() => {
+    const eventResult =
+      isEvent && event ? loadEventResults(event.version)[localDateStr] : null
+    const completedEventStats =
+      eventResult?.solution === solution ? eventResult.playStats : null
+
+    return (
+      (isDaily ? loadDailyDetailStats(localDateStr, solution) : null) ||
+      completedEventStats ||
+      loadCurrentPlayStats({
+        mode,
+        solution,
+        dateKey: isDaily || isEvent ? localDateStr : undefined,
+        enterValidationHint: effectiveEnterValidationHint,
+      })
+    )
+  })
   const [dailyDetailStatsSummary, setDailyDetailStatsSummary] = useState(() =>
     summarizeDetailStats(loadDailyDetailStatsHistory())
   )
   const [dailyResults, setDailyResults] = useState(() => loadDailyResults())
+  const [eventResultsByVersion, setEventResultsByVersion] = useState(() =>
+    loadEventResultsByVersion()
+  )
   const playStatsRef = useRef(playStats)
 
   const updatePlayStats = (next: PlayStats) => {
     playStatsRef.current = next
     setPlayStats(next)
-    if (isDaily) {
+    if (isDaily || isEvent) {
       saveCurrentPlayStats(next)
     }
   }
@@ -200,16 +254,29 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       setDailyDetailStatsSummary(
         summarizeDetailStats(loadDailyDetailStatsHistory())
       )
-      clearCurrentPlayStats()
+      clearCurrentPlayStats('daily')
+    }
+    if (isEvent && event) {
+      saveEventResult(event.version, {
+        dateKey: localDateStr,
+        solution,
+        won: completed.won,
+        guessCount: completed.guessCount,
+        endReason,
+        tileCounts: completed.tileCounts,
+        playStats: completed,
+      })
+      setEventResultsByVersion(loadEventResultsByVersion())
+      clearCurrentPlayStats('event')
     }
   }
 
   useEffect(() => {
-    if (!isDaily) return
+    if (!isDaily && !isEvent) return
 
     const clearUnstartedPlayStats = () => {
       if (!hasPlayStatsActivity(playStatsRef.current)) {
-        clearCurrentPlayStats()
+        clearCurrentPlayStats(mode)
       }
     }
 
@@ -217,7 +284,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     return () => {
       window.removeEventListener('pagehide', clearUnstartedPlayStats)
     }
-  }, [isDaily])
+  }, [isDaily, isEvent, mode])
 
   useEffect(() => {
     if (isDaily) {
@@ -228,16 +295,26 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       document.title = `Wor\u{1F517}dle Daily | ${todayKey}`
     } else if (isCustom) {
       document.title = `Wor\u{1F517}dle Custom | ${questioner}`
+    } else if (isEvent) {
+      document.title = `Wor\u{1F517}dle Event`
     } else {
       document.title = `Wor\u{1F517}dle Practice`
     }
-  }, [isDaily, isCustom, questioner, stats])
+  }, [isDaily, isCustom, isEvent, questioner, stats])
 
   useEffect(() => {
     if (isDaily) {
       saveGameStateToLocalStorage({ guesses, solution })
     }
-  }, [guesses, isDaily, solution])
+    if (isEvent && event) {
+      saveEventGameStateToLocalStorage({
+        version: event.version,
+        dateKey: localDateStr,
+        guesses,
+        solution,
+      })
+    }
+  }, [guesses, isDaily, isEvent, event, localDateStr, solution])
 
   useEffect(() => {
     saveSettings({
@@ -255,33 +332,38 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [isGameWon, isGameLost, mode, solution])
 
   useEffect(() => {
-    const next = isDaily
-      ? loadDailyDetailStats(localDateStr, solution) ||
-        loadCurrentPlayStats({
-          mode,
-          solution,
-          dateKey: localDateStr,
-          enterValidationHint,
-        })
-      : loadCurrentPlayStats({
-          mode,
-          solution,
-          enterValidationHint,
-        })
+    const shouldPersistPlayStats = isDaily || isEvent
+    const completedDailyStats = isDaily
+      ? loadDailyDetailStats(localDateStr, solution)
+      : null
+    const eventResult =
+      isEvent && event ? loadEventResults(event.version)[localDateStr] : null
+    const completedEventStats =
+      eventResult?.solution === solution ? eventResult.playStats : null
+    const next =
+      completedDailyStats ||
+      completedEventStats ||
+      loadCurrentPlayStats({
+        mode,
+        solution,
+        dateKey: shouldPersistPlayStats ? localDateStr : undefined,
+        enterValidationHint: effectiveEnterValidationHint,
+      })
     setPlayStats(next)
     playStatsRef.current = next
-    if (!isDaily) {
-      clearCurrentPlayStats()
+    if (!shouldPersistPlayStats) {
+      clearCurrentPlayStats(mode)
     }
     setDailyDetailStatsSummary(
       summarizeDetailStats(loadDailyDetailStatsHistory())
     )
     setDailyResults(loadDailyResults())
+    setEventResultsByVersion(loadEventResultsByVersion())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, solution, localDateStr])
 
   useEffect(() => {
-    if (playStats.completedAt || !enterValidationHint) return
+    if (playStats.completedAt || !effectiveEnterValidationHint) return
     updatePlayStats({
       ...playStats,
       assistFlags: {
@@ -290,10 +372,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enterValidationHint])
+  }, [effectiveEnterValidationHint])
 
   useEffect(() => {
-    const alertKeys = getEquippedAlertMessageKeys()
+    const alertKeys = getEquippedAlertMessageKeys(cosmeticOverrides)
     if (isGameWon) {
       const WIN_MESSAGES = t(alertKeys.win, { returnObjects: true })
       setSuccessAlert(WIN_MESSAGES[guesses.length - 1] || WIN_MESSAGES[0])
@@ -516,7 +598,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }
   const enterHint = (() => {
-    if (!enterValidationHint || isGameWon || isGameLost) return undefined
+    if (!effectiveEnterValidationHint || isGameWon || isGameLost) {
+      return undefined
+    }
 
     const fullGuess = buildFullGuess(currentGuess, guesses)
     if (fullGuess.length !== CONFIG.wordLength) return 'incomplete'
@@ -526,25 +610,32 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-      <div className="flex w-80 mx-auto items-center mb-8">
+      <div className="flex h-12 w-80 mx-auto items-center mb-8">
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
-          <p className="text-sm text-gray-500">
+          <p className="relative text-sm text-gray-500">
             {isDaily ? (
-              <>
-                {GAME_MODE_LABELS.daily} | {localDateStr}
-              </>
+              <span className="inline-flex items-center gap-1.5">
+                <ModeBadge mode="daily" />
+                <span>| {localDateStr}</span>
+              </span>
             ) : isCustom ? (
+              <span className="inline-flex items-center gap-1.5">
+                <ModeBadge mode="custom" />
+                <span>| {questioner}</span>
+              </span>
+            ) : isEvent ? (
               <>
-                <span className="text-green-500">
-                  {GAME_MODE_LABELS.custom}
-                </span>{' '}
-                | {questioner}
+                <span className="inline-flex items-center gap-1.5">
+                  <ModeBadge mode="event" />
+                  <span>| {localDateStr}</span>
+                </span>
+                <span className="absolute left-0 top-full text-sky-500 whitespace-nowrap">
+                  {event ? t(event.themeKey) : ''}
+                </span>
               </>
             ) : (
-              <span className="text-purple-500">
-                {GAME_MODE_LABELS.practice}
-              </span>
+              <ModeBadge mode="practice" />
             )}
           </p>
         </div>
@@ -556,7 +647,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             setIsInfoModalOpen(true)
           }}
         />
-        {isDaily && (
+        {(isDaily || isEvent) && (
           <ClipboardListIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
@@ -578,15 +669,16 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           onClick={() => setIsDonateModalOpen(true)}
         />
       </div>
-      <div className={isUppercase ? 'uppercase' : ''}>
+      <div className={effectiveIsUppercase ? 'uppercase' : ''}>
         <Grid
           guesses={guesses}
           currentGuess={currentGuess}
           solution={solution}
           isGameComplete={isGameWon || isGameLost}
-          hideLetters={lettersHidden}
-          showHideLettersToggle
+          hideLetters={effectiveLettersHidden}
+          showHideLettersToggle={canToggleLettersHidden}
           onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
+          cosmeticOverrides={cosmeticOverrides}
         />
         <Keyboard
           onChar={onChar}
@@ -605,6 +697,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }}
         mode={mode}
         questioner={questioner}
+        event={event}
         initialTab={infoInitialTab}
         initialSection={infoInitialSection}
       />
@@ -628,7 +721,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode={mode}
         solution={solution}
         questioner={questioner}
-        excludeUrl={excludeUrl}
+        excludeUrl={effectiveExcludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStartsOnMonday={() =>
@@ -645,10 +738,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
-        isUppercase={isUppercase}
+        isUppercase={effectiveIsUppercase}
         playStats={playStats}
         detailStatsSummary={dailyDetailStatsSummary}
         dailyResults={dailyResults}
+        eventResultsByVersion={eventResultsByVersion}
+        event={event}
+        cosmeticOverrides={cosmeticOverrides}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
@@ -656,11 +752,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setIsRewardsModalOpen(false)
           setRewardsInitialTab(undefined)
         }}
-        isUppercase={isUppercase}
+        isUppercase={effectiveIsUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
-        excludeUrl={excludeUrl}
+        excludeUrl={effectiveExcludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
+        mode={mode}
+        event={event}
         onOpenDeadEndHelp={() => {
           setIsRewardsModalOpen(false)
           setInfoInitialTab('howToPlay')
@@ -698,24 +796,34 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <div className="mx-auto mt-8 flex items-center justify-center gap-2">
         <Link
           to={isDaily ? '/practice' : '/'}
-          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+          className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
         >
-          {isDaily ? GAME_MODE_LABELS.practice : GAME_MODE_LABELS.daily}
+          <ModeBadge mode={isDaily ? 'practice' : 'daily'} />
         </Link>
         {isDaily && (
-          <Link
-            to="/create"
-            className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
-          >
-            {CREATE_MODE_LABEL}
-          </Link>
+          <>
+            <Link
+              to="/event"
+              className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 select-none"
+            >
+              <ModeBadge mode="event" />
+            </Link>
+            <Link
+              to="/create"
+              className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+            >
+              <ModeBadge mode="create" />
+            </Link>
+          </>
         )}
       </div>
 
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
       <Alert message={t('wordNotFound')} isOpen={isWordNotFoundAlertOpen} />
       <Alert
-        message={t(getEquippedAlertMessageKeys().loss, { solution })}
+        message={t(getEquippedAlertMessageKeys(cosmeticOverrides).loss, {
+          solution,
+        })}
         isOpen={isGameLost}
       />
       <Alert

@@ -5,6 +5,7 @@ import {
 } from './localStorage'
 
 import { CONFIG } from '../constants/config'
+import { createEmptyGameStats } from './resultStats'
 
 // In stats array elements 0-5 are successes in 1-6 trys
 
@@ -37,14 +38,7 @@ export const addStatsForCompletedGame = (
   return stats
 }
 
-const defaultStats: GameStats = {
-  winDistribution: [0, 0, 0, 0, 0, 0],
-  gamesFailed: 0,
-  currentStreak: 0,
-  bestStreak: 0,
-  totalGames: 0,
-  successRate: 0,
-}
+const defaultStats: GameStats = createEmptyGameStats()
 
 export const loadStats = (storageKey?: string) => {
   return loadStatsFromLocalStorage(storageKey) || defaultStats

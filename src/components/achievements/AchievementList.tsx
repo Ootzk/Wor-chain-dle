@@ -10,8 +10,12 @@ import { loadDailyResultHistory } from '../../lib/dailyResults'
 import { loadStats } from '../../lib/stats'
 import { getRewardsForAchievement } from '../../lib/cosmetics'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
-import { GAME_MODE_LABELS, GameMode } from '../../lib/gameMode'
-import { getRewardMetadataLabel } from '../../lib/rewardMetadata'
+import {
+  filterRewardsByMetadata,
+  getRewardMetadataLabel,
+  RewardMetadataFilter,
+} from '../../lib/rewardMetadata'
+import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
@@ -20,37 +24,6 @@ const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   event: '\uD83E\uDDE9',
   collection: '\uD83D\uDDC4\uFE0F',
   performance: '\uD83D\uDCCA',
-}
-
-const MODE_BADGE_CLASSES: Record<GameMode, string> = {
-  daily: 'bg-gray-50 text-gray-500 border-gray-200',
-  practice: 'bg-purple-50 text-purple-600 border-purple-100',
-  custom: 'bg-green-50 text-green-600 border-green-100',
-}
-
-const ALL_MODES: GameMode[] = ['daily', 'practice', 'custom']
-const ALL_MODE_BADGE_CLASS = 'bg-yellow-50 text-yellow-700 border-yellow-200'
-
-const getModeBadgeItems = (
-  modes: GameMode[]
-): Array<{ id: string; label: string; className: string }> => {
-  const includesAllModes = ALL_MODES.every((mode) => modes.includes(mode))
-
-  if (includesAllModes) {
-    return [
-      {
-        id: 'all',
-        label: 'All',
-        className: ALL_MODE_BADGE_CLASS,
-      },
-    ]
-  }
-
-  return modes.map((mode) => ({
-    id: mode,
-    label: GAME_MODE_LABELS[mode],
-    className: MODE_BADGE_CLASSES[mode],
-  }))
 }
 
 const DifficultyStars = ({ difficulty }: { difficulty: number }) => {
@@ -121,14 +94,21 @@ const AchievementDescription = ({
 export const AchievementList = ({
   scrollToId,
   onOpenDeadEndHelp,
+  metadataFilter,
 }: {
   scrollToId?: string
   onOpenDeadEndHelp?: () => void
+  metadataFilter?: RewardMetadataFilter
 }) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyResultHistory()
-  const achievements = getAchievementsWithStatus(stats, dailyHistory)
+  const achievements = metadataFilter
+    ? filterRewardsByMetadata(
+        getAchievementsWithStatus(stats, dailyHistory),
+        metadataFilter
+      )
+    : getAchievementsWithStatus(stats, dailyHistory)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -184,12 +164,11 @@ export const AchievementList = ({
                 <span className="inline-flex flex-wrap items-center gap-1 align-middle mr-1">
                   {getModeBadgeItems(getAchievementModes(achievement)).map(
                     (badge) => (
-                      <span
+                      <ModeBadge
                         key={badge.id}
-                        className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none ${badge.className}`}
-                      >
-                        {badge.label}
-                      </span>
+                        mode={badge.id}
+                        label={badge.label}
+                      />
                     )
                   )}
                 </span>

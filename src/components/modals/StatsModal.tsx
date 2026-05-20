@@ -16,6 +16,7 @@ import {
   getTotalEnterPresses,
   hasPlayStatsActivity,
   countTileStatusesForGame,
+  summarizeDetailStats,
 } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -27,6 +28,18 @@ import {
 } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
+import {
+  EventDefinition,
+  getEventByVersion,
+  getKnownEvents,
+} from '../../lib/events'
+import { EventVersionPicker } from '../events/EventVersionPicker'
+import { EventRecordsPanel } from '../events/EventRecordsPanel'
+import {
+  EventResultsByVersion,
+  getEventDetailStatsHistory,
+} from '../../lib/eventResults'
+import { summarizeResultsAsGameStats } from '../../lib/resultStats'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { DetailStatsPanel } from '../stats/DetailStatsPanel'
 import { CONFIG } from '../../constants/config'
@@ -37,6 +50,11 @@ import {
   hasNewAchievementsUnlockedToday,
 } from '../../lib/achievements'
 import { DailyResults } from '../../lib/dailyResults'
+import { normalizeRewardVersion } from '../../lib/rewardMetadata'
+import {
+  CosmeticOverrides,
+  resolveCosmeticOverrides,
+} from '../../lib/cosmetics'
 
 type Props = {
   isOpen: boolean
@@ -61,7 +79,12 @@ type Props = {
   playStats: PlayStats
   detailStatsSummary: DetailStatsSummary
   dailyResults: DailyResults
+  eventResultsByVersion: EventResultsByVersion
+  event?: EventDefinition
+  cosmeticOverrides?: CosmeticOverrides
 }
+
+type RecordsTab = 'today' | 'calendar' | 'summary' | 'details' | 'event'
 
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
 const EMPTY_VALUE = '-'
@@ -166,12 +189,14 @@ const TodayMetric = ({
   cellStatus,
   title,
   tone = 'default',
+  cosmeticOverrides,
 }: {
   label: string
   value: string
   cellStatus?: CharStatus
   title?: string
   tone?: 'default' | 'success' | 'pending' | 'muted'
+  cosmeticOverrides?: CosmeticOverrides
 }) => {
   const valueClass = {
     default: 'text-gray-900',
@@ -184,7 +209,11 @@ const TodayMetric = ({
     <div className="m-0.5 min-w-0 text-center">
       {cellStatus ? (
         <div className="flex h-14 items-center justify-center" title={title}>
-          <Cell value={value} status={cellStatus} />
+          <Cell
+            value={value}
+            status={cellStatus}
+            cosmeticOverrides={cosmeticOverrides}
+          />
         </div>
       ) : (
         <div className="flex h-14 items-center justify-center">
@@ -312,17 +341,23 @@ const TodayTileMetric = ({
   label,
   labelClassName,
   status,
+  cosmeticOverrides,
 }: {
   count: number
   label: string
   labelClassName: string
   status?: CharStatus
+  cosmeticOverrides?: CosmeticOverrides
 }) => (
   <div
     className="flex min-w-0 flex-col items-center justify-center"
     aria-label={label}
   >
-    <Cell value={String(count)} status={status} />
+    <Cell
+      value={String(count)}
+      status={status}
+      cosmeticOverrides={cosmeticOverrides}
+    />
     <div
       className={`min-h-[1rem] break-words text-center text-[10px] leading-[0.65rem] ${labelClassName}`}
     >
@@ -353,18 +388,44 @@ export const StatsModal = ({
   playStats,
   detailStatsSummary,
   dailyResults,
+  eventResultsByVersion,
+  event,
+  cosmeticOverrides,
 }: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<
-    'today' | 'calendar' | 'summary' | 'details'
-  >('today')
+  const isEventRecords = mode === 'event'
+  const [activeTab, setActiveTab] = useState<RecordsTab>('today')
+  const [selectedEventVersion, setSelectedEventVersion] = useState(
+    () => event?.version ?? ''
+  )
+  const [selectedEventCosmeticOverrides, setSelectedEventCosmeticOverrides] =
+    useState<CosmeticOverrides | undefined>(() => cosmeticOverrides)
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab || 'today')
+      if (mode === 'event' && event) {
+        setSelectedEventVersion(event.version)
+        setSelectedEventCosmeticOverrides(cosmeticOverrides)
+      }
     }
-  }, [isOpen, initialTab])
+  }, [isOpen, initialTab, mode, event, cosmeticOverrides])
+
+  useEffect(() => {
+    if (!isEventRecords) {
+      setSelectedEventCosmeticOverrides(undefined)
+      return
+    }
+    if (event?.version === selectedEventVersion) {
+      setSelectedEventCosmeticOverrides(cosmeticOverrides)
+      return
+    }
+    const selectedEvent = getEventByVersion(selectedEventVersion)
+    setSelectedEventCosmeticOverrides(
+      resolveCosmeticOverrides(selectedEvent?.cosmeticOverrides)
+    )
+  }, [isEventRecords, selectedEventVersion, event, cosmeticOverrides])
 
   useEffect(() => {
     if (!isOpen || playStats.completedAt || !hasPlayStatsActivity(playStats)) {
@@ -449,6 +510,39 @@ export const StatsModal = ({
     )
   }
 
+  const knownEvents = getKnownEvents()
+  const eventVersions = Array.from(
+    new Set([
+      ...(event ? [event.version] : []),
+      ...knownEvents.map((knownEvent) => knownEvent.version),
+      ...Object.keys(eventResultsByVersion),
+    ])
+  ).sort((a, b) => b.localeCompare(a))
+  const selectedVersion =
+    selectedEventVersion || event?.version || eventVersions[0] || ''
+  const selectedEvent =
+    getEventByVersion(selectedVersion) ||
+    (event?.version === selectedVersion ? event : null)
+  const selectedCosmeticOverrides =
+    event?.version === selectedVersion
+      ? cosmeticOverrides
+      : selectedEventCosmeticOverrides
+  const activeEventShareContext =
+    mode === 'event' && event ? event.shareContextLabel : undefined
+  const selectedEventResults = eventResultsByVersion[selectedVersion] ?? {}
+  const selectedEventStats = summarizeResultsAsGameStats(selectedEventResults)
+  const selectedEventDetailSummary = summarizeDetailStats(
+    getEventDetailStatsHistory(selectedEventResults)
+  )
+  const recordsGameStats = isEventRecords ? selectedEventStats : gameStats
+  const recordsDetailStatsSummary = isEventRecords
+    ? selectedEventDetailSummary
+    : detailStatsSummary
+  const achievementMetadataFilter =
+    isEventRecords && selectedVersion
+      ? { introducedInVersion: normalizeRewardVersion(selectedVersion) }
+      : undefined
+
   const completedToday = isGameWon || isGameLost
   const todayResult = isGameWon ? '😎' : isGameLost ? '🥲' : '😶‍🌫️'
   const todayResultStatus: CharStatus = isGameWon
@@ -507,37 +601,48 @@ export const StatsModal = ({
   const todayTileCounts = countTileStatusesForGame(guesses, solution)
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
   const hasNewAchievementsToday = hasNewAchievementsUnlockedToday()
-  const summaryWins = gameStats.totalGames - gameStats.gamesFailed
+  const summaryWins = recordsGameStats.totalGames - recordsGameStats.gamesFailed
   const averageWinGuesses =
     summaryWins > 0
       ? (
-          gameStats.winDistribution.reduce(
+          recordsGameStats.winDistribution.reduce(
             (sum, value, index) => sum + value * (index + 1),
             0
           ) / summaryWins
         ).toFixed(1)
       : EMPTY_VALUE
+  const eventVersionSelect =
+    isEventRecords && eventVersions.length > 0 ? (
+      <EventVersionPicker
+        versions={eventVersions}
+        selectedVersion={selectedVersion}
+        onChange={setSelectedEventVersion}
+        fallbackEvent={event}
+      />
+    ) : undefined
 
-  // Daily mode — Today + Calendar + Summary + Details
+  // Daily/Event mode — Today + Calendar + Summary + Details (+ seasonal Event)
   const tabs = [
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
     { id: 'summary' as const, label: t('statsSummary') },
     { id: 'details' as const, label: t('statsDetails') },
+    ...(isEventRecords ? [{ id: 'event' as const, label: t('event') }] : []),
   ]
 
   return (
     <BaseModal
       title={t('records')}
+      titleAction={eventVersionSelect}
       icon={<ClipboardListIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
     >
-      <div className="flex border-b border-gray-200 mb-4">
+      <div className="flex overflow-x-auto border-b border-gray-200 mb-4">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`shrink-0 px-4 py-2 text-sm font-medium ${
               activeTab === tab.id
                 ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
                 : 'text-gray-400 hover:text-gray-600'
@@ -575,6 +680,7 @@ export const StatsModal = ({
                     value={todayResult}
                     cellStatus={todayResultStatus}
                     title={todayResultTitle}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayMetric
                     label={t('playStatsGuessCount')}
@@ -588,8 +694,8 @@ export const StatsModal = ({
                     label={t('playStatsStreak')}
                     value={
                       completedToday
-                        ? `🔥${gameStats.currentStreak}`
-                        : String(gameStats.currentStreak)
+                        ? `🔥${recordsGameStats.currentStreak}`
+                        : String(recordsGameStats.currentStreak)
                     }
                   />
                 </div>
@@ -739,23 +845,27 @@ export const StatsModal = ({
                     status="correct"
                     labelClassName="text-green-500"
                     count={todayTileCounts.correct}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayTileMetric
                     label={t('detailTilePresent')}
                     status="present"
                     labelClassName="text-purple-500"
                     count={todayTileCounts.present}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayTileMetric
                     label={t('detailTileAbsent')}
                     status="absent"
                     labelClassName="text-gray-500"
                     count={todayTileCounts.absent}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayTileMetric
                     label={t('detailTileUnrevealed')}
                     labelClassName="text-gray-500"
                     count={todayTileCounts.unrevealed}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                 </div>
               </section>
@@ -779,7 +889,14 @@ export const StatsModal = ({
                       : 'bg-gray-300 cursor-default'
                   }`}
                   onClick={() => {
-                    shareStatus(guesses, isGameLost, solution, excludeUrl)
+                    shareStatus(
+                      guesses,
+                      isGameLost,
+                      solution,
+                      excludeUrl,
+                      cosmeticOverrides,
+                      activeEventShareContext
+                    )
                     handleShare()
                   }}
                 >
@@ -802,21 +919,22 @@ export const StatsModal = ({
               <section>
                 <SummaryGroupTitle>{t('statsDashboard')}</SummaryGroupTitle>
                 <StatBar
-                  gameStats={gameStats}
+                  gameStats={recordsGameStats}
                   averageWinGuesses={averageWinGuesses}
+                  achievementMetadataFilter={achievementMetadataFilter}
                 />
               </section>
               <section>
                 <SummaryGroupTitle separated>
                   {t('statsRecord')}
                 </SummaryGroupTitle>
-                <WinLossBar gameStats={gameStats} />
+                <WinLossBar gameStats={recordsGameStats} />
               </section>
               <section>
                 <SummaryGroupTitle separated>
                   {t('winGuessDistribution')}
                 </SummaryGroupTitle>
-                <Histogram gameStats={gameStats} />
+                <Histogram gameStats={recordsGameStats} />
               </section>
               <section>
                 <SummaryGroupTitle
@@ -825,9 +943,19 @@ export const StatsModal = ({
                     <SummaryInfoButton
                       title={t('loseReasonDistribution')}
                       items={[
-                        t('loseReasonGuessLimitInfo'),
-                        t('loseReasonDeadEndInfo'),
-                        t('loseReasonUnknownInfoBody'),
+                        ...(isEventRecords
+                          ? selectedEvent?.loseReasons ??
+                            event?.loseReasons ??
+                            []
+                          : []
+                        ).map((reason) => t(reason.infoKey)),
+                        ...(!isEventRecords
+                          ? [
+                              t('loseReasonGuessLimitInfo'),
+                              t('loseReasonDeadEndInfo'),
+                              t('loseReasonUnknownInfoBody'),
+                            ]
+                          : []),
                       ]}
                     />
                   }
@@ -835,8 +963,14 @@ export const StatsModal = ({
                   {t('loseReasonDistribution')}
                 </SummaryGroupTitle>
                 <LoseReasonDistribution
-                  gameStats={gameStats}
-                  dailyResults={dailyResults}
+                  gameStats={recordsGameStats}
+                  dailyResults={isEventRecords ? undefined : dailyResults}
+                  results={isEventRecords ? selectedEventResults : undefined}
+                  reasonDefinitions={
+                    isEventRecords
+                      ? selectedEvent?.loseReasons ?? event?.loseReasons
+                      : undefined
+                  }
                   onOpenDeadEndHelp={onOpenDeadEndHelp}
                 />
               </section>
@@ -847,14 +981,26 @@ export const StatsModal = ({
         {activeTab === 'details' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <DetailStatsPanel summary={detailStatsSummary} />
+              <DetailStatsPanel
+                summary={recordsDetailStatsSummary}
+                cosmeticOverrides={selectedCosmeticOverrides}
+              />
             </div>
           </div>
         )}
 
+        {activeTab === 'event' && isEventRecords && (
+          <EventRecordsPanel
+            event={selectedEvent}
+            selectedVersion={selectedVersion}
+          />
+        )}
+
         {activeTab === 'calendar' && (
           <Calendar
-            gameStats={gameStats}
+            gameStats={recordsGameStats}
+            results={isEventRecords ? selectedEventResults : undefined}
+            calendarStartDate={isEventRecords ? null : undefined}
             handleShare={handleCalendarShare}
             weekStartsOnMonday={weekStartsOnMonday}
             onToggleWeekStartsOnMonday={onToggleWeekStartsOnMonday}
@@ -862,6 +1008,14 @@ export const StatsModal = ({
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
             hasNewRewards={hasNewAchievementsToday}
+            cosmeticOverrides={
+              activeTab === 'calendar'
+                ? selectedCosmeticOverrides
+                : cosmeticOverrides
+            }
+            shareContextLabel={
+              isEventRecords ? selectedEvent?.shareContextLabel : undefined
+            }
           />
         )}
       </div>

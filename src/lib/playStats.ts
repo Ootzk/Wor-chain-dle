@@ -10,6 +10,9 @@ import {
 const currentPlayStatsKey = 'currentPlayStats'
 const longPauseThresholdMs = 5 * 60 * 1000
 
+const currentPlayStatsKeyForMode = (mode: GameMode) =>
+  mode === 'event' ? `${currentPlayStatsKey}:event` : currentPlayStatsKey
+
 export type EnterAttemptKind = 'incomplete' | 'invalid' | 'valid'
 
 export type AssistFlags = {
@@ -77,6 +80,7 @@ export type TileCounts = {
 }
 
 type StoredCurrentPlayStats = {
+  mode?: GameMode
   dateKey?: string
   solution: string
   stats: PlayStats
@@ -188,7 +192,7 @@ export const loadCurrentPlayStats = ({
   enterValidationHint: boolean
   now?: number
 }): PlayStats => {
-  if (mode !== 'daily') {
+  if (mode !== 'daily' && mode !== 'event') {
     return createPlayStats({
       mode,
       solution,
@@ -198,10 +202,11 @@ export const loadCurrentPlayStats = ({
     })
   }
 
-  const stored = localStorage.getItem(currentPlayStatsKey)
+  const stored = localStorage.getItem(currentPlayStatsKeyForMode(mode))
   if (stored) {
     const parsed = JSON.parse(stored) as StoredCurrentPlayStats
     if (
+      parsed.stats.mode === mode &&
       parsed.solution === solution &&
       parsed.dateKey === dateKey &&
       !parsed.stats.completedAt
@@ -220,17 +225,32 @@ export const loadCurrentPlayStats = ({
 }
 
 export const saveCurrentPlayStats = (stats: PlayStats) => {
-  if (stats.mode !== 'daily' || !stats.dateKey || stats.completedAt) return
+  if (
+    (stats.mode !== 'daily' && stats.mode !== 'event') ||
+    !stats.dateKey ||
+    stats.completedAt
+  ) {
+    return
+  }
   const stored: StoredCurrentPlayStats = {
+    mode: stats.mode,
     dateKey: stats.dateKey,
     solution: stats.solution,
     stats,
   }
-  localStorage.setItem(currentPlayStatsKey, JSON.stringify(stored))
+  localStorage.setItem(
+    currentPlayStatsKeyForMode(stats.mode),
+    JSON.stringify(stored)
+  )
 }
 
-export const clearCurrentPlayStats = () => {
+export const clearCurrentPlayStats = (mode?: GameMode) => {
+  if (mode) {
+    localStorage.removeItem(currentPlayStatsKeyForMode(mode))
+    return
+  }
   localStorage.removeItem(currentPlayStatsKey)
+  localStorage.removeItem(currentPlayStatsKeyForMode('event'))
 }
 
 export const recordInputActivity = (
@@ -441,7 +461,7 @@ export const saveDailyDetailStats = (
     tileCounts: stats.tileCounts,
     playStats: stats,
   })
-  clearCurrentPlayStats()
+  clearCurrentPlayStats('daily')
 }
 
 export const getPlayDurationMs = (stats?: PlayStats | null) => {

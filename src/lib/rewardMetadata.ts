@@ -12,6 +12,9 @@ type RewardMetadataCarrier = {
   metadata?: RewardMetadata
 }
 
+export const normalizeRewardVersion = (version: string): string =>
+  version.replace(/^v/, '')
+
 export const matchesRewardMetadata = (
   metadata: RewardMetadata | undefined,
   filter: RewardMetadataFilter
@@ -22,7 +25,8 @@ export const matchesRewardMetadata = (
 
   if (
     filter.introducedInVersion &&
-    metadata.introducedInVersion !== filter.introducedInVersion
+    metadata.introducedInVersion !==
+      normalizeRewardVersion(filter.introducedInVersion)
   ) {
     return false
   }

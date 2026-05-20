@@ -17,7 +17,7 @@ import { SettingsModal } from '../modals/SettingsModal'
 import { DonateModal } from '../modals/DonateModal'
 import { RewardsModal } from '../modals/RewardsModal'
 import { CONFIG } from '../../constants/config'
-import { CREATE_MODE_LABEL, GAME_MODE_LABELS } from '../../lib/gameMode'
+import { ModeBadge } from '../modes/ModeBadge'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
 
@@ -171,10 +171,12 @@ export const CreatePuzzlePage = () => {
 
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-      <div className="flex w-80 mx-auto items-center mb-8">
+      <div className="flex h-12 w-80 mx-auto items-center mb-8">
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
-          <p className="text-sm text-green-500">{CREATE_MODE_LABEL}</p>
+          <p className="text-sm text-gray-500">
+            <ModeBadge mode="create" />
+          </p>
         </div>
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
@@ -340,12 +342,12 @@ export const CreatePuzzlePage = () => {
         handleClose={() => setIsDonateModalOpen(false)}
       />
 
-      <div className="mx-auto mt-4 flex items-center justify-center gap-2">
+      <div className="mx-auto mt-8 flex items-center justify-center gap-2">
         <Link
           to="/"
-          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+          className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
         >
-          {GAME_MODE_LABELS.daily}
+          <ModeBadge mode="daily" />
         </Link>
       </div>
     </div>

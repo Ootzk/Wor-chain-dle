@@ -5,6 +5,7 @@ import {
   getEquippedCellColor,
   getEquippedChainStyle,
   getEquippedChainColor,
+  CosmeticOverrides,
 } from '../../lib/cosmetics'
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
   chainBottom?: boolean
   hideLetter?: boolean
   showCursor?: boolean
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 export const Cell = ({
@@ -25,12 +27,13 @@ export const Cell = ({
   chainBottom,
   hideLetter,
   showCursor,
+  cosmeticOverrides,
 }: Props) => {
   const isChain = chainTop || chainBottom
-  const cosmeticFont = getEquippedCellFont()
-  const cosmeticColor = getEquippedCellColor()
-  const chainStyle = getEquippedChainStyle()
-  const chainColor = getEquippedChainColor()
+  const cosmeticFont = getEquippedCellFont(cosmeticOverrides)
+  const cosmeticColor = getEquippedCellColor(cosmeticOverrides)
+  const chainStyle = getEquippedChainStyle(cosmeticOverrides)
+  const chainColor = getEquippedChainColor(cosmeticOverrides)
   const chainBorderWidth = isChain
     ? chainStyle.borderWidth || 'border-2'
     : 'border-2'

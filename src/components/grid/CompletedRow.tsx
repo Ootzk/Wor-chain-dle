@@ -1,5 +1,6 @@
 import { getGuessStatuses } from '../../lib/statuses'
 import { Cell } from './Cell'
+import { CosmeticOverrides } from '../../lib/cosmetics'
 
 type Props = {
   guess: string[]
@@ -7,6 +8,7 @@ type Props = {
   chainTopIndex?: number
   chainBottomIndex?: number
   hideLetters?: boolean
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 export const CompletedRow = ({
@@ -15,6 +17,7 @@ export const CompletedRow = ({
   chainTopIndex,
   chainBottomIndex,
   hideLetters,
+  cosmeticOverrides,
 }: Props) => {
   const statuses = getGuessStatuses(guess, solution)
 
@@ -28,6 +31,7 @@ export const CompletedRow = ({
           chainTop={i === chainTopIndex}
           chainBottom={i === chainBottomIndex}
           hideLetter={hideLetters}
+          cosmeticOverrides={cosmeticOverrides}
         />
       ))}
     </div>
