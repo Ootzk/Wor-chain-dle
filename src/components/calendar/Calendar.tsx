@@ -33,6 +33,7 @@ type Props = {
   onOpenCosmetics: () => void
   hasNewRewards?: boolean
   cosmeticOverrides?: CosmeticOverrides
+  shareContextLabel?: string
 }
 
 const MiniToggle = ({
@@ -71,6 +72,7 @@ export const Calendar = ({
   onOpenCosmetics,
   hasNewRewards = false,
   cosmeticOverrides,
+  shareContextLabel,
 }: Props) => {
   const { t } = useTranslation()
   const today = Temporal.Now.plainDateISO()
@@ -333,7 +335,8 @@ export const Calendar = ({
                 weekStartsOnMonday,
                 excludeUrl,
                 effectiveCalendarStartDate,
-                cosmeticOverrides
+                cosmeticOverrides,
+                shareContextLabel
               )
               handleShare()
             }}

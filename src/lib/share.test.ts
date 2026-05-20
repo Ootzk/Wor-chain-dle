@@ -1,10 +1,15 @@
-import { generateShareText } from './share'
+import { generateShareText, shareCalendar } from './share'
 
 const guesses = [['c', 'h', 'a', 'i', 'n']]
 
 describe('share header badge', () => {
   beforeEach(() => {
     localStorage.clear()
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: jest.fn(),
+      },
+    })
   })
 
   it('uses chain as the default title badge', () => {
@@ -104,6 +109,27 @@ describe('share header badge', () => {
 
     expect(text.split('\n').slice(0, 2)).toEqual([
       'Wor\uD83E\uDE75dle 2026-05-09 1/6',
+      'Event: Summer Garden',
+    ])
+  })
+
+  it('adds an event context label to calendar share text', () => {
+    shareCalendar(
+      2026,
+      0,
+      {},
+      0,
+      false,
+      true,
+      null,
+      { shareBadge: 'badge_azure' },
+      'Event: Summer Garden'
+    )
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalled()
+    const text = (navigator.clipboard.writeText as jest.Mock).mock.calls[0][0]
+    expect(text.split('\n').slice(0, 2)).toEqual([
+      'Wor\uD83E\uDE75dle 2026-01',
       'Event: Summer Garden',
     ])
   })

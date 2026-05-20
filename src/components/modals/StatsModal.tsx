@@ -1009,6 +1009,9 @@ export const StatsModal = ({
                 ? selectedCosmeticOverrides
                 : cosmeticOverrides
             }
+            shareContextLabel={
+              isEventRecords ? selectedEvent?.shareContextLabel : undefined
+            }
           />
         )}
       </div>

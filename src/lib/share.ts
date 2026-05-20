@@ -115,7 +115,8 @@ export const shareCalendar = (
   weekStartsOnMonday: boolean = false,
   excludeUrl: boolean = false,
   startDate: string | null = getDailyResultsStartDate(),
-  cosmeticOverrides?: CosmeticOverrides
+  cosmeticOverrides?: CosmeticOverrides,
+  contextLabel?: string
 ) => {
   const mm = String(month + 1).padStart(2, '0')
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
@@ -135,6 +136,9 @@ export const shareCalendar = (
     cosmeticOverrides
   )
   lines.push(header)
+  if (contextLabel) {
+    lines.push(contextLabel)
+  }
   lines.push('')
   lines.push(
     (weekStartsOnMonday ? WEEKDAY_LABELS_MON : WEEKDAY_LABELS_SUN).join(' ')
