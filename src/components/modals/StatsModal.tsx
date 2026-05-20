@@ -55,6 +55,7 @@ import {
   CosmeticOverrides,
   resolveCosmeticOverrides,
 } from '../../lib/cosmetics'
+import { CollectedRowsByCollectible } from '../../lib/eventCollectibles'
 
 type Props = {
   isOpen: boolean
@@ -82,6 +83,8 @@ type Props = {
   eventResultsByVersion: EventResultsByVersion
   event?: EventDefinition
   cosmeticOverrides?: CosmeticOverrides
+  currentDateKey?: string
+  eventCollectedRows?: CollectedRowsByCollectible
 }
 
 type RecordsTab = 'today' | 'calendar' | 'summary' | 'details' | 'event'
@@ -391,6 +394,8 @@ export const StatsModal = ({
   eventResultsByVersion,
   event,
   cosmeticOverrides,
+  currentDateKey = '',
+  eventCollectedRows = {},
 }: Props) => {
   const { t } = useTranslation()
   const isEventRecords = mode === 'event'
@@ -993,6 +998,12 @@ export const StatsModal = ({
           <EventRecordsPanel
             event={selectedEvent}
             selectedVersion={selectedVersion}
+            currentDateKey={currentDateKey}
+            results={selectedEventResults}
+            isCurrentEvent={event?.version === selectedVersion}
+            isGameWon={isGameWon}
+            isGameLost={isGameLost}
+            collectedRows={eventCollectedRows}
           />
         )}
 

@@ -11,6 +11,10 @@ import {
   AchievementTrackingState,
   loadAchievementProgress,
 } from './achievementProgress'
+import {
+  SUMMER_GARDEN_CLOVER_COLLECTION_ID,
+  SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+} from './eventCollectibles'
 import { CharStatus, getGuessStatuses } from './statuses'
 import {
   matchesRewardMetadata,
@@ -25,14 +29,6 @@ import {
 } from './playStats'
 
 // --- Type Definitions ---
-
-const SUMMER_GARDEN_CLOVER_COLLECTION_ID = 'v1.7.0-summer-garden-clover'
-const SUMMER_GARDEN_CLOVER_ROW_TARGETS = {
-  row_2: 3,
-  row_3: 7,
-  row_4: 10,
-  row_5: 15,
-}
 
 export type AchievementCategory =
   | 'milestone'

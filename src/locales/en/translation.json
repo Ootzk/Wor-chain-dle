@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Version",
   "eventRecordsEmpty": "No event records yet.",
+  "eventProgress": "Progress",
+  "eventRowLabel": "Row {{row}}",
   "howToCreate": "How to create",
   "createModeDesc": "Enter your name and type the word to guess using the keyboard.\nThe word must be a {{length}}-letter English word from the word list.\nPress ENTER to copy the puzzle URL to your clipboard.\nShare the URL with friends so they can solve your puzzle!",
   "calendar": "Calendar",

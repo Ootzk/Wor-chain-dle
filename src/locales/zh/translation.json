@@ -385,6 +385,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "版本",
   "eventRecordsEmpty": "还没有活动记录。",
+  "eventProgress": "进度",
+  "eventRowLabel": "第{{row}}行",
   "howToCreate": "如何出题",
   "createModeDesc": "输入你的名字，然后用键盘输入要出题的单词。\n单词必须是单词列表中的{{length}}个字母的英文单词。\n按 ENTER 将谜题链接复制到剪贴板。\n将链接分享给朋友，让他们来解答你的谜题！",
   "calendar": "日历",

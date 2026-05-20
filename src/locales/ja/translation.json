@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "バージョン",
   "eventRecordsEmpty": "イベント記録はまだありません。",
+  "eventProgress": "進行度",
+  "eventRowLabel": "{{row}}行目",
   "howToCreate": "出題方法",
   "createModeDesc": "出題者名を入力し、キーボードで出題する単語を入力してください。\n単語はゲームの単語リストに含まれる{{length}}文字の英単語でなければなりません。\nENTERを押すとパズルURLがクリップボードにコピーされます。\nコピーしたURLを友達に共有すると、あなたの問題を解いてもらえます。",
   "calendar": "カレンダー",

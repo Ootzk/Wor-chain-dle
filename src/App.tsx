@@ -1009,6 +1009,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         eventResultsByVersion={eventResultsByVersion}
         event={event}
         cosmeticOverrides={cosmeticOverrides}
+        currentDateKey={localDateStr}
+        eventCollectedRows={collectedRows}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}

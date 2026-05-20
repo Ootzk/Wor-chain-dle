@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Versión",
   "eventRecordsEmpty": "Aún no hay registros de evento.",
+  "eventProgress": "Progreso",
+  "eventRowLabel": "Fila {{row}}",
   "howToCreate": "Cómo crear",
   "createModeDesc": "Ingresa tu nombre y escribe la palabra a adivinar usando el teclado.\nLa palabra debe ser una palabra en inglés de {{length}} letras de la lista.\nPulsa ENTER para copiar la URL del puzzle al portapapeles.\n¡Comparte la URL con tus amigos para que resuelvan tu puzzle!",
   "calendar": "Calendario",

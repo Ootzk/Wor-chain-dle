@@ -2,7 +2,11 @@ import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
 import { CosmeticOverrideConfig } from './cosmetics'
-import { EventCollectibleConfig } from './eventCollectibles'
+import {
+  EventCollectibleConfig,
+  SUMMER_GARDEN_CLOVER_COLLECTION_ID,
+  SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+} from './eventCollectibles'
 import { PacmanConfig } from './pacman'
 
 export type EventModeKind = 'standard' | 'pacman' | 'hardcore' | 'ai'
@@ -68,9 +72,10 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
   collectibles: [
     {
       id: 'clover',
-      collectionId: 'v1.7.0-summer-garden-clover',
+      collectionId: SUMMER_GARDEN_CLOVER_COLLECTION_ID,
       emoji: '🍀',
       targetRows: [1, 2, 3, 4],
+      progressTargets: SUMMER_GARDEN_CLOVER_ROW_TARGETS,
       collectStatus: 'correct',
       autoCollectRemainingOnWin: true,
     },

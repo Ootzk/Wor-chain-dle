@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Version",
   "eventRecordsEmpty": "Noch keine Event-Aufzeichnungen.",
+  "eventProgress": "Fortschritt",
+  "eventRowLabel": "Reihe {{row}}",
   "howToCreate": "So erstellst du ein Rätsel",
   "createModeDesc": "Gib deinen Namen ein und tippe das zu erratende Wort über die Tastatur ein.\nDas Wort muss ein englisches Wort mit {{length}} Buchstaben aus der Wortliste sein.\nDrücke EINGABE, um die Rätsel-URL in die Zwischenablage zu kopieren.\nTeile die URL mit Freunden, damit sie dein Rätsel lösen können!",
   "calendar": "Kalender",

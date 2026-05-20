@@ -7,6 +7,7 @@ export type EventCollectibleConfig = {
   collectionId: string
   emoji: string
   targetRows: number[]
+  progressTargets?: Record<string, number>
   collectStatus: 'correct'
   autoCollectRemainingOnWin: boolean
 }
@@ -20,6 +21,15 @@ export type EventCollectibleTarget = {
 }
 
 export type CollectedRowsByCollectible = Record<string, number[]>
+
+export const SUMMER_GARDEN_CLOVER_COLLECTION_ID = 'v1.7.0-summer-garden-clover'
+
+export const SUMMER_GARDEN_CLOVER_ROW_TARGETS: Record<string, number> = {
+  row_2: 3,
+  row_3: 7,
+  row_4: 10,
+  row_5: 15,
+}
 
 const hashSeed = (seed: string) =>
   seed.split('').reduce((hash, char) => {

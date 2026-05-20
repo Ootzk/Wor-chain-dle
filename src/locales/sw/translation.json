@@ -385,6 +385,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Toleo",
   "eventRecordsEmpty": "Bado hakuna rekodi za tukio.",
+  "eventProgress": "Maendeleo",
+  "eventRowLabel": "Mstari {{row}}",
   "howToCreate": "Jinsi ya kuunda",
   "createModeDesc": "Ingiza jina lako na andika neno la kubahatisha kwa kibodi.\nNeno lazima liwe neno la Kiingereza la herufi {{length}} kutoka orodha.\nBonyeza ENTER kunakili URL ya fumbo kwenye ubao wa kunakili.\nShiriki URL na marafiki ili watatue fumbo lako!",
   "calendar": "Kalenda",
