@@ -58,8 +58,8 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
     stepMsByStatus: {
       correct: 3000,
       present: 2000,
-      absent: 1000,
-      default: 1000,
+      absent: 1500,
+      default: 1500,
     },
     effect: 'hide-letter',
   },
