@@ -29,6 +29,7 @@ describe('reward metadata', () => {
         'no_correct_game',
         'no_present_game',
         'played_v1_7_0_5',
+        'practice_win_10',
         'streak_5',
         'win_in_6_20',
       ].sort()
@@ -46,6 +47,7 @@ describe('reward metadata', () => {
         'badge_azure',
         'badge_clover',
         'badge_grape',
+        'badge_hyacinth',
         'badge_milk',
         'chaincolor_azure',
       ].sort()

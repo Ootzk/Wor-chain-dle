@@ -56,6 +56,7 @@ test('defines cosmetic overrides for the active event theme', () => {
       'badge_milk',
       'badge_azure',
       'badge_clover',
+      'badge_hyacinth',
     ],
     chainColor: 'chaincolor_azure',
   })
@@ -64,7 +65,7 @@ test('defines cosmetic overrides for the active event theme', () => {
 
 test('resolves random event cosmetic candidates without mutating the config', () => {
   const event = getActiveEvent()
-  const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.75)
+  const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5)
 
   const resolved = resolveCosmeticOverrides(event.cosmeticOverrides)
 
@@ -78,6 +79,7 @@ test('resolves random event cosmetic candidates without mutating the config', ()
     'badge_milk',
     'badge_azure',
     'badge_clover',
+    'badge_hyacinth',
   ])
 
   randomSpy.mockRestore()

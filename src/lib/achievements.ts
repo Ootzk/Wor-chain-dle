@@ -302,6 +302,19 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     },
   },
   {
+    id: 'practice_win_10',
+    category: 'milestone',
+    modes: ['practice'],
+    difficulty: 3,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_practice_win_10_title',
+    descriptionKey: 'achievement_practice_win_10_desc',
+    progress: ({ progress }) => ({
+      current: progress.modes.practice.gamesWon,
+      target: 10,
+    }),
+  },
+  {
     id: 'practice_win_100',
     category: 'milestone',
     modes: ['practice'],

@@ -163,6 +163,7 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
     expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
     expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
+    expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
     expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
@@ -203,6 +204,9 @@ describe('share badge achievements', () => {
     expect(
       getRewardsForAchievement('clover_collector').map((r) => r.id)
     ).toContain('badge_clover')
+    expect(
+      getRewardsForAchievement('practice_win_10').map((r) => r.id)
+    ).toContain('badge_hyacinth')
     expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
       'chaincolor_azure'
     )
@@ -399,6 +403,7 @@ describe('share badge achievements', () => {
       expect.arrayContaining([
         'played_v1_6_0_5',
         'played_v1_7_0_5',
+        'practice_win_10',
         'practice_win_100',
       ])
     )

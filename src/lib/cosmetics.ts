@@ -82,6 +82,7 @@ const SHARE_BADGES: Record<string, string> = {
   badge_milk: '\uD83E\uDD5B',
   badge_azure: '\uD83E\uDE75',
   badge_clover: '\uD83C\uDF40',
+  badge_hyacinth: '\uD83E\uDEBB',
 }
 
 // --- Cell Font Options ---
@@ -298,6 +299,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_clover',
     requiresAchievement: 'clover_collector',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_hyacinth',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_hyacinth',
+    requiresAchievement: 'practice_win_10',
     metadata: REWARD_METADATA.v1_7_0,
   },
 
