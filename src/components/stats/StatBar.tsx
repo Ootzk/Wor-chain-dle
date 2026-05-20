@@ -4,36 +4,60 @@ import { ACHIEVEMENTS, loadAchievementState } from '../../lib/achievements'
 
 type Props = {
   gameStats: GameStats
+  averageWinGuesses: string
 }
 
 const SummaryItem = ({
   title,
   value,
+  caption,
 }: {
   title: string
   value: string | number
+  caption?: string
 }) => {
   return (
-    <div className="min-w-0">
-      <h4 className="text-base font-normal leading-6 text-gray-900">
-        {title}
-      </h4>
-      <div className="mt-0.5 text-center text-xl font-normal leading-6 text-gray-900">
-        {value}
+    <div className="min-w-0 text-center">
+      <div className="flex h-7 items-center justify-center">
+        <div className="min-w-0 whitespace-nowrap text-xl font-bold leading-none text-gray-900 sm:text-2xl">
+          {value}
+        </div>
       </div>
+      <div className="text-[10px] leading-3 text-gray-500">{title}</div>
+      {caption && (
+        <div className="text-[10px] leading-3 text-gray-400">{caption}</div>
+      )}
     </div>
   )
 }
 
-export const StatBar = ({ gameStats }: Props) => {
+const EMPTY_VALUE = '-'
+
+export const StatBar = ({ gameStats, averageWinGuesses }: Props) => {
   const { t } = useTranslation()
   const achievementState = loadAchievementState()
   const unlockedAchievements = ACHIEVEMENTS.filter(
     (achievement) => achievementState.unlocked[achievement.id]
   ).length
+  const wins = gameStats.totalGames - gameStats.gamesFailed
+  const successRate =
+    gameStats.totalGames > 0
+      ? `${Math.round((100 * wins) / gameStats.totalGames)}%`
+      : EMPTY_VALUE
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="mt-1 grid grid-cols-5 gap-y-2">
+      <SummaryItem title={t('totalTries')} value={gameStats.totalGames} />
+      <SummaryItem title={t('successRate')} value={successRate} />
+      <SummaryItem
+        title={t('statsAverageGuesses')}
+        caption={t('statsWinsOnly')}
+        value={
+          averageWinGuesses === EMPTY_VALUE
+            ? EMPTY_VALUE
+            : `${averageWinGuesses}/6`
+        }
+      />
       <SummaryItem
         title={t('statsAchievements')}
         value={`${unlockedAchievements}/${ACHIEVEMENTS.length}`}

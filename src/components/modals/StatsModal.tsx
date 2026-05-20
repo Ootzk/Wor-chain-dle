@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import Countdown from 'react-countdown'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
@@ -20,7 +20,10 @@ import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
 import { tomorrow } from '../../lib/words'
 import { BaseModal } from './BaseModal'
-import { ClipboardListIcon } from '@heroicons/react/outline'
+import {
+  ClipboardListIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
@@ -74,6 +77,74 @@ type GuessBreakdownRow = {
   enterValue?: string
   deleteValue?: string
   isSummary?: boolean
+}
+
+const SummaryGroupTitle = ({
+  children,
+  action,
+  info,
+  separated = false,
+}: {
+  children: ReactNode
+  action?: ReactNode
+  info?: ReactNode
+  separated?: boolean
+}) => (
+  <div
+    className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
+      separated ? 'mt-2 border-t border-gray-200 pt-2' : ''
+    }`}
+  >
+    <span className="inline-flex items-center gap-1">
+      <span>{children}</span>
+      {info}
+    </span>
+    {action}
+  </div>
+)
+
+const SummaryInfoButton = ({
+  title,
+  items,
+}: {
+  title: string
+  items: string[]
+}) => {
+  const { t } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-gray-400 hover:text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={title}
+      >
+        <InformationCircleIcon className="h-3.5 w-3.5" />
+      </button>
+      {isOpen && (
+        <div className="absolute left-0 top-5 z-30 w-72 rounded border border-gray-200 bg-white p-3 text-left text-xs font-normal normal-case leading-4 tracking-normal text-gray-600 shadow-lg">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="font-semibold text-gray-900">{title}</div>
+            <button
+              type="button"
+              className="shrink-0 font-semibold text-gray-400 hover:text-gray-700"
+              onClick={() => setIsOpen(false)}
+              aria-label={t('summaryInfoClose')}
+            >
+              ×
+            </button>
+          </div>
+          <ul className="list-disc space-y-1 pl-4 text-left">
+            {items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </span>
+  )
 }
 
 const TodayMetric = ({
@@ -680,38 +751,44 @@ export const StatsModal = ({
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
               <section>
-                <h4 className="text-base font-normal leading-6 text-gray-900">
+                <SummaryGroupTitle>{t('statsDashboard')}</SummaryGroupTitle>
+                <StatBar
+                  gameStats={gameStats}
+                  averageWinGuesses={averageWinGuesses}
+                />
+              </section>
+              <section>
+                <SummaryGroupTitle separated>
                   {t('statsRecord')}
-                </h4>
+                </SummaryGroupTitle>
                 <WinLossBar gameStats={gameStats} />
               </section>
-              <section className="mt-2 border-t border-gray-200 pt-2">
-                <h4 className="text-base font-normal leading-6 text-gray-900">
-                  {t('winGuessDistribution')}:{' '}
-                  <span
-                    className={
-                      averageWinGuesses === EMPTY_VALUE
-                        ? 'text-gray-400'
-                        : 'text-green-500'
-                    }
-                  >
-                    {averageWinGuesses}
-                  </span>
-                  /{CONFIG.tries}
-                </h4>
+              <section>
+                <SummaryGroupTitle separated>
+                  {t('winGuessDistribution')}
+                </SummaryGroupTitle>
                 <Histogram gameStats={gameStats} />
               </section>
-              <section className="mt-2 border-t border-gray-200 pt-2">
-                <h4 className="text-base font-normal leading-6 text-gray-900">
+              <section>
+                <SummaryGroupTitle
+                  separated
+                  info={
+                    <SummaryInfoButton
+                      title={t('loseReasonDistribution')}
+                      items={[
+                        t('loseReasonGuessLimitInfo'),
+                        t('loseReasonDeadEndInfo'),
+                        t('loseReasonUnknownInfoBody'),
+                      ]}
+                    />
+                  }
+                >
                   {t('loseReasonDistribution')}
-                </h4>
+                </SummaryGroupTitle>
                 <LoseReasonDistribution
                   gameStats={gameStats}
                   onOpenDeadEndHelp={onOpenDeadEndHelp}
                 />
-              </section>
-              <section className="mt-2 border-t border-gray-200 pt-2">
-                <StatBar gameStats={gameStats} />
               </section>
             </div>
           </div>
