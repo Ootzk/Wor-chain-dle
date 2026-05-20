@@ -75,7 +75,7 @@ type Props = {
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
   onOpenDeadEndHelp?: () => void
-  initialTab?: 'today' | 'calendar' | 'summary' | 'details'
+  initialTab?: RecordsTab
   isUppercase: boolean
   playStats: PlayStats
   detailStatsSummary: DetailStatsSummary
@@ -409,7 +409,7 @@ export const StatsModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab(initialTab || 'today')
+      setActiveTab(initialTab || (mode === 'event' ? 'event' : 'today'))
       if (mode === 'event' && event) {
         setSelectedEventVersion(event.version)
         setSelectedEventCosmeticOverrides(cosmeticOverrides)
@@ -626,13 +626,13 @@ export const StatsModal = ({
       />
     ) : undefined
 
-  // Daily/Event mode — Today + Calendar + Summary + Details (+ seasonal Event)
+  // Daily/Event mode — seasonal Event + Today + Calendar + Summary + Details
   const tabs = [
+    ...(isEventRecords ? [{ id: 'event' as const, label: t('event') }] : []),
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
     { id: 'summary' as const, label: t('statsSummary') },
     { id: 'details' as const, label: t('statsDetails') },
-    ...(isEventRecords ? [{ id: 'event' as const, label: t('event') }] : []),
   ]
 
   return (

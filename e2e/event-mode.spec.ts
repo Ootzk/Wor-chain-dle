@@ -124,10 +124,10 @@ test.describe('Event mode', () => {
     ).toBeVisible()
     const recordsDialog = gamePage.getByRole('dialog')
     await expect(
-      recordsDialog.getByRole('button', { name: 'Today' })
+      recordsDialog.getByRole('button', { name: 'Event' })
     ).toHaveClass(/border-indigo-600/)
     await expect(
-      recordsDialog.getByRole('button', { name: 'Event' })
+      recordsDialog.getByRole('button', { name: 'Today' })
     ).toBeVisible()
     await expect(
       recordsDialog.getByRole('button', { name: /v1.7.0/ })
