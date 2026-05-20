@@ -278,7 +278,7 @@ export const Calendar = ({
       </div>
 
       {/* Monthly attendance + Share button */}
-      <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 items-center gap-3">
+      <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
         <div className="flex justify-center pl-8 text-base leading-normal">
           <div className="grid grid-cols-[max-content_auto_auto] gap-x-1">
             <span className="text-right text-green-500">

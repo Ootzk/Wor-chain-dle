@@ -56,7 +56,7 @@ const SettingsLikeGroupTitle = ({
 }) => (
   <div
     className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
-      separated ? 'mt-2 border-t border-gray-200 pt-2' : ''
+      separated ? 'mt-1.5 border-t border-gray-200 pt-1.5' : ''
     }`}
   >
     <span className="inline-flex min-w-0 items-center gap-1">
@@ -206,10 +206,10 @@ const MetricValueLabel = ({
 }) => (
   <div
     className={`flex ${
-      relaxed ? 'h-[3.25rem]' : 'h-12'
+      relaxed ? 'h-[3.25rem]' : 'h-11'
     } min-w-0 flex-col items-center justify-center px-0.5 ${className}`}
   >
-    <div className="flex h-6 min-w-0 items-center">
+    <div className="flex h-5 min-w-0 items-center">
       <div className="min-w-0 whitespace-nowrap text-xl font-bold leading-none text-gray-900 sm:text-2xl">
         {value}
       </div>
@@ -255,7 +255,7 @@ const SingleMetric = ({
     </div>
   ) : (
     <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
-      <div className="h-1" aria-hidden="true" />
+      <div className="h-0.5" aria-hidden="true" />
       <MetricValueLabel
         label={label}
         value={value}
@@ -337,7 +337,7 @@ const TileSample = ({
   >
     <Cell value={String(count)} status={status} />
     <div
-      className={`min-h-[1.25rem] break-words text-center text-[10px] leading-[0.7rem] ${
+      className={`min-h-[1rem] break-words text-center text-[10px] leading-[0.65rem] ${
         labelClassName ?? 'text-gray-900'
       }`}
     >
@@ -360,7 +360,7 @@ const TileCountsRow = ({
 
   return (
     <div className="px-0.5">
-      <div className="grid grid-cols-4 gap-1">
+      <div className="grid grid-cols-4 gap-0.5">
         <TileSample
           label={t('behaviorTileCorrect')}
           status="correct"
@@ -441,11 +441,17 @@ export const PlayStatsPanel = ({ summary }: Props) => {
       >
         {t('statsDashboard')}
       </SettingsLikeGroupTitle>
-      <div className="mt-1 flex justify-center">
-        <SingleMetric
-          label={t('behaviorTrackedGames')}
-          value={String(summary.totalGames)}
-        />
+      <div className="flex justify-center">
+        <div className="m-0.5 min-w-0 text-center">
+          <div className="flex h-14 items-center justify-center">
+            <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
+              {String(summary.totalGames)}
+            </div>
+          </div>
+          <div className="text-[10px] leading-3">
+            {t('behaviorTrackedGames')}
+          </div>
+        </div>
       </div>
 
       <SettingsLikeGroupTitle
@@ -500,112 +506,116 @@ export const PlayStatsPanel = ({ summary }: Props) => {
         ]}
       />
 
-      <SettingsLikeGroupTitle
-        separated
-        info={
-          <GroupInfoButton
-            title={t('playStatsBreakdownAction')}
-            intro={t('behaviorActionInfoIntro')}
-            items={[
-              {
-                text: t('behaviorActionInfoEnter'),
-                children: [
-                  { text: t('behaviorActionInfoEnterTotal') },
-                  { text: t('behaviorActionInfoEnterSubmit') },
-                  { text: t('behaviorActionInfoEnterInvalid') },
-                  { text: t('behaviorActionInfoEnterIncomplete') },
-                ],
-              },
-              { text: t('behaviorActionInfoDelete') },
-              {
-                text: t('behaviorActionInfoFriction'),
-                children: [
-                  { text: t('behaviorActionInfoFrictionFormula') },
-                  { text: t('behaviorActionInfoWrongEnter') },
-                ],
-              },
-            ]}
-          />
-        }
-      >
-        {t('playStatsBreakdownAction')}
-      </SettingsLikeGroupTitle>
-      <div className="grid grid-cols-7 gap-y-2">
-        <div className="col-span-4">
-          <BoxedMetricGrid label={t('playStatsBreakdownEnter')}>
-            <MetricGrid
-              separateFirstItem
+      <div>
+        <SettingsLikeGroupTitle
+          separated
+          info={
+            <GroupInfoButton
+              title={t('behaviorTiles')}
+              intro={t('behaviorTilesInfoIntro')}
+              items={[
+                { text: t('behaviorTilesInfoCorrect') },
+                { text: t('behaviorTilesInfoPresent') },
+                { text: t('behaviorTilesInfoAbsent') },
+                { text: t('behaviorTilesInfoUnrevealed') },
+                { text: t('behaviorTilesInfoDeadEnd') },
+              ]}
+            />
+          }
+        >
+          {t('behaviorTiles')}
+        </SettingsLikeGroupTitle>
+        <TileCountsRow summary={summary} viewMode={viewMode} />
+      </div>
+
+      <div>
+        <SettingsLikeGroupTitle
+          separated
+          info={
+            <GroupInfoButton
+              title={t('playStatsBreakdownAction')}
+              intro={t('behaviorActionInfoIntro')}
               items={[
                 {
-                  label: t('behaviorTotalShort'),
-                  value: formatModeCount(summary.totalEnterPresses),
+                  text: t('behaviorActionInfoEnter'),
+                  children: [
+                    { text: t('behaviorActionInfoEnterTotal') },
+                    { text: t('behaviorActionInfoEnterSubmit') },
+                    { text: t('behaviorActionInfoEnterInvalid') },
+                    { text: t('behaviorActionInfoEnterIncomplete') },
+                  ],
                 },
+                { text: t('behaviorActionInfoDelete') },
                 {
-                  label: t('behaviorSubmitShort'),
-                  value: formatModeCount(totalValidEnterPresses),
-                  labelClassName: 'text-green-500',
-                },
-                {
-                  label: t('playStatsInvalidShort'),
-                  value: formatModeCount(summary.totalInvalidEnterPresses),
-                  labelClassName: 'text-purple-500',
-                },
-                {
-                  label: t('playStatsIncompleteShort'),
-                  value: formatModeCount(summary.totalIncompleteEnterPresses),
-                  labelClassName: 'text-purple-500',
+                  text: t('behaviorActionInfoFriction'),
+                  children: [
+                    { text: t('behaviorActionInfoFrictionFormula') },
+                    { text: t('behaviorActionInfoWrongEnter') },
+                  ],
                 },
               ]}
             />
-          </BoxedMetricGrid>
-        </div>
-        <SingleMetric
-          label={
-            <span className="text-purple-500">
-              {t('playStatsBreakdownDelete')}
-            </span>
           }
-          value={formatModeCount(summary.totalDeletePresses)}
-          separated
-          alignLabelWithBox
-        />
-        <SingleMetric
-          className="col-span-2"
-          label={
-            <>
-              <span className="text-purple-500">Friction</span>
-              <span>/</span>
-              <span className="text-green-500">Submit</span>
-            </>
-          }
-          value={
-            hasTrackedGames
-              ? formatAverageCount(summary.averageFrictionPerSubmit)
-              : EMPTY_VALUE
-          }
-          alignLabelWithBox
-        />
-      </div>
-
-      <SettingsLikeGroupTitle
-        separated
-        info={
-          <GroupInfoButton
-            title={t('behaviorTiles')}
-            intro={t('behaviorTilesInfoIntro')}
-            items={[
-              { text: t('behaviorTilesInfoCorrect') },
-              { text: t('behaviorTilesInfoPresent') },
-              { text: t('behaviorTilesInfoAbsent') },
-              { text: t('behaviorTilesInfoUnrevealed') },
-              { text: t('behaviorTilesInfoDeadEnd') },
-            ]}
+        >
+          {t('playStatsBreakdownAction')}
+        </SettingsLikeGroupTitle>
+        <div className="grid grid-cols-7 gap-y-2">
+          <div className="col-span-4">
+            <BoxedMetricGrid label={t('playStatsBreakdownEnter')}>
+              <MetricGrid
+                separateFirstItem
+                items={[
+                  {
+                    label: t('behaviorTotalShort'),
+                    value: formatModeCount(summary.totalEnterPresses),
+                  },
+                  {
+                    label: t('behaviorSubmitShort'),
+                    value: formatModeCount(totalValidEnterPresses),
+                    labelClassName: 'text-green-500',
+                  },
+                  {
+                    label: t('playStatsInvalidShort'),
+                    value: formatModeCount(summary.totalInvalidEnterPresses),
+                    labelClassName: 'text-purple-500',
+                  },
+                  {
+                    label: t('playStatsIncompleteShort'),
+                    value: formatModeCount(summary.totalIncompleteEnterPresses),
+                    labelClassName: 'text-purple-500',
+                  },
+                ]}
+              />
+            </BoxedMetricGrid>
+          </div>
+          <SingleMetric
+            label={
+              <span className="text-purple-500">
+                {t('playStatsBreakdownDelete')}
+              </span>
+            }
+            value={formatModeCount(summary.totalDeletePresses)}
+            separated
+            alignLabelWithBox
           />
-        }
-      >
-        {t('behaviorTiles')}
-      </SettingsLikeGroupTitle>
-      <TileCountsRow summary={summary} viewMode={viewMode} />
+          <SingleMetric
+            className="col-span-2"
+            label={
+              <>
+                <span className="text-purple-500">Friction</span>
+                <span>/</span>
+                <span className="text-green-500">Submit</span>
+              </>
+            }
+            value={
+              hasTrackedGames
+                ? formatAverageCount(summary.averageFrictionPerSubmit)
+                : EMPTY_VALUE
+            }
+            alignLabelWithBox
+          />
+        </div>
+      </div>
       <div className="mt-2 flex items-center justify-center gap-2 border-t border-gray-200 pt-2">
         <div className="shrink-0">
           <TimeUnitControl timeUnit={timeUnit} onChange={setTimeUnit} />

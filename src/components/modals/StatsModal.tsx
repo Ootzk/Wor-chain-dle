@@ -277,24 +277,45 @@ const TodayMetricGrid = ({
   }>
 }) => (
   <div
-    className={`grid ${columns === 5 ? 'grid-cols-5' : 'grid-cols-4'} ${
-      relaxed ? 'mt-0.5' : ''
-    }`}
+    className={`min-w-0 px-0.5 text-center ${relaxed ? 'mt-0.5' : ''}`}
   >
-    {items.map((item, index) => (
-      <TodayStatMetric
-        key={String(item.label)}
-        label={item.label}
-        value={item.value}
-        labelClassName={item.labelClassName}
-        relaxed={relaxed}
-        className={
-          separateFirstItem && index === 0
-            ? 'border-r border-gray-300'
-            : undefined
-        }
-      />
-    ))}
+    <div
+      className={`grid w-full ${
+        columns === 5 ? 'grid-cols-5' : 'grid-cols-4'
+      }`}
+    >
+      {items.map((item, index) => (
+        <TodayStatMetric
+          key={String(item.label)}
+          label={item.label}
+          value={item.value}
+          labelClassName={item.labelClassName}
+          relaxed={relaxed}
+          className={
+            separateFirstItem && index === 0
+              ? 'border-r border-gray-300'
+              : undefined
+          }
+        />
+      ))}
+    </div>
+  </div>
+)
+
+const TodayBoxedMetricGrid = ({
+  label,
+  children,
+}: {
+  label: ReactNode
+  children: ReactNode
+}) => (
+  <div className="min-w-0 px-0.5 text-center">
+    <div className="rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5">
+      {children}
+      <div className="mt-0.5 break-words pb-0.5 text-[10px] leading-3">
+        {label}
+      </div>
+    </div>
   </div>
 )
 
@@ -638,95 +659,6 @@ export const StatsModal = ({
                   separated
                   info={
                     <SummaryInfoButton
-                      title={t('playStatsBreakdownAction')}
-                      intro={t('behaviorActionInfoIntro')}
-                      items={[
-                        {
-                          text: t('behaviorActionInfoEnter'),
-                          children: [
-                            t('behaviorActionInfoEnterTotal'),
-                            t('behaviorActionInfoEnterSubmit'),
-                            t('behaviorActionInfoEnterInvalid'),
-                            t('behaviorActionInfoEnterIncomplete'),
-                          ],
-                        },
-                        t('behaviorActionInfoDelete'),
-                        {
-                          text: t('behaviorActionInfoFriction'),
-                          children: [
-                            t('behaviorActionInfoFrictionFormula'),
-                            t('behaviorActionInfoWrongEnter'),
-                          ],
-                        },
-                      ]}
-                    />
-                  }
-                >
-                  {t('playStatsBreakdownAction')}
-                  {playStats.assistFlags.enterValidationHint ? ' ⚠️' : ''}
-                </SummaryGroupTitle>
-                <div className="grid grid-cols-7 gap-y-2">
-                  <div className="col-span-4">
-                    <div className="rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5">
-                      <TodayMetricGrid
-                        separateFirstItem
-                        items={[
-                          {
-                            label: t('behaviorTotalShort'),
-                            value: String(totalEnterPresses),
-                          },
-                          {
-                            label: t('behaviorSubmitShort'),
-                            value: String(totalValidEnterPresses),
-                            labelClassName: 'text-green-500',
-                          },
-                          {
-                            label: t('playStatsInvalidShort'),
-                            value: String(totalInvalidEnterPresses),
-                            labelClassName: 'text-purple-500',
-                          },
-                          {
-                            label: t('playStatsIncompleteShort'),
-                            value: String(totalIncompleteEnterPresses),
-                            labelClassName: 'text-purple-500',
-                          },
-                        ]}
-                      />
-                      <div className="mt-0.5 break-words pb-0.5 text-center text-[10px] leading-3">
-                        {t('playStatsBreakdownEnter')}
-                      </div>
-                    </div>
-                  </div>
-                  <TodaySingleMetric
-                    label={
-                      <span className="text-purple-500">
-                        {t('playStatsBreakdownDelete')}
-                      </span>
-                    }
-                    value={String(totalDeletePresses)}
-                    separated
-                    alignLabelWithBox
-                  />
-                  <TodaySingleMetric
-                    className="col-span-2"
-                    label={
-                      <>
-                        <span className="text-purple-500">Friction</span>
-                        <span>/</span>
-                        <span className="text-green-500">Submit</span>
-                      </>
-                    }
-                    value={frictionPerSubmit}
-                    alignLabelWithBox
-                  />
-                </div>
-              </section>
-
-              <section>
-                <SummaryGroupTitle
-                  separated
-                  info={
-                    <SummaryInfoButton
                       title={t('behaviorTiles')}
                       items={[
                         t('behaviorTilesInfoCorrect'),
@@ -766,8 +698,94 @@ export const StatsModal = ({
                   />
                 </div>
               </section>
+
+              <section>
+                <SummaryGroupTitle
+                  separated
+                  info={
+                    <SummaryInfoButton
+                      title={t('playStatsBreakdownAction')}
+                      intro={t('behaviorActionInfoIntro')}
+                      items={[
+                        {
+                          text: t('behaviorActionInfoEnter'),
+                          children: [
+                            t('behaviorActionInfoEnterTotal'),
+                            t('behaviorActionInfoEnterSubmit'),
+                            t('behaviorActionInfoEnterInvalid'),
+                            t('behaviorActionInfoEnterIncomplete'),
+                          ],
+                        },
+                        t('behaviorActionInfoDelete'),
+                        {
+                          text: t('behaviorActionInfoFriction'),
+                          children: [
+                            t('behaviorActionInfoFrictionFormula'),
+                            t('behaviorActionInfoWrongEnter'),
+                          ],
+                        },
+                      ]}
+                    />
+                  }
+                >
+                  {t('playStatsBreakdownAction')}
+                  {playStats.assistFlags.enterValidationHint ? ' ⚠️' : ''}
+                </SummaryGroupTitle>
+                <div className="grid grid-cols-7 gap-y-2">
+                  <div className="col-span-4">
+                    <TodayBoxedMetricGrid label={t('playStatsBreakdownEnter')}>
+                      <TodayMetricGrid
+                        separateFirstItem
+                        items={[
+                          {
+                            label: t('behaviorTotalShort'),
+                            value: String(totalEnterPresses),
+                          },
+                          {
+                            label: t('behaviorSubmitShort'),
+                            value: String(totalValidEnterPresses),
+                            labelClassName: 'text-green-500',
+                          },
+                          {
+                            label: t('playStatsInvalidShort'),
+                            value: String(totalInvalidEnterPresses),
+                            labelClassName: 'text-purple-500',
+                          },
+                          {
+                            label: t('playStatsIncompleteShort'),
+                            value: String(totalIncompleteEnterPresses),
+                            labelClassName: 'text-purple-500',
+                          },
+                        ]}
+                      />
+                    </TodayBoxedMetricGrid>
+                  </div>
+                  <TodaySingleMetric
+                    label={
+                      <span className="text-purple-500">
+                        {t('playStatsBreakdownDelete')}
+                      </span>
+                    }
+                    value={String(totalDeletePresses)}
+                    separated
+                    alignLabelWithBox
+                  />
+                  <TodaySingleMetric
+                    className="col-span-2"
+                    label={
+                      <>
+                        <span className="text-purple-500">Friction</span>
+                        <span>/</span>
+                        <span className="text-green-500">Submit</span>
+                      </>
+                    }
+                    value={frictionPerSubmit}
+                    alignLabelWithBox
+                  />
+                </div>
+              </section>
             </div>
-            <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 items-center gap-3">
+            <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
               <div>
                 <h5>{t('newWordCountdown')}</h5>
                 <Countdown
