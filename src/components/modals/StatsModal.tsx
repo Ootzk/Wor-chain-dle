@@ -224,43 +224,6 @@ const TodayStatMetric = ({
   </div>
 )
 
-const TodaySingleMetric = ({
-  label,
-  value,
-  className = '',
-  separated = false,
-  alignLabelWithBox = false,
-}: {
-  label: ReactNode
-  value: string
-  className?: string
-  separated?: boolean
-  alignLabelWithBox?: boolean
-}) =>
-  alignLabelWithBox ? (
-    <div
-      className={`relative min-w-0 px-0.5 text-center ${
-        separated ? 'border-r border-gray-300' : ''
-      } ${className}`}
-    >
-      <div className="rounded border border-transparent px-1.5 py-0.5">
-        <TodayStatMetric label="" value={value} />
-        <div className="mt-0.5 break-words pb-0.5 text-center text-[10px] leading-3">
-          {label}
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
-      <div className="h-0.5" aria-hidden="true" />
-      <TodayStatMetric
-        label={label}
-        value={value}
-        className={separated ? 'border-r border-gray-300' : undefined}
-      />
-    </div>
-  )
-
 const TodayMetricGrid = ({
   items,
   columns = 4,
@@ -286,7 +249,7 @@ const TodayMetricGrid = ({
     >
       {items.map((item, index) => (
         <TodayStatMetric
-          key={String(item.label)}
+          key={index}
           label={item.label}
           value={item.value}
           labelClassName={item.labelClassName}
@@ -302,18 +265,38 @@ const TodayMetricGrid = ({
   </div>
 )
 
-const TodayBoxedMetricGrid = ({
-  label,
-  children,
+const TodayActionMetricGrid = ({
+  enterGroupLabel,
+  items,
 }: {
-  label: ReactNode
-  children: ReactNode
+  enterGroupLabel: string
+  items: Array<{
+    label: ReactNode
+    value: string
+    labelClassName?: string
+  }>
 }) => (
   <div className="min-w-0 px-0.5 text-center">
-    <div className="rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5">
-      {children}
-      <div className="mt-0.5 break-words pb-0.5 text-[10px] leading-3">
-        {label}
+    <div className="grid grid-cols-4">
+      {items.map((item, index) => (
+        <TodayStatMetric
+          key={index}
+          label={index < 2 ? item.label : ''}
+          value={item.value}
+          labelClassName={item.labelClassName}
+          className={
+            index === 1 || index === 2 ? 'border-r border-gray-300' : undefined
+          }
+        />
+      ))}
+      <div className="col-span-2 -mt-0.5 border-r border-gray-300 text-[10px] leading-3 text-gray-900">
+        {enterGroupLabel}
+      </div>
+      <div className="-mt-0.5 border-r border-gray-300 text-[10px] leading-3 text-gray-900">
+        {items[2]?.label}
+      </div>
+      <div className="-mt-0.5 text-[10px] leading-3 text-gray-900">
+        {items[3]?.label}
       </div>
     </div>
   </div>
@@ -503,6 +486,8 @@ export const StatsModal = ({
     0,
     totalEnterPresses - totalIncompleteEnterPresses - totalInvalidEnterPresses
   )
+  const totalFailedEnterPresses =
+    totalInvalidEnterPresses + totalIncompleteEnterPresses
   const totalDeletePresses = getTotalDeletePresses(playStats)
   const frictionPerSubmit =
     totalValidEnterPresses > 0
@@ -710,10 +695,8 @@ export const StatsModal = ({
                         {
                           text: t('behaviorActionInfoEnter'),
                           children: [
-                            t('behaviorActionInfoEnterTotal'),
                             t('behaviorActionInfoEnterSubmit'),
-                            t('behaviorActionInfoEnterInvalid'),
-                            t('behaviorActionInfoEnterIncomplete'),
+                            t('behaviorActionInfoEnterFailed'),
                           ],
                         },
                         t('behaviorActionInfoDelete'),
@@ -731,58 +714,39 @@ export const StatsModal = ({
                   {t('playStatsBreakdownAction')}
                   {playStats.assistFlags.enterValidationHint ? ' ⚠️' : ''}
                 </SummaryGroupTitle>
-                <div className="grid grid-cols-7 gap-y-2">
-                  <div className="col-span-4">
-                    <TodayBoxedMetricGrid label={t('playStatsBreakdownEnter')}>
-                      <TodayMetricGrid
-                        separateFirstItem
-                        items={[
-                          {
-                            label: t('behaviorTotalShort'),
-                            value: String(totalEnterPresses),
-                          },
-                          {
-                            label: t('behaviorSubmitShort'),
-                            value: String(totalValidEnterPresses),
-                            labelClassName: 'text-green-500',
-                          },
-                          {
-                            label: t('playStatsInvalidShort'),
-                            value: String(totalInvalidEnterPresses),
-                            labelClassName: 'text-purple-500',
-                          },
-                          {
-                            label: t('playStatsIncompleteShort'),
-                            value: String(totalIncompleteEnterPresses),
-                            labelClassName: 'text-purple-500',
-                          },
-                        ]}
-                      />
-                    </TodayBoxedMetricGrid>
-                  </div>
-                  <TodaySingleMetric
-                    label={
-                      <span className="text-purple-500">
-                        {t('playStatsBreakdownDelete')}
-                      </span>
-                    }
-                    value={String(totalDeletePresses)}
-                    separated
-                    alignLabelWithBox
-                  />
-                  <TodaySingleMetric
-                    className="col-span-2"
-                    label={
-                      <>
-                        <span className="text-purple-500">Friction</span>
-                        <span>/</span>
-                        <span className="text-green-500">Submit</span>
-                      </>
-                    }
-                    value={frictionPerSubmit}
-                    alignLabelWithBox
-                  />
-                </div>
+                <TodayActionMetricGrid
+                  enterGroupLabel={t('playStatsBreakdownEnter')}
+                  items={[
+                    {
+                      label: t('behaviorSubmitShort'),
+                      value: String(totalValidEnterPresses),
+                      labelClassName: 'text-green-500',
+                    },
+                    {
+                      label: t('behaviorFailedEnterShort'),
+                      value: String(totalFailedEnterPresses),
+                      labelClassName: 'text-purple-500',
+                    },
+                    {
+                      label: (
+                        <span className="text-purple-500">
+                          {t('playStatsBreakdownDelete')}
+                        </span>
+                      ),
+                      value: String(totalDeletePresses),
+                    },
+                    {
+                      label: (
+                        <>
+                          <span className="text-purple-500">Friction</span>
+                          <span>/</span>
+                          <span className="text-green-500">Submit</span>
+                        </>
+                      ),
+                      value: frictionPerSubmit,
+                    },
+                  ]}
+                />
               </section>
             </div>
             <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">

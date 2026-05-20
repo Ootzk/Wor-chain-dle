@@ -227,43 +227,6 @@ const MetricValueLabel = ({
   </div>
 )
 
-const SingleMetric = ({
-  label,
-  value,
-  className = '',
-  separated = false,
-  alignLabelWithBox = false,
-}: {
-  label: ReactNode
-  value: string
-  className?: string
-  separated?: boolean
-  alignLabelWithBox?: boolean
-}) =>
-  alignLabelWithBox ? (
-    <div
-      className={`relative min-w-0 px-0.5 text-center ${
-        separated ? 'border-r border-gray-300' : ''
-      } ${className}`}
-    >
-      <div className="rounded border border-transparent px-1.5 py-0.5">
-        <MetricValueLabel label="" value={value} />
-        <div className="mt-0.5 break-words pb-0.5 text-center text-[10px] leading-3 text-gray-900">
-          <span className="break-words">{label}</span>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
-      <div className="h-0.5" aria-hidden="true" />
-      <MetricValueLabel
-        label={label}
-        value={value}
-        className={separated ? 'border-r border-gray-300' : undefined}
-      />
-    </div>
-  )
-
 const MetricGrid = ({
   items,
   className = '',
@@ -303,18 +266,38 @@ const MetricGrid = ({
   </div>
 )
 
-const BoxedMetricGrid = ({
-  label,
-  children,
+const ActionMetricGrid = ({
+  enterGroupLabel,
+  items,
 }: {
-  label: ReactNode
-  children: ReactNode
+  enterGroupLabel: string
+  items: Array<{
+    label: ReactNode
+    value: string
+    labelClassName?: string
+  }>
 }) => (
   <div className="min-w-0 px-0.5 text-center">
-    <div className="rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5">
-      {children}
-      <div className="mt-0.5 break-words pb-0.5 text-[10px] leading-3">
-        {label}
+    <div className="grid grid-cols-4">
+      {items.map((item, index) => (
+        <MetricValueLabel
+          key={index}
+          label={index < 2 ? item.label : ''}
+          value={item.value}
+          labelClassName={item.labelClassName}
+          className={
+            index === 1 || index === 2 ? 'border-r border-gray-300' : undefined
+          }
+        />
+      ))}
+      <div className="col-span-2 -mt-0.5 border-r border-gray-300 text-[10px] leading-3 text-gray-900">
+        {enterGroupLabel}
+      </div>
+      <div className="-mt-0.5 border-r border-gray-300 text-[10px] leading-3 text-gray-900">
+        {items[2]?.label}
+      </div>
+      <div className="-mt-0.5 text-[10px] leading-3 text-gray-900">
+        {items[3]?.label}
       </div>
     </div>
   </div>
@@ -411,6 +394,8 @@ export const PlayStatsPanel = ({ summary }: Props) => {
       summary.totalInvalidEnterPresses -
       summary.totalIncompleteEnterPresses
   )
+  const totalFailedEnterPresses =
+    summary.totalInvalidEnterPresses + summary.totalIncompleteEnterPresses
   const formatModeCount = (value: number) =>
     formatCount(value / denominator, viewMode)
   const formatModeTime = (value: number) =>
@@ -539,10 +524,8 @@ export const PlayStatsPanel = ({ summary }: Props) => {
                 {
                   text: t('behaviorActionInfoEnter'),
                   children: [
-                    { text: t('behaviorActionInfoEnterTotal') },
                     { text: t('behaviorActionInfoEnterSubmit') },
-                    { text: t('behaviorActionInfoEnterInvalid') },
-                    { text: t('behaviorActionInfoEnterIncomplete') },
+                    { text: t('behaviorActionInfoEnterFailed') },
                   ],
                 },
                 { text: t('behaviorActionInfoDelete') },
@@ -559,62 +542,41 @@ export const PlayStatsPanel = ({ summary }: Props) => {
         >
           {t('playStatsBreakdownAction')}
         </SettingsLikeGroupTitle>
-        <div className="grid grid-cols-7 gap-y-2">
-          <div className="col-span-4">
-            <BoxedMetricGrid label={t('playStatsBreakdownEnter')}>
-              <MetricGrid
-                separateFirstItem
-                items={[
-                  {
-                    label: t('behaviorTotalShort'),
-                    value: formatModeCount(summary.totalEnterPresses),
-                  },
-                  {
-                    label: t('behaviorSubmitShort'),
-                    value: formatModeCount(totalValidEnterPresses),
-                    labelClassName: 'text-green-500',
-                  },
-                  {
-                    label: t('playStatsInvalidShort'),
-                    value: formatModeCount(summary.totalInvalidEnterPresses),
-                    labelClassName: 'text-purple-500',
-                  },
-                  {
-                    label: t('playStatsIncompleteShort'),
-                    value: formatModeCount(summary.totalIncompleteEnterPresses),
-                    labelClassName: 'text-purple-500',
-                  },
-                ]}
-              />
-            </BoxedMetricGrid>
-          </div>
-          <SingleMetric
-            label={
-              <span className="text-purple-500">
-                {t('playStatsBreakdownDelete')}
-              </span>
-            }
-            value={formatModeCount(summary.totalDeletePresses)}
-            separated
-            alignLabelWithBox
-          />
-          <SingleMetric
-            className="col-span-2"
-            label={
-              <>
-                <span className="text-purple-500">Friction</span>
-                <span>/</span>
-                <span className="text-green-500">Submit</span>
-              </>
-            }
-            value={
-              hasTrackedGames
+        <ActionMetricGrid
+          enterGroupLabel={t('playStatsBreakdownEnter')}
+          items={[
+            {
+              label: t('behaviorSubmitShort'),
+              value: formatModeCount(totalValidEnterPresses),
+              labelClassName: 'text-green-500',
+            },
+            {
+              label: t('behaviorFailedEnterShort'),
+              value: formatModeCount(totalFailedEnterPresses),
+              labelClassName: 'text-purple-500',
+            },
+            {
+              label: (
+                <span className="text-purple-500">
+                  {t('playStatsBreakdownDelete')}
+                </span>
+              ),
+              value: formatModeCount(summary.totalDeletePresses),
+            },
+            {
+              label: (
+                <>
+                  <span className="text-purple-500">Friction</span>
+                  <span>/</span>
+                  <span className="text-green-500">Submit</span>
+                </>
+              ),
+              value: hasTrackedGames
                 ? formatAverageCount(summary.averageFrictionPerSubmit)
-                : EMPTY_VALUE
-            }
-            alignLabelWithBox
-          />
-        </div>
+                : EMPTY_VALUE,
+            },
+          ]}
+        />
       </div>
       <div className="mt-2 flex items-center justify-center gap-2 border-t border-gray-200 pt-2">
         <div className="shrink-0">
