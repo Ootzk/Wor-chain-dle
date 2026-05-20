@@ -295,6 +295,7 @@ describe('share badge achievements', () => {
         mode: 'event',
         game: {
           dateKey: '2026-05-07',
+          eventVersion: 'v1.7.0',
           guesses: [['c', 'h', 'a', 'i', 'n']],
           solution: 'chain',
           won: true,

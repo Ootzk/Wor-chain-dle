@@ -139,6 +139,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
+  const [statsInitialTab, setStatsInitialTab] = useState<
+    'today' | 'calendar' | 'summary' | 'details' | 'event' | undefined
+  >(undefined)
   const [rewardsInitialTab, setRewardsInitialTab] = useState<
     'achievements' | 'cosmetics' | undefined
   >(undefined)
@@ -520,6 +523,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         progress: achievementProgress,
         game: {
           dateKey: isDaily || isEvent ? localDateStr : undefined,
+          eventVersion: isEvent ? event?.version : undefined,
           guesses: completedGuesses,
           solution,
           won,
@@ -918,7 +922,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         {(isDaily || isEvent) && (
           <ClipboardListIcon
             className="h-6 w-6 cursor-pointer"
-            onClick={() => setIsStatsModalOpen(true)}
+            onClick={() => {
+              setStatsInitialTab(undefined)
+              setIsStatsModalOpen(true)
+            }}
           />
         )}
         <SparklesIcon
@@ -976,6 +983,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         isOpen={isStatsModalOpen}
         handleClose={() => {
           setIsStatsModalOpen(false)
+          setStatsInitialTab(undefined)
         }}
         guesses={guesses}
         gameStats={stats}
@@ -1016,6 +1024,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
+        initialTab={statsInitialTab}
         isUppercase={effectiveIsUppercase}
         playStats={playStats}
         detailStatsSummary={dailyDetailStatsSummary}
@@ -1047,6 +1056,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
+        onOpenEventRecords={
+          isEvent
+            ? () => {
+                setIsRewardsModalOpen(false)
+                setStatsInitialTab('event')
+                setTimeout(() => setIsStatsModalOpen(true), 300)
+              }
+            : undefined
+        }
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}

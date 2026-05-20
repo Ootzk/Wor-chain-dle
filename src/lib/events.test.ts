@@ -60,6 +60,7 @@ test('defines cosmetic overrides for the active event theme', () => {
       'badge_hyacinth',
       'badge_rabbit',
     ],
+    cellColor: 'color_azure',
     chainColor: 'chaincolor_azure',
   })
   expect(event.shareContextLabel).toBe('Event: Summer Garden')
@@ -74,6 +75,7 @@ test('resolves random event cosmetic candidates without mutating the config', ()
   expect(resolved).toMatchObject({
     shareEmoji: 'emoji_garden',
     shareBadge: 'badge_azure',
+    cellColor: 'color_azure',
     chainColor: 'chaincolor_azure',
   })
   expect(event.cosmeticOverrides?.shareBadge).toEqual([

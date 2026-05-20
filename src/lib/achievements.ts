@@ -52,6 +52,7 @@ export type DeadEndContext = {
 
 export type CompletedGameContext = {
   dateKey?: string
+  eventVersion?: string
   guesses: string[][]
   solution: string
   won: boolean
@@ -217,6 +218,7 @@ const getSummerGardenFastWinProgress = (
   if (
     ctx.mode === 'event' &&
     ctx.game &&
+    ctx.game.eventVersion === SUMMER_GARDEN_VERSION &&
     isFastWin({ won: ctx.game.won, playStats: ctx.game.playStats })
   ) {
     current += 1

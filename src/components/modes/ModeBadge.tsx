@@ -15,7 +15,7 @@ export const MODE_BADGE_CLASSES: Record<ModeBadgeMode, string> = {
   custom: 'bg-green-50 text-green-500 border-green-500',
   event: 'bg-sky-50 text-sky-500 border-sky-400',
   create: 'bg-green-50 text-green-500 border-green-500',
-  all: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  all: 'bg-gray-50 text-gray-500 border-gray-400',
 }
 
 export const CORE_ACHIEVEMENT_MODES: GameMode[] = [
