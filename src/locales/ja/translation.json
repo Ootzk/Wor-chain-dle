@@ -388,6 +388,8 @@
   "eventModeTitle": "イベントモード",
   "eventModeDesc": "季節イベントのパズルをプレイします。このページは特別ルールを持つモードを差し込めるスロットです。\n現在のイベントは標準のチェーンルールで動作し、今後HardcoreやAIなどのモードを接続できます。",
   "eventThemeSummerGarden": "Summer Garden",
+  "eventRecordsVersion": "バージョン",
+  "eventRecordsEmpty": "イベント記録はまだありません。",
   "howToCreate": "出題方法",
   "createModeDesc": "出題者名を入力し、キーボードで出題する単語を入力してください。\n単語はゲームの単語リストに含まれる{{length}}文字の英単語でなければなりません。\nENTERを押すとパズルURLがクリップボードにコピーされます。\nコピーしたURLを友達に共有すると、あなたの問題を解いてもらえます。",
   "calendar": "カレンダー",

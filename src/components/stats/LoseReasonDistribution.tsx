@@ -1,10 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { GameStats } from '../../lib/localStorage'
 import { DailyResults } from '../../lib/dailyResults'
+import { EventLoseReasonDefinition } from '../../lib/events'
 
 type Props = {
   gameStats: GameStats
-  dailyResults: DailyResults
+  dailyResults?: DailyResults
+  results?: Record<string, { won: boolean; endReason: string }>
+  reasonDefinitions?: EventLoseReasonDefinition[]
   onOpenDeadEndHelp?: () => void
 }
 
@@ -15,54 +18,79 @@ type LoseReasonItem = {
   colorClass: string
 }
 
+const DEFAULT_LOSE_REASONS: EventLoseReasonDefinition[] = [
+  {
+    id: 'guess_limit',
+    icon: '❌',
+    titleKey: 'loseReasonOutOfGuesses',
+    infoKey: 'loseReasonGuessLimitInfo',
+    colorClass: 'bg-purple-500 text-purple-50',
+  },
+  {
+    id: 'dead_end',
+    icon: '🦎',
+    titleKey: 'loseReasonDeadEnd',
+    infoKey: 'loseReasonDeadEndInfo',
+    colorClass: 'bg-purple-500 text-purple-50',
+  },
+  {
+    id: 'unknown',
+    icon: '❓',
+    titleKey: 'loseReasonUnknown',
+    infoKey: 'loseReasonUnknownInfoBody',
+    colorClass: 'bg-gray-400 text-gray-50',
+    isUnknown: true,
+  },
+]
+
 export const LoseReasonDistribution = ({
   gameStats,
   dailyResults,
+  results,
+  reasonDefinitions,
   onOpenDeadEndHelp,
 }: Props) => {
   const { t } = useTranslation()
-  const reasonCounts = Object.values(dailyResults).reduce(
+  const definitions = reasonDefinitions ?? DEFAULT_LOSE_REASONS
+  const resultValues = Object.values(results ?? dailyResults ?? {})
+  const initialCounts = Object.fromEntries(
+    definitions.map((reason) => [reason.id, 0])
+  )
+  const unknownDefinition =
+    definitions.find((reason) => reason.isUnknown) ??
+    definitions.find((reason) => reason.id === 'unknown')
+  const reasonCounts = resultValues.reduce<Record<string, number>>(
     (counts, result) => {
       if (result.won) return counts
-      if (result.endReason === 'guess_limit') {
-        counts.guessLimit += 1
-      } else if (result.endReason === 'dead_end') {
-        counts.deadEnd += 1
+      if (counts[result.endReason] !== undefined) {
+        counts[result.endReason] += 1
+      } else if (unknownDefinition) {
+        counts[unknownDefinition.id] += 1
       } else {
-        counts.unknown += 1
+        counts[result.endReason] = (counts[result.endReason] ?? 0) + 1
       }
       return counts
     },
-    { guessLimit: 0, deadEnd: 0, unknown: 0 }
+    initialCounts
   )
-  const trackedLosses =
-    reasonCounts.guessLimit + reasonCounts.deadEnd + reasonCounts.unknown
+  const trackedLosses = Object.values(reasonCounts).reduce(
+    (sum, value) => sum + value,
+    0
+  )
   const legacyUntrackedLosses = Math.max(
     0,
     gameStats.gamesFailed - trackedLosses
   )
-  const unknownLosses = reasonCounts.unknown + legacyUntrackedLosses
+  if (unknownDefinition) {
+    reasonCounts[unknownDefinition.id] += legacyUntrackedLosses
+  }
 
-  const distribution: LoseReasonItem[] = [
-    {
-      icon: '❌',
-      title: t('loseReasonOutOfGuesses'),
-      value: reasonCounts.guessLimit,
-      colorClass: 'bg-purple-500 text-purple-50',
-    },
-    {
-      icon: '🦎',
-      title: t('loseReasonDeadEnd'),
-      value: reasonCounts.deadEnd,
-      colorClass: 'bg-purple-500 text-purple-50',
-    },
-    {
-      icon: '❓',
-      title: t('loseReasonUnknown'),
-      value: unknownLosses,
-      colorClass: 'bg-gray-400 text-gray-50',
-    },
-  ]
+  const distribution: LoseReasonItem[] = definitions.map((reason) => ({
+    icon: reason.icon,
+    title: t(reason.titleKey),
+    value: reasonCounts[reason.id] ?? 0,
+    colorClass: reason.colorClass,
+  }))
   const maxValue = Math.max(...distribution.map((item) => item.value), 1)
 
   return (

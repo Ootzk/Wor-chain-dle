@@ -16,6 +16,7 @@ import {
   getTotalEnterPresses,
   hasPlayStatsActivity,
   countTileStatusesForGame,
+  summarizeDetailStats,
 } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -27,7 +28,16 @@ import {
 } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
-import { EventDefinition } from '../../lib/events'
+import {
+  EventDefinition,
+  getEventByVersion,
+  getKnownEvents,
+} from '../../lib/events'
+import {
+  EventResultsByVersion,
+  getEventDetailStatsHistory,
+} from '../../lib/eventResults'
+import { summarizeResultsAsGameStats } from '../../lib/resultStats'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { DetailStatsPanel } from '../stats/DetailStatsPanel'
 import { CONFIG } from '../../constants/config'
@@ -62,6 +72,7 @@ type Props = {
   playStats: PlayStats
   detailStatsSummary: DetailStatsSummary
   dailyResults: DailyResults
+  eventResultsByVersion: EventResultsByVersion
   event?: EventDefinition
 }
 
@@ -355,19 +366,26 @@ export const StatsModal = ({
   playStats,
   detailStatsSummary,
   dailyResults,
+  eventResultsByVersion,
   event,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<
     'today' | 'calendar' | 'summary' | 'details'
   >('today')
+  const [selectedEventVersion, setSelectedEventVersion] = useState(
+    () => event?.version ?? ''
+  )
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab(initialTab || 'today')
+      setActiveTab(initialTab || (mode === 'event' ? 'summary' : 'today'))
+      if (mode === 'event' && event) {
+        setSelectedEventVersion(event.version)
+      }
     }
-  }, [isOpen, initialTab])
+  }, [isOpen, initialTab, mode, event])
 
   useEffect(() => {
     if (!isOpen || playStats.completedAt || !hasPlayStatsActivity(playStats)) {
@@ -397,21 +415,6 @@ export const StatsModal = ({
             </button>
           </div>
         )}
-      </BaseModal>
-    )
-  }
-
-  if (mode === 'event') {
-    return (
-      <BaseModal
-        title={t('records')}
-        icon={<ClipboardListIcon />}
-        isOpen={isOpen}
-        handleClose={handleClose}
-      >
-        <p className="text-sm text-gray-500 text-center whitespace-pre-line">
-          {event ? t(event.descriptionKey) : t('eventModeDesc')}
-        </p>
       </BaseModal>
     )
   }
@@ -466,6 +469,30 @@ export const StatsModal = ({
       </BaseModal>
     )
   }
+
+  const isEventRecords = mode === 'event'
+  const knownEvents = getKnownEvents()
+  const eventVersions = Array.from(
+    new Set([
+      ...(event ? [event.version] : []),
+      ...knownEvents.map((knownEvent) => knownEvent.version),
+      ...Object.keys(eventResultsByVersion),
+    ])
+  ).sort((a, b) => b.localeCompare(a))
+  const selectedVersion =
+    selectedEventVersion || event?.version || eventVersions[0] || ''
+  const selectedEvent =
+    getEventByVersion(selectedVersion) ||
+    (event?.version === selectedVersion ? event : null)
+  const selectedEventResults = eventResultsByVersion[selectedVersion] ?? {}
+  const selectedEventStats = summarizeResultsAsGameStats(selectedEventResults)
+  const selectedEventDetailSummary = summarizeDetailStats(
+    getEventDetailStatsHistory(selectedEventResults)
+  )
+  const recordsGameStats = isEventRecords ? selectedEventStats : gameStats
+  const recordsDetailStatsSummary = isEventRecords
+    ? selectedEventDetailSummary
+    : detailStatsSummary
 
   const completedToday = isGameWon || isGameLost
   const todayResult = isGameWon ? '😎' : isGameLost ? '🥲' : '😶‍🌫️'
@@ -525,18 +552,41 @@ export const StatsModal = ({
   const todayTileCounts = countTileStatusesForGame(guesses, solution)
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
   const hasNewAchievementsToday = hasNewAchievementsUnlockedToday()
-  const summaryWins = gameStats.totalGames - gameStats.gamesFailed
+  const summaryWins = recordsGameStats.totalGames - recordsGameStats.gamesFailed
   const averageWinGuesses =
     summaryWins > 0
       ? (
-          gameStats.winDistribution.reduce(
+          recordsGameStats.winDistribution.reduce(
             (sum, value, index) => sum + value * (index + 1),
             0
           ) / summaryWins
         ).toFixed(1)
       : EMPTY_VALUE
+  const formatEventOption = (version: string) => {
+    const eventForVersion =
+      getEventByVersion(version) ||
+      (event?.version === version ? event : null)
+    return eventForVersion
+      ? `${version} ${t(eventForVersion.themeKey)}`
+      : version
+  }
+  const eventVersionSelect =
+    isEventRecords && eventVersions.length > 0 ? (
+      <select
+        aria-label={t('eventRecordsVersion')}
+        className="max-w-[11rem] rounded border border-gray-300 bg-white px-1.5 py-0.5 text-xs font-normal text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        value={selectedVersion}
+        onChange={(e) => setSelectedEventVersion(e.target.value)}
+      >
+        {eventVersions.map((version) => (
+          <option key={version} value={version}>
+            {formatEventOption(version)}
+          </option>
+        ))}
+      </select>
+    ) : undefined
 
-  // Daily mode — Today + Calendar + Summary + Details
+  // Daily/Event mode — Today + Calendar + Summary + Details
   const tabs = [
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
@@ -547,6 +597,7 @@ export const StatsModal = ({
   return (
     <BaseModal
       title={t('records')}
+      titleAction={eventVersionSelect}
       icon={<ClipboardListIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
@@ -606,8 +657,8 @@ export const StatsModal = ({
                     label={t('playStatsStreak')}
                     value={
                       completedToday
-                        ? `🔥${gameStats.currentStreak}`
-                        : String(gameStats.currentStreak)
+                        ? `🔥${recordsGameStats.currentStreak}`
+                        : String(recordsGameStats.currentStreak)
                     }
                   />
                 </div>
@@ -820,7 +871,7 @@ export const StatsModal = ({
               <section>
                 <SummaryGroupTitle>{t('statsDashboard')}</SummaryGroupTitle>
                 <StatBar
-                  gameStats={gameStats}
+                  gameStats={recordsGameStats}
                   averageWinGuesses={averageWinGuesses}
                 />
               </section>
@@ -828,13 +879,13 @@ export const StatsModal = ({
                 <SummaryGroupTitle separated>
                   {t('statsRecord')}
                 </SummaryGroupTitle>
-                <WinLossBar gameStats={gameStats} />
+                <WinLossBar gameStats={recordsGameStats} />
               </section>
               <section>
                 <SummaryGroupTitle separated>
                   {t('winGuessDistribution')}
                 </SummaryGroupTitle>
-                <Histogram gameStats={gameStats} />
+                <Histogram gameStats={recordsGameStats} />
               </section>
               <section>
                 <SummaryGroupTitle
@@ -843,9 +894,20 @@ export const StatsModal = ({
                     <SummaryInfoButton
                       title={t('loseReasonDistribution')}
                       items={[
-                        t('loseReasonGuessLimitInfo'),
-                        t('loseReasonDeadEndInfo'),
-                        t('loseReasonUnknownInfoBody'),
+                        ...(
+                          isEventRecords
+                            ? selectedEvent?.loseReasons ??
+                              event?.loseReasons ??
+                              []
+                            : []
+                        ).map((reason) => t(reason.infoKey)),
+                        ...(!isEventRecords
+                          ? [
+                              t('loseReasonGuessLimitInfo'),
+                              t('loseReasonDeadEndInfo'),
+                              t('loseReasonUnknownInfoBody'),
+                            ]
+                          : []),
                       ]}
                     />
                   }
@@ -853,8 +915,14 @@ export const StatsModal = ({
                   {t('loseReasonDistribution')}
                 </SummaryGroupTitle>
                 <LoseReasonDistribution
-                  gameStats={gameStats}
-                  dailyResults={dailyResults}
+                  gameStats={recordsGameStats}
+                  dailyResults={isEventRecords ? undefined : dailyResults}
+                  results={isEventRecords ? selectedEventResults : undefined}
+                  reasonDefinitions={
+                    isEventRecords
+                      ? selectedEvent?.loseReasons ?? event?.loseReasons
+                      : undefined
+                  }
                   onOpenDeadEndHelp={onOpenDeadEndHelp}
                 />
               </section>
@@ -865,14 +933,16 @@ export const StatsModal = ({
         {activeTab === 'details' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <DetailStatsPanel summary={detailStatsSummary} />
+              <DetailStatsPanel summary={recordsDetailStatsSummary} />
             </div>
           </div>
         )}
 
         {activeTab === 'calendar' && (
           <Calendar
-            gameStats={gameStats}
+            gameStats={recordsGameStats}
+            results={isEventRecords ? selectedEventResults : undefined}
+            calendarStartDate={isEventRecords ? null : undefined}
             handleShare={handleCalendarShare}
             weekStartsOnMonday={weekStartsOnMonday}
             onToggleWeekStartsOnMonday={onToggleWeekStartsOnMonday}

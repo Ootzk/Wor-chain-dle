@@ -2,7 +2,7 @@ import { Temporal } from 'temporal-polyfill'
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
 import { dateToKey } from './dailyHistory'
-import { DailyResults, getDailyResultsStartDate } from './dailyResults'
+import { getDailyResultsStartDate } from './dailyResults'
 import { getEquippedShareBadge, getEquippedShareEmoji } from './cosmetics'
 
 const formatShareTitle = (suffix?: string): string => {
@@ -86,16 +86,15 @@ const WEEKDAY_LABELS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 export const shareCalendar = (
   year: number,
   month: number, // 0-indexed
-  dailyResults: DailyResults,
+  dailyResults: Record<string, { won: boolean; guessCount: number }>,
   streak: number,
   weekStartsOnMonday: boolean = false,
-  excludeUrl: boolean = false
+  excludeUrl: boolean = false,
+  startDate: string | null = getDailyResultsStartDate()
 ) => {
   const mm = String(month + 1).padStart(2, '0')
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
   const today = Temporal.Now.plainDateISO()
-  const startDate = getDailyResultsStartDate()
-
   const firstDay = Temporal.PlainDate.from({
     year,
     month: month + 1,

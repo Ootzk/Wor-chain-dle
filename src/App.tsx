@@ -65,6 +65,7 @@ import {
   loadDailyResultHistory,
   saveDailyResult,
 } from './lib/dailyResults'
+import { loadEventResultsByVersion, saveEventResult } from './lib/eventResults'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -175,6 +176,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     summarizeDetailStats(loadDailyDetailStatsHistory())
   )
   const [dailyResults, setDailyResults] = useState(() => loadDailyResults())
+  const [eventResultsByVersion, setEventResultsByVersion] = useState(() =>
+    loadEventResultsByVersion()
+  )
   const playStatsRef = useRef(playStats)
 
   const updatePlayStats = (next: PlayStats) => {
@@ -206,6 +210,18 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         summarizeDetailStats(loadDailyDetailStatsHistory())
       )
       clearCurrentPlayStats()
+    }
+    if (isEvent && event) {
+      saveEventResult(event.version, {
+        dateKey: localDateStr,
+        solution,
+        won: completed.won,
+        guessCount: completed.guessCount,
+        endReason,
+        tileCounts: completed.tileCounts,
+        playStats: completed,
+      })
+      setEventResultsByVersion(loadEventResultsByVersion())
     }
   }
 
@@ -284,6 +300,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       summarizeDetailStats(loadDailyDetailStatsHistory())
     )
     setDailyResults(loadDailyResults())
+    setEventResultsByVersion(loadEventResultsByVersion())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, solution, localDateStr])
 
@@ -570,7 +587,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             setIsInfoModalOpen(true)
           }}
         />
-        {isDaily && (
+        {(isDaily || isEvent) && (
           <ClipboardListIcon
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsStatsModalOpen(true)}
@@ -664,6 +681,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         playStats={playStats}
         detailStatsSummary={dailyDetailStatsSummary}
         dailyResults={dailyResults}
+        eventResultsByVersion={eventResultsByVersion}
         event={event}
       />
       <RewardsModal

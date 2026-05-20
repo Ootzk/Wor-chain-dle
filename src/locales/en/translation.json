@@ -388,6 +388,8 @@
   "eventModeTitle": "Event Mode",
   "eventModeDesc": "Play a seasonal event puzzle with a mode slot that can host special rules.\nThis event currently uses the standard chain rules, and future events can plug in modes like Hardcore or AI.",
   "eventThemeSummerGarden": "Summer Garden",
+  "eventRecordsVersion": "Version",
+  "eventRecordsEmpty": "No event records yet.",
   "howToCreate": "How to create",
   "createModeDesc": "Enter your name and type the word to guess using the keyboard.\nThe word must be a {{length}}-letter English word from the word list.\nPress ENTER to copy the puzzle URL to your clipboard.\nShare the URL with friends so they can solve your puzzle!",
   "calendar": "Calendar",
