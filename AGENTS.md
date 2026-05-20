@@ -35,18 +35,22 @@ src/
     statuses.ts                   correct/present/absent status calculation
     chain.ts                      chain-rule and dead-end helpers
     share.ts                      share text generation
-    dailyHistory.ts               Daily-only result history in localStorage
+    dailyResults.ts               canonical Daily per-date results, loss reasons, and migration
+    dailyHistory.ts               legacy Daily history migration and attendance helpers
+    playStats.ts                  in-game detail stats, tile counts, and summaries
     customPuzzle.ts               Custom puzzle URL-safe Base64 codec
     tokenizer.ts                  orthography-aware tokenization
     achievements.ts               achievement definitions and unlock engine
     cosmetics.ts                  cosmetic definitions, options, and equipment
+    rewardMetadata.ts             release metadata for achievements and cosmetics
   components/
     grid/                         game grid and chain bridge UI
     keyboard/                     QWERTY keyboard and physical-key handling
     calendar/                     monthly Daily history UI
     achievements/                 achievement list and progress UI
     cosmetics/                    shared cosmetic previews
-    modals/                       Info, Stats, Settings, Donate, Patch Notes
+    rewards/                      Rewards modal panels for achievements and cosmetics
+    modals/                       Info, Stats, Rewards, Settings, Donate, Patch Notes
     pages/                        Create Puzzle page
 e2e/
   fixtures/game.fixture.ts        Playwright helpers and fixtures
@@ -108,6 +112,7 @@ Key E2E files:
 - `share-exclude-url.spec.ts`: URL exclusion from share text.
 - `navigation.spec.ts`: route transitions and page navigation.
 - `local-timezone.spec.ts`: local-timezone daily reset and dailyHistory migration.
+- `daily-results-migration.spec.ts`: v1.6.0-style Daily history migration into `dailyResults`, Calendar rendering, and Unknown loss reasons.
 
 Choose verification based on risk. Documentation-only changes do not need the full test suite unless they touch generated docs or scripts.
 
@@ -182,15 +187,15 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 
 ## Game Modes
 
-| Item                   | Daily                         | Practice                    | Custom                |
-| ---------------------- | ----------------------------- | --------------------------- | --------------------- |
-| Answer source          | `WORDS`, local midnight reset | random `WORDS` entry        | creator-selected word |
-| Stats                  | `gameStats`                   | none currently              | `customGameStats`     |
-| Daily history          | yes                           | no                          | no                    |
-| Game state persistence | yes                           | no                          | no                    |
-| Share button           | yes                           | no                          | yes                   |
-| Calendar               | yes                           | no                          | no                    |
-| Route                  | `/#/`                         | `/#/` after Practice action | `/#/custom/:code`     |
+| Item                   | Daily                                                  | Practice                    | Custom                |
+| ---------------------- | ------------------------------------------------------ | --------------------------- | --------------------- |
+| Answer source          | `WORDS`, local midnight reset                          | random `WORDS` entry        | creator-selected word |
+| Stats                  | aggregate `gameStats`; date/detail `dailyResults`      | none currently              | `customGameStats`     |
+| Daily history          | `dailyResults`; legacy `dailyHistory` migrates into it | no                          | no                    |
+| Game state persistence | yes                                                    | no                          | no                    |
+| Share button           | yes                                                    | no                          | yes                   |
+| Calendar               | yes                                                    | no                          | no                    |
+| Route                  | `/#/`                                                  | `/#/` after Practice action | `/#/custom/:code`     |
 
 - Custom URL encoding: `btoa("word_questioner")`, converted to URL-safe Base64 by replacing `+` with `-`, `/` with `_`, and removing `=`.
 - Custom puzzle answers can come from `WORDS + VALIDGUESSES`.
@@ -198,6 +203,20 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 - The Create Puzzle page reuses the Keyboard component and keeps cells read-only to suppress the mobile virtual keyboard.
 - Questioner names are limited to 10 characters to avoid overlay layout breakage.
 - Current achievements are Daily-only unless a task explicitly broadens mode support. When adding Practice or Custom achievements, keep existing Daily achievement behavior intact and add mode support deliberately.
+
+## Daily Records And Migration
+
+- `src/lib/dailyResults.ts` is the canonical per-date Daily result store. New Daily completions should write through `saveDailyResult()` there, not directly to `dailyHistory`.
+- `gameStats` remains the aggregate source for total games, win distribution, success rate, and streaks because old records can predate Calendar history and cannot be fully reconstructed from per-date data.
+- `dailyHistory.ts` is retained for legacy migration and attendance-shaped helper output. Treat its old localStorage data as an input to `dailyResults`, not as the write target for new results.
+- `DailyResult.guessCount` means actual submitted guesses. A dead end normally records `guessCount: 5`, while a full guess-limit loss records `guessCount: 6`.
+- `DailyResult.endReason` values are:
+  - `win`: solved game.
+  - `guess_limit`: failed after exhausting guesses.
+  - `dead_end`: failed early because the chain letter made the answer impossible.
+  - `unknown`: migrated legacy loss where the exact loss reason cannot be recovered.
+- Detail stats live on `DailyResult.playStats` and are accessed through the `loadDailyDetailStats*`, `saveDailyDetailStats`, and `summarizeDetailStats` helpers in `playStats.ts`.
+- Tile count achievements should use stored `tileCounts` when available. Legacy records without tile counts must not be guessed into retroactive tile-pattern unlocks.
 
 ## Temporal And Local Time
 
@@ -209,15 +228,16 @@ Translations live in `src/locales/{lang}/translation.json` and are bundled throu
 
 ## UI Notes
 
-- Info, Stats, Settings, Donate, and Patch Notes are modal-based.
+- Info, Stats, Rewards, Settings, Donate, and Patch Notes are modal-based.
 - `InfoModal` uses mode-specific tab content for `daily`, `practice`, `custom`, and `create`.
 - `PatchNotesModal` is shown when localStorage `seenPatchNotesVersion` differs from `PATCH_NOTES_VERSION`. Because it is a simple mismatch check, downgrades can also show the modal.
 - `DonateModal` uses tabs for payment methods including KakaoPay QR, Toss Pay, and GitHub Sponsors. Payment URLs live in `config.ts`.
 - `StatsModal` is mode-dependent:
-  - Daily: tab UI with Statistics, Calendar, and Achievements. Statistics includes summary stats and Guess Distribution. Completed games show Share and countdown. Calendar contains monthly Daily history. Achievements contains progress, rewards, and `NEW!` state.
+  - Daily: Records tabs are Today, Calendar, Summary, and Details. Today shows the current Daily result, countdown, share controls, and current-day detail stats. Calendar renders monthly `dailyResults`. Summary combines aggregate `gameStats` with per-date loss reasons. Details summarizes tracked `playStats`.
   - Custom: compact Records view with share and no histogram.
-  - localStorage keys: Daily uses `gameStats`, Custom uses `customGameStats`.
-- `SettingsModal` is a single-scroll layout with language selection popup, sample view, uppercase/share URL toggles, cosmetic dropdown pickers, and Alert Message theme picker. Alert Message uses a left/right transition-only popup.
+  - localStorage keys: Daily aggregate stats use `gameStats`; Daily date-level records use `dailyResults`; Custom uses `customGameStats`.
+- `RewardsModal` owns Achievements and Cosmetics. Rewards must remain reachable outside Daily because some achievements and cosmetics can target non-Daily modes.
+- `SettingsModal` is a single-scroll layout with grouped settings, language selection popup, uppercase/share URL toggles, week-start setting, and Enter hint setting. Do not put reward selection controls back into Settings unless the product direction changes.
 
 Header icons by mode:
 
@@ -225,10 +245,11 @@ Header icons by mode:
 | -------- | ----- | -------- | ------ | ------ |
 | Info     | yes   | yes      | yes    | yes    |
 | Stats    | yes   | no       | no     | no     |
+| Rewards  | yes   | yes      | yes    | yes    |
 | Settings | yes   | yes      | yes    | yes    |
 | Donate   | yes   | yes      | yes    | yes    |
 
-Stats is Daily-only. Screenshot scripts rely on icon positions: Daily uses Info=0, Stats=1, Settings=2, Donate=3; other modes use Info=0, Settings=1, Donate=2.
+Stats is Daily-only. Screenshot scripts rely on icon positions: Daily uses Info=0, Stats=1, Rewards=2, Settings=3, Donate=4; other modes use Info=0, Rewards=1, Settings=2, Donate=3.
 
 ## Chain Rule
 
