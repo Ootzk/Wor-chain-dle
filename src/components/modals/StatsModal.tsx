@@ -34,6 +34,7 @@ import {
   getKnownEvents,
 } from '../../lib/events'
 import { EventVersionPicker } from '../events/EventVersionPicker'
+import { EventRecordsPanel } from '../events/EventRecordsPanel'
 import {
   EventResultsByVersion,
   getEventDetailStatsHistory,
@@ -989,7 +990,10 @@ export const StatsModal = ({
         )}
 
         {activeTab === 'event' && isEventRecords && (
-          <div className="h-full" aria-label="Event records panel" />
+          <EventRecordsPanel
+            event={selectedEvent}
+            selectedVersion={selectedVersion}
+          />
         )}
 
         {activeTab === 'calendar' && (
