@@ -4,16 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { AchievementList } from '../achievements/AchievementList'
 import { CosmeticsPanel } from '../rewards/CosmeticsPanel'
 import { BaseModal } from './BaseModal'
-import {
-  EventDefinition,
-  getEventByVersion,
-  getKnownEvents,
-} from '../../lib/events'
+import { EventDefinition, getKnownEvents } from '../../lib/events'
 import { GameMode } from '../../lib/gameMode'
 import {
   normalizeRewardVersion,
   RewardMetadataFilter,
 } from '../../lib/rewardMetadata'
+import { EventVersionPicker } from '../events/EventVersionPicker'
 
 type RewardsTab = 'achievements' | 'cosmetics'
 
@@ -77,28 +74,14 @@ export const RewardsModal = ({
     isEventRewards && selectedVersion
       ? { introducedInVersion: normalizeRewardVersion(selectedVersion) }
       : undefined
-  const formatEventOption = (version: string) => {
-    const eventForVersion =
-      getEventByVersion(version) ||
-      (event?.version === version ? event : null)
-    return eventForVersion
-      ? `${version} ${t(eventForVersion.themeKey)}`
-      : version
-  }
   const titleAction =
     isEventRewards && eventVersions.length > 0 ? (
-      <select
-        aria-label={t('eventRecordsVersion')}
-        className="max-w-[11rem] rounded border border-gray-300 bg-white px-1.5 py-0.5 text-xs font-normal text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        value={selectedVersion}
-        onChange={(e) => setSelectedEventVersion(e.target.value)}
-      >
-        {eventVersions.map((version) => (
-          <option key={version} value={version}>
-            {formatEventOption(version)}
-          </option>
-        ))}
-      </select>
+      <EventVersionPicker
+        versions={eventVersions}
+        selectedVersion={selectedVersion}
+        onChange={setSelectedEventVersion}
+        fallbackEvent={event}
+      />
     ) : undefined
 
   const tabs = [

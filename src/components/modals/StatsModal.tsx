@@ -33,6 +33,7 @@ import {
   getEventByVersion,
   getKnownEvents,
 } from '../../lib/events'
+import { EventVersionPicker } from '../events/EventVersionPicker'
 import {
   EventResultsByVersion,
   getEventDetailStatsHistory,
@@ -567,28 +568,14 @@ export const StatsModal = ({
           ) / summaryWins
         ).toFixed(1)
       : EMPTY_VALUE
-  const formatEventOption = (version: string) => {
-    const eventForVersion =
-      getEventByVersion(version) ||
-      (event?.version === version ? event : null)
-    return eventForVersion
-      ? `${version} ${t(eventForVersion.themeKey)}`
-      : version
-  }
   const eventVersionSelect =
     isEventRecords && eventVersions.length > 0 ? (
-      <select
-        aria-label={t('eventRecordsVersion')}
-        className="max-w-[11rem] rounded border border-gray-300 bg-white px-1.5 py-0.5 text-xs font-normal text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        value={selectedVersion}
-        onChange={(e) => setSelectedEventVersion(e.target.value)}
-      >
-        {eventVersions.map((version) => (
-          <option key={version} value={version}>
-            {formatEventOption(version)}
-          </option>
-        ))}
-      </select>
+      <EventVersionPicker
+        versions={eventVersions}
+        selectedVersion={selectedVersion}
+        onChange={setSelectedEventVersion}
+        fallbackEvent={event}
+      />
     ) : undefined
 
   // Daily/Event mode — Today + Calendar + Summary + Details
