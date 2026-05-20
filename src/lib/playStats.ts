@@ -53,9 +53,9 @@ export type CompletedPlayStats = PlayStats & {
   tileCounts?: TileCounts
 }
 
-export type DailyPlayStatsHistory = Record<string, CompletedPlayStats>
+export type DailyBehaviorStatsHistory = Record<string, CompletedPlayStats>
 
-export type PlayStatsSummary = {
+export type BehaviorStatsSummary = {
   totalGames: number
   totalDurationMs: number
   totalGuessTimeMs: number
@@ -411,7 +411,7 @@ export const countTileStatusesForGame = (
   return counts
 }
 
-export const loadDailyPlayStatsHistory = (): DailyPlayStatsHistory => {
+export const loadDailyBehaviorStatsHistory = (): DailyBehaviorStatsHistory => {
   return Object.fromEntries(
     Object.entries(loadDailyResults())
       .filter(([, result]) => result.playStats)
@@ -419,7 +419,7 @@ export const loadDailyPlayStatsHistory = (): DailyPlayStatsHistory => {
   )
 }
 
-export const loadDailyPlayStats = (
+export const loadDailyBehaviorStats = (
   dateKey: string,
   solution?: string
 ): CompletedPlayStats | null => {
@@ -428,7 +428,7 @@ export const loadDailyPlayStats = (
   return normalizePlayStats(stats)
 }
 
-export const saveDailyPlayStats = (
+export const saveDailyBehaviorStats = (
   dateKey: string,
   stats: CompletedPlayStats
 ) => {
@@ -609,9 +609,9 @@ const getFrictionPerSubmitFromGames = (games: CompletedPlayStats[]) => {
   return (deletePresses + wrongEnterPresses) / validSubmissions
 }
 
-export const summarizePlayStats = (
-  history: DailyPlayStatsHistory
-): PlayStatsSummary => {
+export const summarizeBehaviorStats = (
+  history: DailyBehaviorStatsHistory
+): BehaviorStatsSummary => {
   const games = Object.values(history)
   if (games.length === 0) {
     return {

@@ -18,7 +18,7 @@ import {
   getShareEmojiSet,
 } from './cosmetics'
 import { createDefaultAchievementTrackingState } from './achievementProgress'
-import { DailyPlayStatsHistory } from './playStats'
+import { DailyBehaviorStatsHistory } from './playStats'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -310,7 +310,7 @@ describe('share badge achievements', () => {
       monthlyAttendance!.progress({
         stats,
         dailyHistory: partialMonth,
-        dailyPlayStatsHistory: {},
+        dailyBehaviorStatsHistory: {},
         mode: 'daily',
         progress: createDefaultAchievementTrackingState(),
       })
@@ -396,8 +396,8 @@ describe('share badge achievements', () => {
     ).toContain('bibimbap_balance')
   })
 
-  it('unlocks bibimbap from stored tile counts in daily play stats', () => {
-    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+  it('unlocks bibimbap from stored tile counts in daily behavior stats', () => {
+    const dailyBehaviorStatsHistory: DailyBehaviorStatsHistory = {
       '2026-05-20': {
         mode: 'daily',
         dateKey: '2026-05-20',
@@ -422,13 +422,13 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
-        dailyPlayStatsHistory,
+        dailyBehaviorStatsHistory,
       })
     ).toContain('bibimbap_balance')
   })
 
   it('does not unlock bibimbap from stored balanced tiles without a 6-guess win', () => {
-    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+    const dailyBehaviorStatsHistory: DailyBehaviorStatsHistory = {
       '2026-05-20': {
         mode: 'daily',
         dateKey: '2026-05-20',
@@ -453,7 +453,7 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
-        dailyPlayStatsHistory,
+        dailyBehaviorStatsHistory,
       })
     ).not.toContain('bibimbap_balance')
   })
@@ -497,8 +497,8 @@ describe('share badge achievements', () => {
     ).toContain('no_present_game')
   })
 
-  it('unlocks apple from stored tile counts in daily play stats', () => {
-    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+  it('unlocks apple from stored tile counts in daily behavior stats', () => {
+    const dailyBehaviorStatsHistory: DailyBehaviorStatsHistory = {
       '2026-05-20': {
         mode: 'daily',
         dateKey: '2026-05-20',
@@ -523,7 +523,7 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
-        dailyPlayStatsHistory,
+        dailyBehaviorStatsHistory,
       })
     ).toContain('no_present_game')
   })
@@ -551,8 +551,8 @@ describe('share badge achievements', () => {
     ).toContain('no_correct_game')
   })
 
-  it('unlocks grape from stored tile counts in daily play stats', () => {
-    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+  it('unlocks grape from stored tile counts in daily behavior stats', () => {
+    const dailyBehaviorStatsHistory: DailyBehaviorStatsHistory = {
       '2026-05-20': {
         mode: 'daily',
         dateKey: '2026-05-20',
@@ -577,13 +577,13 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
-        dailyPlayStatsHistory,
+        dailyBehaviorStatsHistory,
       })
     ).toContain('no_correct_game')
   })
 
-  it('does not treat legacy play stats without tile counts as a tile pattern match', () => {
-    const legacyDailyPlayStatsHistory = {
+  it('does not treat legacy behavior stats without tile counts as a tile pattern match', () => {
+    const legacyDailyBehaviorStatsHistory = {
       '2026-05-20': {
         mode: 'daily',
         dateKey: '2026-05-20',
@@ -597,12 +597,12 @@ describe('share badge achievements', () => {
         won: false,
         guessCount: 5,
       },
-    } as DailyPlayStatsHistory
+    } as DailyBehaviorStatsHistory
 
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
-        dailyPlayStatsHistory: legacyDailyPlayStatsHistory,
+        dailyBehaviorStatsHistory: legacyDailyBehaviorStatsHistory,
       })
     ).not.toEqual(
       expect.arrayContaining(['no_present_game', 'no_correct_game'])
@@ -610,7 +610,7 @@ describe('share badge achievements', () => {
   })
 
   it('counts stored tile pattern matches toward multi-game targets', () => {
-    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+    const dailyBehaviorStatsHistory: DailyBehaviorStatsHistory = {
       '2026-05-19': {
         mode: 'daily',
         dateKey: '2026-05-19',
@@ -659,7 +659,7 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievementDefinitions([achievement], stats, dailyHistory, {
         mode: 'daily',
-        dailyPlayStatsHistory,
+        dailyBehaviorStatsHistory,
       })
     ).toContain('two_no_correct_games')
   })

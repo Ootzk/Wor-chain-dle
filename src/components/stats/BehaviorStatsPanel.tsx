@@ -1,12 +1,12 @@
 import { ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InformationCircleIcon } from '@heroicons/react/outline'
-import { PlayStatsSummary } from '../../lib/playStats'
+import { BehaviorStatsSummary } from '../../lib/playStats'
 import { CharStatus } from '../../lib/statuses'
 import { Cell } from '../grid/Cell'
 
 type Props = {
-  summary: PlayStatsSummary
+  summary: BehaviorStatsSummary
 }
 
 type TimeUnit = 's' | 'm' | 'h' | 'd'
@@ -340,7 +340,7 @@ const TileCountsRow = ({
   summary,
   viewMode,
 }: {
-  summary: PlayStatsSummary
+  summary: BehaviorStatsSummary
   viewMode: ViewMode
 }) => {
   const { t } = useTranslation()
@@ -388,7 +388,7 @@ const TileCountsRow = ({
   )
 }
 
-export const PlayStatsPanel = ({ summary }: Props) => {
+export const BehaviorStatsPanel = ({ summary }: Props) => {
   const { t } = useTranslation()
   const [timeUnit, setTimeUnit] = useState<TimeUnit>('m')
   const [viewMode, setViewMode] = useState<ViewMode>('total')

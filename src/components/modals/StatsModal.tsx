@@ -8,7 +8,7 @@ import { Calendar } from '../calendar/Calendar'
 import { GameStats } from '../../lib/localStorage'
 import {
   PlayStats,
-  PlayStatsSummary,
+  BehaviorStatsSummary,
   getCurrentPlayDurationMs,
   getFirstInputDelayMs,
   getTotalLongPauseMs,
@@ -28,7 +28,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
-import { PlayStatsPanel } from '../stats/PlayStatsPanel'
+import { BehaviorStatsPanel } from '../stats/BehaviorStatsPanel'
 import { CONFIG } from '../../constants/config'
 import { Cell } from '../grid/Cell'
 import { CharStatus } from '../../lib/statuses'
@@ -59,7 +59,7 @@ type Props = {
   initialTab?: 'today' | 'calendar' | 'summary' | 'behavior'
   isUppercase: boolean
   playStats: PlayStats
-  playStatsSummary: PlayStatsSummary
+  behaviorStatsSummary: BehaviorStatsSummary
   dailyResults: DailyResults
 }
 
@@ -351,7 +351,7 @@ export const StatsModal = ({
   onOpenDeadEndHelp,
   initialTab,
   playStats,
-  playStatsSummary,
+  behaviorStatsSummary,
   dailyResults,
 }: Props) => {
   const { t } = useTranslation()
@@ -847,7 +847,7 @@ export const StatsModal = ({
         {activeTab === 'behavior' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <PlayStatsPanel summary={playStatsSummary} />
+              <BehaviorStatsPanel summary={behaviorStatsSummary} />
             </div>
           </div>
         )}

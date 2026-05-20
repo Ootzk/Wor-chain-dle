@@ -14,6 +14,13 @@ const LEGACY_DAILY_PLAY_STATS_KEY = 'dailyPlayStats'
 
 export type DailyEndReason = 'win' | 'guess_limit' | 'dead_end' | 'unknown'
 
+/**
+ * Canonical per-date Daily result.
+ *
+ * `gameStats` remains the aggregate, pre-calendar-compatible source for total
+ * wins/losses and streaks. `dailyResults` is the source for date-level records,
+ * calendar rendering, loss reasons, behavior stats, and tile counts.
+ */
 export type DailyResult = {
   dateKey: string
   solution?: string
@@ -26,7 +33,10 @@ export type DailyResult = {
 
 export type DailyResults = Record<string, DailyResult>
 
-type LegacyDailyPlayStatsHistory = Record<string, Partial<CompletedPlayStats>>
+type LegacyDailyBehaviorStatsHistory = Record<
+  string,
+  Partial<CompletedPlayStats>
+>
 
 const isTileCounts = (value: unknown): value is TileCounts => {
   if (!value || typeof value !== 'object') return false
@@ -85,9 +95,9 @@ const readStoredDailyResults = (): DailyResults => {
   )
 }
 
-const readLegacyDailyPlayStats = (): LegacyDailyPlayStatsHistory => {
+const readLegacyDailyBehaviorStats = (): LegacyDailyBehaviorStatsHistory => {
   const raw = localStorage.getItem(LEGACY_DAILY_PLAY_STATS_KEY)
-  return raw ? (JSON.parse(raw) as LegacyDailyPlayStatsHistory) : {}
+  return raw ? (JSON.parse(raw) as LegacyDailyBehaviorStatsHistory) : {}
 }
 
 const createResultFromHistory = (
@@ -100,7 +110,7 @@ const createResultFromHistory = (
   endReason: result.won ? 'win' : 'unknown',
 })
 
-const createResultFromPlayStats = (
+const createResultFromBehaviorStats = (
   dateKey: string,
   stats: Partial<CompletedPlayStats>
 ): DailyResult => {
@@ -120,17 +130,17 @@ const createResultFromPlayStats = (
 export const loadDailyResults = (): DailyResults => {
   const stored = readStoredDailyResults()
   const legacyHistory = loadDailyHistory()
-  const legacyPlayStats = readLegacyDailyPlayStats()
+  const legacyBehaviorStats = readLegacyDailyBehaviorStats()
   const migrated: DailyResults = {}
 
   for (const [dateKey, result] of Object.entries(legacyHistory)) {
     migrated[dateKey] = createResultFromHistory(dateKey, result)
   }
 
-  for (const [dateKey, stats] of Object.entries(legacyPlayStats)) {
+  for (const [dateKey, stats] of Object.entries(legacyBehaviorStats)) {
     migrated[dateKey] = {
       ...migrated[dateKey],
-      ...createResultFromPlayStats(dateKey, stats),
+      ...createResultFromBehaviorStats(dateKey, stats),
     }
   }
 
