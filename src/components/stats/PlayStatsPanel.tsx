@@ -195,15 +195,19 @@ const MetricValueLabel = ({
   labelClassName,
   className = '',
   children,
+  relaxed = false,
 }: {
   label: ReactNode
   value: string
   labelClassName?: string
   className?: string
   children?: ReactNode
+  relaxed?: boolean
 }) => (
   <div
-    className={`flex h-11 min-w-0 flex-col items-center justify-center px-0.5 ${className}`}
+    className={`flex ${
+      relaxed ? 'h-[3.25rem]' : 'h-12'
+    } min-w-0 flex-col items-center justify-center px-0.5 ${className}`}
   >
     <div className="flex h-6 min-w-0 items-center">
       <div className="min-w-0 whitespace-nowrap text-xl font-bold leading-none text-gray-900 sm:text-2xl">
@@ -211,7 +215,9 @@ const MetricValueLabel = ({
       </div>
     </div>
     <div
-      className={`flex min-h-[1.1rem] items-start justify-center gap-0.5 break-words text-[10px] leading-[0.65rem] ${
+      className={`${
+        relaxed ? 'mt-3' : 'mt-0.5'
+      } flex min-h-[1.1rem] items-start justify-center gap-0.5 break-words text-[10px] leading-[0.65rem] ${
         labelClassName ?? 'text-gray-900'
       }`}
     >
@@ -226,36 +232,58 @@ const SingleMetric = ({
   value,
   className = '',
   separated = false,
+  alignLabelWithBox = false,
 }: {
   label: ReactNode
   value: string
   className?: string
   separated?: boolean
-}) => (
-  <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
-    <div className="h-1" aria-hidden="true" />
-    <MetricValueLabel
-      label={label}
-      value={value}
-      className={separated ? 'border-r border-gray-300' : undefined}
-    />
-  </div>
-)
+  alignLabelWithBox?: boolean
+}) =>
+  alignLabelWithBox ? (
+    <div
+      className={`relative min-w-0 px-0.5 text-center ${
+        separated ? 'border-r border-gray-300' : ''
+      } ${className}`}
+    >
+      <div className="rounded border border-transparent px-1.5 py-0.5">
+        <MetricValueLabel label="" value={value} />
+        <div className="mt-0.5 break-words pb-0.5 text-center text-[10px] leading-3 text-gray-900">
+          <span className="break-words">{label}</span>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
+      <div className="h-1" aria-hidden="true" />
+      <MetricValueLabel
+        label={label}
+        value={value}
+        className={separated ? 'border-r border-gray-300' : undefined}
+      />
+    </div>
+  )
 
 const MetricGrid = ({
   items,
   className = '',
   separateFirstItem = false,
+  relaxed = false,
 }: {
   className?: string
   separateFirstItem?: boolean
+  relaxed?: boolean
   items: Array<{
     label: string
     value: string
     labelClassName?: string
   }>
 }) => (
-  <div className={`min-w-0 px-0.5 text-center ${className}`}>
+  <div
+    className={`min-w-0 px-0.5 text-center ${
+      relaxed ? 'mt-0.5' : ''
+    } ${className}`}
+  >
     <div className="grid w-full grid-cols-4">
       {items.map((item, index) => (
         <MetricValueLabel
@@ -263,6 +291,7 @@ const MetricGrid = ({
           label={item.label}
           value={item.value}
           labelClassName={item.labelClassName}
+          relaxed={relaxed}
           className={
             separateFirstItem && index === 0
               ? 'border-r border-gray-300'
@@ -284,7 +313,7 @@ const BoxedMetricGrid = ({
   <div className="min-w-0 px-0.5 text-center">
     <div className="rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5">
       {children}
-      <div className="-mt-1.5 break-words pb-0.5 text-[10px] leading-3">
+      <div className="mt-0.5 break-words pb-0.5 text-[10px] leading-3">
         {label}
       </div>
     </div>
@@ -447,6 +476,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
       </SettingsLikeGroupTitle>
       <MetricGrid
         separateFirstItem
+        relaxed
         items={[
           {
             label: t('behaviorTotalDuration'),
@@ -537,6 +567,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           }
           value={formatModeCount(summary.totalDeletePresses)}
           separated
+          alignLabelWithBox
         />
         <SingleMetric
           className="col-span-2"
@@ -552,6 +583,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
               ? formatAverageCount(summary.averageFrictionPerSubmit)
               : EMPTY_VALUE
           }
+          alignLabelWithBox
         />
       </div>
 

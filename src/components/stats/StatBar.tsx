@@ -17,13 +17,13 @@ const SummaryItem = ({
   caption?: string
 }) => {
   return (
-    <div className="min-w-0 text-center">
-      <div className="flex h-7 items-center justify-center">
+    <div className="min-w-0 py-1 text-center">
+      <div className="flex h-8 items-center justify-center">
         <div className="min-w-0 whitespace-nowrap text-xl font-bold leading-none text-gray-900 sm:text-2xl">
           {value}
         </div>
       </div>
-      <div className="text-[10px] leading-3 text-gray-500">{title}</div>
+      <div className="mt-1 text-[10px] leading-3 text-gray-500">{title}</div>
       {caption && (
         <div className="text-[10px] leading-3 text-gray-400">{caption}</div>
       )}
@@ -46,7 +46,7 @@ export const StatBar = ({ gameStats, averageWinGuesses }: Props) => {
       : EMPTY_VALUE
 
   return (
-    <div className="mt-1 grid grid-cols-5 gap-y-2">
+    <div className="mt-2 grid grid-cols-5 gap-y-2">
       <SummaryItem title={t('totalTries')} value={gameStats.totalGames} />
       <SummaryItem title={t('successRate')} value={successRate} />
       <SummaryItem

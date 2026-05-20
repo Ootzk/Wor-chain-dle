@@ -63,6 +63,7 @@ type Props = {
 
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
 const EMPTY_VALUE = '-'
+type SummaryInfoItem = string | { text: string; children?: SummaryInfoItem[] }
 
 const SummaryGroupTitle = ({
   children,
@@ -77,7 +78,7 @@ const SummaryGroupTitle = ({
 }) => (
   <div
     className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
-      separated ? 'mt-1 border-t border-gray-200 pt-1' : ''
+      separated ? 'mt-1.5 border-t border-gray-200 pt-1.5' : ''
     }`}
   >
     <span className="inline-flex items-center gap-1">
@@ -90,13 +91,34 @@ const SummaryGroupTitle = ({
 
 const SummaryInfoButton = ({
   title,
+  intro,
   items,
 }: {
   title: string
-  items: string[]
+  intro?: string
+  items: SummaryInfoItem[]
 }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
+
+  const renderItems = (list: SummaryInfoItem[], nested = false) => (
+    <ul
+      className={`list-disc space-y-1 text-left ${
+        nested ? 'mt-1 pl-4' : 'pl-4'
+      }`}
+    >
+      {list.map((item, index) => {
+        const text = typeof item === 'string' ? item : item.text
+        const children = typeof item === 'string' ? undefined : item.children
+        return (
+          <li key={`${text}-${index}`}>
+            <span>{text}</span>
+            {children && renderItems(children, true)}
+          </li>
+        )
+      })}
+    </ul>
+  )
 
   return (
     <span className="relative inline-flex">
@@ -121,11 +143,8 @@ const SummaryInfoButton = ({
               ×
             </button>
           </div>
-          <ul className="list-disc space-y-1 pl-4 text-left">
-            {items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          {intro && <p className="mb-2">{intro}</p>}
+          {renderItems(items)}
         </div>
       )}
     </span>
@@ -159,7 +178,7 @@ const TodayMetric = ({
           <Cell value={value} status={cellStatus} />
         </div>
       ) : (
-        <div className="flex h-12 items-center justify-center">
+        <div className="flex h-14 items-center justify-center">
           <div
             className={`min-w-0 whitespace-nowrap text-xl font-bold sm:text-2xl ${valueClass}`}
           >
@@ -177,14 +196,18 @@ const TodayStatMetric = ({
   value,
   labelClassName = 'text-gray-500',
   className = '',
+  relaxed = false,
 }: {
   label: ReactNode
   value: string
   labelClassName?: string
   className?: string
+  relaxed?: boolean
 }) => (
   <div
-    className={`flex h-10 min-w-0 flex-col items-center justify-center px-0.5 text-center ${className}`}
+    className={`flex ${
+      relaxed ? 'h-[3.25rem]' : 'h-11'
+    } min-w-0 flex-col items-center justify-center px-0.5 text-center ${className}`}
   >
     <div className="flex h-5 min-w-0 items-center">
       <div className="min-w-0 whitespace-nowrap text-xl font-bold leading-none text-gray-900 sm:text-2xl">
@@ -192,7 +215,9 @@ const TodayStatMetric = ({
       </div>
     </div>
     <div
-      className={`flex min-h-[1.1rem] items-start justify-center gap-0.5 break-words text-[10px] leading-[0.65rem] ${labelClassName}`}
+      className={`${
+        relaxed ? 'mt-3' : 'mt-0.5'
+      } flex min-h-[1.1rem] items-start justify-center gap-0.5 break-words text-[10px] leading-[0.65rem] ${labelClassName}`}
     >
       {label}
     </div>
@@ -204,42 +229,65 @@ const TodaySingleMetric = ({
   value,
   className = '',
   separated = false,
+  alignLabelWithBox = false,
 }: {
   label: ReactNode
   value: string
   className?: string
   separated?: boolean
-}) => (
-  <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
-    <div className="h-0.5" aria-hidden="true" />
-    <TodayStatMetric
-      label={label}
-      value={value}
-      className={separated ? 'border-r border-gray-300' : undefined}
-    />
-  </div>
-)
+  alignLabelWithBox?: boolean
+}) =>
+  alignLabelWithBox ? (
+    <div
+      className={`relative min-w-0 px-0.5 text-center ${
+        separated ? 'border-r border-gray-300' : ''
+      } ${className}`}
+    >
+      <div className="rounded border border-transparent px-1.5 py-0.5">
+        <TodayStatMetric label="" value={value} />
+        <div className="mt-0.5 break-words pb-0.5 text-center text-[10px] leading-3">
+          {label}
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
+      <div className="h-0.5" aria-hidden="true" />
+      <TodayStatMetric
+        label={label}
+        value={value}
+        className={separated ? 'border-r border-gray-300' : undefined}
+      />
+    </div>
+  )
 
 const TodayMetricGrid = ({
   items,
   columns = 4,
   separateFirstItem = false,
+  relaxed = false,
 }: {
   columns?: 4 | 5
   separateFirstItem?: boolean
+  relaxed?: boolean
   items: Array<{
     label: ReactNode
     value: string
     labelClassName?: string
   }>
 }) => (
-  <div className={`grid ${columns === 5 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+  <div
+    className={`grid ${columns === 5 ? 'grid-cols-5' : 'grid-cols-4'} ${
+      relaxed ? 'mt-0.5' : ''
+    }`}
+  >
     {items.map((item, index) => (
       <TodayStatMetric
         key={String(item.label)}
         label={item.label}
         value={item.value}
         labelClassName={item.labelClassName}
+        relaxed={relaxed}
         className={
           separateFirstItem && index === 0
             ? 'border-r border-gray-300'
@@ -489,9 +537,9 @@ export const StatsModal = ({
         ))}
       </div>
 
-      <div className="h-[26rem]">
+      <div className="h-[28rem]">
         {activeTab === 'today' && (
-          <div className="relative flex h-full flex-col pb-20">
+          <div className="relative flex h-full flex-col pb-[4.5625rem]">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
               <section>
                 <SummaryGroupTitle
@@ -554,6 +602,7 @@ export const StatsModal = ({
                 </SummaryGroupTitle>
                 <TodayMetricGrid
                   separateFirstItem
+                  relaxed
                   items={[
                     {
                       label: t('behaviorTotalDuration'),
@@ -590,15 +639,25 @@ export const StatsModal = ({
                   info={
                     <SummaryInfoButton
                       title={t('playStatsBreakdownAction')}
+                      intro={t('behaviorActionInfoIntro')}
                       items={[
-                        t('behaviorActionInfoEnterTotal'),
-                        t('behaviorActionInfoEnterSubmit'),
-                        t('behaviorActionInfoEnterInvalid'),
-                        t('behaviorActionInfoEnterIncomplete'),
+                        {
+                          text: t('behaviorActionInfoEnter'),
+                          children: [
+                            t('behaviorActionInfoEnterTotal'),
+                            t('behaviorActionInfoEnterSubmit'),
+                            t('behaviorActionInfoEnterInvalid'),
+                            t('behaviorActionInfoEnterIncomplete'),
+                          ],
+                        },
                         t('behaviorActionInfoDelete'),
-                        t('behaviorActionInfoFriction'),
-                        t('behaviorActionInfoFrictionFormula'),
-                        t('behaviorActionInfoWrongEnter'),
+                        {
+                          text: t('behaviorActionInfoFriction'),
+                          children: [
+                            t('behaviorActionInfoFrictionFormula'),
+                            t('behaviorActionInfoWrongEnter'),
+                          ],
+                        },
                       ]}
                     />
                   }
@@ -633,7 +692,7 @@ export const StatsModal = ({
                           },
                         ]}
                       />
-                      <div className="-mt-2 break-words pb-0.5 text-center text-[10px] leading-3">
+                      <div className="mt-0.5 break-words pb-0.5 text-center text-[10px] leading-3">
                         {t('playStatsBreakdownEnter')}
                       </div>
                     </div>
@@ -646,6 +705,7 @@ export const StatsModal = ({
                     }
                     value={String(totalDeletePresses)}
                     separated
+                    alignLabelWithBox
                   />
                   <TodaySingleMetric
                     className="col-span-2"
@@ -657,6 +717,7 @@ export const StatsModal = ({
                       </>
                     }
                     value={frictionPerSubmit}
+                    alignLabelWithBox
                   />
                 </div>
               </section>
