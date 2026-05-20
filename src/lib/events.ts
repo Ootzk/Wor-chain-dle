@@ -42,7 +42,7 @@ export type EventWordOfDay = {
 
 const eventWordPermutations = new Map<string, number[]>()
 
-const ACTIVE_EVENT: EventDefinition = {
+const SUMMER_GARDEN_EVENT: EventDefinition = {
   id: 'v1.7.0-event',
   version: 'v1.7.0',
   titleKey: 'eventModeTitle',
@@ -81,6 +81,10 @@ const ACTIVE_EVENT: EventDefinition = {
   ],
 }
 
+const ACTIVE_EVENT_VERSION = 'v1.7.0'
+
+const KNOWN_EVENTS: EventDefinition[] = [SUMMER_GARDEN_EVENT]
+
 const hashSeed = (seed: string) =>
   seed.split('').reduce((hash, char) => {
     return (hash * 31 + char.charCodeAt(0)) >>> 0
@@ -115,15 +119,16 @@ export const getEventWordPermutation = (answerSeed: string): number[] => {
   return permutation
 }
 
-export const getActiveEvent = (): EventDefinition => ACTIVE_EVENT
+export const getKnownEvents = (): EventDefinition[] => KNOWN_EVENTS
 
-export const getKnownEvents = (): EventDefinition[] => [ACTIVE_EVENT]
+export const getActiveEvent = (): EventDefinition =>
+  getEventByVersion(ACTIVE_EVENT_VERSION) ?? KNOWN_EVENTS[0]
 
 export const getEventByVersion = (version: string): EventDefinition | null =>
   getKnownEvents().find((event) => event.version === version) ?? null
 
 export const getEventWordOfDay = (
-  event: EventDefinition = ACTIVE_EVENT,
+  event: EventDefinition = getActiveEvent(),
   date: Temporal.PlainDate = Temporal.Now.plainDateISO()
 ): EventWordOfDay => {
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
