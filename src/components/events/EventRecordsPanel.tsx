@@ -190,9 +190,13 @@ export const EventRecordsPanel = ({
                 </div>
                 <div
                   key={`${rowIndex}-clear`}
-                  className="flex items-center justify-center text-[10px] font-bold leading-3 text-green-500"
+                  className="flex items-center justify-center"
                 >
-                  {isClear ? 'CLEAR!' : ''}
+                  {isClear && (
+                    <span className="rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">
+                      CLEAR!
+                    </span>
+                  )}
                 </div>
                 <div
                   key={`${rowIndex}-count`}
