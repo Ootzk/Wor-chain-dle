@@ -6,6 +6,8 @@ export type DayResult = {
   won: boolean
 }
 
+// Legacy date-level shape retained for migration and attendance helpers.
+// New Daily completions are stored through dailyResults.ts.
 export type DailyHistory = Record<string, DayResult> // key = "yyyy-mm-dd"
 
 const STORAGE_KEY = 'dailyHistory'
@@ -33,39 +35,6 @@ export const loadDailyHistory = (): DailyHistory => {
 
 export const saveDailyHistory = (history: DailyHistory): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
-}
-
-export const saveDailyResult = (
-  dateKey: string,
-  guessCount: number,
-  won: boolean
-): void => {
-  const history = loadDailyHistory()
-  if (history[dateKey]) return // prevent double-write
-  history[dateKey] = { guessCount, won }
-  saveDailyHistory(history)
-}
-
-export const getMonthResults = (
-  year: number,
-  month: number // 0-indexed
-): (DayResult | null)[] => {
-  const history = loadDailyHistory()
-  const firstDay = Temporal.PlainDate.from({
-    year,
-    month: month + 1, // Temporal uses 1-indexed months
-    day: 1,
-  })
-  const daysInMonth = firstDay.daysInMonth
-  const results: (DayResult | null)[] = []
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = firstDay.with({ day })
-    const key = dateToKey(date)
-    results.push(history[key] ?? null)
-  }
-
-  return results
 }
 
 export const hasCompleteMonth = (

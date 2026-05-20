@@ -5,6 +5,7 @@ import {
   evaluateAchievementDefinitions,
   evaluateAchievements,
   getAchievementModes,
+  getTilePatternProgress,
   loadAchievementState,
   retroUnlockAchievements,
 } from './achievements'
@@ -17,6 +18,7 @@ import {
   getShareEmojiSet,
 } from './cosmetics'
 import { createDefaultAchievementTrackingState } from './achievementProgress'
+import { DailyDetailStatsHistory } from './playStats'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -272,7 +274,7 @@ describe('share badge achievements', () => {
         'win_in_6_20',
       ])
     )
-    expect(loadAchievementState().version).toBe(4)
+    expect(loadAchievementState().version).toBe('v1.7.0')
     expect(loadAchievementState().retroCompleted).toBe(true)
   })
 
@@ -308,6 +310,7 @@ describe('share badge achievements', () => {
       monthlyAttendance!.progress({
         stats,
         dailyHistory: partialMonth,
+        dailyDetailStatsHistory: {},
         mode: 'daily',
         progress: createDefaultAchievementTrackingState(),
       })
@@ -393,6 +396,68 @@ describe('share badge achievements', () => {
     ).toContain('bibimbap_balance')
   })
 
+  it('unlocks bibimbap from stored tile counts in daily detail stats', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: true,
+        guessCount: 6,
+        tileCounts: {
+          correct: 10,
+          present: 10,
+          absent: 10,
+          unrevealed: 6,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('bibimbap_balance')
+  })
+
+  it('does not unlock bibimbap from stored balanced tiles without a 6-guess win', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 6,
+        tileCounts: {
+          correct: 10,
+          present: 10,
+          absent: 10,
+          unrevealed: 6,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).not.toContain('bibimbap_balance')
+  })
+
   it('unlocks yogurt from using apple grape and milks in one game', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
@@ -432,6 +497,37 @@ describe('share badge achievements', () => {
     ).toContain('no_present_game')
   })
 
+  it('unlocks apple from stored tile counts in daily detail stats', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 4,
+          present: 0,
+          absent: 21,
+          unrevealed: 11,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('no_present_game')
+  })
+
   it('unlocks grape from a completed daily game with no correct tiles', () => {
     const guesses = [
       ['h', 'x', 'x', 'x', 'x'],
@@ -453,5 +549,118 @@ describe('share badge achievements', () => {
         },
       })
     ).toContain('no_correct_game')
+  })
+
+  it('unlocks grape from stored tile counts in daily detail stats', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 0,
+          present: 7,
+          absent: 18,
+          unrevealed: 11,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('no_correct_game')
+  })
+
+  it('does not treat legacy detail stats without tile counts as a tile pattern match', () => {
+    const legacyDailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+      },
+    } as DailyDetailStatsHistory
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory: legacyDailyDetailStatsHistory,
+      })
+    ).not.toEqual(
+      expect.arrayContaining(['no_present_game', 'no_correct_game'])
+    )
+  })
+
+  it('counts stored tile pattern matches toward multi-game targets', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-19': {
+        mode: 'daily',
+        dateKey: '2026-05-19',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 0,
+          present: 4,
+          absent: 21,
+          unrevealed: 11,
+        },
+      },
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: true,
+        guessCount: 4,
+        tileCounts: {
+          correct: 0,
+          present: 7,
+          absent: 13,
+          unrevealed: 16,
+        },
+      },
+    }
+    const achievement = createAchievement({
+      id: 'two_no_correct_games',
+      progress: (ctx) =>
+        getTilePatternProgress(ctx, (counts) => counts.correct === 0, 2),
+    })
+
+    expect(
+      evaluateAchievementDefinitions([achievement], stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('two_no_correct_games')
   })
 })

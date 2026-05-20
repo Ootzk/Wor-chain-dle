@@ -1,9 +1,13 @@
 import { GameMode } from './gameMode'
 import { CONFIG } from '../constants/config'
 import { getGuessStatuses } from './statuses'
+import {
+  loadDailyResult,
+  loadDailyResults,
+  saveDailyResult,
+} from './dailyResults'
 
 const currentPlayStatsKey = 'currentPlayStats'
-const dailyPlayStatsKey = 'dailyPlayStats'
 const longPauseThresholdMs = 5 * 60 * 1000
 
 export type EnterAttemptKind = 'incomplete' | 'invalid' | 'valid'
@@ -49,9 +53,9 @@ export type CompletedPlayStats = PlayStats & {
   tileCounts?: TileCounts
 }
 
-export type DailyPlayStatsHistory = Record<string, CompletedPlayStats>
+export type DailyDetailStatsHistory = Record<string, CompletedPlayStats>
 
-export type PlayStatsSummary = {
+export type DetailStatsSummary = {
   totalGames: number
   totalDurationMs: number
   totalGuessTimeMs: number
@@ -407,33 +411,36 @@ export const countTileStatusesForGame = (
   return counts
 }
 
-export const loadDailyPlayStatsHistory = (): DailyPlayStatsHistory => {
-  const history = localStorage.getItem(dailyPlayStatsKey)
-  return history ? (JSON.parse(history) as DailyPlayStatsHistory) : {}
+export const loadDailyDetailStatsHistory = (): DailyDetailStatsHistory => {
+  return Object.fromEntries(
+    Object.entries(loadDailyResults())
+      .filter(([, result]) => result.playStats)
+      .map(([dateKey, result]) => [dateKey, result.playStats!])
+  )
 }
 
-export const loadDailyPlayStats = (
+export const loadDailyDetailStats = (
   dateKey: string,
   solution?: string
 ): CompletedPlayStats | null => {
-  const stats = loadDailyPlayStatsHistory()[dateKey] ?? null
+  const stats = loadDailyResult(dateKey, solution)?.playStats ?? null
   if (!stats) return null
-  if (solution && stats.solution !== solution) return null
   return normalizePlayStats(stats)
 }
 
-export const saveDailyPlayStats = (
+export const saveDailyDetailStats = (
   dateKey: string,
   stats: CompletedPlayStats
 ) => {
-  const history = loadDailyPlayStatsHistory()
-  localStorage.setItem(
-    dailyPlayStatsKey,
-    JSON.stringify({
-      ...history,
-      [dateKey]: stats,
-    })
-  )
+  saveDailyResult({
+    dateKey,
+    solution: stats.solution,
+    won: stats.won,
+    guessCount: stats.guessCount,
+    endReason: stats.won ? 'win' : 'unknown',
+    tileCounts: stats.tileCounts,
+    playStats: stats,
+  })
   clearCurrentPlayStats()
 }
 
@@ -602,9 +609,9 @@ const getFrictionPerSubmitFromGames = (games: CompletedPlayStats[]) => {
   return (deletePresses + wrongEnterPresses) / validSubmissions
 }
 
-export const summarizePlayStats = (
-  history: DailyPlayStatsHistory
-): PlayStatsSummary => {
+export const summarizeDetailStats = (
+  history: DailyDetailStatsHistory
+): DetailStatsSummary => {
   const games = Object.values(history)
   if (games.length === 0) {
     return {

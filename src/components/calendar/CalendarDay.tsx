@@ -1,8 +1,8 @@
-import { DayResult } from '../../lib/dailyHistory'
+import { DailyResult } from '../../lib/dailyResults'
 
 type Props = {
   day: number | null // null for placeholder cells (outside month)
-  result?: DayResult | null
+  result?: DailyResult | null
   isToday: boolean
   isFuture: boolean
   isBeforeEpoch: boolean
@@ -51,7 +51,9 @@ export const CalendarDay = ({
   return (
     <div className="w-10 h-12 flex flex-col items-center">
       <span
-        className={`text-xs leading-tight ${inactive ? 'text-gray-300' : 'text-gray-500'}`}
+        className={`text-xs leading-tight ${
+          inactive ? 'text-gray-300' : 'text-gray-500'
+        }`}
       >
         {dayLabel}
       </span>

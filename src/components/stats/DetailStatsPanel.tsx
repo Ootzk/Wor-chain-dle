@@ -1,12 +1,12 @@
 import { ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InformationCircleIcon } from '@heroicons/react/outline'
-import { PlayStatsSummary } from '../../lib/playStats'
+import { DetailStatsSummary } from '../../lib/playStats'
 import { CharStatus } from '../../lib/statuses'
 import { Cell } from '../grid/Cell'
 
 type Props = {
-  summary: PlayStatsSummary
+  summary: DetailStatsSummary
 }
 
 type TimeUnit = 's' | 'm' | 'h' | 'd'
@@ -120,7 +120,7 @@ const GroupInfoButton = ({
               type="button"
               className="shrink-0 font-semibold text-gray-400 hover:text-gray-700"
               onClick={() => setIsOpen(false)}
-              aria-label={t('behaviorInfoClose')}
+              aria-label={t('detailInfoClose')}
             >
               ×
             </button>
@@ -172,8 +172,8 @@ const ViewModeToggle = ({
 }) => {
   const { t } = useTranslation()
   const options: Array<{ mode: ViewMode; label: string }> = [
-    { mode: 'total', label: t('behaviorViewTotal') },
-    { mode: 'average', label: t('behaviorViewAverage') },
+    { mode: 'total', label: t('detailViewTotal') },
+    { mode: 'average', label: t('detailViewAverage') },
   ]
 
   return (
@@ -340,7 +340,7 @@ const TileCountsRow = ({
   summary,
   viewMode,
 }: {
-  summary: PlayStatsSummary
+  summary: DetailStatsSummary
   viewMode: ViewMode
 }) => {
   const { t } = useTranslation()
@@ -352,7 +352,7 @@ const TileCountsRow = ({
     <div className="px-0.5">
       <div className="grid grid-cols-4 gap-0.5">
         <TileSample
-          label={t('behaviorTileCorrect')}
+          label={t('detailTileCorrect')}
           status="correct"
           labelClassName="text-green-500"
           count={formatCount(
@@ -361,7 +361,7 @@ const TileCountsRow = ({
           )}
         />
         <TileSample
-          label={t('behaviorTilePresent')}
+          label={t('detailTilePresent')}
           status="present"
           labelClassName="text-purple-500"
           count={formatCount(
@@ -370,13 +370,13 @@ const TileCountsRow = ({
           )}
         />
         <TileSample
-          label={t('behaviorTileAbsent')}
+          label={t('detailTileAbsent')}
           status="absent"
           labelClassName="text-gray-500"
           count={formatCount(summary.tileCounts.absent / denominator, viewMode)}
         />
         <TileSample
-          label={t('behaviorTileUnrevealed')}
+          label={t('detailTileUnrevealed')}
           labelClassName="text-gray-500"
           count={formatCount(
             summary.tileCounts.unrevealed / denominator,
@@ -388,7 +388,7 @@ const TileCountsRow = ({
   )
 }
 
-export const PlayStatsPanel = ({ summary }: Props) => {
+export const DetailStatsPanel = ({ summary }: Props) => {
   const { t } = useTranslation()
   const [timeUnit, setTimeUnit] = useState<TimeUnit>('m')
   const [viewMode, setViewMode] = useState<ViewMode>('total')
@@ -416,15 +416,15 @@ export const PlayStatsPanel = ({ summary }: Props) => {
         info={
           <GroupInfoButton
             title={t('statsDashboard')}
-            intro={t('behaviorTrackingInfoIntro')}
+            intro={t('detailTrackingInfoIntro')}
             items={[
-              { text: t('behaviorTrackingInfoTrackedGames') },
+              { text: t('detailTrackingInfoTrackedGames') },
               {
-                text: t('behaviorTrackingInfoViewMode'),
+                text: t('detailTrackingInfoViewMode'),
                 children: [
-                  { text: t('behaviorTrackingInfoTotal') },
-                  { text: t('behaviorTrackingInfoAverage') },
-                  { text: t('behaviorTrackingInfoRatio') },
+                  { text: t('detailTrackingInfoTotal') },
+                  { text: t('detailTrackingInfoAverage') },
+                  { text: t('detailTrackingInfoRatio') },
                 ],
               },
             ]}
@@ -440,9 +440,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
               {String(summary.totalGames)}
             </div>
           </div>
-          <div className="text-[10px] leading-3">
-            {t('behaviorTrackedGames')}
-          </div>
+          <div className="text-[10px] leading-3">{t('detailTrackedGames')}</div>
         </div>
       </div>
 
@@ -450,38 +448,38 @@ export const PlayStatsPanel = ({ summary }: Props) => {
         separated
         info={
           <GroupInfoButton
-            title={t('behaviorTime')}
-            intro={t('behaviorTimeInfoIntro')}
+            title={t('detailTime')}
+            intro={t('detailTimeInfoIntro')}
             items={[
               {
-                text: t('behaviorTimeInfoUnit'),
+                text: t('detailTimeInfoUnit'),
                 children: [
-                  { text: t('behaviorTimeInfoUnitS') },
-                  { text: t('behaviorTimeInfoUnitM') },
-                  { text: t('behaviorTimeInfoUnitH') },
-                  { text: t('behaviorTimeInfoUnitD') },
+                  { text: t('detailTimeInfoUnitS') },
+                  { text: t('detailTimeInfoUnitM') },
+                  { text: t('detailTimeInfoUnitH') },
+                  { text: t('detailTimeInfoUnitD') },
                 ],
               },
-              { text: t('behaviorTimeInfoDuration') },
-              { text: t('behaviorTimeInfoGuess') },
-              { text: t('behaviorTimeInfoFirstInput') },
-              { text: t('behaviorTimeInfoPause') },
+              { text: t('detailTimeInfoDuration') },
+              { text: t('detailTimeInfoGuess') },
+              { text: t('detailTimeInfoFirstInput') },
+              { text: t('detailTimeInfoPause') },
             ]}
           />
         }
       >
-        {t('behaviorTime')}
+        {t('detailTime')}
       </SettingsLikeGroupTitle>
       <MetricGrid
         separateFirstItem
         relaxed
         items={[
           {
-            label: t('behaviorTotalDuration'),
+            label: t('detailTotalDuration'),
             value: formatModeTime(summary.totalDurationMs),
           },
           {
-            label: t('behaviorGuessShort'),
+            label: t('detailGuessShort'),
             value: formatModeTime(summary.totalGuessTimeMs),
             labelClassName: 'text-green-500',
           },
@@ -504,21 +502,21 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           info={
             <GroupInfoButton
               title={t('playStatsBreakdownAction')}
-              intro={t('behaviorActionInfoIntro')}
+              intro={t('detailActionInfoIntro')}
               items={[
                 {
-                  text: t('behaviorActionInfoEnter'),
+                  text: t('detailActionInfoEnter'),
                   children: [
-                    { text: t('behaviorActionInfoEnterSubmit') },
-                    { text: t('behaviorActionInfoEnterFailed') },
+                    { text: t('detailActionInfoEnterSubmit') },
+                    { text: t('detailActionInfoEnterFailed') },
                   ],
                 },
-                { text: t('behaviorActionInfoDelete') },
+                { text: t('detailActionInfoDelete') },
                 {
-                  text: t('behaviorActionInfoFriction'),
+                  text: t('detailActionInfoFriction'),
                   children: [
-                    { text: t('behaviorActionInfoFrictionFormula') },
-                    { text: t('behaviorActionInfoFrictionZeroSubmit') },
+                    { text: t('detailActionInfoFrictionFormula') },
+                    { text: t('detailActionInfoFrictionZeroSubmit') },
                   ],
                 },
               ]}
@@ -532,12 +530,12 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           enterGroupLabel={t('playStatsBreakdownEnter')}
           items={[
             {
-              label: t('behaviorSubmitShort'),
+              label: t('detailSubmitShort'),
               value: formatModeCount(totalValidEnterPresses),
               labelClassName: 'text-green-500',
             },
             {
-              label: t('behaviorFailedEnterShort'),
+              label: t('detailFailedEnterShort'),
               value: formatModeCount(totalFailedEnterPresses),
               labelClassName: 'text-purple-500',
             },
@@ -553,11 +551,11 @@ export const PlayStatsPanel = ({ summary }: Props) => {
               label: (
                 <>
                   <span className="text-purple-500">
-                    {t('behaviorFrictionShort')}
+                    {t('detailFrictionShort')}
                   </span>
                   <span>/</span>
                   <span className="text-green-500">
-                    {t('behaviorSubmitShort')}
+                    {t('detailSubmitShort')}
                   </span>
                 </>
               ),
@@ -574,19 +572,19 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           separated
           info={
             <GroupInfoButton
-              title={t('behaviorTiles')}
-              intro={t('behaviorTilesInfoIntro')}
+              title={t('detailTiles')}
+              intro={t('detailTilesInfoIntro')}
               items={[
-                { text: t('behaviorTilesInfoCorrect') },
-                { text: t('behaviorTilesInfoPresent') },
-                { text: t('behaviorTilesInfoAbsent') },
-                { text: t('behaviorTilesInfoUnrevealed') },
-                { text: t('behaviorTilesInfoDeadEnd') },
+                { text: t('detailTilesInfoCorrect') },
+                { text: t('detailTilesInfoPresent') },
+                { text: t('detailTilesInfoAbsent') },
+                { text: t('detailTilesInfoUnrevealed') },
+                { text: t('detailTilesInfoDeadEnd') },
               ]}
             />
           }
         >
-          {t('behaviorTiles')}
+          {t('detailTiles')}
         </SettingsLikeGroupTitle>
         <TileCountsRow summary={summary} viewMode={viewMode} />
       </div>

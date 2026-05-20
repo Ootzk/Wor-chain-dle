@@ -19,7 +19,7 @@
   "chainRuleTitle": "Kettenregel",
   "deadEndRuleTitle": "Dead End",
   "chainRuleInstructions": "Ab dem 2. Versuch wird ein Buchstabe aus deinem vorherigen Versuch verkettet. Der verkettete Buchstabe wird automatisch eingesetzt und gesperrt.",
-  "chainPatternInstructions": "Die Kette wechselt ab: rechts \u2192 links \u2192 rechts \u2192 links \u2192 rechts und bildet ein Schlangenmuster.",
+  "chainPatternInstructions": "Die Kette wechselt ab: rechts → links → rechts → links → rechts und bildet ein Schlangenmuster.",
   "chainDeadEndInstructions": "Wenn der gesperrte Kettenbuchstabe an dieser Position nicht zur Lösung passt, endet das Spiel vorzeitig, weil kein verbleibender Versuch mehr das richtige Wort ergeben kann. Wenn zum Beispiel der aus Zeile 5 übernommene letzte Buchstabe nicht der letzte Buchstabe der Lösung ist, kann Zeile 6 das Rätsel nicht mehr lösen.",
   "deadEndRuleLink": "Dead-End-Regel",
   "guessDistribution": "Versuchsverteilung",
@@ -43,7 +43,6 @@
   "todayDashboardInfoGuesses": "Versuche: wie viele der heutigen 6 Versuche du abgegeben hast.",
   "todayDashboardInfoAchievements": "Erfolge: wie viele Erfolge du heute freigeschaltet hast.",
   "todayDashboardInfoStreak": "Serie: deine aktuelle Daily-Siegesserie. Nach Abschluss des heutigen Spiels markiert 🔥, dass der heutige Eintrag zählt.",
-  "statsBehavior": "Verhalten",
   "todayDashboardTitle": "Heute-Dashboard",
   "playStatsTitle": "Spieldetails",
   "playStatsThisGame": "Dieses Spiel",
@@ -117,57 +116,57 @@
   "playStatsNotAvailable": "k. A.",
   "playStatsYes": "Ja",
   "playStatsNo": "Nein",
-  "behaviorInfoClose": "Hilfe schließen",
-  "behaviorTrackedGames": "Erfasste Spiele",
-  "behaviorTrackingGroup": "Aufzeichnung",
-  "behaviorTrackingInfoIntro": "Verhaltensstatistiken basieren nur auf Daily-Spielen, die nach Einführung der Aufzeichnung gespeichert wurden. Sie bleiben auf deinem Gerät, werden nicht extern gesammelt und nur für Spielaufzeichnungen verwendet.",
-  "behaviorTrackingInfoTrackedGames": "Erfasste Spiele: Daily-Spiele mit detaillierten Spieldaten.",
-  "behaviorTrackingInfoViewMode": "Mit dem unteren Schalter kannst du die meisten Werte als Gesamtwert oder Durchschnitt pro Spiel ansehen.",
-  "behaviorTrackingInfoTotal": "Gesamt: addiert alle erfassten Spiele.",
-  "behaviorTrackingInfoAverage": "Pro Spiel: teilt die Gesamtwerte durch die Anzahl der erfassten Spiele.",
-  "behaviorTrackingInfoRatio": "Reibung/Abgabe ist bereits ein Wert pro Abgabe und ändert sich dadurch nicht.",
-  "behaviorViewTotal": "Gesamt",
-  "behaviorViewAverage": "Pro Spiel",
-  "behaviorTotalDuration": "Dauer",
-  "behaviorTotalGuessTime": "Versuchszeit",
-  "behaviorTime": "Zeit",
-  "behaviorTimeInfoIntro": "Zeitwerte trennen aktives Lösen von Warten, Pausen oder offen gelassenen Rätseln.",
-  "behaviorTimeInfoUnit": "Die untere Seconds / Minutes / Hours / Days-Steuerung ändert nur die Einheit in diesem Zeitbereich.",
-  "behaviorTimeInfoUnitS": "Seconds: Zeit in Sekunden anzeigen.",
-  "behaviorTimeInfoUnitM": "Minutes: Zeit in Minuten anzeigen.",
-  "behaviorTimeInfoUnitH": "Hours: Zeit in Stunden anzeigen.",
-  "behaviorTimeInfoUnitD": "Days: Zeit in Tagen anzeigen.",
-  "behaviorTimeInfoDuration": "Dauer: die gesamte verstrichene Zeit vom Start bis zum Ende des Spiels.",
-  "behaviorTimeInfoGuess": "Versuch: aktive Lösungszeit ohne Wartezeit bis zur ersten Eingabe und 5m+-Pausen.",
-  "behaviorTimeInfoFirstInput": "Erste Eingabe: wie lange es nach dem Öffnen des Rätsels bis zum ersten Buchstaben dauerte.",
-  "behaviorTimeInfoPause": "Pause: Zeit aus Eingabelücken von 5 Minuten oder länger nach Spielbeginn.",
-  "behaviorTotalShort": "Gesamt",
-  "behaviorGuessShort": "Versuch",
-  "behaviorSubmitShort": "Abgabe",
-  "behaviorFrictionShort": "Reibung",
-  "behaviorFailedEnterShort": "Fehl",
-  "behaviorTiles": "Felder",
-  "behaviorActionInfoIntro": "Aktionswerte zeigen, was passiert ist, während du aus Versuchen Abgaben gemacht hast. Sie bleiben auf deinem Gerät und werden nur für Spielaufzeichnungen verwendet.",
-  "behaviorActionInfoEnter": "Enter-Drucke werden in Abgabe und Fehl gruppiert.",
-  "behaviorActionInfoEnterTotal": "Gesamt: jeder Enter-Druck.",
-  "behaviorActionInfoEnterSubmit": "Abgabe: Enter-Drucke, die ein gültiges Wort abschicken.",
-  "behaviorActionInfoEnterFailed": "Fehl: ungültige + unvollständige Enter-Eingaben, die keinen Versuch abschicken.",
-  "behaviorActionInfoEnterInvalid": "Ungültig: Enter auf einer gefüllten Zeile mit keinem gültigen Wort.",
-  "behaviorActionInfoEnterIncomplete": "Unvollständig: Enter, bevor die Zeile vollständig gefüllt war.",
-  "behaviorActionInfoDelete": "Delete: jeder Delete- oder Backspace-Druck, gezählt als Hinweis darauf, dass du eine Eingabe überarbeitet hast.",
-  "behaviorActionInfoFriction": "Reibung/Abgabe wird berechnet, nachdem Enter gruppiert wurde: Delete und Fehl zählen als Reibung und werden durch Abgabe geteilt.",
-  "behaviorActionInfoFrictionFormula": "Formel: (Delete + Fehl) / Abgabe.",
-  "behaviorActionInfoFrictionZeroSubmit": "Wenn Abgabe 0 ist, wird - angezeigt, statt durch 0 zu teilen.",
-  "behaviorTilesInfoIntro": "Felder fassen zusammen, wie das Brett am Ende aussah.",
-  "behaviorTilesInfoCorrect": "Richtig: Buchstaben an genau der richtigen Antwortposition.",
-  "behaviorTilesInfoPresent": "Enthalten: Buchstaben, die in der Antwort vorkommen, aber an einer anderen Position.",
-  "behaviorTilesInfoAbsent": "Fehlt: Buchstaben, die nicht in der Antwort vorkommen.",
-  "behaviorTilesInfoUnrevealed": "Unbewertet: Felder, die du nie abgegeben hast und die daher kein Ergebnis erhielten.",
-  "behaviorTilesInfoDeadEnd": "Wenn das Spiel durch Dead End früh endet, zählen die übrigen Felder als unbewertet.",
-  "behaviorTileCorrect": "Richtig",
-  "behaviorTilePresent": "Enthalten",
-  "behaviorTileAbsent": "Fehlt",
-  "behaviorTileUnrevealed": "Unbewertet",
+  "detailInfoClose": "Hilfe schließen",
+  "detailTrackedGames": "Erfasste Spiele",
+  "detailTrackingGroup": "Aufzeichnung",
+  "detailTrackingInfoIntro": "Verhaltensstatistiken basieren nur auf Daily-Spielen, die nach Einführung der Aufzeichnung gespeichert wurden. Sie bleiben auf deinem Gerät, werden nicht extern gesammelt und nur für Spielaufzeichnungen verwendet.",
+  "detailTrackingInfoTrackedGames": "Erfasste Spiele: Daily-Spiele mit detaillierten Spieldaten.",
+  "detailTrackingInfoViewMode": "Mit dem unteren Schalter kannst du die meisten Werte als Gesamtwert oder Durchschnitt pro Spiel ansehen.",
+  "detailTrackingInfoTotal": "Gesamt: addiert alle erfassten Spiele.",
+  "detailTrackingInfoAverage": "Pro Spiel: teilt die Gesamtwerte durch die Anzahl der erfassten Spiele.",
+  "detailTrackingInfoRatio": "Reibung/Abgabe ist bereits ein Wert pro Abgabe und ändert sich dadurch nicht.",
+  "detailViewTotal": "Gesamt",
+  "detailViewAverage": "Pro Spiel",
+  "detailTotalDuration": "Dauer",
+  "detailTotalGuessTime": "Versuchszeit",
+  "detailTime": "Zeit",
+  "detailTimeInfoIntro": "Zeitwerte trennen aktives Lösen von Warten, Pausen oder offen gelassenen Rätseln.",
+  "detailTimeInfoUnit": "Die untere Seconds / Minutes / Hours / Days-Steuerung ändert nur die Einheit in diesem Zeitbereich.",
+  "detailTimeInfoUnitS": "Seconds: Zeit in Sekunden anzeigen.",
+  "detailTimeInfoUnitM": "Minutes: Zeit in Minuten anzeigen.",
+  "detailTimeInfoUnitH": "Hours: Zeit in Stunden anzeigen.",
+  "detailTimeInfoUnitD": "Days: Zeit in Tagen anzeigen.",
+  "detailTimeInfoDuration": "Dauer: die gesamte verstrichene Zeit vom Start bis zum Ende des Spiels.",
+  "detailTimeInfoGuess": "Versuch: aktive Lösungszeit ohne Wartezeit bis zur ersten Eingabe und 5m+-Pausen.",
+  "detailTimeInfoFirstInput": "Erste Eingabe: wie lange es nach dem Öffnen des Rätsels bis zum ersten Buchstaben dauerte.",
+  "detailTimeInfoPause": "Pause: Zeit aus Eingabelücken von 5 Minuten oder länger nach Spielbeginn.",
+  "detailTotalShort": "Gesamt",
+  "detailGuessShort": "Versuch",
+  "detailSubmitShort": "Abgabe",
+  "detailFrictionShort": "Reibung",
+  "detailFailedEnterShort": "Fehl",
+  "detailTiles": "Felder",
+  "detailActionInfoIntro": "Aktionswerte zeigen, was passiert ist, während du aus Versuchen Abgaben gemacht hast. Sie bleiben auf deinem Gerät und werden nur für Spielaufzeichnungen verwendet.",
+  "detailActionInfoEnter": "Enter-Drucke werden in Abgabe und Fehl gruppiert.",
+  "detailActionInfoEnterTotal": "Gesamt: jeder Enter-Druck.",
+  "detailActionInfoEnterSubmit": "Abgabe: Enter-Drucke, die ein gültiges Wort abschicken.",
+  "detailActionInfoEnterFailed": "Fehl: ungültige + unvollständige Enter-Eingaben, die keinen Versuch abschicken.",
+  "detailActionInfoEnterInvalid": "Ungültig: Enter auf einer gefüllten Zeile mit keinem gültigen Wort.",
+  "detailActionInfoEnterIncomplete": "Unvollständig: Enter, bevor die Zeile vollständig gefüllt war.",
+  "detailActionInfoDelete": "Delete: jeder Delete- oder Backspace-Druck, gezählt als Hinweis darauf, dass du eine Eingabe überarbeitet hast.",
+  "detailActionInfoFriction": "Reibung/Abgabe wird berechnet, nachdem Enter gruppiert wurde: Delete und Fehl zählen als Reibung und werden durch Abgabe geteilt.",
+  "detailActionInfoFrictionFormula": "Formel: (Delete + Fehl) / Abgabe.",
+  "detailActionInfoFrictionZeroSubmit": "Wenn Abgabe 0 ist, wird - angezeigt, statt durch 0 zu teilen.",
+  "detailTilesInfoIntro": "Felder fassen zusammen, wie das Brett am Ende aussah.",
+  "detailTilesInfoCorrect": "Richtig: Buchstaben an genau der richtigen Antwortposition.",
+  "detailTilesInfoPresent": "Enthalten: Buchstaben, die in der Antwort vorkommen, aber an einer anderen Position.",
+  "detailTilesInfoAbsent": "Fehlt: Buchstaben, die nicht in der Antwort vorkommen.",
+  "detailTilesInfoUnrevealed": "Unbewertet: Felder, die du nie abgegeben hast und die daher kein Ergebnis erhielten.",
+  "detailTilesInfoDeadEnd": "Wenn das Spiel durch Dead End früh endet, zählen die übrigen Felder als unbewertet.",
+  "detailTileCorrect": "Richtig",
+  "detailTilePresent": "Enthalten",
+  "detailTileAbsent": "Fehlt",
+  "detailTileUnrevealed": "Unbewertet",
   "records": "Rekorde",
   "rewards": "Belohnungen",
   "statistics": "Statistik",
@@ -259,35 +258,73 @@
     "ngl i was sweating"
   ],
   "lossMessage_slang": "skill issue ({{solution}})",
-  "winMessages_emoji": [
-    "\uD83E\uDD2F",
-    "\uD83E\uDD29",
-    "\uD83D\uDE0E",
-    "\uD83D\uDE00",
-    "\uD83D\uDE2C",
-    "\uD83D\uDE2E\u200D\uD83D\uDCA8"
-  ],
-  "lossMessage_emoji": "\uD83D\uDC80 {{solution}}",
+  "winMessages_emoji": ["🤯", "🤩", "😎", "😀", "😬", "😮‍💨"],
+  "lossMessage_emoji": "💀 {{solution}}",
   "firstExampleWord": [
-    { "letter": "W", "highlight": true },
-    { "letter": "E", "highlight": false },
-    { "letter": "A", "highlight": false },
-    { "letter": "R", "highlight": false },
-    { "letter": "Y", "highlight": false }
+    {
+      "letter": "W",
+      "highlight": true
+    },
+    {
+      "letter": "E",
+      "highlight": false
+    },
+    {
+      "letter": "A",
+      "highlight": false
+    },
+    {
+      "letter": "R",
+      "highlight": false
+    },
+    {
+      "letter": "Y",
+      "highlight": false
+    }
   ],
   "secondExampleWord": [
-    { "letter": "P", "highlight": false },
-    { "letter": "I", "highlight": false },
-    { "letter": "L", "highlight": true },
-    { "letter": "O", "highlight": false },
-    { "letter": "T", "highlight": false }
+    {
+      "letter": "P",
+      "highlight": false
+    },
+    {
+      "letter": "I",
+      "highlight": false
+    },
+    {
+      "letter": "L",
+      "highlight": true
+    },
+    {
+      "letter": "O",
+      "highlight": false
+    },
+    {
+      "letter": "T",
+      "highlight": false
+    }
   ],
   "thirdExampleWord": [
-    { "letter": "V", "highlight": false },
-    { "letter": "A", "highlight": false },
-    { "letter": "G", "highlight": false },
-    { "letter": "U", "highlight": true },
-    { "letter": "E", "highlight": false }
+    {
+      "letter": "V",
+      "highlight": false
+    },
+    {
+      "letter": "A",
+      "highlight": false
+    },
+    {
+      "letter": "G",
+      "highlight": false
+    },
+    {
+      "letter": "U",
+      "highlight": true
+    },
+    {
+      "letter": "E",
+      "highlight": false
+    }
   ],
   "aboutAuthorSentence": "Dies ist ein Open-Source-Wörter-Ratespiel, das von <3>{{author}}</3> für {{language}} angepasst wurde. ",
   "aboutCodeSentence": "Sieh dir <1>den Originalcode</1> von <3>Hannah Park</3> an oder schau dir <5>Aidan Pines Fork</5> an und passe es für eine andere Sprache an! ",
@@ -339,7 +376,7 @@
   "createPuzzleReady": "Drücke EINGABE, um die URL zu kopieren",
   "createPuzzleCopied": "Kopiert!",
   "createPuzzleTryIt": "Ausprobieren",
-  "customPuzzleBy": "{{name}}s Wor\uD83D\uDD17dle",
+  "customPuzzleBy": "{{name}}s Wor🔗dle",
   "dailyModeTitle": "Täglicher Modus",
   "dailyModeDesc": "Jeden Tag um Mitternacht erscheint ein neues Rätsel.\nAlle Spieler lösen dasselbe Wort.\nDeine Ergebnisse werden in der Statistik gespeichert und können geteilt werden.",
   "practiceModeTitle": "Übungsmodus",

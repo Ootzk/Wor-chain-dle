@@ -16,14 +16,14 @@ import {
   getTotalEnterPresses,
   getValidSubmissions,
   hasPlayStatsActivity,
-  loadDailyPlayStatsHistory,
-  loadDailyPlayStats,
+  loadDailyDetailStatsHistory,
+  loadDailyDetailStats,
   recordDeletePress,
   recordEnterAttempt,
   recordInputActivity,
-  saveDailyPlayStats,
+  saveDailyDetailStats,
   startNextGuess,
-  summarizePlayStats,
+  summarizeDetailStats,
 } from './playStats'
 
 test('records enter attempt categories and derived values', () => {
@@ -185,7 +185,7 @@ test('counts evaluated and unrevealed tiles from submitted guesses', () => {
   })
 })
 
-test('saves and summarizes daily play stats', () => {
+test('saves and summarizes daily detail stats', () => {
   localStorage.clear()
 
   const first = completePlayStats({
@@ -249,10 +249,10 @@ test('saves and summarizes daily play stats', () => {
     now: 16000,
   })
 
-  saveDailyPlayStats('2026-05-18', first)
-  saveDailyPlayStats('2026-05-19', second)
+  saveDailyDetailStats('2026-05-18', first)
+  saveDailyDetailStats('2026-05-19', second)
 
-  const summary = summarizePlayStats(loadDailyPlayStatsHistory())
+  const summary = summarizeDetailStats(loadDailyDetailStatsHistory())
 
   expect(summary.totalGames).toBe(2)
   expect(summary.totalDurationMs).toBe(10000)
@@ -269,6 +269,6 @@ test('saves and summarizes daily play stats', () => {
     absent: 5,
     unrevealed: 45,
   })
-  expect(loadDailyPlayStats('2026-05-18', 'chain')?.completedAt).toBe(5000)
-  expect(loadDailyPlayStats('2026-05-18', 'other')).toBeNull()
+  expect(loadDailyDetailStats('2026-05-18', 'chain')?.completedAt).toBe(5000)
+  expect(loadDailyDetailStats('2026-05-18', 'other')).toBeNull()
 })
