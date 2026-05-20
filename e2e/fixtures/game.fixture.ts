@@ -34,9 +34,7 @@ export const test = base.extend<GameFixtures>({
       window.addEventListener('keydown', (e) => {
         if (
           e.code === 'Backspace' &&
-          !['INPUT', 'TEXTAREA'].includes(
-            (document.activeElement?.tagName ?? '')
-          )
+          !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName ?? '')
         ) {
           e.preventDefault()
         }
@@ -70,12 +68,14 @@ export function getRowCells(page: Page, rowIndex: number) {
   // Each row is a flex div with 5 cells. Rows and bridges alternate.
   // Row 0 = nth-child(1), Bridge 0 = nth-child(2), Row 1 = nth-child(3), etc.
   const nthChild = rowIndex * 2 + 1
-  return page.locator(`.pb-6 > :nth-child(${nthChild}) > div`)
+  return page.locator(`.pb-6 > :nth-child(${nthChild}) > div > div`)
 }
 
 /** Wait for the game page to be fully loaded (keyboard visible) */
 export async function waitForGameReady(page: Page) {
-  await page.locator('button', { hasText: 'Enter' }).waitFor({ state: 'visible' })
+  await page
+    .locator('button', { hasText: 'Enter' })
+    .waitFor({ state: 'visible' })
 }
 
 /** Attach a named screenshot to the test report */
