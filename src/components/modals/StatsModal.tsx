@@ -655,7 +655,7 @@ export const StatsModal = ({
                           text: t('behaviorActionInfoFriction'),
                           children: [
                             t('behaviorActionInfoFrictionFormula'),
-                            t('behaviorActionInfoWrongEnter'),
+                            t('behaviorActionInfoFrictionZeroSubmit'),
                           ],
                         },
                       ]}
@@ -689,9 +689,13 @@ export const StatsModal = ({
                     {
                       label: (
                         <>
-                          <span className="text-purple-500">Friction</span>
+                          <span className="text-purple-500">
+                            {t('behaviorFrictionShort')}
+                          </span>
                           <span>/</span>
-                          <span className="text-green-500">Submit</span>
+                          <span className="text-green-500">
+                            {t('behaviorSubmitShort')}
+                          </span>
                         </>
                       ),
                       value: frictionPerSubmit,

@@ -511,7 +511,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
                   text: t('behaviorActionInfoFriction'),
                   children: [
                     { text: t('behaviorActionInfoFrictionFormula') },
-                    { text: t('behaviorActionInfoWrongEnter') },
+                    { text: t('behaviorActionInfoFrictionZeroSubmit') },
                   ],
                 },
               ]}
@@ -544,9 +544,13 @@ export const PlayStatsPanel = ({ summary }: Props) => {
             {
               label: (
                 <>
-                  <span className="text-purple-500">Friction</span>
+                  <span className="text-purple-500">
+                    {t('behaviorFrictionShort')}
+                  </span>
                   <span>/</span>
-                  <span className="text-green-500">Submit</span>
+                  <span className="text-green-500">
+                    {t('behaviorSubmitShort')}
+                  </span>
                 </>
               ),
               value: hasTrackedGames
