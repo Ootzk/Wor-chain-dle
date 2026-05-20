@@ -93,10 +93,12 @@ const SummaryInfoButton = ({
   title,
   intro,
   items,
+  footer,
 }: {
   title: string
   intro?: string
   items: SummaryInfoItem[]
+  footer?: string
 }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -145,6 +147,11 @@ const SummaryInfoButton = ({
           </div>
           {intro && <p className="mb-2">{intro}</p>}
           {renderItems(items)}
+          {footer && (
+            <p className="mt-2 border-t border-gray-100 pt-2 text-left text-purple-600">
+              {footer}
+            </p>
+          )}
         </div>
       )}
     </span>
@@ -658,8 +665,8 @@ export const StatsModal = ({
                             t('behaviorActionInfoFrictionZeroSubmit'),
                           ],
                         },
-                        t('playStatsBreakdownInfoHint'),
                       ]}
+                      footer={t('playStatsBreakdownInfoHint')}
                     />
                   }
                 >

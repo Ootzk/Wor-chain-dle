@@ -92,10 +92,12 @@ const GroupInfoButton = ({
   title,
   intro,
   items,
+  footer,
 }: {
   title: string
   intro?: string
   items: InfoListItem[]
+  footer?: string
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const { t } = useTranslation()
@@ -125,6 +127,11 @@ const GroupInfoButton = ({
           </div>
           {intro && <p className="mb-2">{intro}</p>}
           <InfoBulletList items={items} />
+          {footer && (
+            <p className="mt-2 border-t border-gray-100 pt-2 text-left text-purple-600">
+              {footer}
+            </p>
+          )}
         </div>
       )}
     </span>
@@ -514,8 +521,8 @@ export const PlayStatsPanel = ({ summary }: Props) => {
                     { text: t('behaviorActionInfoFrictionZeroSubmit') },
                   ],
                 },
-                { text: t('playStatsBreakdownInfoHint') },
               ]}
+              footer={t('playStatsBreakdownInfoHint')}
             />
           }
         >
