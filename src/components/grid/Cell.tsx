@@ -7,6 +7,7 @@ import {
   getEquippedChainColor,
   CosmeticOverrides,
 } from '../../lib/cosmetics'
+import { PacmanCellEffect } from '../../lib/pacman'
 
 type Props = {
   value?: string
@@ -16,6 +17,7 @@ type Props = {
   chainBottom?: boolean
   hideLetter?: boolean
   showCursor?: boolean
+  cellEffect?: PacmanCellEffect
   cosmeticOverrides?: CosmeticOverrides
 }
 
@@ -27,6 +29,7 @@ export const Cell = ({
   chainBottom,
   hideLetter,
   showCursor,
+  cellEffect,
   cosmeticOverrides,
 }: Props) => {
   const isChain = chainTop || chainBottom
@@ -65,11 +68,22 @@ export const Cell = ({
     }
   )
 
+  const shouldHideLetter = (hideLetter || cellEffect?.hideLetter) && value
+
   return (
     <div className={classes}>
-      <span className={hideLetter && value ? 'text-transparent' : undefined}>
+      <span className={shouldHideLetter ? 'text-transparent' : undefined}>
         {value}
       </span>
+      {cellEffect?.actor && (
+        <span
+          aria-hidden="true"
+          data-testid="pacman-actor"
+          className="absolute inset-0 flex items-center justify-center text-2xl leading-none"
+        >
+          {cellEffect.actor}
+        </span>
+      )}
       {showCursor && (
         <span
           aria-hidden="true"

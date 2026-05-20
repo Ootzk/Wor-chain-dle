@@ -38,6 +38,9 @@ test.describe('Event mode', () => {
     await expect(gamePage.locator('text=Summer Garden')).toBeVisible()
     await expect(gamePage.locator('.border-sky-400').first()).toBeVisible()
 
+    await submitWord(gamePage, 'stale')
+    await expect(gamePage.getByTestId('pacman-actor')).toHaveText('🐇')
+
     const storedChainColor = await gamePage.evaluate(() => {
       const raw = localStorage.getItem('cosmeticState')
       return raw ? JSON.parse(raw).equipped.chainColor : null

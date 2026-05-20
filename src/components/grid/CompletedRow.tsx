@@ -1,6 +1,7 @@
 import { getGuessStatuses } from '../../lib/statuses'
 import { Cell } from './Cell'
 import { CosmeticOverrides } from '../../lib/cosmetics'
+import { PacmanCellEffect } from '../../lib/pacman'
 
 type Props = {
   guess: string[]
@@ -8,6 +9,7 @@ type Props = {
   chainTopIndex?: number
   chainBottomIndex?: number
   hideLetters?: boolean
+  cellEffects?: Record<number, PacmanCellEffect>
   cosmeticOverrides?: CosmeticOverrides
 }
 
@@ -17,6 +19,7 @@ export const CompletedRow = ({
   chainTopIndex,
   chainBottomIndex,
   hideLetters,
+  cellEffects,
   cosmeticOverrides,
 }: Props) => {
   const statuses = getGuessStatuses(guess, solution)
@@ -31,6 +34,7 @@ export const CompletedRow = ({
           chainTop={i === chainTopIndex}
           chainBottom={i === chainBottomIndex}
           hideLetter={hideLetters}
+          cellEffect={cellEffects?.[i]}
           cosmeticOverrides={cosmeticOverrides}
         />
       ))}

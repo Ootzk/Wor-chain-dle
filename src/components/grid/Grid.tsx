@@ -6,6 +6,11 @@ import { CONFIG } from '../../constants/config'
 import React from 'react'
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline'
 import { CosmeticOverrides } from '../../lib/cosmetics'
+import {
+  getPacmanCellKey,
+  PacmanCellEffect,
+  PacmanCellEffects,
+} from '../../lib/pacman'
 
 type Props = {
   guesses: string[][]
@@ -15,6 +20,7 @@ type Props = {
   hideLetters?: boolean
   showHideLettersToggle?: boolean
   onToggleHideLetters?: () => void
+  cellEffects?: PacmanCellEffects
   cosmeticOverrides?: CosmeticOverrides
 }
 
@@ -46,9 +52,20 @@ export const Grid = ({
   hideLetters = false,
   showHideLettersToggle = false,
   onToggleHideLetters,
+  cellEffects,
   cosmeticOverrides,
 }: Props) => {
   const elements: React.ReactNode[] = []
+  const getRowCellEffects = (rowIndex: number) =>
+    Array.from({ length: CONFIG.wordLength }).reduce<
+      Record<number, PacmanCellEffect>
+    >((effects, _, colIndex) => {
+      const effect = cellEffects?.[getPacmanCellKey({ rowIndex, colIndex })]
+      if (effect) {
+        effects[colIndex] = effect
+      }
+      return effects
+    }, {})
 
   for (let i = 0; i < CONFIG.tries; i++) {
     const { chainTopIndex, chainBottomIndex } = getChainPositions(i)
@@ -62,6 +79,7 @@ export const Grid = ({
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
           hideLetters={hideLetters}
+          cellEffects={getRowCellEffects(i)}
           cosmeticOverrides={cosmeticOverrides}
         />
       )
@@ -74,6 +92,7 @@ export const Grid = ({
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
           hideLetters={hideLetters}
+          cellEffects={getRowCellEffects(i)}
           cosmeticOverrides={cosmeticOverrides}
         />
       )
@@ -82,6 +101,7 @@ export const Grid = ({
         <EmptyRow
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
+          cellEffects={getRowCellEffects(i)}
           cosmeticOverrides={cosmeticOverrides}
         />
       )

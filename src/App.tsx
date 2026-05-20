@@ -72,10 +72,16 @@ import {
   saveDailyResult,
 } from './lib/dailyResults'
 import {
+  EventEndReason,
   loadEventResults,
   loadEventResultsByVersion,
   saveEventResult,
 } from './lib/eventResults'
+import {
+  getPacmanCellEffects,
+  getPacmanPath,
+  isPacmanCellRevealed,
+} from './lib/pacman'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -225,6 +231,25 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     loadEventResultsByVersion()
   )
   const playStatsRef = useRef(playStats)
+  const guessesRef = useRef(guesses)
+  const currentGuessRef = useRef(currentGuess)
+  const pacmanLossHandledRef = useRef(false)
+  const pacmanResetKeyRef = useRef(`${mode}:${solution}`)
+  const isPacmanEvent =
+    isEvent && event?.modeKind === 'pacman' && !!event.pacman
+  const pacmanPath = useMemo(() => getPacmanPath(), [])
+  const [pacmanPathIndex, setPacmanPathIndex] = useState(() => {
+    if (!isPacmanEvent || !event) return -1
+    const loaded = loadEventGameStateFromLocalStorage()
+    if (
+      loaded?.version === event.version &&
+      loaded.dateKey === localDateStr &&
+      loaded.solution === solution
+    ) {
+      return loaded.pacmanPathIndex ?? (loaded.guesses.length > 0 ? 0 : -1)
+    }
+    return -1
+  })
 
   const updatePlayStats = (next: PlayStats) => {
     playStatsRef.current = next
@@ -236,7 +261,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   const saveCompletedPlayStats = (
     completed: CompletedPlayStats,
-    endReason: DailyEndReason
+    endReason: DailyEndReason | EventEndReason
   ) => {
     playStatsRef.current = completed
     setPlayStats(completed)
@@ -246,7 +271,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         solution,
         won: completed.won,
         guessCount: completed.guessCount,
-        endReason,
+        endReason: endReason as DailyEndReason,
         tileCounts: completed.tileCounts,
         playStats: completed,
       })
@@ -270,6 +295,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       clearCurrentPlayStats('event')
     }
   }
+
+  useEffect(() => {
+    guessesRef.current = guesses
+  }, [guesses])
+
+  useEffect(() => {
+    currentGuessRef.current = currentGuess
+  }, [currentGuess])
 
   useEffect(() => {
     if (!isDaily && !isEvent) return
@@ -312,9 +345,19 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         dateKey: localDateStr,
         guesses,
         solution,
+        pacmanPathIndex: isPacmanEvent ? pacmanPathIndex : undefined,
       })
     }
-  }, [guesses, isDaily, isEvent, event, localDateStr, solution])
+  }, [
+    guesses,
+    isDaily,
+    isEvent,
+    isPacmanEvent,
+    pacmanPathIndex,
+    event,
+    localDateStr,
+    solution,
+  ])
 
   useEffect(() => {
     saveSettings({
@@ -444,13 +487,99 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     )
   }
 
+  const finishPacmanLoss = () => {
+    if (!isPacmanEvent || pacmanLossHandledRef.current) return
+
+    pacmanLossHandledRef.current = true
+    const completedGuesses = guessesRef.current
+    const tileCounts = countTileStatusesForGame(completedGuesses, solution)
+
+    evaluateCompletedGameAchievements({
+      nextStats: stats,
+      completedGuesses,
+      won: false,
+      endReason: 'fail',
+      tileCounts,
+    })
+    saveCompletedPlayStats(
+      completePlayStats({
+        stats: playStatsRef.current,
+        won: false,
+        guessCount: completedGuesses.length,
+        tileCounts,
+      }),
+      'pacman'
+    )
+    setIsGameLost(true)
+  }
+
+  useEffect(() => {
+    const resetKey = `${mode}:${solution}`
+    if (pacmanResetKeyRef.current === resetKey) return
+    pacmanResetKeyRef.current = resetKey
+    setPacmanPathIndex(-1)
+    pacmanLossHandledRef.current = false
+  }, [mode, solution])
+
+  useEffect(() => {
+    if (!isPacmanEvent || isGameWon || isGameLost || guesses.length === 0) {
+      return
+    }
+
+    if (pacmanPathIndex < 0) {
+      setPacmanPathIndex(0)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      const nextIndex = pacmanPathIndex + 1
+      const nextCell = pacmanPath[nextIndex]
+      if (!nextCell) return
+
+      if (
+        !isPacmanCellRevealed({
+          cell: nextCell,
+          guesses: guessesRef.current,
+          currentGuess: currentGuessRef.current,
+        })
+      ) {
+        setPacmanPathIndex(nextIndex)
+        finishPacmanLoss()
+        return
+      }
+
+      setPacmanPathIndex(nextIndex)
+    }, event?.pacman?.stepMs ?? 3000)
+
+    return () => window.clearTimeout(timeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isPacmanEvent,
+    isGameWon,
+    isGameLost,
+    guesses.length,
+    pacmanPathIndex,
+    pacmanPath,
+    event?.pacman?.stepMs,
+  ])
+
+  const pacmanCellEffects =
+    isPacmanEvent && event?.pacman
+      ? getPacmanCellEffects({
+          path: pacmanPath,
+          pathIndex: pacmanPathIndex,
+          actor: event.pacman.actor,
+        })
+      : undefined
+
   const onChar = (value: string) => {
     const chainInfo = getChainInfo(guesses)
     const maxLength = chainInfo ? CONFIG.wordLength - 1 : CONFIG.wordLength
     if (
       currentGuess.length < maxLength &&
       guesses.length < CONFIG.tries &&
-      !isGameWon
+      !isGameWon &&
+      !isGameLost
     ) {
       let newGuess = currentGuess.concat([value])
       setCurrentGuess(newGuess)
@@ -678,6 +807,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           hideLetters={effectiveLettersHidden}
           showHideLettersToggle={canToggleLettersHidden}
           onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
+          cellEffects={pacmanCellEffects}
           cosmeticOverrides={cosmeticOverrides}
         />
         <Keyboard

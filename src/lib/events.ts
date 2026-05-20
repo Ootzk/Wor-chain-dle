@@ -2,8 +2,9 @@ import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
 import { CosmeticOverrideConfig } from './cosmetics'
+import { PacmanConfig } from './pacman'
 
-export type EventModeKind = 'standard' | 'hardcore' | 'ai'
+export type EventModeKind = 'standard' | 'pacman' | 'hardcore' | 'ai'
 
 export type EventDefinition = {
   id: string
@@ -17,6 +18,7 @@ export type EventDefinition = {
   loseReasons: EventLoseReasonDefinition[]
   cosmeticOverrides?: CosmeticOverrideConfig
   settingOverrides?: EventSettingOverrides
+  pacman?: PacmanConfig
 }
 
 export type EventLoseReasonDefinition = {
@@ -48,9 +50,14 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
   titleKey: 'eventModeTitle',
   descriptionKey: 'eventModeDesc',
   shareContextLabel: 'Event: Summer Garden',
-  modeKind: 'standard',
+  modeKind: 'pacman',
   themeKey: 'eventThemeSummerGarden',
   answerSeed: 'v1.7.0-event',
+  pacman: {
+    actor: '🐇',
+    stepMs: 3000,
+    effect: 'hide-letter',
+  },
   cosmeticOverrides: {
     shareBadge: ['badge_apple', 'badge_grape', 'badge_milk', 'badge_azure'],
     chainColor: 'chaincolor_azure',
@@ -68,6 +75,13 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       icon: '🦎',
       titleKey: 'loseReasonDeadEnd',
       infoKey: 'loseReasonDeadEndInfo',
+      colorClass: 'bg-purple-500 text-purple-50',
+    },
+    {
+      id: 'pacman',
+      icon: '🐇',
+      titleKey: 'loseReasonPacman',
+      infoKey: 'loseReasonPacmanInfo',
       colorClass: 'bg-purple-500 text-purple-50',
     },
     {
