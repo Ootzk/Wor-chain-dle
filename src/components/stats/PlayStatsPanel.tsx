@@ -287,13 +287,11 @@ const TileSample = ({
   label: string
   status?: CharStatus
 }) => (
-  <div className="flex min-w-0 flex-col items-center justify-center">
-    <div
-      aria-label={label}
-      className="flex h-14 w-14 shrink-0 items-center justify-center"
-    >
-      <Cell value={String(count)} status={status} />
-    </div>
+  <div
+    className="flex min-w-0 flex-col items-center justify-center"
+    aria-label={label}
+  >
+    <Cell value={String(count)} status={status} />
     <div
       className={`min-h-[1.25rem] break-words text-center text-[10px] leading-[0.7rem] ${
         labelClassName ?? 'text-gray-900'

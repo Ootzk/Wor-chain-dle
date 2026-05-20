@@ -15,6 +15,7 @@ import {
   getTotalDeletePresses,
   getTotalEnterPresses,
   hasPlayStatsActivity,
+  countTileStatusesForGame,
 } from '../../lib/playStats'
 import { shareStatus, shareCustomStatus } from '../../lib/share'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
@@ -61,23 +62,7 @@ type Props = {
 }
 
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
-const formatAverageSecondsValue = (ms: number) => (ms / 1000).toFixed(1)
 const EMPTY_VALUE = '-'
-
-type GuessBreakdownRow = {
-  row: string
-  totalMs?: number
-  guessMs?: number
-  pauseMs?: number
-  totalValue?: string
-  guessValue?: string
-  pauseValue?: string
-  enterPresses?: number
-  deletePresses?: number
-  enterValue?: string
-  deleteValue?: string
-  isSummary?: boolean
-}
 
 const SummaryGroupTitle = ({
   children,
@@ -92,7 +77,7 @@ const SummaryGroupTitle = ({
 }) => (
   <div
     className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
-      separated ? 'mt-2 border-t border-gray-200 pt-2' : ''
+      separated ? 'mt-1 border-t border-gray-200 pt-1' : ''
     }`}
   >
     <span className="inline-flex items-center gap-1">
@@ -168,13 +153,13 @@ const TodayMetric = ({
   }[tone]
 
   return (
-    <div className="m-1 min-w-0 text-center">
+    <div className="m-0.5 min-w-0 text-center">
       {cellStatus ? (
-        <div className="flex justify-center" title={title}>
+        <div className="flex h-14 items-center justify-center" title={title}>
           <Cell value={value} status={cellStatus} />
         </div>
       ) : (
-        <div className="flex h-14 items-center justify-center">
+        <div className="flex h-12 items-center justify-center">
           <div
             className={`min-w-0 whitespace-nowrap text-xl font-bold sm:text-2xl ${valueClass}`}
           >
@@ -186,6 +171,108 @@ const TodayMetric = ({
     </div>
   )
 }
+
+const TodayStatMetric = ({
+  label,
+  value,
+  labelClassName = 'text-gray-500',
+  className = '',
+}: {
+  label: ReactNode
+  value: string
+  labelClassName?: string
+  className?: string
+}) => (
+  <div
+    className={`flex h-10 min-w-0 flex-col items-center justify-center px-0.5 text-center ${className}`}
+  >
+    <div className="flex h-5 min-w-0 items-center">
+      <div className="min-w-0 whitespace-nowrap text-xl font-bold leading-none text-gray-900 sm:text-2xl">
+        {value}
+      </div>
+    </div>
+    <div
+      className={`flex min-h-[1.1rem] items-start justify-center gap-0.5 break-words text-[10px] leading-[0.65rem] ${labelClassName}`}
+    >
+      {label}
+    </div>
+  </div>
+)
+
+const TodaySingleMetric = ({
+  label,
+  value,
+  className = '',
+  separated = false,
+}: {
+  label: ReactNode
+  value: string
+  className?: string
+  separated?: boolean
+}) => (
+  <div className={`relative min-w-0 px-0.5 text-center ${className}`}>
+    <div className="h-0.5" aria-hidden="true" />
+    <TodayStatMetric
+      label={label}
+      value={value}
+      className={separated ? 'border-r border-gray-300' : undefined}
+    />
+  </div>
+)
+
+const TodayMetricGrid = ({
+  items,
+  columns = 4,
+  separateFirstItem = false,
+}: {
+  columns?: 4 | 5
+  separateFirstItem?: boolean
+  items: Array<{
+    label: ReactNode
+    value: string
+    labelClassName?: string
+  }>
+}) => (
+  <div className={`grid ${columns === 5 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+    {items.map((item, index) => (
+      <TodayStatMetric
+        key={String(item.label)}
+        label={item.label}
+        value={item.value}
+        labelClassName={item.labelClassName}
+        className={
+          separateFirstItem && index === 0
+            ? 'border-r border-gray-300'
+            : undefined
+        }
+      />
+    ))}
+  </div>
+)
+
+const TodayTileMetric = ({
+  count,
+  label,
+  labelClassName,
+  status,
+}: {
+  count: number
+  label: string
+  labelClassName: string
+  status?: CharStatus
+}) => (
+  <div
+    className="flex min-w-0 flex-col items-center justify-center"
+    aria-label={label}
+  >
+    <Cell value={String(count)} status={status} />
+    <div
+      className={`min-h-[1rem] break-words text-center text-[10px] leading-[0.65rem] ${labelClassName}`}
+    >
+      {label}
+    </div>
+  </div>
+)
 
 export const StatsModal = ({
   isOpen,
@@ -206,7 +293,6 @@ export const StatsModal = ({
   onOpenCosmetics,
   onOpenDeadEndHelp,
   initialTab,
-  isUppercase,
   playStats,
   playStatsSummary,
 }: Props) => {
@@ -215,12 +301,10 @@ export const StatsModal = ({
     'today' | 'calendar' | 'summary' | 'behavior'
   >('today')
   const [nowMs, setNowMs] = useState(() => Date.now())
-  const [isBreakdownInfoOpen, setIsBreakdownInfoOpen] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab || 'today')
-      setIsBreakdownInfoOpen(false)
     }
   }, [isOpen, initialTab])
 
@@ -308,26 +392,59 @@ export const StatsModal = ({
   }
 
   const completedToday = isGameWon || isGameLost
-  const todayResultChar = isGameWon ? 'w' : isGameLost ? 'l' : '-'
-  const todayResult = isUppercase
-    ? todayResultChar.toUpperCase()
-    : todayResultChar
-  const todayResultTitle = isGameWon
-    ? t('playStatsResultWin')
-    : isGameLost
-    ? t('playStatsResultLose')
-    : t('playStatsResultYet')
+  const todayResult = isGameWon ? '😎' : isGameLost ? '🥲' : '😶‍🌫️'
   const todayResultStatus: CharStatus = isGameWon
     ? 'correct'
     : isGameLost
     ? 'present'
     : 'absent'
-  const playDurationValue = hasPlayStatsActivity(playStats)
-    ? formatSecondsValue(getCurrentPlayDurationMs(playStats, nowMs))
-    : EMPTY_VALUE
+  const todayResultTitle = isGameWon
+    ? t('playStatsResultWin')
+    : isGameLost
+    ? t('playStatsResultLose')
+    : t('playStatsResultYet')
+  const currentPlayDurationMs = hasPlayStatsActivity(playStats)
+    ? getCurrentPlayDurationMs(playStats, nowMs)
+    : undefined
+  const playDurationValue =
+    currentPlayDurationMs === undefined
+      ? EMPTY_VALUE
+      : formatSecondsValue(currentPlayDurationMs)
   const firstInputDelayMs = playStats.firstInputAt
     ? getFirstInputDelayMs(playStats)
     : undefined
+  const totalLongPauseMs = getTotalLongPauseMs(playStats)
+  const totalGuessTimeMs =
+    currentPlayDurationMs === undefined || firstInputDelayMs === undefined
+      ? undefined
+      : Math.max(
+          0,
+          currentPlayDurationMs - firstInputDelayMs - totalLongPauseMs
+        )
+  const totalEnterPresses = getTotalEnterPresses(playStats)
+  const totalIncompleteEnterPresses = playStats.guessStats.reduce(
+    (sum, guess) => sum + guess.incompleteEnterPresses,
+    0
+  )
+  const totalInvalidEnterPresses = playStats.guessStats.reduce(
+    (sum, guess) => sum + guess.invalidEnterPresses,
+    0
+  )
+  const totalValidEnterPresses = Math.max(
+    0,
+    totalEnterPresses - totalIncompleteEnterPresses - totalInvalidEnterPresses
+  )
+  const totalDeletePresses = getTotalDeletePresses(playStats)
+  const frictionPerSubmit =
+    totalValidEnterPresses > 0
+      ? (
+          (totalDeletePresses +
+            totalInvalidEnterPresses +
+            totalIncompleteEnterPresses) /
+          totalValidEnterPresses
+        ).toFixed(1)
+      : EMPTY_VALUE
+  const todayTileCounts = countTileStatusesForGame(guesses, solution)
   const unlockedTodayCount = getAchievementsUnlockedTodayCount()
   const hasNewAchievementsToday = hasNewAchievementsUnlockedToday()
   const summaryWins = gameStats.totalGames - gameStats.gamesFailed
@@ -340,122 +457,6 @@ export const StatsModal = ({
           ) / summaryWins
         ).toFixed(1)
       : EMPTY_VALUE
-  const activeGuessIndex = playStats.guessStats.findIndex(
-    (guess) => !guess.completedAt
-  )
-  const getGuessDurationMs = (index: number) => {
-    const guess = playStats.guessStats[index]
-    if (!guess) return undefined
-
-    const offsetMs = index === 0 ? firstInputDelayMs ?? 0 : 0
-    if (guess.durationMs !== undefined) {
-      return Math.max(0, guess.durationMs - offsetMs)
-    }
-
-    if (index !== activeGuessIndex || !hasPlayStatsActivity(playStats)) {
-      return undefined
-    }
-
-    if (index === 0 && !playStats.firstInputAt) {
-      return undefined
-    }
-
-    const startMs =
-      index === 0 ? playStats.firstInputAt || guess.startedAt : guess.startedAt
-    return Math.max(0, nowMs - startMs)
-  }
-  const formatOptionalSecondsValue = (ms?: number) =>
-    ms === undefined ? EMPTY_VALUE : formatSecondsValue(ms)
-  const average = (values: number[]) => {
-    if (values.length === 0) return undefined
-    return values.reduce((sum, value) => sum + value, 0) / values.length
-  }
-  const formatAverageMs = (values: (number | undefined)[]) => {
-    const numericValues = values.filter(
-      (value): value is number => value !== undefined
-    )
-    const value = average(numericValues)
-    return value === undefined ? EMPTY_VALUE : formatAverageSecondsValue(value)
-  }
-  const formatAverageCount = (values: (number | undefined)[]) => {
-    const numericValues = values.filter(
-      (value): value is number => value !== undefined
-    )
-    const value = average(numericValues)
-    return value === undefined ? EMPTY_VALUE : value.toFixed(1)
-  }
-  const sumOptional = (values: (number | undefined)[]) => {
-    const numericValues = values.filter(
-      (value): value is number => value !== undefined
-    )
-    if (numericValues.length === 0) return undefined
-    return numericValues.reduce((sum, value) => sum + value, 0)
-  }
-  const guessBreakdownBaseRows: GuessBreakdownRow[] = [
-    {
-      row: t('playStatsBreakdownBefore'),
-      totalMs: firstInputDelayMs,
-      guessMs: undefined,
-      pauseMs: undefined,
-      enterPresses: undefined,
-      deletePresses: undefined,
-    },
-    ...Array.from({ length: CONFIG.tries }, (_, index) => {
-      const guess = playStats.guessStats[index]
-      const hasGuessActivity =
-        !!guess &&
-        (guess.completedAt !== undefined ||
-          guess.enterPresses > 0 ||
-          guess.deletePresses > 0 ||
-          guess.longPauseCount > 0 ||
-          (index === activeGuessIndex && !!playStats.firstInputAt))
-      const totalMs = hasGuessActivity ? getGuessDurationMs(index) : undefined
-      const pauseMs = hasGuessActivity ? guess.totalLongPauseMs : undefined
-      return {
-        row: String(index + 1),
-        totalMs,
-        guessMs:
-          totalMs === undefined || pauseMs === undefined
-            ? undefined
-            : Math.max(0, totalMs - pauseMs),
-        pauseMs,
-        enterPresses: hasGuessActivity ? guess.enterPresses : undefined,
-        deletePresses: hasGuessActivity ? guess.deletePresses : undefined,
-      }
-    }),
-  ]
-  const guessBreakdownGuessRows = guessBreakdownBaseRows.slice(1)
-  const guessBreakdownRows: GuessBreakdownRow[] = [
-    ...guessBreakdownBaseRows,
-    {
-      row: t('playStatsBreakdownSum'),
-      totalMs: hasPlayStatsActivity(playStats)
-        ? getCurrentPlayDurationMs(playStats, nowMs)
-        : undefined,
-      pauseMs: getTotalLongPauseMs(playStats),
-      guessMs: sumOptional(guessBreakdownGuessRows.map((row) => row.guessMs)),
-      enterPresses: getTotalEnterPresses(playStats),
-      deletePresses: getTotalDeletePresses(playStats),
-      isSummary: true,
-    },
-    {
-      row: t('playStatsBreakdownAvgGuess'),
-      totalValue: EMPTY_VALUE,
-      guessValue: formatAverageMs(
-        guessBreakdownGuessRows.map((row) => row.guessMs)
-      ),
-      pauseValue: formatAverageMs(
-        guessBreakdownGuessRows.map((row) => row.pauseMs)
-      ),
-      enterValue: formatAverageCount(
-        guessBreakdownGuessRows.map((row) => row.enterPresses)
-      ),
-      deleteValue: formatAverageCount(
-        guessBreakdownGuessRows.map((row) => row.deletePresses)
-      ),
-      isSummary: true,
-    },
-  ]
 
   // Daily mode — Today + Calendar + Stats
   const tabs = [
@@ -492,224 +493,218 @@ export const StatsModal = ({
         {activeTab === 'today' && (
           <div className="relative flex h-full flex-col pb-20">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <div className="mb-2 grid grid-cols-5 gap-y-2">
-                <TodayMetric
-                  label={t('playStatsResult')}
-                  value={todayResult}
-                  cellStatus={todayResultStatus}
-                  title={todayResultTitle}
-                />
-                <TodayMetric
-                  label={t('playStatsGuessCount')}
-                  value={`${guesses.length}/${CONFIG.tries}`}
-                />
-                <TodayMetric
-                  label={t('playStatsDurationSeconds')}
-                  value={playDurationValue}
-                />
-                <TodayMetric
-                  label={t('playStatsUnlockedToday')}
-                  value={String(unlockedTodayCount)}
-                />
-                <TodayMetric
-                  label={t('playStatsStreak')}
-                  value={
-                    completedToday
-                      ? `🔥${gameStats.currentStreak}`
-                      : String(gameStats.currentStreak)
+              <section>
+                <SummaryGroupTitle
+                  info={
+                    <SummaryInfoButton
+                      title={t('statsDashboard')}
+                      items={[
+                        t('todayDashboardInfoResult'),
+                        t('todayDashboardInfoGuesses'),
+                        t('todayDashboardInfoAchievements'),
+                        t('todayDashboardInfoStreak'),
+                      ]}
+                    />
                   }
-                />
-              </div>
+                >
+                  {t('statsDashboard')}
+                </SummaryGroupTitle>
+                <div className="mb-1 grid grid-cols-4 gap-y-1">
+                  <TodayMetric
+                    label={t('playStatsResult')}
+                    value={todayResult}
+                    cellStatus={todayResultStatus}
+                    title={todayResultTitle}
+                  />
+                  <TodayMetric
+                    label={t('playStatsGuessCount')}
+                    value={`${guesses.length}/${CONFIG.tries}`}
+                  />
+                  <TodayMetric
+                    label={t('playStatsUnlockedToday')}
+                    value={String(unlockedTodayCount)}
+                  />
+                  <TodayMetric
+                    label={t('playStatsStreak')}
+                    value={
+                      completedToday
+                        ? `🔥${gameStats.currentStreak}`
+                        : String(gameStats.currentStreak)
+                    }
+                  />
+                </div>
+              </section>
 
-              <div className="relative">
-                {isBreakdownInfoOpen && (
-                  <div className="absolute left-2 right-2 top-8 z-20 rounded border border-gray-200 bg-white p-3 text-left text-xs shadow-lg">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="font-semibold text-gray-900">
-                        {t('playStatsBreakdownInfoTitle')}
+              <section>
+                <SummaryGroupTitle
+                  separated
+                  info={
+                    <SummaryInfoButton
+                      title={`${t('behaviorTime')} (s)`}
+                      items={[
+                        t('behaviorTimeInfoDuration'),
+                        t('behaviorTimeInfoGuess'),
+                        t('behaviorTimeInfoFirstInput'),
+                        t('behaviorTimeInfoPause'),
+                      ]}
+                    />
+                  }
+                >
+                  {t('behaviorTime')} (s)
+                </SummaryGroupTitle>
+                <TodayMetricGrid
+                  separateFirstItem
+                  items={[
+                    {
+                      label: t('behaviorTotalDuration'),
+                      value: playDurationValue,
+                    },
+                    {
+                      label: t('behaviorGuessShort'),
+                      value:
+                        totalGuessTimeMs === undefined
+                          ? EMPTY_VALUE
+                          : formatSecondsValue(totalGuessTimeMs),
+                      labelClassName: 'text-green-500',
+                    },
+                    {
+                      label: t('playStatsFirstInput'),
+                      value:
+                        firstInputDelayMs === undefined
+                          ? EMPTY_VALUE
+                          : formatSecondsValue(firstInputDelayMs),
+                      labelClassName: 'text-gray-500',
+                    },
+                    {
+                      label: t('playStatsBreakdownPause'),
+                      value: formatSecondsValue(totalLongPauseMs),
+                      labelClassName: 'text-gray-500',
+                    },
+                  ]}
+                />
+              </section>
+
+              <section>
+                <SummaryGroupTitle
+                  separated
+                  info={
+                    <SummaryInfoButton
+                      title={t('playStatsBreakdownAction')}
+                      items={[
+                        t('behaviorActionInfoEnterTotal'),
+                        t('behaviorActionInfoEnterSubmit'),
+                        t('behaviorActionInfoEnterInvalid'),
+                        t('behaviorActionInfoEnterIncomplete'),
+                        t('behaviorActionInfoDelete'),
+                        t('behaviorActionInfoFriction'),
+                        t('behaviorActionInfoFrictionFormula'),
+                        t('behaviorActionInfoWrongEnter'),
+                      ]}
+                    />
+                  }
+                >
+                  {t('playStatsBreakdownAction')}
+                  {playStats.assistFlags.enterValidationHint ? ' ⚠️' : ''}
+                </SummaryGroupTitle>
+                <div className="grid grid-cols-7 gap-y-2">
+                  <div className="col-span-4">
+                    <div className="rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5">
+                      <TodayMetricGrid
+                        separateFirstItem
+                        items={[
+                          {
+                            label: t('behaviorTotalShort'),
+                            value: String(totalEnterPresses),
+                          },
+                          {
+                            label: t('behaviorSubmitShort'),
+                            value: String(totalValidEnterPresses),
+                            labelClassName: 'text-green-500',
+                          },
+                          {
+                            label: t('playStatsInvalidShort'),
+                            value: String(totalInvalidEnterPresses),
+                            labelClassName: 'text-purple-500',
+                          },
+                          {
+                            label: t('playStatsIncompleteShort'),
+                            value: String(totalIncompleteEnterPresses),
+                            labelClassName: 'text-purple-500',
+                          },
+                        ]}
+                      />
+                      <div className="-mt-2 break-words pb-0.5 text-center text-[10px] leading-3">
+                        {t('playStatsBreakdownEnter')}
                       </div>
-                      <button
-                        type="button"
-                        className="font-semibold text-gray-400 hover:text-gray-700"
-                        onClick={() => setIsBreakdownInfoOpen(false)}
-                        aria-label={t('playStatsBreakdownInfoClose')}
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <div className="space-y-2 text-gray-600">
-                      <div>
-                        <p className="font-semibold text-gray-800">
-                          {t('playStatsBreakdownInfoRowLabel')}
-                        </p>
-                        <ul className="ml-4 list-disc space-y-1">
-                          <li>{t('playStatsBreakdownInfoRows')}</li>
-                          <li>{t('playStatsBreakdownInfoBefore')}</li>
-                          <li>{t('playStatsBreakdownInfoSummary')}</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-green-700">
-                          {t('playStatsBreakdownDurationSeconds')}
-                        </p>
-                        <ul className="ml-4 list-disc space-y-1">
-                          <li>{t('playStatsBreakdownInfoTotal')}</li>
-                          <li>{t('playStatsBreakdownInfoGuess')}</li>
-                          <li>{t('playStatsBreakdownInfoPause')}</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-purple-700">
-                          {t('playStatsBreakdownAction')}
-                        </p>
-                        <ul className="ml-4 list-disc space-y-1">
-                          <li>{t('playStatsBreakdownInfoEnter')}</li>
-                          <li>{t('playStatsBreakdownInfoDelete')}</li>
-                          <li className="text-purple-600">
-                            {t('playStatsBreakdownInfoHint')}
-                          </li>
-                        </ul>
-                      </div>
-                      <p className="border-t border-gray-100 pt-2 text-[11px] text-gray-400">
-                        {t('playStatsBreakdownInfoPrivacy')}
-                      </p>
                     </div>
                   </div>
-                )}
-                <div className="overflow-hidden rounded border border-gray-100 text-[11px] leading-4">
-                  <table className="w-full table-fixed border-collapse">
-                    <colgroup>
-                      <col className="w-16" />
-                      <col />
-                      <col />
-                      <col />
-                      <col />
-                      <col />
-                    </colgroup>
-                    <thead className="font-semibold text-gray-500">
-                      <tr>
-                        <th className="border-b border-slate-500 bg-slate-400 px-1.5 py-0.5 text-center text-white">
-                          <button
-                            type="button"
-                            className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                            onClick={() =>
-                              setIsBreakdownInfoOpen(!isBreakdownInfoOpen)
-                            }
-                            aria-label={t('playStatsBreakdownInfoTitle')}
-                          >
-                            ℹ️
-                          </button>
-                        </th>
-                        <th
-                          colSpan={3}
-                          className="border-b border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white"
-                        >
-                          {t('playStatsBreakdownDurationSeconds')}
-                        </th>
-                        <th
-                          colSpan={2}
-                          className="border-b border-l border-purple-600 bg-purple-500 px-1.5 py-0.5 text-center text-white"
-                        >
-                          {t('playStatsBreakdownAction')}
-                          {playStats.assistFlags.enterValidationHint
-                            ? ' ⚠️'
-                            : ''}
-                        </th>
-                      </tr>
-                      <tr>
-                        <th className="bg-slate-400 px-1.5 py-0.5 text-center text-white">
-                          {t('playStatsBreakdownRow')}
-                        </th>
-                        <th className="border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white">
-                          {t('playStatsBreakdownTotal')}
-                        </th>
-                        <th className="border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white">
-                          {t('playStatsBreakdownGuess')}
-                        </th>
-                        <th className="border-l border-green-600 bg-green-500 px-1.5 py-0.5 text-center text-white">
-                          {t('playStatsBreakdownPause')}
-                        </th>
-                        <th className="border-l border-purple-600 bg-purple-500 px-1.5 py-0.5 text-center text-white">
-                          {t('playStatsBreakdownEnter')}
-                        </th>
-                        <th className="border-l border-purple-600 bg-purple-500 px-1.5 py-0.5 text-center text-white">
-                          {t('playStatsBreakdownDelete')}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {guessBreakdownRows.map((row) => (
-                        <tr
-                          key={row.row}
-                          className={`border-t ${
-                            row.isSummary
-                              ? 'border-gray-200 bg-gray-100 font-semibold'
-                              : 'border-gray-100'
-                          }`}
-                        >
-                          <td className="px-1.5 py-0.5 text-gray-500">
-                            {row.row}
-                          </td>
-                          <td
-                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
-                              row.isSummary
-                                ? 'border-gray-200'
-                                : 'border-gray-100'
-                            }`}
-                          >
-                            {row.totalValue ??
-                              formatOptionalSecondsValue(row.totalMs)}
-                          </td>
-                          <td
-                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
-                              row.isSummary
-                                ? 'border-gray-200'
-                                : 'border-gray-100'
-                            }`}
-                          >
-                            {row.guessValue ??
-                              formatOptionalSecondsValue(row.guessMs)}
-                          </td>
-                          <td
-                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
-                              row.isSummary
-                                ? 'border-gray-200'
-                                : 'border-gray-100'
-                            }`}
-                          >
-                            {row.pauseValue ??
-                              formatOptionalSecondsValue(row.pauseMs)}
-                          </td>
-                          <td
-                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
-                              row.isSummary
-                                ? 'border-gray-200'
-                                : 'border-gray-100'
-                            }`}
-                          >
-                            {row.enterValue ??
-                              (row.enterPresses === undefined
-                                ? EMPTY_VALUE
-                                : row.enterPresses)}
-                          </td>
-                          <td
-                            className={`border-l px-1.5 py-0.5 text-right text-gray-900 ${
-                              row.isSummary
-                                ? 'border-gray-200'
-                                : 'border-gray-100'
-                            }`}
-                          >
-                            {row.deleteValue ??
-                              (row.deletePresses === undefined
-                                ? EMPTY_VALUE
-                                : row.deletePresses)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <TodaySingleMetric
+                    label={
+                      <span className="text-purple-500">
+                        {t('playStatsBreakdownDelete')}
+                      </span>
+                    }
+                    value={String(totalDeletePresses)}
+                    separated
+                  />
+                  <TodaySingleMetric
+                    className="col-span-2"
+                    label={
+                      <>
+                        <span className="text-purple-500">Friction</span>
+                        <span>/</span>
+                        <span className="text-green-500">Submit</span>
+                      </>
+                    }
+                    value={frictionPerSubmit}
+                  />
                 </div>
-              </div>
+              </section>
+
+              <section>
+                <SummaryGroupTitle
+                  separated
+                  info={
+                    <SummaryInfoButton
+                      title={t('behaviorTiles')}
+                      items={[
+                        t('behaviorTilesInfoCorrect'),
+                        t('behaviorTilesInfoPresent'),
+                        t('behaviorTilesInfoAbsent'),
+                        t('behaviorTilesInfoUnrevealed'),
+                        t('behaviorTilesInfoDeadEnd'),
+                      ]}
+                    />
+                  }
+                >
+                  {t('behaviorTiles')}
+                </SummaryGroupTitle>
+                <div className="grid grid-cols-4 gap-0.5 px-0.5">
+                  <TodayTileMetric
+                    label={t('behaviorTileCorrect')}
+                    status="correct"
+                    labelClassName="text-green-500"
+                    count={todayTileCounts.correct}
+                  />
+                  <TodayTileMetric
+                    label={t('behaviorTilePresent')}
+                    status="present"
+                    labelClassName="text-purple-500"
+                    count={todayTileCounts.present}
+                  />
+                  <TodayTileMetric
+                    label={t('behaviorTileAbsent')}
+                    status="absent"
+                    labelClassName="text-gray-500"
+                    count={todayTileCounts.absent}
+                  />
+                  <TodayTileMetric
+                    label={t('behaviorTileUnrevealed')}
+                    labelClassName="text-gray-500"
+                    count={todayTileCounts.unrevealed}
+                  />
+                </div>
+              </section>
             </div>
             <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 items-center gap-3">
               <div>
