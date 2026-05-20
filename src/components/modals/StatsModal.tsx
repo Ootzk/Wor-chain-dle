@@ -658,6 +658,7 @@ export const StatsModal = ({
                             t('behaviorActionInfoFrictionZeroSubmit'),
                           ],
                         },
+                        t('playStatsBreakdownInfoHint'),
                       ]}
                     />
                   }

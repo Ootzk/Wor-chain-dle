@@ -514,6 +514,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
                     { text: t('behaviorActionInfoFrictionZeroSubmit') },
                   ],
                 },
+                { text: t('playStatsBreakdownInfoHint') },
               ]}
             />
           }
