@@ -13,6 +13,11 @@ import {
 } from './achievementProgress'
 import { CharStatus, getGuessStatuses } from './statuses'
 import { REWARD_METADATA, RewardMetadata } from './rewardMetadata'
+import {
+  DailyPlayStatsHistory,
+  TileCounts,
+  loadDailyPlayStatsHistory,
+} from './playStats'
 
 // --- Type Definitions ---
 
@@ -41,11 +46,13 @@ export type CompletedGameContext = {
   guessCount: number
   endReason: AchievementEndReason
   deadEnd?: DeadEndContext
+  tileCounts?: TileCounts
 }
 
 export type AchievementContext = {
   stats: GameStats
   dailyHistory: DailyHistory
+  dailyPlayStatsHistory: DailyPlayStatsHistory
   mode: GameMode
   progress: AchievementTrackingState
   game?: CompletedGameContext
@@ -71,8 +78,10 @@ type AchievementUnlock = {
   unlockedAt: number
 }
 
+type AchievementStateVersion = number | `v${number}.${number}.${number}`
+
 type AchievementState = {
-  version: number
+  version: AchievementStateVersion
   unlocked: Record<string, AchievementUnlock>
   retroCompleted: boolean
   lastSeenAt?: number
@@ -103,6 +112,48 @@ export const usedAllWords = (guesses: string[][], words: string[]): boolean => {
   const submittedWords = new Set(guesses.map((guess) => guess.join('')))
   return words.every((word) => submittedWords.has(word))
 }
+
+const tileCountsFromGame = (game: CompletedGameContext): TileCounts => {
+  if (game.tileCounts) {
+    return game.tileCounts
+  }
+
+  const statusCounts = countStatusesForGame(game.guesses, game.solution)
+  return {
+    ...statusCounts,
+    unrevealed: 0,
+  }
+}
+
+const hasStoredTileCounts = (
+  counts: Partial<TileCounts> | undefined
+): counts is TileCounts =>
+  counts !== undefined &&
+  typeof counts.correct === 'number' &&
+  typeof counts.present === 'number' &&
+  typeof counts.absent === 'number' &&
+  typeof counts.unrevealed === 'number'
+
+const hasCompletedGameMatchingTilePattern = (
+  ctx: AchievementContext,
+  predicate: (counts: TileCounts) => boolean
+): boolean => {
+  if (ctx.game && predicate(tileCountsFromGame(ctx.game))) {
+    return true
+  }
+
+  return Object.values(ctx.dailyPlayStatsHistory).some(
+    (game) => hasStoredTileCounts(game.tileCounts) && predicate(game.tileCounts)
+  )
+}
+
+const tilePatternProgress = (
+  ctx: AchievementContext,
+  predicate: (counts: TileCounts) => boolean
+): AchievementProgress => ({
+  current: hasCompletedGameMatchingTilePattern(ctx, predicate) ? 1 : 0,
+  target: 1,
+})
 
 // --- Achievement Definitions ---
 
@@ -382,7 +433,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
         return { current: 0, target: 1 }
       }
 
-      const counts = countStatusesForGame(game.guesses, game.solution)
+      const counts = tileCountsFromGame(game)
       return {
         current:
           counts.correct === 10 && counts.present === 10 && counts.absent === 10
@@ -413,14 +464,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_no_present_game_title',
     descriptionKey: 'achievement_no_present_game_desc',
-    progress: ({ game }) => {
-      if (!game) {
-        return { current: 0, target: 1 }
-      }
-
-      const counts = countStatusesForGame(game.guesses, game.solution)
-      return { current: counts.present === 0 ? 1 : 0, target: 1 }
-    },
+    progress: (ctx) =>
+      tilePatternProgress(ctx, (counts) => counts.present === 0),
   },
   {
     id: 'no_correct_game',
@@ -430,21 +475,15 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_no_correct_game_title',
     descriptionKey: 'achievement_no_correct_game_desc',
-    progress: ({ game }) => {
-      if (!game) {
-        return { current: 0, target: 1 }
-      }
-
-      const counts = countStatusesForGame(game.guesses, game.solution)
-      return { current: counts.correct === 0 ? 1 : 0, target: 1 }
-    },
+    progress: (ctx) =>
+      tilePatternProgress(ctx, (counts) => counts.correct === 0),
   },
 ]
 
 // --- localStorage ---
 
 const STORAGE_KEY = 'achievementState'
-const ACHIEVEMENT_STATE_VERSION = 4
+const ACHIEVEMENT_STATE_VERSION = 'v1.7.0'
 
 const createDefaultState = (): AchievementState => ({
   version: ACHIEVEMENT_STATE_VERSION,
@@ -497,6 +536,9 @@ const saveAchievementState = (state: AchievementState): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
 }
 
+const isAchievementStateCurrent = (state: AchievementState): boolean =>
+  state.retroCompleted && state.version === ACHIEVEMENT_STATE_VERSION
+
 const DEFAULT_ACHIEVEMENT_MODES: GameMode[] = ['daily']
 
 export const getAchievementModes = (
@@ -512,6 +554,7 @@ export type AchievementEvaluationOptions = {
   mode?: GameMode
   game?: CompletedGameContext
   progress?: AchievementTrackingState
+  dailyPlayStatsHistory?: DailyPlayStatsHistory
 }
 
 const createAchievementContext = (
@@ -521,6 +564,8 @@ const createAchievementContext = (
 ): AchievementContext => ({
   stats,
   dailyHistory,
+  dailyPlayStatsHistory:
+    options.dailyPlayStatsHistory ?? loadDailyPlayStatsHistory(),
   mode: options.mode ?? 'daily',
   progress: options.progress ?? loadAchievementProgress(),
   game: options.game,
@@ -574,7 +619,7 @@ export const retroUnlockAchievements = (
   dailyHistory: DailyHistory
 ): string[] => {
   const state = loadAchievementState()
-  if (state.retroCompleted && state.version >= ACHIEVEMENT_STATE_VERSION) {
+  if (isAchievementStateCurrent(state)) {
     return []
   }
 

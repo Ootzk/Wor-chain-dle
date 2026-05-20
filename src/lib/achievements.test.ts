@@ -17,6 +17,7 @@ import {
   getShareEmojiSet,
 } from './cosmetics'
 import { createDefaultAchievementTrackingState } from './achievementProgress'
+import { DailyPlayStatsHistory } from './playStats'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -272,7 +273,7 @@ describe('share badge achievements', () => {
         'win_in_6_20',
       ])
     )
-    expect(loadAchievementState().version).toBe(4)
+    expect(loadAchievementState().version).toBe('v1.7.0')
     expect(loadAchievementState().retroCompleted).toBe(true)
   })
 
@@ -308,6 +309,7 @@ describe('share badge achievements', () => {
       monthlyAttendance!.progress({
         stats,
         dailyHistory: partialMonth,
+        dailyPlayStatsHistory: {},
         mode: 'daily',
         progress: createDefaultAchievementTrackingState(),
       })
@@ -432,6 +434,37 @@ describe('share badge achievements', () => {
     ).toContain('no_present_game')
   })
 
+  it('unlocks apple from stored tile counts in daily play stats', () => {
+    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 4,
+          present: 0,
+          absent: 21,
+          unrevealed: 11,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyPlayStatsHistory,
+      })
+    ).toContain('no_present_game')
+  })
+
   it('unlocks grape from a completed daily game with no correct tiles', () => {
     const guesses = [
       ['h', 'x', 'x', 'x', 'x'],
@@ -453,5 +486,63 @@ describe('share badge achievements', () => {
         },
       })
     ).toContain('no_correct_game')
+  })
+
+  it('unlocks grape from stored tile counts in daily play stats', () => {
+    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 0,
+          present: 7,
+          absent: 18,
+          unrevealed: 11,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyPlayStatsHistory,
+      })
+    ).toContain('no_correct_game')
+  })
+
+  it('does not treat legacy play stats without tile counts as a tile pattern match', () => {
+    const legacyDailyPlayStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+      },
+    } as DailyPlayStatsHistory
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyPlayStatsHistory: legacyDailyPlayStatsHistory,
+      })
+    ).not.toEqual(
+      expect.arrayContaining(['no_present_game', 'no_correct_game'])
+    )
   })
 })

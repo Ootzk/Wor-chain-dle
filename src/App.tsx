@@ -310,12 +310,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     won,
     endReason,
     deadEnd,
+    tileCounts,
   }: {
     nextStats: typeof stats
     completedGuesses: string[][]
     won: boolean
     endReason: AchievementEndReason
     deadEnd?: DeadEndContext
+    tileCounts?: CompletedPlayStats['tileCounts']
   }) => {
     const achievementProgress = recordCompletedGameProgress({
       mode,
@@ -334,6 +336,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           guessCount: completedGuesses.length,
           endReason,
           deadEnd,
+          tileCounts,
         },
       })
     )
@@ -395,6 +398,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const todayKey = dateToKey(Temporal.Now.plainDateISO())
 
       if (winningWord) {
+        const tileCounts = countTileStatusesForGame(nextGuesses, solution)
         let nextStats = stats
         if (isDaily) {
           nextStats = addStatsForCompletedGame(stats, guesses.length)
@@ -406,13 +410,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           completedGuesses: nextGuesses,
           won: true,
           endReason: 'win',
+          tileCounts,
         })
         saveCompletedPlayStats(
           completePlayStats({
             stats: submittedPlayStats,
             won: true,
             guessCount: nextGuesses.length,
-            tileCounts: countTileStatusesForGame(nextGuesses, solution),
+            tileCounts,
           })
         )
         return setIsGameWon(true)
@@ -435,6 +440,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
               }
             : undefined
           let nextStats = stats
+          const tileCounts = countTileStatusesForGame(nextGuesses, solution)
           if (isDaily) {
             nextStats = addStatsForCompletedGame(stats, CONFIG.tries)
             setStats(nextStats)
@@ -446,13 +452,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             won: false,
             endReason: 'deadEnd',
             deadEnd,
+            tileCounts,
           })
           saveCompletedPlayStats(
             completePlayStats({
               stats: submittedPlayStats,
               won: false,
               guessCount: nextGuesses.length,
-              tileCounts: countTileStatusesForGame(nextGuesses, solution),
+              tileCounts,
             })
           )
           setIsGameLost(true)
@@ -461,6 +468,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       }
 
       if (guesses.length === CONFIG.tries - 1) {
+        const tileCounts = countTileStatusesForGame(nextGuesses, solution)
         let nextStats = stats
         if (isDaily) {
           nextStats = addStatsForCompletedGame(stats, guesses.length + 1)
@@ -472,13 +480,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           completedGuesses: nextGuesses,
           won: false,
           endReason: 'fail',
+          tileCounts,
         })
         saveCompletedPlayStats(
           completePlayStats({
             stats: submittedPlayStats,
             won: false,
             guessCount: nextGuesses.length,
-            tileCounts: countTileStatusesForGame(nextGuesses, solution),
+            tileCounts,
           })
         )
         setIsGameLost(true)
