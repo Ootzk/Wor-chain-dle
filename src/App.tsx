@@ -329,6 +329,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode,
         progress: achievementProgress,
         game: {
+          dateKey: isDaily ? localDateStr : undefined,
           guesses: completedGuesses,
           solution,
           won,

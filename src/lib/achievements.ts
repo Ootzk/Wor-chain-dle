@@ -39,6 +39,7 @@ export type DeadEndContext = {
 }
 
 export type CompletedGameContext = {
+  dateKey?: string
   guesses: string[][]
   solution: string
   won: boolean
@@ -134,33 +135,47 @@ const hasStoredTileCounts = (
   typeof counts.absent === 'number' &&
   typeof counts.unrevealed === 'number'
 
-const hasCompletedGameMatchingTilePattern = (
+type TilePatternGame = Pick<CompletedGameContext, 'won' | 'guessCount'>
+type TilePatternPredicate = (
+  counts: TileCounts,
+  game: TilePatternGame
+) => boolean
+
+const countCompletedGamesMatchingTilePattern = (
   ctx: AchievementContext,
-  predicate: (
-    counts: TileCounts,
-    game: Pick<CompletedGameContext, 'won' | 'guessCount'>
-  ) => boolean
-): boolean => {
+  predicate: TilePatternPredicate
+): number => {
+  let count = 0
+  const activeGameDateKey = ctx.game?.dateKey
+
   if (ctx.game && predicate(tileCountsFromGame(ctx.game), ctx.game)) {
-    return true
+    count += 1
   }
 
-  return Object.values(ctx.dailyPlayStatsHistory).some(
-    (game) =>
-      hasStoredTileCounts(game.tileCounts) && predicate(game.tileCounts, game)
-  )
+  for (const game of Object.values(ctx.dailyPlayStatsHistory)) {
+    if (activeGameDateKey && game.dateKey === activeGameDateKey) continue
+    if (
+      hasStoredTileCounts(game.tileCounts) &&
+      predicate(game.tileCounts, game)
+    ) {
+      count += 1
+    }
+  }
+
+  return count
 }
 
-const tilePatternProgress = (
+export const getTilePatternProgress = (
   ctx: AchievementContext,
-  predicate: (
-    counts: TileCounts,
-    game: Pick<CompletedGameContext, 'won' | 'guessCount'>
-  ) => boolean
-): AchievementProgress => ({
-  current: hasCompletedGameMatchingTilePattern(ctx, predicate) ? 1 : 0,
-  target: 1,
-})
+  predicate: TilePatternPredicate,
+  target = 1
+): AchievementProgress => {
+  const current = countCompletedGamesMatchingTilePattern(ctx, predicate)
+  return {
+    current: Math.min(current, target),
+    target,
+  }
+}
 
 // --- Achievement Definitions ---
 
@@ -436,7 +451,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_bibimbap_balance_title',
     descriptionKey: 'achievement_bibimbap_balance_desc',
     progress: (ctx) =>
-      tilePatternProgress(
+      getTilePatternProgress(
         ctx,
         (counts, game) =>
           game.won &&
@@ -468,7 +483,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_no_present_game_title',
     descriptionKey: 'achievement_no_present_game_desc',
     progress: (ctx) =>
-      tilePatternProgress(ctx, (counts) => counts.present === 0),
+      getTilePatternProgress(ctx, (counts) => counts.present === 0),
   },
   {
     id: 'no_correct_game',
@@ -479,7 +494,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     titleKey: 'achievement_no_correct_game_title',
     descriptionKey: 'achievement_no_correct_game_desc',
     progress: (ctx) =>
-      tilePatternProgress(ctx, (counts) => counts.correct === 0),
+      getTilePatternProgress(ctx, (counts) => counts.correct === 0),
   },
 ]
 

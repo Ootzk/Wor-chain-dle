@@ -5,6 +5,7 @@ import {
   evaluateAchievementDefinitions,
   evaluateAchievements,
   getAchievementModes,
+  getTilePatternProgress,
   loadAchievementState,
   retroUnlockAchievements,
 } from './achievements'
@@ -606,5 +607,60 @@ describe('share badge achievements', () => {
     ).not.toEqual(
       expect.arrayContaining(['no_present_game', 'no_correct_game'])
     )
+  })
+
+  it('counts stored tile pattern matches toward multi-game targets', () => {
+    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+      '2026-05-19': {
+        mode: 'daily',
+        dateKey: '2026-05-19',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 0,
+          present: 4,
+          absent: 21,
+          unrevealed: 11,
+        },
+      },
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: true,
+        guessCount: 4,
+        tileCounts: {
+          correct: 0,
+          present: 7,
+          absent: 13,
+          unrevealed: 16,
+        },
+      },
+    }
+    const achievement = createAchievement({
+      id: 'two_no_correct_games',
+      progress: (ctx) =>
+        getTilePatternProgress(ctx, (counts) => counts.correct === 0, 2),
+    })
+
+    expect(
+      evaluateAchievementDefinitions([achievement], stats, dailyHistory, {
+        mode: 'daily',
+        dailyPlayStatsHistory,
+      })
+    ).toContain('two_no_correct_games')
   })
 })
