@@ -5,6 +5,7 @@ import { ChainBridge } from './ChainBridge'
 import { CONFIG } from '../../constants/config'
 import React from 'react'
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline'
+import { CosmeticOverrides } from '../../lib/cosmetics'
 
 type Props = {
   guesses: string[][]
@@ -14,6 +15,7 @@ type Props = {
   hideLetters?: boolean
   showHideLettersToggle?: boolean
   onToggleHideLetters?: () => void
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 function getChainPositions(rowIndex: number) {
@@ -44,6 +46,7 @@ export const Grid = ({
   hideLetters = false,
   showHideLettersToggle = false,
   onToggleHideLetters,
+  cosmeticOverrides,
 }: Props) => {
   const elements: React.ReactNode[] = []
 
@@ -59,6 +62,7 @@ export const Grid = ({
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
           hideLetters={hideLetters}
+          cosmeticOverrides={cosmeticOverrides}
         />
       )
     } else if (i === guesses.length && !isGameComplete) {
@@ -70,6 +74,7 @@ export const Grid = ({
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
           hideLetters={hideLetters}
+          cosmeticOverrides={cosmeticOverrides}
         />
       )
     } else {
@@ -77,6 +82,7 @@ export const Grid = ({
         <EmptyRow
           chainTopIndex={chainTopIndex}
           chainBottomIndex={chainBottomIndex}
+          cosmeticOverrides={cosmeticOverrides}
         />
       )
     }
@@ -107,7 +113,11 @@ export const Grid = ({
 
     if (i < CONFIG.tries - 1) {
       elements.push(
-        <ChainBridge key={`bridge-${i}`} chainIndex={getBridgeChainIndex(i)} />
+        <ChainBridge
+          key={`bridge-${i}`}
+          chainIndex={getBridgeChainIndex(i)}
+          cosmeticOverrides={cosmeticOverrides}
+        />
       )
     }
   }

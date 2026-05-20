@@ -2,6 +2,7 @@ import { Cell } from './Cell'
 import { CONFIG } from '../../constants/config'
 import { getChainInfo } from '../../lib/chain'
 import { CharStatus, getGuessStatuses } from '../../lib/statuses'
+import { CosmeticOverrides } from '../../lib/cosmetics'
 
 type Props = {
   guess: string[]
@@ -10,6 +11,7 @@ type Props = {
   chainTopIndex?: number
   chainBottomIndex?: number
   hideLetters?: boolean
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 export const CurrentRow = ({
@@ -19,6 +21,7 @@ export const CurrentRow = ({
   chainTopIndex,
   chainBottomIndex,
   hideLetters,
+  cosmeticOverrides,
 }: Props) => {
   const chainInfo = getChainInfo(guesses)
 
@@ -71,6 +74,7 @@ export const CurrentRow = ({
           chainBottom={i === chainBottomIndex}
           hideLetter={hideLetters}
           showCursor={i === cursorIndex}
+          cosmeticOverrides={cosmeticOverrides}
         />
       ))}
     </div>

@@ -3,7 +3,7 @@ import { ClipboardListIcon } from '@heroicons/react/outline'
 import { CogIcon } from '@heroicons/react/outline'
 import { CurrencyDollarIcon } from '@heroicons/react/outline'
 import { SparklesIcon } from '@heroicons/react/outline'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
@@ -38,7 +38,10 @@ import {
   retroUnlockAchievements,
   ACHIEVEMENTS,
 } from './lib/achievements'
-import { getEquippedAlertMessageKeys } from './lib/cosmetics'
+import {
+  getEquippedAlertMessageKeys,
+  resolveCosmeticOverrides,
+} from './lib/cosmetics'
 import { GameMode } from './lib/gameMode'
 import { EventDefinition } from './lib/events'
 import { recordCompletedGameProgress } from './lib/achievementProgress'
@@ -92,6 +95,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const isCustom = mode === 'custom'
   const isEvent = mode === 'event'
   const localDateStr = dateToKey(Temporal.Now.plainDateISO())
+  const settingOverrides = isEvent ? event?.settingOverrides : undefined
+  const cosmeticOverrides = useMemo(
+    () =>
+      isEvent ? resolveCosmeticOverrides(event?.cosmeticOverrides) : undefined,
+    [isEvent, event?.cosmeticOverrides]
+  )
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
   const [isGameWon, setIsGameWon] = useState(false)
@@ -123,6 +132,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
+  const effectiveIsUppercase = settingOverrides?.isUppercase ?? isUppercase
+  const effectiveExcludeUrl = settingOverrides?.excludeUrl ?? excludeUrl
+  const effectiveEnterValidationHint =
+    settingOverrides?.enterValidationHint ?? enterValidationHint
+  const effectiveLettersHidden =
+    settingOverrides?.lettersHidden ?? lettersHidden
+  const canToggleLettersHidden = settingOverrides?.lettersHidden === undefined
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [successAlert, setSuccessAlert] = useState('')
@@ -164,12 +180,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           mode,
           solution,
           dateKey: localDateStr,
-          enterValidationHint: loadSettings().enterValidationHint,
+          enterValidationHint: effectiveEnterValidationHint,
         })
       : loadCurrentPlayStats({
           mode,
           solution,
-          enterValidationHint: loadSettings().enterValidationHint,
+          enterValidationHint: effectiveEnterValidationHint,
         })
   )
   const [dailyDetailStatsSummary, setDailyDetailStatsSummary] = useState(() =>
@@ -284,12 +300,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           mode,
           solution,
           dateKey: localDateStr,
-          enterValidationHint,
+          enterValidationHint: effectiveEnterValidationHint,
         })
       : loadCurrentPlayStats({
           mode,
           solution,
-          enterValidationHint,
+          enterValidationHint: effectiveEnterValidationHint,
         })
     setPlayStats(next)
     playStatsRef.current = next
@@ -305,7 +321,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [mode, solution, localDateStr])
 
   useEffect(() => {
-    if (playStats.completedAt || !enterValidationHint) return
+    if (playStats.completedAt || !effectiveEnterValidationHint) return
     updatePlayStats({
       ...playStats,
       assistFlags: {
@@ -314,10 +330,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enterValidationHint])
+  }, [effectiveEnterValidationHint])
 
   useEffect(() => {
-    const alertKeys = getEquippedAlertMessageKeys()
+    const alertKeys = getEquippedAlertMessageKeys(cosmeticOverrides)
     if (isGameWon) {
       const WIN_MESSAGES = t(alertKeys.win, { returnObjects: true })
       setSuccessAlert(WIN_MESSAGES[guesses.length - 1] || WIN_MESSAGES[0])
@@ -540,7 +556,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }
   const enterHint = (() => {
-    if (!enterValidationHint || isGameWon || isGameLost) return undefined
+    if (!effectiveEnterValidationHint || isGameWon || isGameLost) {
+      return undefined
+    }
 
     const fullGuess = buildFullGuess(currentGuess, guesses)
     if (fullGuess.length !== CONFIG.wordLength) return 'incomplete'
@@ -609,15 +627,16 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           onClick={() => setIsDonateModalOpen(true)}
         />
       </div>
-      <div className={isUppercase ? 'uppercase' : ''}>
+      <div className={effectiveIsUppercase ? 'uppercase' : ''}>
         <Grid
           guesses={guesses}
           currentGuess={currentGuess}
           solution={solution}
           isGameComplete={isGameWon || isGameLost}
-          hideLetters={lettersHidden}
-          showHideLettersToggle
+          hideLetters={effectiveLettersHidden}
+          showHideLettersToggle={canToggleLettersHidden}
           onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
+          cosmeticOverrides={cosmeticOverrides}
         />
         <Keyboard
           onChar={onChar}
@@ -660,7 +679,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         mode={mode}
         solution={solution}
         questioner={questioner}
-        excludeUrl={excludeUrl}
+        excludeUrl={effectiveExcludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStartsOnMonday={() =>
@@ -677,12 +696,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
-        isUppercase={isUppercase}
+        isUppercase={effectiveIsUppercase}
         playStats={playStats}
         detailStatsSummary={dailyDetailStatsSummary}
         dailyResults={dailyResults}
         eventResultsByVersion={eventResultsByVersion}
         event={event}
+        cosmeticOverrides={cosmeticOverrides}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}
@@ -690,9 +710,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setIsRewardsModalOpen(false)
           setRewardsInitialTab(undefined)
         }}
-        isUppercase={isUppercase}
+        isUppercase={effectiveIsUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
-        excludeUrl={excludeUrl}
+        excludeUrl={effectiveExcludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
         mode={mode}
@@ -759,7 +779,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
       <Alert message={t('wordNotFound')} isOpen={isWordNotFoundAlertOpen} />
       <Alert
-        message={t(getEquippedAlertMessageKeys().loss, { solution })}
+        message={t(getEquippedAlertMessageKeys(cosmeticOverrides).loss, {
+          solution,
+        })}
         isOpen={isGameLost}
       />
       <Alert

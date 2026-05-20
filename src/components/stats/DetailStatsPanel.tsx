@@ -4,9 +4,11 @@ import { InformationCircleIcon } from '@heroicons/react/outline'
 import { DetailStatsSummary } from '../../lib/playStats'
 import { CharStatus } from '../../lib/statuses'
 import { Cell } from '../grid/Cell'
+import { CosmeticOverrides } from '../../lib/cosmetics'
 
 type Props = {
   summary: DetailStatsSummary
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 type TimeUnit = 's' | 'm' | 'h' | 'd'
@@ -315,17 +317,23 @@ const TileSample = ({
   labelClassName,
   label,
   status,
+  cosmeticOverrides,
 }: {
   count: string
   labelClassName?: string
   label: string
   status?: CharStatus
+  cosmeticOverrides?: CosmeticOverrides
 }) => (
   <div
     className="flex min-w-0 flex-col items-center justify-center"
     aria-label={label}
   >
-    <Cell value={String(count)} status={status} />
+    <Cell
+      value={String(count)}
+      status={status}
+      cosmeticOverrides={cosmeticOverrides}
+    />
     <div
       className={`min-h-[1rem] break-words text-center text-[10px] leading-[0.65rem] ${
         labelClassName ?? 'text-gray-900'
@@ -339,9 +347,11 @@ const TileSample = ({
 const TileCountsRow = ({
   summary,
   viewMode,
+  cosmeticOverrides,
 }: {
   summary: DetailStatsSummary
   viewMode: ViewMode
+  cosmeticOverrides?: CosmeticOverrides
 }) => {
   const { t } = useTranslation()
   const hasTrackedGames = summary.totalGames > 0
@@ -359,6 +369,7 @@ const TileCountsRow = ({
             summary.tileCounts.correct / denominator,
             viewMode
           )}
+          cosmeticOverrides={cosmeticOverrides}
         />
         <TileSample
           label={t('detailTilePresent')}
@@ -368,12 +379,14 @@ const TileCountsRow = ({
             summary.tileCounts.present / denominator,
             viewMode
           )}
+          cosmeticOverrides={cosmeticOverrides}
         />
         <TileSample
           label={t('detailTileAbsent')}
           status="absent"
           labelClassName="text-gray-500"
           count={formatCount(summary.tileCounts.absent / denominator, viewMode)}
+          cosmeticOverrides={cosmeticOverrides}
         />
         <TileSample
           label={t('detailTileUnrevealed')}
@@ -382,13 +395,14 @@ const TileCountsRow = ({
             summary.tileCounts.unrevealed / denominator,
             viewMode
           )}
+          cosmeticOverrides={cosmeticOverrides}
         />
       </div>
     </div>
   )
 }
 
-export const DetailStatsPanel = ({ summary }: Props) => {
+export const DetailStatsPanel = ({ summary, cosmeticOverrides }: Props) => {
   const { t } = useTranslation()
   const [timeUnit, setTimeUnit] = useState<TimeUnit>('m')
   const [viewMode, setViewMode] = useState<ViewMode>('total')
@@ -586,7 +600,11 @@ export const DetailStatsPanel = ({ summary }: Props) => {
         >
           {t('detailTiles')}
         </SettingsLikeGroupTitle>
-        <TileCountsRow summary={summary} viewMode={viewMode} />
+        <TileCountsRow
+          summary={summary}
+          viewMode={viewMode}
+          cosmeticOverrides={cosmeticOverrides}
+        />
       </div>
       <div className="mt-2 flex items-center justify-center gap-2 border-t border-gray-200 pt-2">
         <div className="shrink-0">

@@ -1,6 +1,7 @@
 import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
+import { CosmeticOverrideConfig } from './cosmetics'
 
 export type EventModeKind = 'standard' | 'hardcore' | 'ai'
 
@@ -13,6 +14,8 @@ export type EventDefinition = {
   themeKey: string
   answerSeed: string
   loseReasons: EventLoseReasonDefinition[]
+  cosmeticOverrides?: CosmeticOverrideConfig
+  settingOverrides?: EventSettingOverrides
 }
 
 export type EventLoseReasonDefinition = {
@@ -23,6 +26,13 @@ export type EventLoseReasonDefinition = {
   colorClass: string
   isUnknown?: boolean
 }
+
+export type EventSettingOverrides = Partial<{
+  isUppercase: boolean
+  excludeUrl: boolean
+  enterValidationHint: boolean
+  lettersHidden: boolean
+}>
 
 export type EventWordOfDay = {
   solution: string
@@ -37,6 +47,10 @@ const ACTIVE_EVENT: EventDefinition = {
   modeKind: 'standard',
   themeKey: 'eventThemeSummerGarden',
   answerSeed: 'v1.7.0-event',
+  cosmeticOverrides: {
+    shareBadge: ['badge_apple', 'badge_grape', 'badge_milk', 'badge_azure'],
+    chainColor: 'chaincolor_azure',
+  },
   loseReasons: [
     {
       id: 'guess_limit',

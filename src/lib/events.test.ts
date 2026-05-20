@@ -1,6 +1,7 @@
 import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
+import { resolveCosmeticOverrides } from './cosmetics'
 import { getActiveEvent, getEventWordOfDay } from './events'
 
 test('selects deterministic event words from an event seed', () => {
@@ -17,4 +18,33 @@ test('uses a different answer seed from Daily', () => {
   const dailyIndex = date.since(Temporal.PlainDate.from(CONFIG.startDate)).days
 
   expect(eventWord.solutionIndex).not.toEqual(dailyIndex % WORDS.length)
+})
+
+test('defines cosmetic overrides for the active event theme', () => {
+  const event = getActiveEvent()
+
+  expect(event.cosmeticOverrides).toMatchObject({
+    shareBadge: ['badge_apple', 'badge_grape', 'badge_milk', 'badge_azure'],
+    chainColor: 'chaincolor_azure',
+  })
+})
+
+test('resolves random event cosmetic candidates without mutating the config', () => {
+  const event = getActiveEvent()
+  const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.75)
+
+  const resolved = resolveCosmeticOverrides(event.cosmeticOverrides)
+
+  expect(resolved).toMatchObject({
+    shareBadge: 'badge_azure',
+    chainColor: 'chaincolor_azure',
+  })
+  expect(event.cosmeticOverrides?.shareBadge).toEqual([
+    'badge_apple',
+    'badge_grape',
+    'badge_milk',
+    'badge_azure',
+  ])
+
+  randomSpy.mockRestore()
 })

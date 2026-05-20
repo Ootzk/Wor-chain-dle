@@ -50,6 +50,10 @@ import {
 } from '../../lib/achievements'
 import { DailyResults } from '../../lib/dailyResults'
 import { normalizeRewardVersion } from '../../lib/rewardMetadata'
+import {
+  CosmeticOverrides,
+  resolveCosmeticOverrides,
+} from '../../lib/cosmetics'
 
 type Props = {
   isOpen: boolean
@@ -76,6 +80,7 @@ type Props = {
   dailyResults: DailyResults
   eventResultsByVersion: EventResultsByVersion
   event?: EventDefinition
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
@@ -181,12 +186,14 @@ const TodayMetric = ({
   cellStatus,
   title,
   tone = 'default',
+  cosmeticOverrides,
 }: {
   label: string
   value: string
   cellStatus?: CharStatus
   title?: string
   tone?: 'default' | 'success' | 'pending' | 'muted'
+  cosmeticOverrides?: CosmeticOverrides
 }) => {
   const valueClass = {
     default: 'text-gray-900',
@@ -199,7 +206,11 @@ const TodayMetric = ({
     <div className="m-0.5 min-w-0 text-center">
       {cellStatus ? (
         <div className="flex h-14 items-center justify-center" title={title}>
-          <Cell value={value} status={cellStatus} />
+          <Cell
+            value={value}
+            status={cellStatus}
+            cosmeticOverrides={cosmeticOverrides}
+          />
         </div>
       ) : (
         <div className="flex h-14 items-center justify-center">
@@ -327,17 +338,23 @@ const TodayTileMetric = ({
   label,
   labelClassName,
   status,
+  cosmeticOverrides,
 }: {
   count: number
   label: string
   labelClassName: string
   status?: CharStatus
+  cosmeticOverrides?: CosmeticOverrides
 }) => (
   <div
     className="flex min-w-0 flex-col items-center justify-center"
     aria-label={label}
   >
-    <Cell value={String(count)} status={status} />
+    <Cell
+      value={String(count)}
+      status={status}
+      cosmeticOverrides={cosmeticOverrides}
+    />
     <div
       className={`min-h-[1rem] break-words text-center text-[10px] leading-[0.65rem] ${labelClassName}`}
     >
@@ -370,14 +387,18 @@ export const StatsModal = ({
   dailyResults,
   eventResultsByVersion,
   event,
+  cosmeticOverrides,
 }: Props) => {
   const { t } = useTranslation()
+  const isEventRecords = mode === 'event'
   const [activeTab, setActiveTab] = useState<
     'today' | 'calendar' | 'summary' | 'details'
   >('today')
   const [selectedEventVersion, setSelectedEventVersion] = useState(
     () => event?.version ?? ''
   )
+  const [selectedEventCosmeticOverrides, setSelectedEventCosmeticOverrides] =
+    useState<CosmeticOverrides | undefined>(() => cosmeticOverrides)
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
@@ -385,9 +406,25 @@ export const StatsModal = ({
       setActiveTab(initialTab || (mode === 'event' ? 'summary' : 'today'))
       if (mode === 'event' && event) {
         setSelectedEventVersion(event.version)
+        setSelectedEventCosmeticOverrides(cosmeticOverrides)
       }
     }
-  }, [isOpen, initialTab, mode, event])
+  }, [isOpen, initialTab, mode, event, cosmeticOverrides])
+
+  useEffect(() => {
+    if (!isEventRecords) {
+      setSelectedEventCosmeticOverrides(undefined)
+      return
+    }
+    if (event?.version === selectedEventVersion) {
+      setSelectedEventCosmeticOverrides(cosmeticOverrides)
+      return
+    }
+    const selectedEvent = getEventByVersion(selectedEventVersion)
+    setSelectedEventCosmeticOverrides(
+      resolveCosmeticOverrides(selectedEvent?.cosmeticOverrides)
+    )
+  }, [isEventRecords, selectedEventVersion, event, cosmeticOverrides])
 
   useEffect(() => {
     if (!isOpen || playStats.completedAt || !hasPlayStatsActivity(playStats)) {
@@ -472,7 +509,6 @@ export const StatsModal = ({
     )
   }
 
-  const isEventRecords = mode === 'event'
   const knownEvents = getKnownEvents()
   const eventVersions = Array.from(
     new Set([
@@ -486,6 +522,10 @@ export const StatsModal = ({
   const selectedEvent =
     getEventByVersion(selectedVersion) ||
     (event?.version === selectedVersion ? event : null)
+  const selectedCosmeticOverrides =
+    event?.version === selectedVersion
+      ? cosmeticOverrides
+      : selectedEventCosmeticOverrides
   const selectedEventResults = eventResultsByVersion[selectedVersion] ?? {}
   const selectedEventStats = summarizeResultsAsGameStats(selectedEventResults)
   const selectedEventDetailSummary = summarizeDetailStats(
@@ -636,6 +676,7 @@ export const StatsModal = ({
                     value={todayResult}
                     cellStatus={todayResultStatus}
                     title={todayResultTitle}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayMetric
                     label={t('playStatsGuessCount')}
@@ -800,23 +841,27 @@ export const StatsModal = ({
                     status="correct"
                     labelClassName="text-green-500"
                     count={todayTileCounts.correct}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayTileMetric
                     label={t('detailTilePresent')}
                     status="present"
                     labelClassName="text-purple-500"
                     count={todayTileCounts.present}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayTileMetric
                     label={t('detailTileAbsent')}
                     status="absent"
                     labelClassName="text-gray-500"
                     count={todayTileCounts.absent}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                   <TodayTileMetric
                     label={t('detailTileUnrevealed')}
                     labelClassName="text-gray-500"
                     count={todayTileCounts.unrevealed}
+                    cosmeticOverrides={cosmeticOverrides}
                   />
                 </div>
               </section>
@@ -840,7 +885,13 @@ export const StatsModal = ({
                       : 'bg-gray-300 cursor-default'
                   }`}
                   onClick={() => {
-                    shareStatus(guesses, isGameLost, solution, excludeUrl)
+                    shareStatus(
+                      guesses,
+                      isGameLost,
+                      solution,
+                      excludeUrl,
+                      cosmeticOverrides
+                    )
                     handleShare()
                   }}
                 >
@@ -887,12 +938,11 @@ export const StatsModal = ({
                     <SummaryInfoButton
                       title={t('loseReasonDistribution')}
                       items={[
-                        ...(
-                          isEventRecords
-                            ? selectedEvent?.loseReasons ??
-                              event?.loseReasons ??
-                              []
-                            : []
+                        ...(isEventRecords
+                          ? selectedEvent?.loseReasons ??
+                            event?.loseReasons ??
+                            []
+                          : []
                         ).map((reason) => t(reason.infoKey)),
                         ...(!isEventRecords
                           ? [
@@ -926,7 +976,10 @@ export const StatsModal = ({
         {activeTab === 'details' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <DetailStatsPanel summary={recordsDetailStatsSummary} />
+              <DetailStatsPanel
+                summary={recordsDetailStatsSummary}
+                cosmeticOverrides={selectedCosmeticOverrides}
+              />
             </div>
           </div>
         )}
@@ -943,6 +996,11 @@ export const StatsModal = ({
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
             hasNewRewards={hasNewAchievementsToday}
+            cosmeticOverrides={
+              activeTab === 'calendar'
+                ? selectedCosmeticOverrides
+                : cosmeticOverrides
+            }
           />
         )}
       </div>

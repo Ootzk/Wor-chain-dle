@@ -16,6 +16,7 @@ import {
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
+import { CosmeticOverrides } from '../../lib/cosmetics'
 
 const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
@@ -31,6 +32,7 @@ type Props = {
   onToggleExcludeUrl: () => void
   onOpenCosmetics: () => void
   hasNewRewards?: boolean
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 const MiniToggle = ({
@@ -68,6 +70,7 @@ export const Calendar = ({
   onToggleExcludeUrl,
   onOpenCosmetics,
   hasNewRewards = false,
+  cosmeticOverrides,
 }: Props) => {
   const { t } = useTranslation()
   const today = Temporal.Now.plainDateISO()
@@ -329,7 +332,8 @@ export const Calendar = ({
                 gameStats.currentStreak,
                 weekStartsOnMonday,
                 excludeUrl,
-                effectiveCalendarStartDate
+                effectiveCalendarStartDate,
+                cosmeticOverrides
               )
               handleShare()
             }}

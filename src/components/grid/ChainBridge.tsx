@@ -1,15 +1,20 @@
 import { CONFIG } from '../../constants/config'
 import classnames from 'classnames'
-import { getEquippedChainStyle, getEquippedChainColor } from '../../lib/cosmetics'
+import {
+  getEquippedChainStyle,
+  getEquippedChainColor,
+  CosmeticOverrides,
+} from '../../lib/cosmetics'
 
 type Props = {
   chainIndex: number
+  cosmeticOverrides?: CosmeticOverrides
 }
 
-export const ChainBridge = ({ chainIndex }: Props) => {
+export const ChainBridge = ({ chainIndex, cosmeticOverrides }: Props) => {
   const cells = Array.from(Array(CONFIG.wordLength))
-  const chainStyle = getEquippedChainStyle()
-  const chainColor = getEquippedChainColor()
+  const chainStyle = getEquippedChainStyle(cosmeticOverrides)
+  const chainColor = getEquippedChainColor(cosmeticOverrides)
 
   return (
     <div className="flex justify-center -mt-1">

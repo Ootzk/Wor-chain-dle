@@ -29,6 +29,11 @@ type CosmeticState = {
   equipped: Record<CosmeticCategory, string>
 }
 
+export type CosmeticOverrides = Partial<Record<CosmeticCategory, string>>
+export type CosmeticOverrideConfig = Partial<
+  Record<CosmeticCategory, string | string[]>
+>
+
 // --- Share Emoji Options ---
 
 const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
@@ -492,9 +497,39 @@ export const equipCosmetic = (
 
 // --- Getters ---
 
-export const getEquippedShareEmoji = (): ShareEmojiSet => {
+export const resolveCosmeticOverrides = (
+  overrides?: CosmeticOverrideConfig
+): CosmeticOverrides | undefined => {
+  if (!overrides) return undefined
+
+  return Object.entries(overrides).reduce<CosmeticOverrides>(
+    (resolved, [category, value]) => {
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          const index = Math.floor(Math.random() * value.length)
+          resolved[category as CosmeticCategory] = value[index]
+        }
+      } else if (value) {
+        resolved[category as CosmeticCategory] = value
+      }
+      return resolved
+    },
+    {}
+  )
+}
+
+const getEquippedOptionId = (
+  category: CosmeticCategory,
+  overrides?: CosmeticOverrides
+): string => {
   const state = loadCosmeticState()
-  const optionId = state.equipped.shareEmoji
+  return normalizeOptionId(overrides?.[category] ?? state.equipped[category])
+}
+
+export const getEquippedShareEmoji = (
+  overrides?: CosmeticOverrides
+): ShareEmojiSet => {
+  const optionId = getEquippedOptionId('shareEmoji', overrides)
   return SHARE_EMOJI_SETS[optionId] ?? SHARE_EMOJI_SETS['emoji_default']
 }
 
@@ -502,9 +537,11 @@ export const getShareEmojiSet = (optionId: string): ShareEmojiSet => {
   return SHARE_EMOJI_SETS[optionId] ?? SHARE_EMOJI_SETS['emoji_default']
 }
 
-export const getEquippedShareBadge = (): string => {
-  const state = loadCosmeticState()
-  return SHARE_BADGES[state.equipped.shareBadge] ?? SHARE_BADGES['badge_chain']
+export const getEquippedShareBadge = (
+  overrides?: CosmeticOverrides
+): string => {
+  const optionId = getEquippedOptionId('shareBadge', overrides)
+  return SHARE_BADGES[optionId] ?? SHARE_BADGES['badge_chain']
 }
 
 export const getShareBadge = (optionId: string): string => {
@@ -513,45 +550,43 @@ export const getShareBadge = (optionId: string): string => {
   )
 }
 
-export const getEquippedCellFont = (): string => {
-  const state = loadCosmeticState()
-  return CELL_FONT_STYLES[state.equipped.cellFont] ?? ''
+export const getEquippedCellFont = (overrides?: CosmeticOverrides): string => {
+  const optionId = getEquippedOptionId('cellFont', overrides)
+  return CELL_FONT_STYLES[optionId] ?? ''
 }
 
-export const getEquippedCellColor = (): string => {
-  const state = loadCosmeticState()
-  return CELL_COLOR_STYLES[state.equipped.cellColor] ?? ''
+export const getEquippedCellColor = (overrides?: CosmeticOverrides): string => {
+  const optionId = getEquippedOptionId('cellColor', overrides)
+  return CELL_COLOR_STYLES[optionId] ?? ''
 }
 
-export const getEquippedChainStyle = (): {
+export const getEquippedChainStyle = (
+  overrides?: CosmeticOverrides
+): {
   className: string
   height: string
   borderWidth: string
   borderStyle: string
 } => {
-  const state = loadCosmeticState()
-  return (
-    CHAIN_STYLES[state.equipped.chainStyle] ?? CHAIN_STYLES['chain_default']
-  )
+  const optionId = getEquippedOptionId('chainStyle', overrides)
+  return CHAIN_STYLES[optionId] ?? CHAIN_STYLES['chain_default']
 }
 
-export const getEquippedChainColor = (): string => {
-  const state = loadCosmeticState()
-  return (
-    CHAIN_COLOR_STYLES[state.equipped.chainColor] ??
-    CHAIN_COLOR_STYLES['chaincolor_black']
-  )
+export const getEquippedChainColor = (
+  overrides?: CosmeticOverrides
+): string => {
+  const optionId = getEquippedOptionId('chainColor', overrides)
+  return CHAIN_COLOR_STYLES[optionId] ?? CHAIN_COLOR_STYLES['chaincolor_black']
 }
 
-export const getEquippedAlertMessageKeys = (): {
+export const getEquippedAlertMessageKeys = (
+  overrides?: CosmeticOverrides
+): {
   win: string
   loss: string
 } => {
-  const state = loadCosmeticState()
-  return (
-    ALERT_MESSAGE_KEYS[state.equipped.endMessage] ??
-    ALERT_MESSAGE_KEYS['msg_classic']
-  )
+  const optionId = getEquippedOptionId('endMessage', overrides)
+  return ALERT_MESSAGE_KEYS[optionId] ?? ALERT_MESSAGE_KEYS['msg_classic']
 }
 
 export const getRewardsForAchievement = (
