@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Versión",
   "eventRecordsEmpty": "Aún no hay registros de evento.",
+  "eventMission": "Misión",
+  "eventOneMinute": "1 minuto",
   "eventProgress": "Progreso",
   "eventRowLabel": "Fila {{row}}",
   "howToCreate": "Cómo crear",

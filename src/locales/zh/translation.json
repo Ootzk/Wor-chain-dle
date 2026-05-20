@@ -385,6 +385,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "版本",
   "eventRecordsEmpty": "还没有活动记录。",
+  "eventMission": "任务",
+  "eventOneMinute": "1分钟",
   "eventProgress": "进度",
   "eventRowLabel": "第{{row}}行",
   "howToCreate": "如何出题",

@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Version",
   "eventRecordsEmpty": "Noch keine Event-Aufzeichnungen.",
+  "eventMission": "Mission",
+  "eventOneMinute": "1 Minute",
   "eventProgress": "Fortschritt",
   "eventRowLabel": "Reihe {{row}}",
   "howToCreate": "So erstellst du ein Rätsel",

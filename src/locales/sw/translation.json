@@ -385,6 +385,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventRecordsVersion": "Toleo",
   "eventRecordsEmpty": "Bado hakuna rekodi za tukio.",
+  "eventMission": "Misheni",
+  "eventOneMinute": "Dakika 1",
   "eventProgress": "Maendeleo",
   "eventRowLabel": "Mstari {{row}}",
   "howToCreate": "Jinsi ya kuunda",

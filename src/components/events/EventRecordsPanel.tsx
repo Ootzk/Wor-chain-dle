@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { EventDefinition } from '../../lib/events'
 import { EventResults } from '../../lib/eventResults'
 import { loadAchievementProgress } from '../../lib/achievementProgress'
+import { PlayStats, getTotalGuessTimeMs } from '../../lib/playStats'
 import {
   CollectedRowsByCollectible,
   getCollectibleProgressItemId,
@@ -17,8 +18,13 @@ type Props = {
   isCurrentEvent: boolean
   isGameWon: boolean
   isGameLost: boolean
+  playStats?: PlayStats
   collectedRows: CollectedRowsByCollectible
 }
+
+const ONE_MINUTE_MS = 60 * 1000
+const ONE_MINUTE_TARGET = 7
+const EMPTY_VALUE = '-'
 
 const EventGroupTitle = ({
   children,
@@ -74,6 +80,7 @@ export const EventRecordsPanel = ({
   isCurrentEvent,
   isGameWon,
   isGameLost,
+  playStats,
   collectedRows,
 }: Props) => {
   const { t } = useTranslation()
@@ -81,8 +88,16 @@ export const EventRecordsPanel = ({
   const progressTargets = collectible?.progressTargets ?? {}
   const targetRows = collectible?.targetRows ?? []
   const todayResult = results[currentDateKey]
+  const todayPlayStats = isCurrentEvent ? playStats : todayResult?.playStats
   const todayWon = isCurrentEvent ? isGameWon : todayResult?.won ?? false
   const todayLost = isCurrentEvent ? isGameLost : todayResult
+  const todayGuessTimeMs = getTotalGuessTimeMs(todayPlayStats)
+  const todayFastWin = todayWon && todayGuessTimeMs <= ONE_MINUTE_MS
+  const fastWinCount = Object.values(results).filter(
+    (eventResult) =>
+      eventResult.won &&
+      getTotalGuessTimeMs(eventResult.playStats) <= ONE_MINUTE_MS
+  ).length
   const result = getResultLabel({
     t,
     won: todayWon,
@@ -95,6 +110,31 @@ export const EventRecordsPanel = ({
     ? achievementProgress.collectibles[collectible.collectionId] ?? {}
     : {}
   const maxTarget = Math.max(1, ...Object.values(progressTargets))
+  const progressRows = targetRows.map((rowIndex) => {
+    const itemId = getCollectibleProgressItemId(rowIndex)
+    const target = progressTargets[itemId] ?? 1
+    return {
+      id: itemId,
+      label: t('eventRowLabel', { row: rowIndex + 1 }),
+      count: collectionProgress[itemId] ?? 0,
+      target,
+      fillClassName: 'bg-green-500',
+      clearClassName: 'bg-green-500',
+    }
+  })
+  const oneMinuteProgressRow = {
+    id: 'one-minute',
+    label: t('eventOneMinute'),
+    count: fastWinCount,
+    target: ONE_MINUTE_TARGET,
+    fillClassName: 'bg-sky-400',
+    clearClassName: 'bg-sky-400',
+  }
+  const maxProgressTarget = Math.max(
+    maxTarget,
+    ONE_MINUTE_TARGET,
+    ...progressRows.map((row) => row.target)
+  )
 
   if (!event || !collectible) {
     return (
@@ -117,16 +157,34 @@ export const EventRecordsPanel = ({
       data-event-version={selectedVersion}
     >
       <section>
-        <EventGroupTitle>{t('today')}</EventGroupTitle>
-        <div className="grid grid-cols-5 items-end gap-2 pt-1 text-center">
+        <EventGroupTitle>{t('statsDashboard')}</EventGroupTitle>
+        <div className="grid grid-cols-2 gap-2 pt-1 text-center">
           <div className="m-0.5 min-w-0 text-center">
             <div className="flex h-14 items-center justify-center">
               <Cell value={result.icon} status={result.status} />
             </div>
             <div className="text-[10px] leading-3 text-gray-900">
-              {result.label}
+              {t('playStatsResult')}
             </div>
           </div>
+          <div className="m-0.5 min-w-0 text-center">
+            <div className="flex h-14 items-center justify-center">
+              <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
+                {todayPlayStats
+                  ? String(Math.round(todayGuessTimeMs / 1000))
+                  : EMPTY_VALUE}
+              </div>
+            </div>
+            <div className="text-[10px] leading-3 text-gray-900">
+              {t('detailTotalGuessTime')}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <EventGroupTitle separated>{t('eventMission')}</EventGroupTitle>
+        <div className="grid grid-cols-5 items-end gap-2 pt-1 text-center">
           {targetRows.map((rowIndex) => {
             const collected = todayCollectedRows.includes(rowIndex)
             return (
@@ -141,30 +199,33 @@ export const EventRecordsPanel = ({
               </div>
             )
           })}
+          <div className="flex min-w-0 flex-col items-center justify-center">
+            <Cell value={todayFastWin ? '🐇' : undefined} />
+            <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
+              {t('eventOneMinute')}
+            </div>
+          </div>
         </div>
       </section>
 
       <section>
         <EventGroupTitle separated>{t('eventProgress')}</EventGroupTitle>
         <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-1.5 gap-y-4 pt-3">
-          {targetRows.map((rowIndex) => {
-            const itemId = getCollectibleProgressItemId(rowIndex)
-            const target = progressTargets[itemId] ?? 1
-            const count = collectionProgress[itemId] ?? 0
-            const targetWidth = (target / maxTarget) * 100
-            const progress = Math.min(1, count / target)
-            const isClear = count >= target
+          {[...progressRows, oneMinuteProgressRow].map((row) => {
+            const targetWidth = (row.target / maxProgressTarget) * 100
+            const progress = Math.min(1, row.count / row.target)
+            const isClear = row.count >= row.target
 
             return (
-              <Fragment key={rowIndex}>
+              <Fragment key={row.id}>
                 <div
-                  key={`${rowIndex}-label`}
+                  key={`${row.id}-label`}
                   className="flex items-center text-xs font-semibold text-gray-700"
                 >
-                  {t('eventRowLabel', { row: rowIndex + 1 })}
+                  {row.label}
                 </div>
                 <div
-                  key={`${rowIndex}-bar`}
+                  key={`${row.id}-bar`}
                   className="flex h-5 min-w-0 items-center"
                 >
                   <div
@@ -172,26 +233,28 @@ export const EventRecordsPanel = ({
                     style={{ width: `${targetWidth}%` }}
                   >
                     <div
-                      className="h-3 rounded-full bg-green-500"
+                      className={`h-3 rounded-full ${row.fillClassName}`}
                       style={{ width: `${progress * 100}%` }}
                     />
                   </div>
                 </div>
                 <div
-                  key={`${rowIndex}-clear`}
+                  key={`${row.id}-clear`}
                   className="flex items-center justify-center"
                 >
                   {isClear && (
-                    <span className="rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${row.clearClassName}`}
+                    >
                       CLEAR!
                     </span>
                   )}
                 </div>
                 <div
-                  key={`${rowIndex}-count`}
+                  key={`${row.id}-count`}
                   className="flex items-center justify-end text-xs font-semibold text-gray-700"
                 >
-                  {count}/{target}
+                  {row.count}/{row.target}
                 </div>
               </Fragment>
             )

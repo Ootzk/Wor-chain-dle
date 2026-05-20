@@ -1003,6 +1003,7 @@ export const StatsModal = ({
             isCurrentEvent={event?.version === selectedVersion}
             isGameWon={isGameWon}
             isGameLost={isGameLost}
+            playStats={playStats.completedAt ? playStats : undefined}
             collectedRows={eventCollectedRows}
           />
         )}
