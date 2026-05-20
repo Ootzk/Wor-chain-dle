@@ -1,5 +1,6 @@
 import {
   completePlayStats,
+  countTileStatusesForGame,
   createPlayStats,
   getAverageGuessTimeMs,
   getDeletePressesByFilledLength,
@@ -164,6 +165,26 @@ test('keeps pre-input waiting time out of long pause and guess time', () => {
   expect(getAverageGuessTimeMs(stats)).toBe(1000)
 })
 
+test('counts evaluated and unrevealed tiles from submitted guesses', () => {
+  expect(
+    countTileStatusesForGame(
+      [
+        ['a', 'a', 'a', 'a', 'a'],
+        ['a', 'a', 'a', 'a', 'a'],
+        ['a', 'a', 'a', 'a', 'a'],
+        ['a', 'a', 'a', 'a', 'a'],
+        ['a', 'a', 'a', 'a', 'a'],
+      ],
+      'bbbbb'
+    )
+  ).toEqual({
+    correct: 0,
+    present: 0,
+    absent: 25,
+    unrevealed: 5,
+  })
+})
+
 test('saves and summarizes daily play stats', () => {
   localStorage.clear()
 
@@ -181,6 +202,12 @@ test('saves and summarizes daily play stats', () => {
     ),
     won: true,
     guessCount: 1,
+    tileCounts: {
+      correct: 5,
+      present: 0,
+      absent: 0,
+      unrevealed: 25,
+    },
     now: 5000,
   })
 
@@ -213,6 +240,12 @@ test('saves and summarizes daily play stats', () => {
     ),
     won: true,
     guessCount: 2,
+    tileCounts: {
+      correct: 3,
+      present: 2,
+      absent: 5,
+      unrevealed: 20,
+    },
     now: 16000,
   })
 
@@ -237,6 +270,12 @@ test('saves and summarizes daily play stats', () => {
   expect(summary.totalFullGuessDeletePresses).toBe(1)
   expect(summary.deletePressesByFilledLength).toEqual([0, 0, 0, 0, 0, 1])
   expect(summary.totalEnterPresses).toBe(4)
+  expect(summary.tileCounts).toEqual({
+    correct: 8,
+    present: 2,
+    absent: 5,
+    unrevealed: 45,
+  })
   expect(loadDailyPlayStats('2026-05-18', 'chain')?.completedAt).toBe(5000)
   expect(loadDailyPlayStats('2026-05-18', 'other')).toBeNull()
 })

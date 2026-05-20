@@ -1,5 +1,6 @@
 import { GameMode } from './gameMode'
 import { CONFIG } from '../constants/config'
+import { getGuessStatuses } from './statuses'
 
 const currentPlayStatsKey = 'currentPlayStats'
 const dailyPlayStatsKey = 'dailyPlayStats'
@@ -38,12 +39,14 @@ export type PlayStats = {
   assistFlags: AssistFlags
   won?: boolean
   guessCount?: number
+  tileCounts?: TileCounts
 }
 
 export type CompletedPlayStats = PlayStats & {
   completedAt: number
   won: boolean
   guessCount: number
+  tileCounts?: TileCounts
 }
 
 export type DailyPlayStatsHistory = Record<string, CompletedPlayStats>
@@ -67,6 +70,14 @@ export type PlayStatsSummary = {
   totalFullGuessDeletePresses: number
   deletePressesByFilledLength: number[]
   totalEnterPresses: number
+  tileCounts: TileCounts
+}
+
+export type TileCounts = {
+  correct: number
+  present: number
+  absent: number
+  unrevealed: number
 }
 
 type StoredCurrentPlayStats = {
@@ -78,6 +89,12 @@ type StoredCurrentPlayStats = {
 const nowMs = () => Math.round(performance.timeOrigin + performance.now())
 
 const emptyDeleteDistribution = () => Array(CONFIG.wordLength + 1).fill(0)
+const emptyTileCounts = (): TileCounts => ({
+  correct: 0,
+  present: 0,
+  absent: 0,
+  unrevealed: 0,
+})
 
 const createGuessStats = (startedAt: number): GuessStats => ({
   startedAt,
@@ -122,9 +139,19 @@ const normalizeGuessStats = (guess: Partial<GuessStats>): GuessStats => {
   }
 }
 
+const normalizeTileCounts = (counts?: Partial<TileCounts>): TileCounts => ({
+  correct: counts?.correct ?? 0,
+  present: counts?.present ?? 0,
+  absent: counts?.absent ?? 0,
+  unrevealed: counts?.unrevealed ?? 0,
+})
+
 const normalizePlayStats = <T extends PlayStats>(stats: T): T => ({
   ...stats,
   guessStats: stats.guessStats?.map(normalizeGuessStats) || [],
+  tileCounts: stats.tileCounts
+    ? normalizeTileCounts(stats.tileCounts)
+    : undefined,
 })
 
 export const createPlayStats = ({
@@ -353,11 +380,13 @@ export const completePlayStats = ({
   stats,
   won,
   guessCount,
+  tileCounts,
   now = nowMs(),
 }: {
   stats: PlayStats
   won: boolean
   guessCount: number
+  tileCounts?: TileCounts
   now?: number
 }): CompletedPlayStats => ({
   ...stats,
@@ -365,7 +394,26 @@ export const completePlayStats = ({
   lastActivityAt: now,
   won,
   guessCount,
+  tileCounts,
 })
+
+export const countTileStatusesForGame = (
+  guesses: string[][],
+  solution: string
+): TileCounts => {
+  const counts = emptyTileCounts()
+
+  for (const guess of guesses) {
+    for (const status of getGuessStatuses(guess, solution)) {
+      counts[status] += 1
+    }
+  }
+
+  const submittedCells = guesses.length * CONFIG.wordLength
+  const totalCells = CONFIG.tries * CONFIG.wordLength
+  counts.unrevealed = Math.max(0, totalCells - submittedCells)
+  return counts
+}
 
 export const loadDailyPlayStatsHistory = (): DailyPlayStatsHistory => {
   const history = localStorage.getItem(dailyPlayStatsKey)
@@ -586,6 +634,7 @@ export const summarizePlayStats = (
       totalFullGuessDeletePresses: 0,
       deletePressesByFilledLength: emptyDeleteDistribution(),
       totalEnterPresses: 0,
+      tileCounts: emptyTileCounts(),
     }
   }
 
@@ -597,6 +646,15 @@ export const summarizePlayStats = (
       deletePressesByFilledLength[index] += value
     })
   })
+  const tileCounts = games.reduce<TileCounts>((counts, game) => {
+    const gameTileCounts = normalizeTileCounts(game.tileCounts)
+    return {
+      correct: counts.correct + gameTileCounts.correct,
+      present: counts.present + gameTileCounts.present,
+      absent: counts.absent + gameTileCounts.absent,
+      unrevealed: counts.unrevealed + gameTileCounts.unrevealed,
+    }
+  }, emptyTileCounts())
 
   return {
     totalGames: games.length,
@@ -628,5 +686,6 @@ export const summarizePlayStats = (
     totalFullGuessDeletePresses: deletePressesByFilledLength[CONFIG.wordLength],
     deletePressesByFilledLength,
     totalEnterPresses: sum(games.map(getTotalEnterPresses)),
+    tileCounts,
   }
 }

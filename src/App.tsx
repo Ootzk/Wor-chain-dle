@@ -50,6 +50,7 @@ import {
   PlayStats,
   clearCurrentPlayStats,
   completePlayStats,
+  countTileStatusesForGame,
   hasPlayStatsActivity,
   loadCurrentPlayStats,
   loadDailyPlayStats,
@@ -411,6 +412,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             stats: submittedPlayStats,
             won: true,
             guessCount: nextGuesses.length,
+            tileCounts: countTileStatusesForGame(nextGuesses, solution),
           })
         )
         return setIsGameWon(true)
@@ -450,6 +452,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
               stats: submittedPlayStats,
               won: false,
               guessCount: nextGuesses.length,
+              tileCounts: countTileStatusesForGame(nextGuesses, solution),
             })
           )
           setIsGameLost(true)
@@ -475,6 +478,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             stats: submittedPlayStats,
             won: false,
             guessCount: nextGuesses.length,
+            tileCounts: countTileStatusesForGame(nextGuesses, solution),
           })
         )
         setIsGameLost(true)
