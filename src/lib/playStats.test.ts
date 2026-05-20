@@ -4,6 +4,7 @@ import {
   getAverageGuessTimeMs,
   getDeletePressesByFilledLength,
   getFirstInputDelayMs,
+  getFrictionPerSubmit,
   getIncompleteEnterPresses,
   getInvalidEnterPresses,
   getLongPauseCount,
@@ -58,8 +59,9 @@ test('records enter attempt categories and derived values', () => {
   expect(completed.assistFlags.enterValidationHint).toBe(true)
   expect(getPlayDurationMs(completed)).toBe(8000)
   expect(getFirstInputDelayMs(completed)).toBe(500)
-  expect(getAverageGuessTimeMs(completed)).toBe(3000)
+  expect(getAverageGuessTimeMs(completed)).toBe(2500)
   expect(getSubmitAccuracy(completed)).toBe(33)
+  expect(getFrictionPerSubmit(completed)).toBe(3)
 })
 
 test('detects whether play stats have user activity', () => {
@@ -108,7 +110,7 @@ test('records each guess duration and input counts separately', () => {
     invalidEnterPresses: 1,
     deletePresses: 1,
   })
-  expect(getAverageGuessTimeMs(stats)).toBe(3000)
+  expect(getAverageGuessTimeMs(stats)).toBe(2000)
   expect(getTotalEnterPresses(stats)).toBe(3)
   expect(getTotalDeletePresses(stats)).toBe(2)
   expect(getDeletePressesByFilledLength(stats)).toEqual([1, 0, 0, 0, 0, 1])
@@ -141,7 +143,25 @@ test('records long pauses on the active guess and excludes them from guess time'
   })
   expect(getLongPauseCount(stats)).toBe(2)
   expect(getTotalLongPauseMs(stats)).toBe(601500)
-  expect(getAverageGuessTimeMs(stats)).toBe(750)
+  expect(getAverageGuessTimeMs(stats)).toBe(500)
+})
+
+test('keeps pre-input waiting time out of long pause and guess time', () => {
+  let stats = createPlayStats({
+    mode: 'daily',
+    solution: 'chain',
+    dateKey: '2026-05-18',
+    enterValidationHint: false,
+    now: 1000,
+  })
+
+  stats = recordInputActivity(stats, 302000)
+  stats = recordEnterAttempt(stats, 'valid', 303000)
+
+  expect(getFirstInputDelayMs(stats)).toBe(301000)
+  expect(getLongPauseCount(stats)).toBe(0)
+  expect(getTotalLongPauseMs(stats)).toBe(0)
+  expect(getAverageGuessTimeMs(stats)).toBe(1000)
 })
 
 test('saves and summarizes daily play stats', () => {
@@ -168,24 +188,31 @@ test('saves and summarizes daily play stats', () => {
     stats: recordEnterAttempt(
       recordEnterAttempt(
         recordDeletePress(
-          createPlayStats({
-            mode: 'daily',
-            solution: 'crane',
-            dateKey: '2026-05-19',
-            enterValidationHint: false,
-            now: 10000,
-          }),
+          startNextGuess(
+            recordEnterAttempt(
+              createPlayStats({
+                mode: 'daily',
+                solution: 'crane',
+                dateKey: '2026-05-19',
+                enterValidationHint: false,
+                now: 10000,
+              }),
+              'valid',
+              11000
+            ),
+            11000
+          ),
           5,
-          10500
+          11500
         ),
         'invalid',
-        11000
+        12000
       ),
       'valid',
-      13000
+      15000
     ),
     won: true,
-    guessCount: 1,
+    guessCount: 2,
     now: 16000,
   })
 
@@ -196,17 +223,20 @@ test('saves and summarizes daily play stats', () => {
 
   expect(summary.totalGames).toBe(2)
   expect(summary.totalDurationMs).toBe(10000)
-  expect(summary.totalGuessTimeMs).toBe(4000)
+  expect(summary.totalGuessTimeMs).toBe(6000)
+  expect(summary.totalFirstInputDelayMs).toBe(0)
+  expect(summary.totalLongPauseMs).toBe(0)
   expect(summary.averageDurationMs).toBe(5000)
-  expect(summary.averageGuessTimeMs).toBe(2000)
-  expect(summary.averageEnterPresses).toBe(1.5)
-  expect(summary.averageSubmitAccuracy).toBe(75)
+  expect(summary.averageGuessTimeMs).toBe(3000)
+  expect(summary.averageEnterPresses).toBe(2)
+  expect(summary.averageFrictionPerSubmit).toBe(0.7)
+  expect(summary.averageSubmitAccuracy).toBe(84)
   expect(summary.totalInvalidEnterPresses).toBe(1)
   expect(summary.totalDeletePresses).toBe(1)
   expect(summary.totalEmptyDeletePresses).toBe(0)
   expect(summary.totalFullGuessDeletePresses).toBe(1)
   expect(summary.deletePressesByFilledLength).toEqual([0, 0, 0, 0, 0, 1])
-  expect(summary.totalEnterPresses).toBe(3)
+  expect(summary.totalEnterPresses).toBe(4)
   expect(loadDailyPlayStats('2026-05-18', 'chain')?.completedAt).toBe(5000)
   expect(loadDailyPlayStats('2026-05-18', 'other')).toBeNull()
 })

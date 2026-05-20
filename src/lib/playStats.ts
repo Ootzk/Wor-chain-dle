@@ -52,11 +52,14 @@ export type PlayStatsSummary = {
   totalGames: number
   totalDurationMs: number
   totalGuessTimeMs: number
+  totalFirstInputDelayMs: number
+  totalLongPauseMs: number
   averageDurationMs: number
   averageFirstInputDelayMs: number
   averageGuessTimeMs: number
   averageSubmitAccuracy: number
   averageEnterPresses: number
+  averageFrictionPerSubmit: number
   totalIncompleteEnterPresses: number
   totalInvalidEnterPresses: number
   totalDeletePresses: number
@@ -238,7 +241,7 @@ const updateActiveGuess = (
   let currentGuess = normalizeGuessStats(
     guessStats[index] || createGuessStats(now)
   )
-  if (pause >= longPauseThresholdMs) {
+  if (stats.firstInputAt && pause >= longPauseThresholdMs) {
     currentGuess = {
       ...currentGuess,
       longPauseCount: currentGuess.longPauseCount + 1,
@@ -423,11 +426,20 @@ export const getGuessDurationsMs = (stats?: PlayStats | null) => {
 export const getGuessTimeDurationsMs = (stats?: PlayStats | null) => {
   return (
     stats?.guessStats
-      ?.map((guess) =>
-        guess.durationMs === undefined
-          ? undefined
-          : Math.max(0, guess.durationMs - guess.totalLongPauseMs)
-      )
+      ?.map((guess, index) => {
+        if (guess.durationMs === undefined) return undefined
+        const firstInputDelay =
+          index === 0 && stats.firstInputAt
+            ? Math.min(
+                guess.durationMs,
+                Math.max(0, stats.firstInputAt - guess.startedAt)
+              )
+            : 0
+        return Math.max(
+          0,
+          guess.durationMs - firstInputDelay - guess.totalLongPauseMs
+        )
+      })
       .filter((duration): duration is number => duration !== undefined) || []
   )
 }
@@ -522,6 +534,34 @@ export const getSubmitAccuracy = (stats?: PlayStats | null) => {
   return Math.round((100 * getValidSubmissions(stats)) / totalEnterPresses)
 }
 
+export const getFrictionPerSubmit = (stats?: PlayStats | null) => {
+  const validSubmissions = getValidSubmissions(stats)
+  if (validSubmissions === 0) return 0
+
+  const wrongEnterPresses =
+    getInvalidEnterPresses(stats) + getIncompleteEnterPresses(stats)
+  return (getTotalDeletePresses(stats) + wrongEnterPresses) / validSubmissions
+}
+
+const getFrictionPerSubmitFromGames = (games: CompletedPlayStats[]) => {
+  const validSubmissions = games.reduce(
+    (sum, game) => sum + getValidSubmissions(game),
+    0
+  )
+  if (validSubmissions === 0) return 0
+
+  const wrongEnterPresses = games.reduce(
+    (sum, game) =>
+      sum + getInvalidEnterPresses(game) + getIncompleteEnterPresses(game),
+    0
+  )
+  const deletePresses = games.reduce(
+    (sum, game) => sum + getTotalDeletePresses(game),
+    0
+  )
+  return (deletePresses + wrongEnterPresses) / validSubmissions
+}
+
 export const summarizePlayStats = (
   history: DailyPlayStatsHistory
 ): PlayStatsSummary => {
@@ -531,11 +571,14 @@ export const summarizePlayStats = (
       totalGames: 0,
       totalDurationMs: 0,
       totalGuessTimeMs: 0,
+      totalFirstInputDelayMs: 0,
+      totalLongPauseMs: 0,
       averageDurationMs: 0,
       averageFirstInputDelayMs: 0,
       averageGuessTimeMs: 0,
       averageSubmitAccuracy: 0,
       averageEnterPresses: 0,
+      averageFrictionPerSubmit: 0,
       totalIncompleteEnterPresses: 0,
       totalInvalidEnterPresses: 0,
       totalDeletePresses: 0,
@@ -559,6 +602,8 @@ export const summarizePlayStats = (
     totalGames: games.length,
     totalDurationMs: sum(games.map(getPlayDurationMs)),
     totalGuessTimeMs: sum(games.map(getTotalGuessTimeMs)),
+    totalFirstInputDelayMs: sum(games.map(getFirstInputDelayMs)),
+    totalLongPauseMs: sum(games.map(getTotalLongPauseMs)),
     averageDurationMs: Math.round(
       sum(games.map(getPlayDurationMs)) / games.length
     ),
@@ -566,7 +611,7 @@ export const summarizePlayStats = (
       sum(games.map(getFirstInputDelayMs)) / games.length
     ),
     averageGuessTimeMs: Math.round(
-      sum(games.map(getAverageGuessTimeMs)) / games.length
+      sum(games.map(getTotalGuessTimeMs)) / games.length
     ),
     averageSubmitAccuracy: Math.round(
       sum(games.map(getSubmitAccuracy)) / games.length
@@ -574,6 +619,8 @@ export const summarizePlayStats = (
     averageEnterPresses:
       Math.round((10 * sum(games.map(getTotalEnterPresses))) / games.length) /
       10,
+    averageFrictionPerSubmit:
+      Math.round(10 * getFrictionPerSubmitFromGames(games)) / 10,
     totalIncompleteEnterPresses: sum(games.map(getIncompleteEnterPresses)),
     totalInvalidEnterPresses: sum(games.map(getInvalidEnterPresses)),
     totalDeletePresses: sum(games.map(getTotalDeletePresses)),
