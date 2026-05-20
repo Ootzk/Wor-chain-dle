@@ -50,6 +50,8 @@ export type DailyPlayStatsHistory = Record<string, CompletedPlayStats>
 
 export type PlayStatsSummary = {
   totalGames: number
+  totalDurationMs: number
+  totalGuessTimeMs: number
   averageDurationMs: number
   averageFirstInputDelayMs: number
   averageGuessTimeMs: number
@@ -418,8 +420,24 @@ export const getGuessDurationsMs = (stats?: PlayStats | null) => {
   )
 }
 
+export const getGuessTimeDurationsMs = (stats?: PlayStats | null) => {
+  return (
+    stats?.guessStats
+      ?.map((guess) =>
+        guess.durationMs === undefined
+          ? undefined
+          : Math.max(0, guess.durationMs - guess.totalLongPauseMs)
+      )
+      .filter((duration): duration is number => duration !== undefined) || []
+  )
+}
+
+export const getTotalGuessTimeMs = (stats?: PlayStats | null) => {
+  return getGuessTimeDurationsMs(stats).reduce((sum, value) => sum + value, 0)
+}
+
 export const getAverageGuessTimeMs = (stats?: PlayStats | null) => {
-  const guessDurations = getGuessDurationsMs(stats)
+  const guessDurations = getGuessTimeDurationsMs(stats)
   if (guessDurations.length === 0) return 0
   return Math.round(
     guessDurations.reduce((sum, value) => sum + value, 0) /
@@ -511,6 +529,8 @@ export const summarizePlayStats = (
   if (games.length === 0) {
     return {
       totalGames: 0,
+      totalDurationMs: 0,
+      totalGuessTimeMs: 0,
       averageDurationMs: 0,
       averageFirstInputDelayMs: 0,
       averageGuessTimeMs: 0,
@@ -537,6 +557,8 @@ export const summarizePlayStats = (
 
   return {
     totalGames: games.length,
+    totalDurationMs: sum(games.map(getPlayDurationMs)),
+    totalGuessTimeMs: sum(games.map(getTotalGuessTimeMs)),
     averageDurationMs: Math.round(
       sum(games.map(getPlayDurationMs)) / games.length
     ),

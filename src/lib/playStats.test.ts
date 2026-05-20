@@ -114,7 +114,7 @@ test('records each guess duration and input counts separately', () => {
   expect(getDeletePressesByFilledLength(stats)).toEqual([1, 0, 0, 0, 0, 1])
 })
 
-test('records long pauses on the active guess without excluding duration', () => {
+test('records long pauses on the active guess and excludes them from guess time', () => {
   let stats = createPlayStats({
     mode: 'daily',
     solution: 'chain',
@@ -141,7 +141,7 @@ test('records long pauses on the active guess without excluding duration', () =>
   })
   expect(getLongPauseCount(stats)).toBe(2)
   expect(getTotalLongPauseMs(stats)).toBe(601500)
-  expect(getAverageGuessTimeMs(stats)).toBe(301500)
+  expect(getAverageGuessTimeMs(stats)).toBe(750)
 })
 
 test('saves and summarizes daily play stats', () => {
@@ -195,7 +195,10 @@ test('saves and summarizes daily play stats', () => {
   const summary = summarizePlayStats(loadDailyPlayStatsHistory())
 
   expect(summary.totalGames).toBe(2)
+  expect(summary.totalDurationMs).toBe(10000)
+  expect(summary.totalGuessTimeMs).toBe(4000)
   expect(summary.averageDurationMs).toBe(5000)
+  expect(summary.averageGuessTimeMs).toBe(2000)
   expect(summary.averageEnterPresses).toBe(1.5)
   expect(summary.averageSubmitAccuracy).toBe(75)
   expect(summary.totalInvalidEnterPresses).toBe(1)
