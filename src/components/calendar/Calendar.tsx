@@ -116,6 +116,7 @@ export const Calendar = ({
   const monthlyPlayedCount = monthResults.filter(Boolean).length
   const monthlyWinCount = monthResults.filter((result) => result?.won).length
   const monthlyLossCount = monthlyPlayedCount - monthlyWinCount
+  const monthlyAbsenceCount = daysInMonth - monthlyPlayedCount
 
   const calendarStartDate = getDailyHistoryStartDate()
 
@@ -278,19 +279,28 @@ export const Calendar = ({
 
       {/* Monthly attendance + Share button */}
       <div className="absolute bottom-0 left-0 grid w-full grid-cols-2 items-center gap-3">
-        <div className="flex items-center justify-center gap-3 pl-8">
-          <div>
-            <h5>{t('monthlyAttendance')}</h5>
-            <span className="text-lg font-medium text-gray-900">
-              {monthlyPlayedCount}/{daysInMonth}
+        <div className="flex justify-center pl-8 text-sm leading-5">
+          <div className="grid grid-cols-[max-content_auto_auto] gap-x-1">
+            <span className="text-right text-green-500">
+              {t('calendarSuccess')}
             </span>
-          </div>
-          <div>
-            <h5>{t('statsRecord')}</h5>
-            <span className="text-lg font-medium">
-              <span className="text-green-500">{monthlyWinCount}</span>
-              <span className="text-gray-900">/</span>
-              <span className="text-purple-500">{monthlyLossCount}</span>
+            <span className="text-green-500">:</span>
+            <span className="text-left tabular-nums text-green-500">
+              {monthlyWinCount}
+            </span>
+            <span className="text-right text-purple-500">
+              {t('calendarFailure')}
+            </span>
+            <span className="text-purple-500">:</span>
+            <span className="text-left tabular-nums text-purple-500">
+              {monthlyLossCount}
+            </span>
+            <span className="text-right text-gray-500">
+              {t('calendarAbsence')}
+            </span>
+            <span className="text-gray-500">:</span>
+            <span className="text-left tabular-nums text-gray-500">
+              {monthlyAbsenceCount}
             </span>
           </div>
         </div>
