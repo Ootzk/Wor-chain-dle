@@ -18,7 +18,14 @@ import {
   getShareEmojiSet,
 } from './cosmetics'
 import { createDefaultAchievementTrackingState } from './achievementProgress'
-import { DailyDetailStatsHistory } from './playStats'
+import {
+  CompletedPlayStats,
+  DailyDetailStatsHistory,
+  completePlayStats,
+  createPlayStats,
+  recordEnterAttempt,
+} from './playStats'
+import { saveEventResult } from './eventResults'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -47,6 +54,33 @@ const createAchievement = (
   descriptionKey: 'test_desc',
   ...overrides,
 })
+
+const createFastEventWinStats = (
+  dateKey: string,
+  guessTimeMs: number
+): CompletedPlayStats =>
+  completePlayStats({
+    stats: recordEnterAttempt(
+      createPlayStats({
+        mode: 'event',
+        solution: 'chain',
+        dateKey,
+        enterValidationHint: false,
+        now: 0,
+      }),
+      'valid',
+      guessTimeMs
+    ),
+    won: true,
+    guessCount: 1,
+    tileCounts: {
+      correct: 5,
+      present: 0,
+      absent: 0,
+      unrevealed: 25,
+    },
+    now: guessTimeMs,
+  })
 
 describe('achievement mode availability', () => {
   beforeEach(() => {
@@ -164,6 +198,7 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
     expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
     expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
+    expect(getShareBadge('badge_rabbit')).toBe('\uD83D\uDC07')
     expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
@@ -207,6 +242,9 @@ describe('share badge achievements', () => {
     expect(
       getRewardsForAchievement('practice_win_10').map((r) => r.id)
     ).toContain('badge_hyacinth')
+    expect(getRewardsForAchievement('rabbit_speed').map((r) => r.id)).toContain(
+      'badge_rabbit'
+    )
     expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
       'chaincolor_azure'
     )
@@ -227,6 +265,38 @@ describe('share badge achievements', () => {
         progress,
       })
     ).toContain('clover_collector')
+  })
+
+  it('unlocks the rabbit badge after 7 fast Summer Garden wins', () => {
+    for (let day = 1; day <= 6; day += 1) {
+      const dateKey = `2026-05-${String(day).padStart(2, '0')}`
+      saveEventResult('v1.7.0', {
+        dateKey,
+        solution: 'chain',
+        won: true,
+        guessCount: 1,
+        endReason: 'win',
+        playStats: createFastEventWinStats(dateKey, 45_000),
+      })
+    }
+
+    const currentStats = createFastEventWinStats('2026-05-07', 60_000)
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        game: {
+          dateKey: '2026-05-07',
+          guesses: [['c', 'h', 'a', 'i', 'n']],
+          solution: 'chain',
+          won: true,
+          lost: false,
+          guessCount: 1,
+          endReason: 'win',
+          playStats: currentStats,
+        },
+      })
+    ).toContain('rabbit_speed')
   })
 
   it('does not let extra clovers in one row replace another row target', () => {

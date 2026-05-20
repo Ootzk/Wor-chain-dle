@@ -30,6 +30,7 @@ describe('reward metadata', () => {
         'no_present_game',
         'played_v1_7_0_5',
         'practice_win_10',
+        'rabbit_speed',
         'streak_5',
         'win_in_6_20',
       ].sort()
@@ -49,6 +50,7 @@ describe('reward metadata', () => {
         'badge_grape',
         'badge_hyacinth',
         'badge_milk',
+        'badge_rabbit',
         'chaincolor_azure',
       ].sort()
     )

@@ -57,6 +57,7 @@ test('defines cosmetic overrides for the active event theme', () => {
       'badge_azure',
       'badge_clover',
       'badge_hyacinth',
+      'badge_rabbit',
     ],
     chainColor: 'chaincolor_azure',
   })
@@ -80,6 +81,7 @@ test('resolves random event cosmetic candidates without mutating the config', ()
     'badge_azure',
     'badge_clover',
     'badge_hyacinth',
+    'badge_rabbit',
   ])
 
   randomSpy.mockRestore()

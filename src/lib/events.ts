@@ -88,6 +88,7 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       'badge_azure',
       'badge_clover',
       'badge_hyacinth',
+      'badge_rabbit',
     ],
     chainColor: 'chaincolor_azure',
   },

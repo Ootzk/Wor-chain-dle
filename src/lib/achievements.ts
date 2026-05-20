@@ -23,10 +23,13 @@ import {
   RewardMetadataFilter,
 } from './rewardMetadata'
 import {
+  CompletedPlayStats,
   DailyDetailStatsHistory,
   TileCounts,
+  getTotalGuessTimeMs,
   loadDailyDetailStatsHistory,
 } from './playStats'
+import { loadEventResults } from './eventResults'
 
 // --- Type Definitions ---
 
@@ -57,6 +60,7 @@ export type CompletedGameContext = {
   endReason: AchievementEndReason
   deadEnd?: DeadEndContext
   tileCounts?: TileCounts
+  playStats?: CompletedPlayStats
 }
 
 export type AchievementContext = {
@@ -180,6 +184,45 @@ export const getTilePatternProgress = (
   target = 1
 ): AchievementProgress => {
   const current = countCompletedGamesMatchingTilePattern(ctx, predicate)
+  return {
+    current: Math.min(current, target),
+    target,
+  }
+}
+
+const SUMMER_GARDEN_VERSION = 'v1.7.0'
+const ONE_MINUTE_MS = 60 * 1000
+
+const isFastWin = (result: {
+  won: boolean
+  playStats?: CompletedPlayStats
+}): boolean =>
+  result.won &&
+  !!result.playStats &&
+  getTotalGuessTimeMs(result.playStats) <= ONE_MINUTE_MS
+
+const getSummerGardenFastWinProgress = (
+  ctx: AchievementContext
+): AchievementProgress => {
+  const target = 7
+  let current = 0
+  const activeDateKey = ctx.mode === 'event' ? ctx.game?.dateKey : undefined
+
+  if (
+    ctx.mode === 'event' &&
+    ctx.game &&
+    isFastWin({ won: ctx.game.won, playStats: ctx.game.playStats })
+  ) {
+    current += 1
+  }
+
+  for (const result of Object.values(loadEventResults(SUMMER_GARDEN_VERSION))) {
+    if (activeDateKey && result.dateKey === activeDateKey) continue
+    if (isFastWin(result)) {
+      current += 1
+    }
+  }
+
   return {
     current: Math.min(current, target),
     target,
@@ -313,6 +356,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       current: progress.modes.practice.gamesWon,
       target: 10,
     }),
+  },
+  {
+    id: 'rabbit_speed',
+    category: 'performance',
+    modes: ['event'],
+    difficulty: 5,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_rabbit_speed_title',
+    descriptionKey: 'achievement_rabbit_speed_desc',
+    progress: getSummerGardenFastWinProgress,
   },
   {
     id: 'practice_win_100',
