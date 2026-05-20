@@ -9,6 +9,7 @@ export type EventEndReason =
   | 'timeout'
   | 'enter_limit'
   | 'ai_win'
+  | 'pacman'
 
 export type EventResult = {
   dateKey: string
@@ -34,10 +35,7 @@ const isTileCounts = (value: unknown): value is TileCounts => {
   )
 }
 
-const normalizeEndReason = (
-  value: unknown,
-  won: boolean
-): EventEndReason => {
+const normalizeEndReason = (value: unknown, won: boolean): EventEndReason => {
   if (typeof value === 'string') return value as EventEndReason
   return won ? 'win' : 'unknown'
 }
@@ -92,10 +90,7 @@ export const loadEventResultsByVersion = (): EventResultsByVersion => {
 export const loadEventResults = (version: string): EventResults =>
   loadEventResultsByVersion()[version] ?? {}
 
-export const saveEventResult = (
-  version: string,
-  result: EventResult
-): void => {
+export const saveEventResult = (version: string, result: EventResult): void => {
   const resultsByVersion = loadEventResultsByVersion()
   const versionResults = resultsByVersion[version] ?? {}
   const normalized = normalizeEventResult(result.dateKey, result)

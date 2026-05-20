@@ -66,6 +66,21 @@ describe('event results', () => {
     })
   })
 
+  it('preserves pacman event losses', () => {
+    saveEventResult('v1.7.0', {
+      dateKey: '2026-05-21',
+      solution: 'stale',
+      won: false,
+      guessCount: 1,
+      endReason: 'pacman',
+    })
+
+    expect(loadEventResults('v1.7.0')['2026-05-21']).toMatchObject({
+      won: false,
+      endReason: 'pacman',
+    })
+  })
+
   it('exposes completed play stats for detail summaries', () => {
     const completed = createCompletedStats('2026-05-22')
     saveEventResult('v1.7.0', {

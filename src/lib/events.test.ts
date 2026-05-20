@@ -37,6 +37,11 @@ test('uses a seeded random word permutation for event answers', () => {
 test('defines cosmetic overrides for the active event theme', () => {
   const event = getActiveEvent()
 
+  expect(event.modeKind).toBe('pacman')
+  expect(event.pacman).toMatchObject({
+    actor: '🐇',
+    effect: 'hide-letter',
+  })
   expect(event.cosmeticOverrides).toMatchObject({
     shareBadge: ['badge_apple', 'badge_grape', 'badge_milk', 'badge_azure'],
     chainColor: 'chaincolor_azure',
