@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { InformationCircleIcon } from '@heroicons/react/outline'
 import { PlayStatsSummary } from '../../lib/playStats'
 
 type Props = {
@@ -32,31 +33,78 @@ const Metric = ({
   label,
   value,
   description,
+  infoTitle,
+  infoFormula,
+  infoBody,
   compact = false,
 }: {
   label: string
   value: string
   description?: string
+  infoTitle?: string
+  infoFormula?: string
+  infoBody?: string
   compact?: boolean
-}) => (
-  <div className={`${compact ? 'mx-1 my-0' : 'm-1'} min-w-0 text-center`}>
+}) => {
+  const [isInfoOpen, setIsInfoOpen] = useState(false)
+  const { t } = useTranslation()
+  const hasInfo = !!infoTitle && !!infoFormula && !!infoBody
+
+  return (
     <div
-      className={`flex items-center justify-center ${
-        compact ? 'h-12' : 'h-14'
-      }`}
+      className={`${
+        compact ? 'mx-1 my-0' : 'm-1'
+      } relative min-w-0 text-center`}
     >
-      <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
-        {value}
+      {hasInfo && isInfoOpen && (
+        <div className="absolute bottom-5 left-1/2 z-20 w-44 -translate-x-1/2 rounded border border-gray-200 bg-white p-2 text-left text-xs text-gray-600 shadow-lg">
+          <div className="mb-1 flex items-center justify-between">
+            <div className="font-semibold text-gray-900">{infoTitle}</div>
+            <button
+              type="button"
+              className="font-semibold text-gray-400 hover:text-gray-700"
+              onClick={() => setIsInfoOpen(false)}
+              aria-label={t('behaviorFrictionInfoClose')}
+            >
+              ×
+            </button>
+          </div>
+          <div className="mb-1 rounded bg-gray-50 px-1.5 py-1 font-mono text-[0.65rem] text-gray-900">
+            {infoFormula}
+          </div>
+          <p>{infoBody}</p>
+        </div>
+      )}
+      <div
+        className={`flex items-center justify-center ${
+          compact ? 'h-12' : 'h-14'
+        }`}
+      >
+        <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
+          {value}
+        </div>
       </div>
+      <div className="flex items-center justify-center gap-0.5 truncate text-[10px] leading-3">
+        <span className="truncate">{label}</span>
+        {hasInfo && (
+          <button
+            type="button"
+            className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-400"
+            onClick={() => setIsInfoOpen(!isInfoOpen)}
+            aria-label={infoTitle}
+          >
+            <InformationCircleIcon className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+      {description && (
+        <div className="mt-0.5 truncate text-[9px] leading-3 text-gray-500">
+          {description}
+        </div>
+      )}
     </div>
-    <div className="truncate text-[10px] leading-3">{label}</div>
-    {description && (
-      <div className="mt-0.5 truncate text-[9px] leading-3 text-gray-500">
-        {description}
-      </div>
-    )}
-  </div>
-)
+  )
+}
 
 const MetricRow = ({
   children,
@@ -114,9 +162,12 @@ export const PlayStatsPanel = ({ summary }: Props) => {
       summary.totalInvalidEnterPresses -
       summary.totalIncompleteEnterPresses
   )
-  const editsPerSubmit =
+  const wrongEnterPresses =
+    summary.totalInvalidEnterPresses + summary.totalIncompleteEnterPresses
+  const frictionPerSubmit =
     totalValidEnterPresses > 0
-      ? summary.totalDeletePresses / totalValidEnterPresses
+      ? (summary.totalDeletePresses + wrongEnterPresses) /
+        totalValidEnterPresses
       : 0
 
   return (
@@ -236,11 +287,15 @@ export const PlayStatsPanel = ({ summary }: Props) => {
             compact
           />
           <Metric
-            label={t('behaviorEditsPerSubmit')}
+            label={t('behaviorFrictionPerSubmit')}
             value={
-              hasTrackedGames ? formatAverageCount(editsPerSubmit) : EMPTY_VALUE
+              hasTrackedGames
+                ? formatAverageCount(frictionPerSubmit)
+                : EMPTY_VALUE
             }
-            description={t('behaviorEditsPerSubmitDescription')}
+            infoTitle={t('behaviorFrictionPerSubmit')}
+            infoFormula={t('behaviorFrictionPerSubmitFormula')}
+            infoBody={t('behaviorFrictionPerSubmitInfoBody')}
             compact
           />
         </MetricRow>
