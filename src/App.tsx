@@ -142,6 +142,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [rewardsInitialTab, setRewardsInitialTab] = useState<
     'achievements' | 'cosmetics' | undefined
   >(undefined)
+  const [rewardsScrollToAchievement, setRewardsScrollToAchievement] = useState<
+    string | undefined
+  >(undefined)
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
@@ -919,6 +922,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           className="h-6 w-6 cursor-pointer"
           onClick={() => {
             setRewardsInitialTab('achievements')
+            setRewardsScrollToAchievement(undefined)
             setIsRewardsModalOpen(true)
           }}
         />
@@ -994,6 +998,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onOpenCosmetics={() => {
           setIsStatsModalOpen(false)
           setRewardsInitialTab('cosmetics')
+          setRewardsScrollToAchievement(undefined)
+          setTimeout(() => setIsRewardsModalOpen(true), 300)
+        }}
+        onOpenAchievement={(achievementId) => {
+          setIsStatsModalOpen(false)
+          setRewardsInitialTab('achievements')
+          setRewardsScrollToAchievement(achievementId)
           setTimeout(() => setIsRewardsModalOpen(true), 300)
         }}
         onOpenDeadEndHelp={() => {
@@ -1017,12 +1028,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => {
           setIsRewardsModalOpen(false)
           setRewardsInitialTab(undefined)
+          setRewardsScrollToAchievement(undefined)
         }}
         isUppercase={effectiveIsUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
         excludeUrl={effectiveExcludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
         initialTab={rewardsInitialTab}
+        scrollToAchievement={rewardsScrollToAchievement}
         mode={mode}
         event={event}
         onOpenDeadEndHelp={() => {

@@ -394,6 +394,7 @@
   "eventRecordsEmpty": "No event records yet.",
   "eventMission": "Mission",
   "eventOneMinute": "1 Minute",
+  "eventAchievementRabbitPlaceholder": "Rabbit",
   "eventProgress": "Progress",
   "eventRowLabel": "Row {{row}}",
   "howToCreate": "How to create",

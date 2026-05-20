@@ -394,6 +394,7 @@
   "eventRecordsEmpty": "イベント記録はまだありません。",
   "eventMission": "ミッション",
   "eventOneMinute": "1分",
+  "eventAchievementRabbitPlaceholder": "うさぎ",
   "eventProgress": "進行度",
   "eventRowLabel": "{{row}}行目",
   "howToCreate": "出題方法",

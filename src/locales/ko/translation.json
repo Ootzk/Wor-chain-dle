@@ -387,6 +387,7 @@
   "eventRecordsEmpty": "아직 이벤트 기록이 없습니다.",
   "eventMission": "미션",
   "eventOneMinute": "1분",
+  "eventAchievementRabbitPlaceholder": "토끼",
   "eventProgress": "진행도",
   "eventRowLabel": "{{row}}번째 줄",
   "howToCreate": "출제 방법",

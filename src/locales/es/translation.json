@@ -394,6 +394,7 @@
   "eventRecordsEmpty": "Aún no hay registros de evento.",
   "eventMission": "Misión",
   "eventOneMinute": "1 minuto",
+  "eventAchievementRabbitPlaceholder": "Conejo",
   "eventProgress": "Progreso",
   "eventRowLabel": "Fila {{row}}",
   "howToCreate": "Cómo crear",

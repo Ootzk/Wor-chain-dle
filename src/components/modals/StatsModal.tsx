@@ -74,6 +74,7 @@ type Props = {
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
+  onOpenAchievement: (achievementId: string) => void
   onOpenDeadEndHelp?: () => void
   initialTab?: RecordsTab
   isUppercase: boolean
@@ -386,6 +387,7 @@ export const StatsModal = ({
   weekStartsOnMonday,
   onToggleWeekStartsOnMonday,
   onOpenCosmetics,
+  onOpenAchievement,
   onOpenDeadEndHelp,
   initialTab,
   playStats,
@@ -1010,6 +1012,7 @@ export const StatsModal = ({
             excludeUrl={excludeUrl}
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
+            onOpenAchievement={onOpenAchievement}
             handleShare={handleShare}
             cosmeticOverrides={selectedCosmeticOverrides}
             hasNewRewards={hasNewAchievementsToday}
