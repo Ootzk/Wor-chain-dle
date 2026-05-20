@@ -157,6 +157,7 @@ export const EventRecordsPanel = ({
             const targetWidth = (target / maxTarget) * 100
             const progress = Math.min(1, count / target)
             const isClear = count >= target
+            const markerPosition = Math.min(96, Math.max(4, progress * 100))
 
             return (
               <Fragment key={rowIndex}>
@@ -181,7 +182,7 @@ export const EventRecordsPanel = ({
                     <span
                       aria-hidden="true"
                       className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 text-base leading-none"
-                      style={{ left: `${progress * 100}%` }}
+                      style={{ left: `${markerPosition}%` }}
                     >
                       {collectible.emoji}
                     </span>
