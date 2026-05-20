@@ -395,6 +395,68 @@ describe('share badge achievements', () => {
     ).toContain('bibimbap_balance')
   })
 
+  it('unlocks bibimbap from stored tile counts in daily play stats', () => {
+    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: true,
+        guessCount: 6,
+        tileCounts: {
+          correct: 10,
+          present: 10,
+          absent: 10,
+          unrevealed: 6,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyPlayStatsHistory,
+      })
+    ).toContain('bibimbap_balance')
+  })
+
+  it('does not unlock bibimbap from stored balanced tiles without a 6-guess win', () => {
+    const dailyPlayStatsHistory: DailyPlayStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 6,
+        tileCounts: {
+          correct: 10,
+          present: 10,
+          absent: 10,
+          unrevealed: 6,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyPlayStatsHistory,
+      })
+    ).not.toContain('bibimbap_balance')
+  })
+
   it('unlocks yogurt from using apple grape and milks in one game', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {

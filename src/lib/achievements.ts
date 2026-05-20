@@ -136,20 +136,27 @@ const hasStoredTileCounts = (
 
 const hasCompletedGameMatchingTilePattern = (
   ctx: AchievementContext,
-  predicate: (counts: TileCounts) => boolean
+  predicate: (
+    counts: TileCounts,
+    game: Pick<CompletedGameContext, 'won' | 'guessCount'>
+  ) => boolean
 ): boolean => {
-  if (ctx.game && predicate(tileCountsFromGame(ctx.game))) {
+  if (ctx.game && predicate(tileCountsFromGame(ctx.game), ctx.game)) {
     return true
   }
 
   return Object.values(ctx.dailyPlayStatsHistory).some(
-    (game) => hasStoredTileCounts(game.tileCounts) && predicate(game.tileCounts)
+    (game) =>
+      hasStoredTileCounts(game.tileCounts) && predicate(game.tileCounts, game)
   )
 }
 
 const tilePatternProgress = (
   ctx: AchievementContext,
-  predicate: (counts: TileCounts) => boolean
+  predicate: (
+    counts: TileCounts,
+    game: Pick<CompletedGameContext, 'won' | 'guessCount'>
+  ) => boolean
 ): AchievementProgress => ({
   current: hasCompletedGameMatchingTilePattern(ctx, predicate) ? 1 : 0,
   target: 1,
@@ -428,20 +435,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_bibimbap_balance_title',
     descriptionKey: 'achievement_bibimbap_balance_desc',
-    progress: ({ game }) => {
-      if (!game?.won || game.guessCount !== 6) {
-        return { current: 0, target: 1 }
-      }
-
-      const counts = tileCountsFromGame(game)
-      return {
-        current:
-          counts.correct === 10 && counts.present === 10 && counts.absent === 10
-            ? 1
-            : 0,
-        target: 1,
-      }
-    },
+    progress: (ctx) =>
+      tilePatternProgress(
+        ctx,
+        (counts, game) =>
+          game.won &&
+          game.guessCount === 6 &&
+          counts.correct === 10 &&
+          counts.present === 10 &&
+          counts.absent === 10
+      ),
   },
   {
     id: 'yogurt_recipe',
