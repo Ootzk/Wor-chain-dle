@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { GameStats } from '../../lib/localStorage'
+import { DailyResults } from '../../lib/dailyResults'
 
 type Props = {
   gameStats: GameStats
+  dailyResults: DailyResults
   onOpenDeadEndHelp?: () => void
 }
 
@@ -15,28 +17,49 @@ type LoseReasonItem = {
 
 export const LoseReasonDistribution = ({
   gameStats,
+  dailyResults,
   onOpenDeadEndHelp,
 }: Props) => {
   const { t } = useTranslation()
-  const losses = gameStats.gamesFailed
+  const reasonCounts = Object.values(dailyResults).reduce(
+    (counts, result) => {
+      if (result.won) return counts
+      if (result.endReason === 'guess_limit') {
+        counts.guessLimit += 1
+      } else if (result.endReason === 'dead_end') {
+        counts.deadEnd += 1
+      } else {
+        counts.unknown += 1
+      }
+      return counts
+    },
+    { guessLimit: 0, deadEnd: 0, unknown: 0 }
+  )
+  const trackedLosses =
+    reasonCounts.guessLimit + reasonCounts.deadEnd + reasonCounts.unknown
+  const legacyUntrackedLosses = Math.max(
+    0,
+    gameStats.gamesFailed - trackedLosses
+  )
+  const unknownLosses = reasonCounts.unknown + legacyUntrackedLosses
 
   const distribution: LoseReasonItem[] = [
     {
       icon: '❌',
       title: t('loseReasonOutOfGuesses'),
-      value: 0,
+      value: reasonCounts.guessLimit,
       colorClass: 'bg-purple-500 text-purple-50',
     },
     {
       icon: '🦎',
       title: t('loseReasonDeadEnd'),
-      value: 0,
+      value: reasonCounts.deadEnd,
       colorClass: 'bg-purple-500 text-purple-50',
     },
     {
       icon: '❓',
       title: t('loseReasonUnknown'),
-      value: losses,
+      value: unknownLosses,
       colorClass: 'bg-gray-400 text-gray-50',
     },
   ]

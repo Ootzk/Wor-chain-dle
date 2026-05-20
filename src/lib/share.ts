@@ -1,11 +1,8 @@
 import { Temporal } from 'temporal-polyfill'
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
-import {
-  DailyHistory,
-  dateToKey,
-  getDailyHistoryStartDate,
-} from './dailyHistory'
+import { dateToKey } from './dailyHistory'
+import { DailyResults, getDailyResultsStartDate } from './dailyResults'
 import { getEquippedShareBadge, getEquippedShareEmoji } from './cosmetics'
 
 const formatShareTitle = (suffix?: string): string => {
@@ -89,7 +86,7 @@ const WEEKDAY_LABELS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 export const shareCalendar = (
   year: number,
   month: number, // 0-indexed
-  dailyHistory: DailyHistory,
+  dailyResults: DailyResults,
   streak: number,
   weekStartsOnMonday: boolean = false,
   excludeUrl: boolean = false
@@ -97,7 +94,7 @@ export const shareCalendar = (
   const mm = String(month + 1).padStart(2, '0')
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
   const today = Temporal.Now.plainDateISO()
-  const startDate = getDailyHistoryStartDate()
+  const startDate = getDailyResultsStartDate()
 
   const firstDay = Temporal.PlainDate.from({
     year,
@@ -132,7 +129,7 @@ export const shareCalendar = (
     if (isFuture || isBeforeEpoch || isPreCalendarEpoch) {
       row.push('\u26AA') // inactive (future / before epoch / pre-calendar)
     } else {
-      const result = dailyHistory[key]
+      const result = dailyResults[key]
       if (!result) {
         row.push(emoji.absent) // not played
       } else if (result.won) {

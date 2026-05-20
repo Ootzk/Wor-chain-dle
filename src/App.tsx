@@ -17,12 +17,7 @@ import { RewardsModal } from './components/modals/RewardsModal'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
-import {
-  saveDailyResult,
-  initDailyHistoryStartDate,
-  loadDailyHistory,
-  dateToKey,
-} from './lib/dailyHistory'
+import { initDailyHistoryStartDate, dateToKey } from './lib/dailyHistory'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
@@ -59,10 +54,15 @@ import {
   recordEnterAttempt,
   recordInputActivity,
   saveCurrentPlayStats,
-  saveDailyPlayStats,
   startNextGuess,
   summarizePlayStats,
 } from './lib/playStats'
+import {
+  DailyEndReason,
+  loadDailyResults,
+  loadDailyResultHistory,
+  saveDailyResult,
+} from './lib/dailyResults'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -169,6 +169,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [dailyPlayStatsSummary, setDailyPlayStatsSummary] = useState(() =>
     summarizePlayStats(loadDailyPlayStatsHistory())
   )
+  const [dailyResults, setDailyResults] = useState(() => loadDailyResults())
   const playStatsRef = useRef(playStats)
 
   const updatePlayStats = (next: PlayStats) => {
@@ -179,12 +180,25 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     }
   }
 
-  const saveCompletedPlayStats = (completed: CompletedPlayStats) => {
+  const saveCompletedPlayStats = (
+    completed: CompletedPlayStats,
+    endReason: DailyEndReason
+  ) => {
     playStatsRef.current = completed
     setPlayStats(completed)
     if (isDaily) {
-      saveDailyPlayStats(localDateStr, completed)
+      saveDailyResult({
+        dateKey: localDateStr,
+        solution,
+        won: completed.won,
+        guessCount: completed.guessCount,
+        endReason,
+        tileCounts: completed.tileCounts,
+        playStats: completed,
+      })
+      setDailyResults(loadDailyResults())
       setDailyPlayStatsSummary(summarizePlayStats(loadDailyPlayStatsHistory()))
+      clearCurrentPlayStats()
     }
   }
 
@@ -208,7 +222,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const today = Temporal.Now.plainDateISO()
       const todayKey = dateToKey(today)
       initDailyHistoryStartDate(todayKey)
-      retroUnlockAchievements(stats, loadDailyHistory())
+      retroUnlockAchievements(stats, loadDailyResultHistory())
       document.title = `Wor\u{1F517}dle Daily | ${todayKey}`
     } else if (isCustom) {
       document.title = `Wor\u{1F517}dle Custom | ${questioner}`
@@ -258,6 +272,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       clearCurrentPlayStats()
     }
     setDailyPlayStatsSummary(summarizePlayStats(loadDailyPlayStatsHistory()))
+    setDailyResults(loadDailyResults())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, solution, localDateStr])
 
@@ -325,7 +340,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       won,
     })
     showAchievementAlert(
-      evaluateAchievements(nextStats, loadDailyHistory(), {
+      evaluateAchievements(nextStats, loadDailyResultHistory(), {
         mode,
         progress: achievementProgress,
         game: {
@@ -396,15 +411,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       const nextGuesses = [...guesses, fullGuess]
       setGuesses(nextGuesses)
 
-      const todayKey = dateToKey(Temporal.Now.plainDateISO())
-
       if (winningWord) {
         const tileCounts = countTileStatusesForGame(nextGuesses, solution)
         let nextStats = stats
         if (isDaily) {
           nextStats = addStatsForCompletedGame(stats, guesses.length)
           setStats(nextStats)
-          saveDailyResult(todayKey, guesses.length + 1, true)
         }
         evaluateCompletedGameAchievements({
           nextStats,
@@ -419,7 +431,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             won: true,
             guessCount: nextGuesses.length,
             tileCounts,
-          })
+          }),
+          'win'
         )
         return setIsGameWon(true)
       }
@@ -445,7 +458,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           if (isDaily) {
             nextStats = addStatsForCompletedGame(stats, CONFIG.tries)
             setStats(nextStats)
-            saveDailyResult(todayKey, CONFIG.tries, false)
           }
           evaluateCompletedGameAchievements({
             nextStats,
@@ -461,7 +473,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
               won: false,
               guessCount: nextGuesses.length,
               tileCounts,
-            })
+            }),
+            'dead_end'
           )
           setIsGameLost(true)
           return
@@ -474,7 +487,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         if (isDaily) {
           nextStats = addStatsForCompletedGame(stats, guesses.length + 1)
           setStats(nextStats)
-          saveDailyResult(todayKey, guesses.length + 1, false)
         }
         evaluateCompletedGameAchievements({
           nextStats,
@@ -489,7 +501,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             won: false,
             guessCount: nextGuesses.length,
             tileCounts,
-          })
+          }),
+          'guess_limit'
         )
         setIsGameLost(true)
         return
@@ -631,6 +644,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         isUppercase={isUppercase}
         playStats={playStats}
         playStatsSummary={dailyPlayStatsSummary}
+        dailyResults={dailyResults}
       />
       <RewardsModal
         isOpen={isRewardsModalOpen}

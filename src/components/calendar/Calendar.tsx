@@ -8,13 +8,13 @@ import {
 import { useTranslation } from 'react-i18next'
 import { CalendarDay } from './CalendarDay'
 import { GameStats } from '../../lib/localStorage'
+import { dateToKey } from '../../lib/dailyHistory'
 import {
-  DayResult,
-  loadDailyHistory,
-  dateToKey,
-  getMonthResults,
-  getDailyHistoryStartDate,
-} from '../../lib/dailyHistory'
+  DailyResult,
+  getDailyResultsStartDate,
+  getMonthDailyResults,
+  loadDailyResults,
+} from '../../lib/dailyResults'
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
@@ -98,8 +98,8 @@ export const Calendar = ({
     }
   }
 
-  const monthResults = getMonthResults(year, month)
-  const history = loadDailyHistory()
+  const monthResults = getMonthDailyResults(year, month)
+  const dailyResults = loadDailyResults()
 
   // Build calendar grid
   const firstDay = Temporal.PlainDate.from({
@@ -118,11 +118,11 @@ export const Calendar = ({
   const monthlyLossCount = monthlyPlayedCount - monthlyWinCount
   const monthlyAbsenceCount = daysInMonth - monthlyPlayedCount
 
-  const calendarStartDate = getDailyHistoryStartDate()
+  const calendarStartDate = getDailyResultsStartDate()
 
   type CellData = {
     day: number | null
-    result?: DayResult | null
+    result?: DailyResult | null
     isToday: boolean
     isFuture: boolean
     isBeforeEpoch: boolean
@@ -317,7 +317,7 @@ export const Calendar = ({
               shareCalendar(
                 year,
                 month,
-                history,
+                dailyResults,
                 gameStats.currentStreak,
                 weekStartsOnMonday,
                 excludeUrl

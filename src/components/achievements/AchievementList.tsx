@@ -6,7 +6,7 @@ import {
   markAchievementsSeen,
   AchievementCategory,
 } from '../../lib/achievements'
-import { loadDailyHistory } from '../../lib/dailyHistory'
+import { loadDailyResultHistory } from '../../lib/dailyResults'
 import { loadStats } from '../../lib/stats'
 import { getRewardsForAchievement } from '../../lib/cosmetics'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
@@ -127,7 +127,7 @@ export const AchievementList = ({
 }) => {
   const { t } = useTranslation()
   const stats = loadStats()
-  const dailyHistory = loadDailyHistory()
+  const dailyHistory = loadDailyResultHistory()
   const achievements = getAchievementsWithStatus(stats, dailyHistory)
   const scrollRef = useRef<HTMLDivElement>(null)
 

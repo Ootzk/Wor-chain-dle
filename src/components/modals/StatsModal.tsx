@@ -36,6 +36,7 @@ import {
   getAchievementsUnlockedTodayCount,
   hasNewAchievementsUnlockedToday,
 } from '../../lib/achievements'
+import { DailyResults } from '../../lib/dailyResults'
 
 type Props = {
   isOpen: boolean
@@ -59,6 +60,7 @@ type Props = {
   isUppercase: boolean
   playStats: PlayStats
   playStatsSummary: PlayStatsSummary
+  dailyResults: DailyResults
 }
 
 const formatSecondsValue = (ms: number) => String(Math.round(ms / 1000))
@@ -350,6 +352,7 @@ export const StatsModal = ({
   initialTab,
   playStats,
   playStatsSummary,
+  dailyResults,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<
@@ -833,6 +836,7 @@ export const StatsModal = ({
                 </SummaryGroupTitle>
                 <LoseReasonDistribution
                   gameStats={gameStats}
+                  dailyResults={dailyResults}
                   onOpenDeadEndHelp={onOpenDeadEndHelp}
                 />
               </section>

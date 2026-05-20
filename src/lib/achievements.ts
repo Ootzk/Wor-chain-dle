@@ -1,10 +1,10 @@
 import { GameStats } from './localStorage'
 import {
   DailyHistory,
-  getDailyHistoryStartDate,
   getBestMonthlyAttendanceProgress,
   dateToKey,
 } from './dailyHistory'
+import { getDailyResultsStartDate } from './dailyResults'
 import { Temporal } from 'temporal-polyfill'
 import { GameMode } from './gameMode'
 import {
@@ -241,7 +241,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     descriptionKey: 'achievement_monthly_attendance_desc',
     progress: ({ dailyHistory }) =>
       getBestMonthlyAttendanceProgress(dailyHistory, {
-        startDate: getDailyHistoryStartDate(),
+        startDate: getDailyResultsStartDate(),
       }),
   },
   {
