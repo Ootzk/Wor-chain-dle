@@ -619,6 +619,19 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: (ctx) =>
       getTilePatternProgress(ctx, (counts) => counts.correct === 0),
   },
+  {
+    id: 'azure_word',
+    category: 'event',
+    modes: ['daily'],
+    difficulty: 4,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_azure_word_title',
+    descriptionKey: 'achievement_azure_word_desc',
+    progress: ({ progress }) => ({
+      current: progress.words.azure?.gamesWon ?? 0,
+      target: 5,
+    }),
+  },
 ]
 
 // --- localStorage ---

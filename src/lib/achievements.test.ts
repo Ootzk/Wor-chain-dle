@@ -13,11 +13,15 @@ import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
 import {
   CHAIN_COLOR_STYLES,
+  CELL_COLOR_STYLES,
   getRewardsForAchievement,
   getShareBadge,
   getShareEmojiSet,
 } from './cosmetics'
-import { createDefaultAchievementTrackingState } from './achievementProgress'
+import {
+  createDefaultAchievementTrackingState,
+  recordCompletedGameProgress,
+} from './achievementProgress'
 import {
   CompletedPlayStats,
   DailyDetailStatsHistory,
@@ -200,6 +204,7 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
     expect(getShareBadge('badge_rabbit')).toBe('\uD83D\uDC07')
     expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
+    expect(CELL_COLOR_STYLES.color_azure).toBe('text-sky-300')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -247,6 +252,9 @@ describe('share badge achievements', () => {
     )
     expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
       'chaincolor_azure'
+    )
+    expect(getRewardsForAchievement('azure_word').map((r) => r.id)).toContain(
+      'color_azure'
     )
   })
 
@@ -362,6 +370,30 @@ describe('share badge achievements', () => {
         mode: 'event',
       })
     ).toContain('garden_set')
+  })
+
+  it('unlocks the azure letter color from tracked Daily wins using AZURE', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.words.azure = { gamesWon: 5 }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        progress,
+      })
+    ).toContain('azure_word')
+  })
+
+  it('records unique words from completed wins for word achievements', () => {
+    const progress = recordCompletedGameProgress({
+      mode: 'daily',
+      appVersion: '1.7.0',
+      won: true,
+      wonWords: ['AZURE', 'crane', 'azure'],
+    })
+
+    expect(progress.words.azure.gamesWon).toBe(1)
+    expect(progress.words.crane.gamesWon).toBe(1)
   })
 
   it('keeps new share badge achievements daily-only', () => {

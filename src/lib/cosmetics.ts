@@ -105,6 +105,7 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
   color_default: '',
   color_gold: 'text-yellow-300',
   color_black: 'text-black',
+  color_azure: 'text-sky-300',
 }
 
 // --- Chain Style Options ---
@@ -371,6 +372,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     titleKey: 'cosmetic_color_black',
     requiresAchievement: 'win_in_5',
     metadata: REWARD_METADATA.v1_5_0,
+  },
+  {
+    id: 'color_azure',
+    category: 'cellColor',
+    titleKey: 'cosmetic_color_azure',
+    requiresAchievement: 'azure_word',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Chain Style

@@ -509,6 +509,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       mode,
       appVersion: PATCH_NOTES_VERSION,
       won,
+      wonWords:
+        isDaily && won
+          ? completedGuesses.map((guess) => guess.join(''))
+          : undefined,
     })
     showAchievementAlert(
       evaluateAchievements(nextStats, loadDailyResultHistory(), {

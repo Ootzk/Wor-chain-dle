@@ -25,6 +25,7 @@ describe('reward metadata', () => {
 
     expect(achievementIds).toEqual(
       [
+        'azure_word',
         'clover_collector',
         'garden_set',
         'no_correct_game',
@@ -54,6 +55,7 @@ describe('reward metadata', () => {
         'badge_milk',
         'badge_rabbit',
         'chaincolor_azure',
+        'color_azure',
       ].sort()
     )
   })
