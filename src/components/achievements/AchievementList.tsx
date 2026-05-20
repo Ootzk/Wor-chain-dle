@@ -64,40 +64,63 @@ const AchievementDescription = ({
   achievementId,
   descriptionKey,
   onOpenDeadEndHelp,
+  onOpenEventRecords,
 }: {
   achievementId: string
   descriptionKey: string
   onOpenDeadEndHelp?: () => void
+  onOpenEventRecords?: () => void
 }) => {
   const { t } = useTranslation()
 
-  if (achievementId !== 'dead_end_tail' || !onOpenDeadEndHelp) {
-    return <>{t(descriptionKey)}</>
+  if (achievementId === 'dead_end_tail' && onOpenDeadEndHelp) {
+    return (
+      <Trans
+        i18nKey={descriptionKey}
+        components={{
+          deadEndLink: (
+            <button
+              type="button"
+              className="font-medium text-indigo-600 hover:text-indigo-700 underline"
+              onClick={onOpenDeadEndHelp}
+            />
+          ),
+        }}
+      />
+    )
   }
 
-  return (
-    <Trans
-      i18nKey={descriptionKey}
-      components={{
-        deadEndLink: (
-          <button
-            type="button"
-            className="font-medium text-indigo-600 hover:text-indigo-700 underline"
-            onClick={onOpenDeadEndHelp}
-          />
-        ),
-      }}
-    />
-  )
+  if (['clover_collector', 'rabbit_speed'].includes(achievementId)) {
+    return (
+      <Trans
+        i18nKey={descriptionKey}
+        components={{
+          eventLink: onOpenEventRecords ? (
+            <button
+              type="button"
+              className="font-medium text-indigo-600 hover:text-indigo-700 underline"
+              onClick={onOpenEventRecords}
+            />
+          ) : (
+            <span className="font-medium text-indigo-600 underline" />
+          ),
+        }}
+      />
+    )
+  }
+
+  return <>{t(descriptionKey)}</>
 }
 
 export const AchievementList = ({
   scrollToId,
   onOpenDeadEndHelp,
+  onOpenEventRecords,
   metadataFilter,
 }: {
   scrollToId?: string
   onOpenDeadEndHelp?: () => void
+  onOpenEventRecords?: () => void
   metadataFilter?: RewardMetadataFilter
 }) => {
   const { t } = useTranslation()
@@ -177,6 +200,7 @@ export const AchievementList = ({
                     achievementId={achievement.id}
                     descriptionKey={achievement.descriptionKey}
                     onOpenDeadEndHelp={onOpenDeadEndHelp}
+                    onOpenEventRecords={onOpenEventRecords}
                   />
                 </span>
               </p>

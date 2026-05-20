@@ -23,10 +23,13 @@ import {
   RewardMetadataFilter,
 } from './rewardMetadata'
 import {
+  CompletedPlayStats,
   DailyDetailStatsHistory,
   TileCounts,
+  getTotalGuessTimeMs,
   loadDailyDetailStatsHistory,
 } from './playStats'
+import { loadEventResults } from './eventResults'
 
 // --- Type Definitions ---
 
@@ -49,6 +52,7 @@ export type DeadEndContext = {
 
 export type CompletedGameContext = {
   dateKey?: string
+  eventVersion?: string
   guesses: string[][]
   solution: string
   won: boolean
@@ -57,6 +61,7 @@ export type CompletedGameContext = {
   endReason: AchievementEndReason
   deadEnd?: DeadEndContext
   tileCounts?: TileCounts
+  playStats?: CompletedPlayStats
 }
 
 export type AchievementContext = {
@@ -64,6 +69,7 @@ export type AchievementContext = {
   dailyHistory: DailyHistory
   dailyDetailStatsHistory: DailyDetailStatsHistory
   mode: GameMode
+  eventVersion?: string
   progress: AchievementTrackingState
   game?: CompletedGameContext
 }
@@ -77,6 +83,7 @@ export type AchievementDef = {
   id: string
   category: AchievementCategory
   modes?: GameMode[]
+  requiresAchievements?: string[]
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
   metadata?: RewardMetadata
   progress: (ctx: AchievementContext) => AchievementProgress
@@ -186,6 +193,59 @@ export const getTilePatternProgress = (
   }
 }
 
+const SUMMER_GARDEN_VERSION = 'v1.7.0'
+const ONE_MINUTE_MS = 60 * 1000
+const GARDEN_SET_COMPONENT_ACHIEVEMENTS = [
+  'clover_collector',
+  'practice_win_10',
+  'rabbit_speed',
+]
+
+const isFastWin = (result: {
+  won: boolean
+  playStats?: CompletedPlayStats
+}): boolean =>
+  result.won &&
+  !!result.playStats &&
+  getTotalGuessTimeMs(result.playStats) <= ONE_MINUTE_MS
+
+const getSummerGardenFastWinProgress = (
+  ctx: AchievementContext
+): AchievementProgress => {
+  const target = 7
+  let current = 0
+  const activeDateKey = ctx.mode === 'event' ? ctx.game?.dateKey : undefined
+
+  if (
+    ctx.mode === 'event' &&
+    ctx.game &&
+    ctx.game.eventVersion === SUMMER_GARDEN_VERSION &&
+    isFastWin({ won: ctx.game.won, playStats: ctx.game.playStats })
+  ) {
+    current += 1
+  }
+
+  for (const result of Object.values(loadEventResults(SUMMER_GARDEN_VERSION))) {
+    if (activeDateKey && result.dateKey === activeDateKey) continue
+    if (isFastWin(result)) {
+      current += 1
+    }
+  }
+
+  return {
+    current: Math.min(current, target),
+    target,
+  }
+}
+
+const getRequiredAchievementProgress = (
+  ids: string[],
+  state: Pick<AchievementState, 'unlocked'> = loadAchievementState()
+): AchievementProgress => ({
+  current: ids.filter((id) => state.unlocked[id]).length,
+  target: ids.length,
+})
+
 // --- Achievement Definitions ---
 
 export const ACHIEVEMENTS: AchievementDef[] = [
@@ -287,19 +347,58 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_clover_collector_title',
     descriptionKey: 'achievement_clover_collector_desc',
-    progress: ({ progress }) => {
+    progress: ({ progress, eventVersion }) => {
       const collection =
         progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
       const rowTargets = Object.entries(SUMMER_GARDEN_CLOVER_ROW_TARGETS)
+      const target = rowTargets.reduce((sum, [, target]) => sum + target, 0)
+      if (eventVersion && eventVersion !== SUMMER_GARDEN_VERSION) {
+        return { current: 0, target }
+      }
       return {
         current: rowTargets.reduce(
           (sum, [itemId, target]) =>
             sum + Math.min(collection[itemId] ?? 0, target),
           0
         ),
-        target: rowTargets.reduce((sum, [, target]) => sum + target, 0),
+        target,
       }
     },
+  },
+  {
+    id: 'practice_win_10',
+    category: 'milestone',
+    modes: ['practice'],
+    difficulty: 3,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_practice_win_10_title',
+    descriptionKey: 'achievement_practice_win_10_desc',
+    progress: ({ progress }) => ({
+      current: progress.modes.practice.gamesWon,
+      target: 10,
+    }),
+  },
+  {
+    id: 'rabbit_speed',
+    category: 'performance',
+    modes: ['event'],
+    difficulty: 5,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_rabbit_speed_title',
+    descriptionKey: 'achievement_rabbit_speed_desc',
+    progress: getSummerGardenFastWinProgress,
+  },
+  {
+    id: 'garden_set',
+    category: 'collection',
+    modes: ['daily', 'practice', 'custom', 'event'],
+    requiresAchievements: GARDEN_SET_COMPONENT_ACHIEVEMENTS,
+    difficulty: 7,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_garden_set_title',
+    descriptionKey: 'achievement_garden_set_desc',
+    progress: () =>
+      getRequiredAchievementProgress(GARDEN_SET_COMPONENT_ACHIEVEMENTS),
   },
   {
     id: 'practice_win_100',
@@ -527,6 +626,19 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: (ctx) =>
       getTilePatternProgress(ctx, (counts) => counts.correct === 0),
   },
+  {
+    id: 'azure_word',
+    category: 'event',
+    modes: ['daily'],
+    difficulty: 4,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_azure_word_title',
+    descriptionKey: 'achievement_azure_word_desc',
+    progress: ({ progress }) => ({
+      current: progress.words.azure?.gamesWon ?? 0,
+      target: 5,
+    }),
+  },
 ]
 
 // --- localStorage ---
@@ -616,6 +728,7 @@ export const isAchievementAvailableInMode = (
 
 export type AchievementEvaluationOptions = {
   mode?: GameMode
+  eventVersion?: string
   game?: CompletedGameContext
   progress?: AchievementTrackingState
   dailyDetailStatsHistory?: DailyDetailStatsHistory
@@ -631,6 +744,7 @@ const createAchievementContext = (
   dailyDetailStatsHistory:
     options.dailyDetailStatsHistory ?? loadDailyDetailStatsHistory(),
   mode: options.mode ?? 'daily',
+  eventVersion: options.eventVersion,
   progress: options.progress ?? loadAchievementProgress(),
   game: options.game,
 })
@@ -651,7 +765,9 @@ export const evaluateAchievementDefinitions = (
     if (state.unlocked[achievement.id]) continue
     if (!isAchievementAvailableInMode(achievement, ctx.mode)) continue
 
-    const { current, target } = achievement.progress(ctx)
+    const { current, target } = achievement.requiresAchievements?.length
+      ? getRequiredAchievementProgress(achievement.requiresAchievements, state)
+      : achievement.progress(ctx)
     if (current >= target) {
       state.unlocked[achievement.id] = { unlockedAt: Date.now() }
       newlyUnlocked.push(achievement.id)

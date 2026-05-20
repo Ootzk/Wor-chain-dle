@@ -9,10 +9,15 @@ export type VersionAchievementProgress = {
   gamesCompleted: number
 }
 
+export type WordAchievementProgress = {
+  gamesWon: number
+}
+
 export type AchievementTrackingState = {
   modes: Record<GameMode, ModeAchievementProgress>
   versions: Record<string, VersionAchievementProgress>
   collectibles: Record<string, Record<string, number>>
+  words: Record<string, WordAchievementProgress>
 }
 
 const STORAGE_KEY = 'achievementProgress'
@@ -27,6 +32,7 @@ export const createDefaultAchievementTrackingState =
     },
     versions: {},
     collectibles: {},
+    words: {},
   })
 
 export const loadAchievementProgress = (): AchievementTrackingState => {
@@ -44,6 +50,7 @@ export const loadAchievementProgress = (): AchievementTrackingState => {
     },
     versions: parsed.versions ?? {},
     collectibles: parsed.collectibles ?? {},
+    words: parsed.words ?? {},
   }
 }
 
@@ -57,15 +64,25 @@ export const recordCompletedGameProgress = ({
   mode,
   appVersion,
   won,
+  wonWords = [],
 }: {
   mode: GameMode
   appVersion: string
   won: boolean
+  wonWords?: string[]
 }): AchievementTrackingState => {
   const progress = loadAchievementProgress()
   progress.modes[mode].gamesCompleted += 1
   if (won) {
     progress.modes[mode].gamesWon += 1
+    const normalizedWonWords = Array.from(
+      new Set(wonWords.map((word) => word.toLowerCase()))
+    )
+    normalizedWonWords.forEach((word) => {
+      const wordProgress = progress.words[word] ?? { gamesWon: 0 }
+      wordProgress.gamesWon += 1
+      progress.words[word] = wordProgress
+    })
   }
 
   const versionProgress = progress.versions[appVersion] ?? {

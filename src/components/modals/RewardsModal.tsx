@@ -24,6 +24,7 @@ type Props = {
   initialTab?: RewardsTab
   scrollToAchievement?: string
   onOpenDeadEndHelp?: () => void
+  onOpenEventRecords?: () => void
   mode?: GameMode
   event?: EventDefinition
 }
@@ -38,6 +39,7 @@ export const RewardsModal = ({
   initialTab,
   scrollToAchievement,
   onOpenDeadEndHelp,
+  onOpenEventRecords,
   mode,
   event,
 }: Props) => {
@@ -120,6 +122,7 @@ export const RewardsModal = ({
           <AchievementList
             scrollToId={focusedAchievement}
             onOpenDeadEndHelp={onOpenDeadEndHelp}
+            onOpenEventRecords={onOpenEventRecords}
             metadataFilter={achievementMetadataFilter}
           />
         )}

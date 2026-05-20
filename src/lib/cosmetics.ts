@@ -62,6 +62,11 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
     present: '\uD83C\uDF47',
     absent: '\uD83E\uDD5B',
   },
+  emoji_garden: {
+    correct: '\uD83C\uDF40',
+    present: '\uD83E\uDEBB',
+    absent: '\uD83D\uDC07',
+  },
 }
 
 // --- Share Badge Options ---
@@ -82,6 +87,8 @@ const SHARE_BADGES: Record<string, string> = {
   badge_milk: '\uD83E\uDD5B',
   badge_azure: '\uD83E\uDE75',
   badge_clover: '\uD83C\uDF40',
+  badge_hyacinth: '\uD83E\uDEBB',
+  badge_rabbit: '\uD83D\uDC07',
 }
 
 // --- Cell Font Options ---
@@ -98,6 +105,7 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
   color_default: '',
   color_gold: 'text-yellow-300',
   color_black: 'text-black',
+  color_azure: 'text-sky-300',
 }
 
 // --- Chain Style Options ---
@@ -201,6 +209,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     requiresAchievement: 'yogurt_recipe',
     metadata: REWARD_METADATA.v1_6_0,
   },
+  {
+    id: 'emoji_garden',
+    category: 'shareEmoji',
+    titleKey: 'cosmetic_emoji_garden',
+    requiresAchievement: 'garden_set',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
 
   // Share Badge
   {
@@ -300,6 +315,20 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     requiresAchievement: 'clover_collector',
     metadata: REWARD_METADATA.v1_7_0,
   },
+  {
+    id: 'badge_hyacinth',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_hyacinth',
+    requiresAchievement: 'practice_win_10',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_rabbit',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_rabbit',
+    requiresAchievement: 'rabbit_speed',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
 
   // Cell Font
   {
@@ -343,6 +372,13 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     titleKey: 'cosmetic_color_black',
     requiresAchievement: 'win_in_5',
     metadata: REWARD_METADATA.v1_5_0,
+  },
+  {
+    id: 'color_azure',
+    category: 'cellColor',
+    titleKey: 'cosmetic_color_azure',
+    requiresAchievement: 'azure_word',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Chain Style

@@ -139,6 +139,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
+  const [statsInitialTab, setStatsInitialTab] = useState<
+    'today' | 'calendar' | 'summary' | 'details' | 'event' | undefined
+  >(undefined)
   const [rewardsInitialTab, setRewardsInitialTab] = useState<
     'achievements' | 'cosmetics' | undefined
   >(undefined)
@@ -495,6 +498,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     endReason,
     deadEnd,
     tileCounts,
+    completedStats,
   }: {
     nextStats: typeof stats
     completedGuesses: string[][]
@@ -502,18 +506,25 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     endReason: AchievementEndReason
     deadEnd?: DeadEndContext
     tileCounts?: CompletedPlayStats['tileCounts']
+    completedStats?: CompletedPlayStats
   }) => {
     const achievementProgress = recordCompletedGameProgress({
       mode,
       appVersion: PATCH_NOTES_VERSION,
       won,
+      wonWords:
+        isDaily && won
+          ? completedGuesses.map((guess) => guess.join(''))
+          : undefined,
     })
     showAchievementAlert(
       evaluateAchievements(nextStats, loadDailyResultHistory(), {
         mode,
+        eventVersion: isEvent ? event?.version : undefined,
         progress: achievementProgress,
         game: {
-          dateKey: isDaily ? localDateStr : undefined,
+          dateKey: isDaily || isEvent ? localDateStr : undefined,
+          eventVersion: isEvent ? event?.version : undefined,
           guesses: completedGuesses,
           solution,
           won,
@@ -522,6 +533,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           endReason,
           deadEnd,
           tileCounts,
+          playStats: completedStats,
         },
       })
     )
@@ -533,6 +545,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     pacmanLossHandledRef.current = true
     const completedGuesses = guessesRef.current
     const tileCounts = countTileStatusesForGame(completedGuesses, solution)
+    const completedStats = completePlayStats({
+      stats: playStatsRef.current,
+      won: false,
+      guessCount: completedGuesses.length,
+      tileCounts,
+    })
 
     evaluateCompletedGameAchievements({
       nextStats: stats,
@@ -540,16 +558,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       won: false,
       endReason: 'fail',
       tileCounts,
+      completedStats,
     })
-    saveCompletedPlayStats(
-      completePlayStats({
-        stats: playStatsRef.current,
-        won: false,
-        guessCount: completedGuesses.length,
-        tileCounts,
-      }),
-      'pacman'
-    )
+    saveCompletedPlayStats(completedStats, 'pacman')
     setIsGameLost(true)
   }
 
@@ -697,6 +708,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       showAchievementAlert(
         evaluateAchievements(stats, loadDailyResultHistory(), {
           mode,
+          eventVersion: isEvent ? event?.version : undefined,
           progress: updatedProgress,
         })
       )
@@ -764,6 +776,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       if (winningWord) {
         const tileCounts = countTileStatusesForGame(nextGuesses, solution)
+        const completedStats = completePlayStats({
+          stats: submittedPlayStats,
+          won: true,
+          guessCount: nextGuesses.length,
+          tileCounts,
+        })
         let nextStats = stats
         if (isDaily) {
           nextStats = addStatsForCompletedGame(stats, guesses.length)
@@ -775,16 +793,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           won: true,
           endReason: 'win',
           tileCounts,
+          completedStats,
         })
-        saveCompletedPlayStats(
-          completePlayStats({
-            stats: submittedPlayStats,
-            won: true,
-            guessCount: nextGuesses.length,
-            tileCounts,
-          }),
-          'win'
-        )
+        saveCompletedPlayStats(completedStats, 'win')
         return setIsGameWon(true)
       }
 
@@ -806,6 +817,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             : undefined
           let nextStats = stats
           const tileCounts = countTileStatusesForGame(nextGuesses, solution)
+          const completedStats = completePlayStats({
+            stats: submittedPlayStats,
+            won: false,
+            guessCount: nextGuesses.length,
+            tileCounts,
+          })
           if (isDaily) {
             nextStats = addStatsForCompletedGame(stats, CONFIG.tries)
             setStats(nextStats)
@@ -817,16 +834,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
             endReason: 'deadEnd',
             deadEnd,
             tileCounts,
+            completedStats,
           })
-          saveCompletedPlayStats(
-            completePlayStats({
-              stats: submittedPlayStats,
-              won: false,
-              guessCount: nextGuesses.length,
-              tileCounts,
-            }),
-            'dead_end'
-          )
+          saveCompletedPlayStats(completedStats, 'dead_end')
           setIsGameLost(true)
           return
         }
@@ -834,6 +844,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       if (guesses.length === CONFIG.tries - 1) {
         const tileCounts = countTileStatusesForGame(nextGuesses, solution)
+        const completedStats = completePlayStats({
+          stats: submittedPlayStats,
+          won: false,
+          guessCount: nextGuesses.length,
+          tileCounts,
+        })
         let nextStats = stats
         if (isDaily) {
           nextStats = addStatsForCompletedGame(stats, guesses.length + 1)
@@ -845,16 +861,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           won: false,
           endReason: 'fail',
           tileCounts,
+          completedStats,
         })
-        saveCompletedPlayStats(
-          completePlayStats({
-            stats: submittedPlayStats,
-            won: false,
-            guessCount: nextGuesses.length,
-            tileCounts,
-          }),
-          'guess_limit'
-        )
+        saveCompletedPlayStats(completedStats, 'guess_limit')
         setIsGameLost(true)
         return
       }
@@ -915,7 +924,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         {(isDaily || isEvent) && (
           <ClipboardListIcon
             className="h-6 w-6 cursor-pointer"
-            onClick={() => setIsStatsModalOpen(true)}
+            onClick={() => {
+              setStatsInitialTab(undefined)
+              setIsStatsModalOpen(true)
+            }}
           />
         )}
         <SparklesIcon
@@ -973,6 +985,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         isOpen={isStatsModalOpen}
         handleClose={() => {
           setIsStatsModalOpen(false)
+          setStatsInitialTab(undefined)
         }}
         guesses={guesses}
         gameStats={stats}
@@ -1013,6 +1026,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
+        initialTab={statsInitialTab}
         isUppercase={effectiveIsUppercase}
         playStats={playStats}
         detailStatsSummary={dailyDetailStatsSummary}
@@ -1044,6 +1058,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setInfoInitialSection('deadEnd')
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
+        onOpenEventRecords={
+          isEvent
+            ? () => {
+                setIsRewardsModalOpen(false)
+                setStatsInitialTab('event')
+                setTimeout(() => setIsStatsModalOpen(true), 300)
+              }
+            : undefined
+        }
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}

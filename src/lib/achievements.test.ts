@@ -13,12 +13,23 @@ import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
 import {
   CHAIN_COLOR_STYLES,
+  CELL_COLOR_STYLES,
   getRewardsForAchievement,
   getShareBadge,
   getShareEmojiSet,
 } from './cosmetics'
-import { createDefaultAchievementTrackingState } from './achievementProgress'
-import { DailyDetailStatsHistory } from './playStats'
+import {
+  createDefaultAchievementTrackingState,
+  recordCompletedGameProgress,
+} from './achievementProgress'
+import {
+  CompletedPlayStats,
+  DailyDetailStatsHistory,
+  completePlayStats,
+  createPlayStats,
+  recordEnterAttempt,
+} from './playStats'
+import { saveEventResult } from './eventResults'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -47,6 +58,33 @@ const createAchievement = (
   descriptionKey: 'test_desc',
   ...overrides,
 })
+
+const createFastEventWinStats = (
+  dateKey: string,
+  guessTimeMs: number
+): CompletedPlayStats =>
+  completePlayStats({
+    stats: recordEnterAttempt(
+      createPlayStats({
+        mode: 'event',
+        solution: 'chain',
+        dateKey,
+        enterValidationHint: false,
+        now: 0,
+      }),
+      'valid',
+      guessTimeMs
+    ),
+    won: true,
+    guessCount: 1,
+    tileCounts: {
+      correct: 5,
+      present: 0,
+      absent: 0,
+      unrevealed: 25,
+    },
+    now: guessTimeMs,
+  })
 
 describe('achievement mode availability', () => {
   beforeEach(() => {
@@ -163,7 +201,10 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
     expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
     expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
+    expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
+    expect(getShareBadge('badge_rabbit')).toBe('\uD83D\uDC07')
     expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
+    expect(CELL_COLOR_STYLES.color_azure).toBe('text-sky-300')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -203,8 +244,17 @@ describe('share badge achievements', () => {
     expect(
       getRewardsForAchievement('clover_collector').map((r) => r.id)
     ).toContain('badge_clover')
+    expect(
+      getRewardsForAchievement('practice_win_10').map((r) => r.id)
+    ).toContain('badge_hyacinth')
+    expect(getRewardsForAchievement('rabbit_speed').map((r) => r.id)).toContain(
+      'badge_rabbit'
+    )
     expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
       'chaincolor_azure'
+    )
+    expect(getRewardsForAchievement('azure_word').map((r) => r.id)).toContain(
+      'color_azure'
     )
   })
 
@@ -220,9 +270,61 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'event',
+        eventVersion: 'v1.7.0',
         progress,
       })
     ).toContain('clover_collector')
+  })
+
+  it('does not unlock the clover badge while evaluating another event version', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.8.0',
+        progress,
+      })
+    ).not.toContain('clover_collector')
+  })
+
+  it('unlocks the rabbit badge after 7 fast Summer Garden wins', () => {
+    for (let day = 1; day <= 6; day += 1) {
+      const dateKey = `2026-05-${String(day).padStart(2, '0')}`
+      saveEventResult('v1.7.0', {
+        dateKey,
+        solution: 'chain',
+        won: true,
+        guessCount: 1,
+        endReason: 'win',
+        playStats: createFastEventWinStats(dateKey, 45_000),
+      })
+    }
+
+    const currentStats = createFastEventWinStats('2026-05-07', 60_000)
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        game: {
+          dateKey: '2026-05-07',
+          eventVersion: 'v1.7.0',
+          guesses: [['c', 'h', 'a', 'i', 'n']],
+          solution: 'chain',
+          won: true,
+          lost: false,
+          guessCount: 1,
+          endReason: 'win',
+          playStats: currentStats,
+        },
+      })
+    ).toContain('rabbit_speed')
   })
 
   it('does not let extra clovers in one row replace another row target', () => {
@@ -237,6 +339,7 @@ describe('share badge achievements', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'event',
+        eventVersion: 'v1.7.0',
         progress,
       })
     ).not.toContain('clover_collector')
@@ -253,12 +356,65 @@ describe('share badge achievements', () => {
       present: '\uD83C\uDF47',
       absent: '\uD83E\uDD5B',
     })
+    expect(getShareEmojiSet('emoji_garden')).toEqual({
+      correct: '\uD83C\uDF40',
+      present: '\uD83E\uDEBB',
+      absent: '\uD83D\uDC07',
+    })
     expect(
       getRewardsForAchievement('bibimbap_balance').map((r) => r.id)
     ).toContain('emoji_bibimbap')
     expect(
       getRewardsForAchievement('yogurt_recipe').map((r) => r.id)
     ).toContain('emoji_yogurt')
+    expect(getRewardsForAchievement('garden_set').map((r) => r.id)).toContain(
+      'emoji_garden'
+    )
+  })
+
+  it('unlocks the garden share emoji set from component reward achievements', () => {
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 'v1.7.0',
+        retroCompleted: true,
+        unlocked: {
+          clover_collector: { unlockedAt: 1 },
+          practice_win_10: { unlockedAt: 2 },
+          rabbit_speed: { unlockedAt: 3 },
+        },
+      })
+    )
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+      })
+    ).toContain('garden_set')
+  })
+
+  it('unlocks the azure letter color from tracked Daily wins using AZURE', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.words.azure = { gamesWon: 5 }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        progress,
+      })
+    ).toContain('azure_word')
+  })
+
+  it('records unique words from completed wins for word achievements', () => {
+    const progress = recordCompletedGameProgress({
+      mode: 'daily',
+      appVersion: '1.7.0',
+      won: true,
+      wonWords: ['AZURE', 'crane', 'azure'],
+    })
+
+    expect(progress.words.azure.gamesWon).toBe(1)
+    expect(progress.words.crane.gamesWon).toBe(1)
   })
 
   it('keeps new share badge achievements daily-only', () => {
@@ -399,6 +555,7 @@ describe('share badge achievements', () => {
       expect.arrayContaining([
         'played_v1_6_0_5',
         'played_v1_7_0_5',
+        'practice_win_10',
         'practice_win_100',
       ])
     )
