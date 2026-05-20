@@ -1,12 +1,12 @@
 import { Cell } from './Cell'
 import { CONFIG } from '../../constants/config'
 import { CosmeticOverrides } from '../../lib/cosmetics'
-import { PacmanCellEffect } from '../../lib/pacman'
+import { GridCellEffect } from '../../lib/gridEffects'
 
 type Props = {
   chainTopIndex?: number
   chainBottomIndex?: number
-  cellEffects?: Record<number, PacmanCellEffect>
+  cellEffects?: Record<number, GridCellEffect>
   cosmeticOverrides?: CosmeticOverrides
 }
 

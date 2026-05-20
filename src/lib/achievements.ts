@@ -26,6 +26,9 @@ import {
 
 // --- Type Definitions ---
 
+const SUMMER_GARDEN_CLOVER_COLLECTION_ID = 'v1.7.0-summer-garden-clover'
+const SUMMER_GARDEN_CLOVER_ROW_ITEMS = ['row_2', 'row_3', 'row_4', 'row_5']
+
 export type AchievementCategory =
   | 'milestone'
   | 'guess'
@@ -274,6 +277,27 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       current: progress.versions['1.7.0']?.gamesCompleted ?? 0,
       target: 5,
     }),
+  },
+  {
+    id: 'clover_collector',
+    category: 'collection',
+    modes: ['event'],
+    difficulty: 7,
+    metadata: REWARD_METADATA.v1_7_0,
+    titleKey: 'achievement_clover_collector_title',
+    descriptionKey: 'achievement_clover_collector_desc',
+    progress: ({ progress }) => {
+      const collection =
+        progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
+      return {
+        current: Math.min(
+          ...SUMMER_GARDEN_CLOVER_ROW_ITEMS.map(
+            (itemId) => collection[itemId] ?? 0
+          )
+        ),
+        target: 7,
+      }
+    },
   },
   {
     id: 'practice_win_100',

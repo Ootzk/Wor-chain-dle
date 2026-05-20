@@ -7,7 +7,7 @@ import {
   getEquippedChainColor,
   CosmeticOverrides,
 } from '../../lib/cosmetics'
-import { PacmanCellEffect } from '../../lib/pacman'
+import { GridCellEffect } from '../../lib/gridEffects'
 
 type Props = {
   value?: string
@@ -17,7 +17,7 @@ type Props = {
   chainBottom?: boolean
   hideLetter?: boolean
   showCursor?: boolean
-  cellEffect?: PacmanCellEffect
+  cellEffect?: GridCellEffect
   cosmeticOverrides?: CosmeticOverrides
 }
 
@@ -82,6 +82,15 @@ export const Cell = ({
           className="absolute inset-0 flex items-center justify-center text-2xl leading-none"
         >
           {cellEffect.actor}
+        </span>
+      )}
+      {cellEffect?.marker && !cellEffect.actor && (
+        <span
+          aria-hidden="true"
+          data-testid="cell-marker"
+          className="absolute -right-1 -top-1 text-base leading-none drop-shadow-sm"
+        >
+          {cellEffect.marker}
         </span>
       )}
       {showCursor && (

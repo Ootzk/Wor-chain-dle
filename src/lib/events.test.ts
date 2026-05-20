@@ -42,8 +42,21 @@ test('defines cosmetic overrides for the active event theme', () => {
     actor: '🐇',
     effect: 'hide-letter',
   })
+  expect(event.collectibles).toEqual([
+    expect.objectContaining({
+      id: 'clover',
+      emoji: '🍀',
+      targetRows: [1, 2, 3, 4],
+    }),
+  ])
   expect(event.cosmeticOverrides).toMatchObject({
-    shareBadge: ['badge_apple', 'badge_grape', 'badge_milk', 'badge_azure'],
+    shareBadge: [
+      'badge_apple',
+      'badge_grape',
+      'badge_milk',
+      'badge_azure',
+      'badge_clover',
+    ],
     chainColor: 'chaincolor_azure',
   })
   expect(event.shareContextLabel).toBe('Event: Summer Garden')
@@ -64,6 +77,7 @@ test('resolves random event cosmetic candidates without mutating the config', ()
     'badge_grape',
     'badge_milk',
     'badge_azure',
+    'badge_clover',
   ])
 
   randomSpy.mockRestore()

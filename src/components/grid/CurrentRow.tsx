@@ -3,7 +3,7 @@ import { CONFIG } from '../../constants/config'
 import { getChainInfo } from '../../lib/chain'
 import { CharStatus, getGuessStatuses } from '../../lib/statuses'
 import { CosmeticOverrides } from '../../lib/cosmetics'
-import { PacmanCellEffect } from '../../lib/pacman'
+import { GridCellEffect } from '../../lib/gridEffects'
 
 type Props = {
   guess: string[]
@@ -12,7 +12,7 @@ type Props = {
   chainTopIndex?: number
   chainBottomIndex?: number
   hideLetters?: boolean
-  cellEffects?: Record<number, PacmanCellEffect>
+  cellEffects?: Record<number, GridCellEffect>
   cosmeticOverrides?: CosmeticOverrides
 }
 
