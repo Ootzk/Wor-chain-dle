@@ -137,7 +137,7 @@ test.describe('Daily results migration', () => {
         ).length,
         deadEnd: values.filter((result) => result.endReason === 'dead_end')
           .length,
-        withBehaviorStats: values.filter((result) => !!result.playStats).length,
+        withDetailStats: values.filter((result) => !!result.playStats).length,
         withTileCounts: values.filter((result) => !!result.tileCounts).length,
       }
     })
@@ -148,7 +148,7 @@ test.describe('Daily results migration', () => {
       unknown: 28,
       guessLimit: 0,
       deadEnd: 0,
-      withBehaviorStats: 0,
+      withDetailStats: 0,
       withTileCounts: 0,
     })
   })

@@ -8,7 +8,7 @@ import { Calendar } from '../calendar/Calendar'
 import { GameStats } from '../../lib/localStorage'
 import {
   PlayStats,
-  BehaviorStatsSummary,
+  DetailStatsSummary,
   getCurrentPlayDurationMs,
   getFirstInputDelayMs,
   getTotalLongPauseMs,
@@ -28,7 +28,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { GameMode } from '../../lib/gameMode'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
-import { BehaviorStatsPanel } from '../stats/BehaviorStatsPanel'
+import { DetailStatsPanel } from '../stats/DetailStatsPanel'
 import { CONFIG } from '../../constants/config'
 import { Cell } from '../grid/Cell'
 import { CharStatus } from '../../lib/statuses'
@@ -56,10 +56,10 @@ type Props = {
   onToggleWeekStartsOnMonday: () => void
   onOpenCosmetics: () => void
   onOpenDeadEndHelp?: () => void
-  initialTab?: 'today' | 'calendar' | 'summary' | 'behavior'
+  initialTab?: 'today' | 'calendar' | 'summary' | 'details'
   isUppercase: boolean
   playStats: PlayStats
-  behaviorStatsSummary: BehaviorStatsSummary
+  detailStatsSummary: DetailStatsSummary
   dailyResults: DailyResults
 }
 
@@ -351,12 +351,12 @@ export const StatsModal = ({
   onOpenDeadEndHelp,
   initialTab,
   playStats,
-  behaviorStatsSummary,
+  detailStatsSummary,
   dailyResults,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<
-    'today' | 'calendar' | 'summary' | 'behavior'
+    'today' | 'calendar' | 'summary' | 'details'
   >('today')
   const [nowMs, setNowMs] = useState(() => Date.now())
 
@@ -518,12 +518,12 @@ export const StatsModal = ({
         ).toFixed(1)
       : EMPTY_VALUE
 
-  // Daily mode — Today + Calendar + Stats
+  // Daily mode — Today + Calendar + Summary + Details
   const tabs = [
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
     { id: 'summary' as const, label: t('statsSummary') },
-    { id: 'behavior' as const, label: t('statsDetails') },
+    { id: 'details' as const, label: t('statsDetails') },
   ]
 
   return (
@@ -600,28 +600,28 @@ export const StatsModal = ({
                   separated
                   info={
                     <SummaryInfoButton
-                      title={`${t('behaviorTime')} (s)`}
+                      title={`${t('detailTime')} (s)`}
                       items={[
-                        t('behaviorTimeInfoDuration'),
-                        t('behaviorTimeInfoGuess'),
-                        t('behaviorTimeInfoFirstInput'),
-                        t('behaviorTimeInfoPause'),
+                        t('detailTimeInfoDuration'),
+                        t('detailTimeInfoGuess'),
+                        t('detailTimeInfoFirstInput'),
+                        t('detailTimeInfoPause'),
                       ]}
                     />
                   }
                 >
-                  {t('behaviorTime')} (s)
+                  {t('detailTime')} (s)
                 </SummaryGroupTitle>
                 <TodayMetricGrid
                   separateFirstItem
                   relaxed
                   items={[
                     {
-                      label: t('behaviorTotalDuration'),
+                      label: t('detailTotalDuration'),
                       value: playDurationValue,
                     },
                     {
-                      label: t('behaviorGuessShort'),
+                      label: t('detailGuessShort'),
                       value:
                         totalGuessTimeMs === undefined
                           ? EMPTY_VALUE
@@ -651,21 +651,21 @@ export const StatsModal = ({
                   info={
                     <SummaryInfoButton
                       title={t('playStatsBreakdownAction')}
-                      intro={t('behaviorActionInfoIntro')}
+                      intro={t('detailActionInfoIntro')}
                       items={[
                         {
-                          text: t('behaviorActionInfoEnter'),
+                          text: t('detailActionInfoEnter'),
                           children: [
-                            t('behaviorActionInfoEnterSubmit'),
-                            t('behaviorActionInfoEnterFailed'),
+                            t('detailActionInfoEnterSubmit'),
+                            t('detailActionInfoEnterFailed'),
                           ],
                         },
-                        t('behaviorActionInfoDelete'),
+                        t('detailActionInfoDelete'),
                         {
-                          text: t('behaviorActionInfoFriction'),
+                          text: t('detailActionInfoFriction'),
                           children: [
-                            t('behaviorActionInfoFrictionFormula'),
-                            t('behaviorActionInfoFrictionZeroSubmit'),
+                            t('detailActionInfoFrictionFormula'),
+                            t('detailActionInfoFrictionZeroSubmit'),
                           ],
                         },
                       ]}
@@ -680,12 +680,12 @@ export const StatsModal = ({
                   enterGroupLabel={t('playStatsBreakdownEnter')}
                   items={[
                     {
-                      label: t('behaviorSubmitShort'),
+                      label: t('detailSubmitShort'),
                       value: String(totalValidEnterPresses),
                       labelClassName: 'text-green-500',
                     },
                     {
-                      label: t('behaviorFailedEnterShort'),
+                      label: t('detailFailedEnterShort'),
                       value: String(totalFailedEnterPresses),
                       labelClassName: 'text-purple-500',
                     },
@@ -701,11 +701,11 @@ export const StatsModal = ({
                       label: (
                         <>
                           <span className="text-purple-500">
-                            {t('behaviorFrictionShort')}
+                            {t('detailFrictionShort')}
                           </span>
                           <span>/</span>
                           <span className="text-green-500">
-                            {t('behaviorSubmitShort')}
+                            {t('detailSubmitShort')}
                           </span>
                         </>
                       ),
@@ -720,40 +720,40 @@ export const StatsModal = ({
                   separated
                   info={
                     <SummaryInfoButton
-                      title={t('behaviorTiles')}
+                      title={t('detailTiles')}
                       items={[
-                        t('behaviorTilesInfoCorrect'),
-                        t('behaviorTilesInfoPresent'),
-                        t('behaviorTilesInfoAbsent'),
-                        t('behaviorTilesInfoUnrevealed'),
-                        t('behaviorTilesInfoDeadEnd'),
+                        t('detailTilesInfoCorrect'),
+                        t('detailTilesInfoPresent'),
+                        t('detailTilesInfoAbsent'),
+                        t('detailTilesInfoUnrevealed'),
+                        t('detailTilesInfoDeadEnd'),
                       ]}
                     />
                   }
                 >
-                  {t('behaviorTiles')}
+                  {t('detailTiles')}
                 </SummaryGroupTitle>
                 <div className="grid grid-cols-4 gap-0.5 px-0.5">
                   <TodayTileMetric
-                    label={t('behaviorTileCorrect')}
+                    label={t('detailTileCorrect')}
                     status="correct"
                     labelClassName="text-green-500"
                     count={todayTileCounts.correct}
                   />
                   <TodayTileMetric
-                    label={t('behaviorTilePresent')}
+                    label={t('detailTilePresent')}
                     status="present"
                     labelClassName="text-purple-500"
                     count={todayTileCounts.present}
                   />
                   <TodayTileMetric
-                    label={t('behaviorTileAbsent')}
+                    label={t('detailTileAbsent')}
                     status="absent"
                     labelClassName="text-gray-500"
                     count={todayTileCounts.absent}
                   />
                   <TodayTileMetric
-                    label={t('behaviorTileUnrevealed')}
+                    label={t('detailTileUnrevealed')}
                     labelClassName="text-gray-500"
                     count={todayTileCounts.unrevealed}
                   />
@@ -844,10 +844,10 @@ export const StatsModal = ({
           </div>
         )}
 
-        {activeTab === 'behavior' && (
+        {activeTab === 'details' && (
           <div className="flex h-full flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <BehaviorStatsPanel summary={behaviorStatsSummary} />
+              <DetailStatsPanel summary={detailStatsSummary} />
             </div>
           </div>
         )}

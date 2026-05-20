@@ -48,14 +48,14 @@ import {
   countTileStatusesForGame,
   hasPlayStatsActivity,
   loadCurrentPlayStats,
-  loadDailyBehaviorStats,
-  loadDailyBehaviorStatsHistory,
+  loadDailyDetailStats,
+  loadDailyDetailStatsHistory,
   recordDeletePress,
   recordEnterAttempt,
   recordInputActivity,
   saveCurrentPlayStats,
   startNextGuess,
-  summarizeBehaviorStats,
+  summarizeDetailStats,
 } from './lib/playStats'
 import {
   DailyEndReason,
@@ -153,7 +153,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [stats, setStats] = useState(() => loadStats())
   const [playStats, setPlayStats] = useState<PlayStats>(() =>
     isDaily
-      ? loadDailyBehaviorStats(localDateStr, solution) ||
+      ? loadDailyDetailStats(localDateStr, solution) ||
         loadCurrentPlayStats({
           mode,
           solution,
@@ -166,8 +166,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           enterValidationHint: loadSettings().enterValidationHint,
         })
   )
-  const [dailyBehaviorStatsSummary, setDailyBehaviorStatsSummary] = useState(
-    () => summarizeBehaviorStats(loadDailyBehaviorStatsHistory())
+  const [dailyDetailStatsSummary, setDailyDetailStatsSummary] = useState(() =>
+    summarizeDetailStats(loadDailyDetailStatsHistory())
   )
   const [dailyResults, setDailyResults] = useState(() => loadDailyResults())
   const playStatsRef = useRef(playStats)
@@ -197,8 +197,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         playStats: completed,
       })
       setDailyResults(loadDailyResults())
-      setDailyBehaviorStatsSummary(
-        summarizeBehaviorStats(loadDailyBehaviorStatsHistory())
+      setDailyDetailStatsSummary(
+        summarizeDetailStats(loadDailyDetailStatsHistory())
       )
       clearCurrentPlayStats()
     }
@@ -256,7 +256,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     const next = isDaily
-      ? loadDailyBehaviorStats(localDateStr, solution) ||
+      ? loadDailyDetailStats(localDateStr, solution) ||
         loadCurrentPlayStats({
           mode,
           solution,
@@ -273,8 +273,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     if (!isDaily) {
       clearCurrentPlayStats()
     }
-    setDailyBehaviorStatsSummary(
-      summarizeBehaviorStats(loadDailyBehaviorStatsHistory())
+    setDailyDetailStatsSummary(
+      summarizeDetailStats(loadDailyDetailStatsHistory())
     )
     setDailyResults(loadDailyResults())
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -647,7 +647,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         }}
         isUppercase={isUppercase}
         playStats={playStats}
-        behaviorStatsSummary={dailyBehaviorStatsSummary}
+        detailStatsSummary={dailyDetailStatsSummary}
         dailyResults={dailyResults}
       />
       <RewardsModal

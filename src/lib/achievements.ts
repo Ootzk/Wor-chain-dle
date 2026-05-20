@@ -14,9 +14,9 @@ import {
 import { CharStatus, getGuessStatuses } from './statuses'
 import { REWARD_METADATA, RewardMetadata } from './rewardMetadata'
 import {
-  DailyBehaviorStatsHistory,
+  DailyDetailStatsHistory,
   TileCounts,
-  loadDailyBehaviorStatsHistory,
+  loadDailyDetailStatsHistory,
 } from './playStats'
 
 // --- Type Definitions ---
@@ -53,7 +53,7 @@ export type CompletedGameContext = {
 export type AchievementContext = {
   stats: GameStats
   dailyHistory: DailyHistory
-  dailyBehaviorStatsHistory: DailyBehaviorStatsHistory
+  dailyDetailStatsHistory: DailyDetailStatsHistory
   mode: GameMode
   progress: AchievementTrackingState
   game?: CompletedGameContext
@@ -152,7 +152,7 @@ const countCompletedGamesMatchingTilePattern = (
     count += 1
   }
 
-  for (const game of Object.values(ctx.dailyBehaviorStatsHistory)) {
+  for (const game of Object.values(ctx.dailyDetailStatsHistory)) {
     if (activeGameDateKey && game.dateKey === activeGameDateKey) continue
     if (
       hasStoredTileCounts(game.tileCounts) &&
@@ -572,7 +572,7 @@ export type AchievementEvaluationOptions = {
   mode?: GameMode
   game?: CompletedGameContext
   progress?: AchievementTrackingState
-  dailyBehaviorStatsHistory?: DailyBehaviorStatsHistory
+  dailyDetailStatsHistory?: DailyDetailStatsHistory
 }
 
 const createAchievementContext = (
@@ -582,8 +582,8 @@ const createAchievementContext = (
 ): AchievementContext => ({
   stats,
   dailyHistory,
-  dailyBehaviorStatsHistory:
-    options.dailyBehaviorStatsHistory ?? loadDailyBehaviorStatsHistory(),
+  dailyDetailStatsHistory:
+    options.dailyDetailStatsHistory ?? loadDailyDetailStatsHistory(),
   mode: options.mode ?? 'daily',
   progress: options.progress ?? loadAchievementProgress(),
   game: options.game,
