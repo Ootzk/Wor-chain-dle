@@ -496,28 +496,6 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           separated
           info={
             <GroupInfoButton
-              title={t('behaviorTiles')}
-              intro={t('behaviorTilesInfoIntro')}
-              items={[
-                { text: t('behaviorTilesInfoCorrect') },
-                { text: t('behaviorTilesInfoPresent') },
-                { text: t('behaviorTilesInfoAbsent') },
-                { text: t('behaviorTilesInfoUnrevealed') },
-                { text: t('behaviorTilesInfoDeadEnd') },
-              ]}
-            />
-          }
-        >
-          {t('behaviorTiles')}
-        </SettingsLikeGroupTitle>
-        <TileCountsRow summary={summary} viewMode={viewMode} />
-      </div>
-
-      <div>
-        <SettingsLikeGroupTitle
-          separated
-          info={
-            <GroupInfoButton
               title={t('playStatsBreakdownAction')}
               intro={t('behaviorActionInfoIntro')}
               items={[
@@ -577,6 +555,28 @@ export const PlayStatsPanel = ({ summary }: Props) => {
             },
           ]}
         />
+      </div>
+
+      <div>
+        <SettingsLikeGroupTitle
+          separated
+          info={
+            <GroupInfoButton
+              title={t('behaviorTiles')}
+              intro={t('behaviorTilesInfoIntro')}
+              items={[
+                { text: t('behaviorTilesInfoCorrect') },
+                { text: t('behaviorTilesInfoPresent') },
+                { text: t('behaviorTilesInfoAbsent') },
+                { text: t('behaviorTilesInfoUnrevealed') },
+                { text: t('behaviorTilesInfoDeadEnd') },
+              ]}
+            />
+          }
+        >
+          {t('behaviorTiles')}
+        </SettingsLikeGroupTitle>
+        <TileCountsRow summary={summary} viewMode={viewMode} />
       </div>
       <div className="mt-2 flex items-center justify-center gap-2 border-t border-gray-200 pt-2">
         <div className="shrink-0">

@@ -239,13 +239,9 @@ const TodayMetricGrid = ({
     labelClassName?: string
   }>
 }) => (
-  <div
-    className={`min-w-0 px-0.5 text-center ${relaxed ? 'mt-0.5' : ''}`}
-  >
+  <div className={`min-w-0 px-0.5 text-center ${relaxed ? 'mt-0.5' : ''}`}>
     <div
-      className={`grid w-full ${
-        columns === 5 ? 'grid-cols-5' : 'grid-cols-4'
-      }`}
+      className={`grid w-full ${columns === 5 ? 'grid-cols-5' : 'grid-cols-4'}`}
     >
       {items.map((item, index) => (
         <TodayStatMetric
@@ -644,51 +640,6 @@ export const StatsModal = ({
                   separated
                   info={
                     <SummaryInfoButton
-                      title={t('behaviorTiles')}
-                      items={[
-                        t('behaviorTilesInfoCorrect'),
-                        t('behaviorTilesInfoPresent'),
-                        t('behaviorTilesInfoAbsent'),
-                        t('behaviorTilesInfoUnrevealed'),
-                        t('behaviorTilesInfoDeadEnd'),
-                      ]}
-                    />
-                  }
-                >
-                  {t('behaviorTiles')}
-                </SummaryGroupTitle>
-                <div className="grid grid-cols-4 gap-0.5 px-0.5">
-                  <TodayTileMetric
-                    label={t('behaviorTileCorrect')}
-                    status="correct"
-                    labelClassName="text-green-500"
-                    count={todayTileCounts.correct}
-                  />
-                  <TodayTileMetric
-                    label={t('behaviorTilePresent')}
-                    status="present"
-                    labelClassName="text-purple-500"
-                    count={todayTileCounts.present}
-                  />
-                  <TodayTileMetric
-                    label={t('behaviorTileAbsent')}
-                    status="absent"
-                    labelClassName="text-gray-500"
-                    count={todayTileCounts.absent}
-                  />
-                  <TodayTileMetric
-                    label={t('behaviorTileUnrevealed')}
-                    labelClassName="text-gray-500"
-                    count={todayTileCounts.unrevealed}
-                  />
-                </div>
-              </section>
-
-              <section>
-                <SummaryGroupTitle
-                  separated
-                  info={
-                    <SummaryInfoButton
                       title={t('playStatsBreakdownAction')}
                       intro={t('behaviorActionInfoIntro')}
                       items={[
@@ -747,6 +698,51 @@ export const StatsModal = ({
                     },
                   ]}
                 />
+              </section>
+
+              <section>
+                <SummaryGroupTitle
+                  separated
+                  info={
+                    <SummaryInfoButton
+                      title={t('behaviorTiles')}
+                      items={[
+                        t('behaviorTilesInfoCorrect'),
+                        t('behaviorTilesInfoPresent'),
+                        t('behaviorTilesInfoAbsent'),
+                        t('behaviorTilesInfoUnrevealed'),
+                        t('behaviorTilesInfoDeadEnd'),
+                      ]}
+                    />
+                  }
+                >
+                  {t('behaviorTiles')}
+                </SummaryGroupTitle>
+                <div className="grid grid-cols-4 gap-0.5 px-0.5">
+                  <TodayTileMetric
+                    label={t('behaviorTileCorrect')}
+                    status="correct"
+                    labelClassName="text-green-500"
+                    count={todayTileCounts.correct}
+                  />
+                  <TodayTileMetric
+                    label={t('behaviorTilePresent')}
+                    status="present"
+                    labelClassName="text-purple-500"
+                    count={todayTileCounts.present}
+                  />
+                  <TodayTileMetric
+                    label={t('behaviorTileAbsent')}
+                    status="absent"
+                    labelClassName="text-gray-500"
+                    count={todayTileCounts.absent}
+                  />
+                  <TodayTileMetric
+                    label={t('behaviorTileUnrevealed')}
+                    labelClassName="text-gray-500"
+                    count={todayTileCounts.unrevealed}
+                  />
+                </div>
               </section>
             </div>
             <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
