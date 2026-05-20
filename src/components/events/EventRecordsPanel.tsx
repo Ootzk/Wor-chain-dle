@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EventDefinition } from '../../lib/events'
 import { EventResults } from '../../lib/eventResults'
@@ -27,8 +28,8 @@ const EventGroupTitle = ({
   separated?: boolean
 }) => (
   <div
-    className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
-      separated ? 'mt-3 border-t border-gray-200 pt-2' : ''
+    className={`flex items-center justify-between gap-2 pb-1 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
+      separated ? 'mt-8 border-t border-gray-200 pt-4' : ''
     }`}
   >
     {children}
@@ -44,9 +45,25 @@ const getResultLabel = ({
   won: boolean
   lost: boolean
 }) => {
-  if (won) return { icon: '😎', label: t('playStatsResultWin') }
-  if (lost) return { icon: '🥲', label: t('playStatsResultLose') }
-  return { icon: '😶‍🌫️', label: t('playStatsResultYet') }
+  if (won) {
+    return {
+      icon: '😎',
+      label: t('playStatsResultWin'),
+      status: 'correct' as const,
+    }
+  }
+  if (lost) {
+    return {
+      icon: '🥲',
+      label: t('playStatsResultLose'),
+      status: 'present' as const,
+    }
+  }
+  return {
+    icon: '😶‍🌫️',
+    label: t('playStatsResultYet'),
+    status: 'absent' as const,
+  }
 }
 
 export const EventRecordsPanel = ({
@@ -101,12 +118,12 @@ export const EventRecordsPanel = ({
     >
       <section>
         <EventGroupTitle>{t('today')}</EventGroupTitle>
-        <div className="grid grid-cols-5 items-end gap-1 text-center">
-          <div className="flex min-w-0 flex-col items-center justify-center">
-            <div className="flex h-14 w-14 items-center justify-center text-3xl leading-none">
-              {result.icon}
+        <div className="grid grid-cols-5 items-end gap-2 pt-1 text-center">
+          <div className="m-0.5 min-w-0 text-center">
+            <div className="flex h-14 items-center justify-center">
+              <Cell value={result.icon} status={result.status} />
             </div>
-            <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
+            <div className="text-[10px] leading-3 text-gray-900">
               {result.label}
             </div>
           </div>
@@ -132,23 +149,27 @@ export const EventRecordsPanel = ({
 
       <section>
         <EventGroupTitle separated>{t('eventProgress')}</EventGroupTitle>
-        <div className="space-y-3 pt-1">
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-2 gap-y-4 pt-3">
           {targetRows.map((rowIndex) => {
             const itemId = getCollectibleProgressItemId(rowIndex)
             const target = progressTargets[itemId] ?? 1
             const count = collectionProgress[itemId] ?? 0
             const targetWidth = (target / maxTarget) * 100
             const progress = Math.min(1, count / target)
+            const isClear = count >= target
 
             return (
-              <div
-                key={rowIndex}
-                className="grid grid-cols-[3rem_1fr_3.25rem] items-center gap-2"
-              >
-                <div className="text-xs font-semibold text-gray-700">
+              <Fragment key={rowIndex}>
+                <div
+                  key={`${rowIndex}-label`}
+                  className="flex items-center text-xs font-semibold text-gray-700"
+                >
                   {t('eventRowLabel', { row: rowIndex + 1 })}
                 </div>
-                <div className="relative h-5">
+                <div
+                  key={`${rowIndex}-bar`}
+                  className="flex h-5 min-w-0 items-center"
+                >
                   <div
                     className="relative h-3 rounded-full bg-gray-200"
                     style={{ width: `${targetWidth}%` }}
@@ -166,10 +187,19 @@ export const EventRecordsPanel = ({
                     </span>
                   </div>
                 </div>
-                <div className="text-right text-xs font-semibold text-gray-700">
+                <div
+                  key={`${rowIndex}-clear`}
+                  className="flex items-center justify-center text-[10px] font-bold leading-3 text-green-500"
+                >
+                  {isClear ? 'CLEAR!' : ''}
+                </div>
+                <div
+                  key={`${rowIndex}-count`}
+                  className="flex items-center justify-end text-xs font-semibold text-gray-700"
+                >
                   {count}/{target}
                 </div>
-              </div>
+              </Fragment>
             )
           })}
         </div>
