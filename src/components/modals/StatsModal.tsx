@@ -463,7 +463,7 @@ export const StatsModal = ({
     { id: 'today' as const, label: t('today') },
     { id: 'calendar' as const, label: t('calendar') },
     { id: 'summary' as const, label: t('statsSummary') },
-    { id: 'behavior' as const, label: t('statsBehavior') },
+    { id: 'behavior' as const, label: t('statsDetails') },
   ]
 
   return (

@@ -18,6 +18,12 @@ type InfoListItem = {
 
 const EMPTY_VALUE = '-'
 const TIME_UNITS: TimeUnit[] = ['s', 'm', 'h', 'd']
+const TIME_UNIT_LABELS: Record<TimeUnit, string> = {
+  s: 'Seconds',
+  m: 'Minutes',
+  h: 'Hours',
+  d: 'Days',
+}
 const TIME_UNIT_DIVISOR: Record<TimeUnit, number> = {
   s: 1000,
   m: 60 * 1000,
@@ -132,19 +138,19 @@ const TimeUnitControl = ({
   timeUnit: TimeUnit
   onChange: (unit: TimeUnit) => void
 }) => (
-  <div className="inline-flex rounded border border-gray-200 text-xs normal-case tracking-normal">
+  <div className="inline-grid grid-cols-4 overflow-hidden rounded border border-gray-200 text-xs normal-case tracking-normal">
     {TIME_UNITS.map((unit) => (
       <button
         key={unit}
         type="button"
-        className={`flex h-6 w-6 items-center justify-center leading-none ${
+        className={`flex h-6 min-w-[3.25rem] items-center justify-center px-1 py-1 leading-none ${
           timeUnit === unit
-            ? 'bg-gray-500 text-white'
+            ? 'bg-slate-400 text-white'
             : 'bg-white text-gray-500 hover:bg-gray-50'
         }`}
         onClick={() => onChange(unit)}
       >
-        {unit}
+        {TIME_UNIT_LABELS[unit]}
       </button>
     ))}
   </div>
@@ -152,27 +158,36 @@ const TimeUnitControl = ({
 
 const ViewModeToggle = ({
   viewMode,
-  onToggle,
+  onChange,
 }: {
   viewMode: ViewMode
-  onToggle: () => void
-}) => (
-  <button
-    type="button"
-    role="switch"
-    aria-checked={viewMode === 'average'}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-      viewMode === 'average' ? 'bg-green-500' : 'bg-gray-300'
-    }`}
-    onClick={onToggle}
-  >
-    <span
-      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-        viewMode === 'average' ? 'translate-x-6' : 'translate-x-1'
-      }`}
-    />
-  </button>
-)
+  onChange: (mode: ViewMode) => void
+}) => {
+  const { t } = useTranslation()
+  const options: Array<{ mode: ViewMode; label: string }> = [
+    { mode: 'total', label: t('behaviorViewTotal') },
+    { mode: 'average', label: t('behaviorViewAverage') },
+  ]
+
+  return (
+    <div className="inline-grid grid-cols-2 overflow-hidden rounded border border-gray-200 text-xs normal-case tracking-normal">
+      {options.map(({ mode, label }) => (
+        <button
+          key={mode}
+          type="button"
+          className={`h-6 min-w-[4rem] px-1 py-1 leading-none ${
+            viewMode === mode
+              ? 'bg-slate-400 text-white'
+              : 'bg-white text-gray-500 hover:bg-gray-50'
+          }`}
+          onClick={() => onChange(mode)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 const MetricValueLabel = ({
   label,
@@ -379,7 +394,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
       <SettingsLikeGroupTitle
         info={
           <GroupInfoButton
-            title={t('behaviorTrackingGroup')}
+            title={t('statsDashboard')}
             intro={t('behaviorTrackingInfoIntro')}
             items={[
               { text: t('behaviorTrackingInfoTrackedGames') },
@@ -395,7 +410,7 @@ export const PlayStatsPanel = ({ summary }: Props) => {
           />
         }
       >
-        {t('behaviorTrackingGroup')}
+        {t('statsDashboard')}
       </SettingsLikeGroupTitle>
       <div className="mt-1 flex justify-center">
         <SingleMetric
@@ -427,7 +442,6 @@ export const PlayStatsPanel = ({ summary }: Props) => {
             ]}
           />
         }
-        action={<TimeUnitControl timeUnit={timeUnit} onChange={setTimeUnit} />}
       >
         {t('behaviorTime')}
       </SettingsLikeGroupTitle>
@@ -560,27 +574,16 @@ export const PlayStatsPanel = ({ summary }: Props) => {
         {t('behaviorTiles')}
       </SettingsLikeGroupTitle>
       <TileCountsRow summary={summary} viewMode={viewMode} />
-      <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-t border-gray-200 pt-2 text-xs text-gray-500">
-        <span
-          className={`justify-self-end ${
-            viewMode === 'total' ? 'font-semibold text-gray-900' : ''
-          }`}
-        >
-          {t('behaviorViewTotal')}
-        </span>
-        <ViewModeToggle
-          viewMode={viewMode}
-          onToggle={() =>
-            setViewMode((mode) => (mode === 'total' ? 'average' : 'total'))
-          }
-        />
-        <span
-          className={`justify-self-start ${
-            viewMode === 'average' ? 'font-semibold text-gray-900' : ''
-          }`}
-        >
-          {t('behaviorViewAverage')}
-        </span>
+      <div className="mt-2 flex items-center justify-center gap-2 border-t border-gray-200 pt-2">
+        <div className="shrink-0">
+          <TimeUnitControl timeUnit={timeUnit} onChange={setTimeUnit} />
+        </div>
+        <div className="shrink-0">
+          <ViewModeToggle
+            viewMode={viewMode}
+            onChange={(mode) => setViewMode(mode)}
+          />
+        </div>
       </div>
     </div>
   )
