@@ -6,6 +6,7 @@ export type GridCell = {
 export type GridCellEffect = {
   actor?: string
   marker?: string
+  value?: string
   hideLetter?: boolean
 }
 

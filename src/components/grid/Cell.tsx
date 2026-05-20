@@ -51,7 +51,8 @@ export const Cell = ({
     cosmeticFont,
     {
       'bg-white border-slate-200': !status && !isLocked && !isChain,
-      'border-black': value && !status && !isLocked && !isChain,
+      'border-black':
+        (value || cellEffect?.value) && !status && !isLocked && !isChain,
       [`bg-white ${chainColor}`]: isChain && !status && !isLocked,
       [`bg-slate-100 ${chainColor}`]: isLocked && !status && isChain,
       'bg-slate-100 border-black': isLocked && !status && !isChain,
@@ -68,12 +69,14 @@ export const Cell = ({
     }
   )
 
-  const shouldHideLetter = (hideLetter || cellEffect?.hideLetter) && value
+  const displayValue = value ?? cellEffect?.value
+  const shouldHideLetter =
+    (hideLetter || cellEffect?.hideLetter) && displayValue
 
   return (
     <div className={classes}>
       <span className={shouldHideLetter ? 'text-transparent' : undefined}>
-        {value}
+        {displayValue}
       </span>
       {cellEffect?.actor && (
         <span

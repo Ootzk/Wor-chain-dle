@@ -26,19 +26,31 @@ const hashSeed = (seed: string) =>
     return (hash * 31 + char.charCodeAt(0)) >>> 0
   }, 0)
 
-const getTargetColumn = ({
+const getShuffledColumns = ({
   eventId,
   dateKey,
   collectibleId,
-  rowIndex,
 }: {
   eventId: string
   dateKey: string
   collectibleId: string
-  rowIndex: number
-}) =>
-  hashSeed(`${eventId}:${dateKey}:${collectibleId}:${rowIndex}`) %
-  CONFIG.wordLength
+}) => {
+  let state = hashSeed(`${eventId}:${dateKey}:${collectibleId}`)
+  const columns = Array.from(
+    { length: CONFIG.wordLength },
+    (_, colIndex) => colIndex
+  )
+
+  for (let index = columns.length - 1; index > 0; index -= 1) {
+    state = (state * 1664525 + 1013904223) >>> 0
+    const swapIndex = state % (index + 1)
+    const current = columns[index]
+    columns[index] = columns[swapIndex]
+    columns[swapIndex] = current
+  }
+
+  return columns
+}
 
 export const getEventCollectibleTargets = ({
   eventId,
@@ -49,20 +61,21 @@ export const getEventCollectibleTargets = ({
   dateKey: string
   collectibles: EventCollectibleConfig[]
 }): EventCollectibleTarget[] =>
-  collectibles.flatMap((collectible) =>
-    collectible.targetRows.map((rowIndex) => ({
+  collectibles.flatMap((collectible) => {
+    const columns = getShuffledColumns({
+      eventId,
+      dateKey,
+      collectibleId: collectible.id,
+    })
+
+    return collectible.targetRows.map((rowIndex, index) => ({
       collectibleId: collectible.id,
       collectionId: collectible.collectionId,
       emoji: collectible.emoji,
       rowIndex,
-      colIndex: getTargetColumn({
-        eventId,
-        dateKey,
-        collectibleId: collectible.id,
-        rowIndex,
-      }),
+      colIndex: columns[index % columns.length],
     }))
-  )
+  })
 
 const hasCollectedRow = (
   collectedRows: CollectedRowsByCollectible,
@@ -85,7 +98,7 @@ export const getCollectibleCellEffects = ({
       .map((target) => [
         getGridCellKey(target),
         {
-          marker: target.emoji,
+          value: target.emoji,
         },
       ])
   )

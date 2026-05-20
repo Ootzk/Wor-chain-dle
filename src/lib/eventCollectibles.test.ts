@@ -27,6 +27,7 @@ describe('event collectibles', () => {
 
     expect(targets).toHaveLength(4)
     expect(targets.map((target) => target.rowIndex)).toEqual([1, 2, 3, 4])
+    expect(new Set(targets.map((target) => target.colIndex)).size).toBe(4)
     expect(targets).toEqual(
       getEventCollectibleTargets({
         eventId: 'v1.7.0-event',
@@ -34,9 +35,16 @@ describe('event collectibles', () => {
         collectibles: [cloverConfig],
       })
     )
+    expect(targets).not.toEqual(
+      getEventCollectibleTargets({
+        eventId: 'v1.7.0-event',
+        dateKey: '2026-05-22',
+        collectibles: [cloverConfig],
+      })
+    )
   })
 
-  it('renders unsubmitted targets as cell markers and collected targets as row prefixes', () => {
+  it('renders unsubmitted targets as cell values and collected targets as row prefixes', () => {
     const targets = [
       {
         collectibleId: 'clover',
@@ -58,7 +66,7 @@ describe('event collectibles', () => {
     expect(
       getCollectibleCellEffects({ targets, collectedRows, submittedRows: 1 })
     ).toEqual({
-      '2:0': { marker: '🍀' },
+      '2:0': { value: '🍀' },
     })
     expect(getCollectibleRowEffects({ targets, collectedRows })).toEqual({
       1: { prefix: '🍀' },
