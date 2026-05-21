@@ -5,6 +5,9 @@ const EVENT_RULE_KEYS = [
   'eventSummerGardenRuleTiming',
   'eventSummerGardenRuleHide',
   'eventSummerGardenRuleGameOver',
+] as const
+
+const EVENT_REWARD_KEYS = [
   'eventSummerGardenRuleClover',
   'eventSummerGardenRuleRabbit',
 ] as const
@@ -20,8 +23,19 @@ export const SummerGardenEventGuide = () => {
       <p className="mt-2 text-sm text-gray-600">
         {t('eventSummerGardenInfoIntro')}
       </p>
-      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-gray-600">
+      <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-green-700">
+        {t('eventSummerGardenRulesTitle')}
+      </h5>
+      <ul className="mt-1.5 list-disc space-y-1.5 pl-5 text-sm text-gray-600">
         {EVENT_RULE_KEYS.map((ruleKey) => (
+          <li key={ruleKey}>{t(ruleKey)}</li>
+        ))}
+      </ul>
+      <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-green-700">
+        {t('eventSummerGardenRewardsTitle')}
+      </h5>
+      <ul className="mt-1.5 list-disc space-y-1.5 pl-5 text-sm text-gray-600">
+        {EVENT_REWARD_KEYS.map((ruleKey) => (
           <li key={ruleKey}>{t(ruleKey)}</li>
         ))}
       </ul>

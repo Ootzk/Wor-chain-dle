@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventSummerGardenInfoTitle": "🌿 Summer Garden: うさぎのピクニック",
   "eventSummerGardenInfoIntro": "最初の単語を提出すると、うさぎがチェインの道を草を食べながら進み始めます。通ったマスの文字は隠れ、まだ開いていないマスに先に着くとピクニックは終了です。",
+  "eventSummerGardenRulesTitle": "ルール",
+  "eventSummerGardenRewardsTitle": "報酬",
   "eventSummerGardenRuleStart": "開始: 最初の単語を提出すると、うさぎがチェイン経路を進み始めます。",
   "eventSummerGardenRuleTiming": "滞在時間: 緑のマスは3秒、紫のマスは2秒、灰色のマスは1.5秒です。",
   "eventSummerGardenRuleHide": "食べたあと: うさぎが通ったマスは文字が隠れ、色だけが残ります。",

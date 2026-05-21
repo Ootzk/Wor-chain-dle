@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventSummerGardenInfoTitle": "🌿 Summer Garden: Kaninchen-Picknick",
   "eventSummerGardenInfoIntro": "Nach deinem ersten eingereichten Wort beginnt das Kaninchen, sich am Kettenpfad entlangzuknabbern. Buchstaben verschwinden aus besuchten Feldern, und wenn es zuerst ein nicht aufgedecktes Feld erreicht, ist das Picknick vorbei.",
+  "eventSummerGardenRulesTitle": "Regeln",
+  "eventSummerGardenRewardsTitle": "Belohnungen",
   "eventSummerGardenRuleStart": "Start: Das Kaninchen läuft nach deinem ersten eingereichten Wort entlang des Kettenpfads los.",
   "eventSummerGardenRuleTiming": "Verweildauer: Grüne Felder halten es 3 Sekunden auf, violette Felder 2 Sekunden und graue Felder 1.5 Sekunden.",
   "eventSummerGardenRuleHide": "Angeknabberte Felder: Nach dem Kaninchen werden Buchstaben verborgen, die Feldfarben bleiben aber erhalten.",

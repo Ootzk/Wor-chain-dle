@@ -385,6 +385,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventSummerGardenInfoTitle": "🌿 Summer Garden: 兔子野餐",
   "eventSummerGardenInfoIntro": "提交第一个单词后，兔子会沿着接龙路径开始啃草。它经过的格子会隐藏字母；如果它先到达尚未揭示的格子，野餐就结束了。",
+  "eventSummerGardenRulesTitle": "规则",
+  "eventSummerGardenRewardsTitle": "奖励",
   "eventSummerGardenRuleStart": "开始：提交第一个单词后，兔子会沿着接龙路径移动。",
   "eventSummerGardenRuleTiming": "停留时间：绿色格子3秒，紫色格子2秒，灰色格子1.5秒。",
   "eventSummerGardenRuleHide": "啃过的格子：兔子经过后，字母会被隐藏，但格子颜色会保留。",

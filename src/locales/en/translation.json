@@ -392,6 +392,8 @@
   "eventThemeSummerGarden": "Summer Garden",
   "eventSummerGardenInfoTitle": "🌿 Summer Garden: Rabbit Picnic",
   "eventSummerGardenInfoIntro": "After your first submitted word, the rabbit starts nibbling along the chain path. Letters disappear from cells it has visited, and if it reaches an unrevealed cell first, the picnic is over.",
+  "eventSummerGardenRulesTitle": "Rules",
+  "eventSummerGardenRewardsTitle": "Rewards",
   "eventSummerGardenRuleStart": "Start: the rabbit begins moving along the chain path after your first submitted word.",
   "eventSummerGardenRuleTiming": "Stay time: green cells hold it for 3 seconds, purple cells for 2 seconds, and gray cells for 1.5 seconds.",
   "eventSummerGardenRuleHide": "Nibbled cells: letters are hidden after the rabbit passes, but the cell colors remain.",
