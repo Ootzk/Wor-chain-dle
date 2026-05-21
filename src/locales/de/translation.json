@@ -535,7 +535,7 @@
   "achievement_no_correct_game_title": "Violette Traube",
   "achievement_no_correct_game_desc": "Beende ein Daily-Spiel ohne grüne Felder",
   "achievement_grass_diet_title": "Grasdiät",
-  "achievement_grass_diet_desc": "Gewinne ein Summer Garden Event-Spiel nach Verwendung von GREEN und GRASS",
+  "achievement_grass_diet_desc": "Gewinne ein <eventLink>Summer Garden</eventLink>-Spiel nach Verwendung von GREEN und GRASS",
   "achievement_win_in_6_20_title": "Milch-Finish",
   "achievement_win_in_6_20_desc": "Gewinne 20-mal im 6. Versuch",
   "achievement_played_v1_6_0_5_title": "v1.6.0",

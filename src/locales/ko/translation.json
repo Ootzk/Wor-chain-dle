@@ -528,7 +528,7 @@
   "achievement_no_correct_game_title": "보라 포도",
   "achievement_no_correct_game_desc": "Daily 모드에서 초록색 타일 없이 게임을 종료하세요",
   "achievement_grass_diet_title": "풀 뜯기",
-  "achievement_grass_diet_desc": "Summer Garden Event 모드에서 GREEN과 GRASS를 모두 사용해 승리하세요",
+  "achievement_grass_diet_desc": "<eventLink>Summer Garden</eventLink>에서 GREEN과 GRASS를 모두 사용해 승리하세요",
   "achievement_win_in_6_20_title": "우유빛 마무리",
   "achievement_win_in_6_20_desc": "6번째 시도에서 20회 승리하세요",
   "achievement_played_v1_6_0_5_title": "v1.6.0",

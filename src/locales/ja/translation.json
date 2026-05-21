@@ -535,7 +535,7 @@
   "achievement_no_correct_game_title": "紫ブドウ",
   "achievement_no_correct_game_desc": "Daily モードで緑タイルなしでゲームを終了する",
   "achievement_grass_diet_title": "草むしり",
-  "achievement_grass_diet_desc": "Summer Garden EventモードでGREENとGRASSを使って勝利する",
+  "achievement_grass_diet_desc": "<eventLink>Summer Garden</eventLink>でGREENとGRASSを使って勝利する",
   "achievement_win_in_6_20_title": "ミルクフィニッシュ",
   "achievement_win_in_6_20_desc": "6回目の推測で20回勝利する",
   "achievement_played_v1_6_0_5_title": "v1.6.0",

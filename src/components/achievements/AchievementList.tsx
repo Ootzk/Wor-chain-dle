@@ -90,7 +90,9 @@ const AchievementDescription = ({
     )
   }
 
-  if (['clover_collector', 'rabbit_speed'].includes(achievementId)) {
+  if (
+    ['clover_collector', 'rabbit_speed', 'grass_diet'].includes(achievementId)
+  ) {
     return (
       <Trans
         i18nKey={descriptionKey}

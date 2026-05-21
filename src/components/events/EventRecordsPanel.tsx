@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EventDefinition } from '../../lib/events'
 import { EventResults } from '../../lib/eventResults'
@@ -11,9 +11,13 @@ import {
   CollectedRowsByCollectible,
   getCollectibleProgressItemId,
 } from '../../lib/eventCollectibles'
-import { CosmeticOverrides } from '../../lib/cosmetics'
+import {
+  CosmeticOverrides,
+  getRewardsForAchievement,
+} from '../../lib/cosmetics'
 import { Cell } from '../grid/Cell'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
+import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
 
 type Props = {
   event?: EventDefinition | null
@@ -41,6 +45,7 @@ const ONE_MINUTE_TARGET = 7
 const EMPTY_VALUE = '-'
 const CLOVER_COLLECTOR_ACHIEVEMENT_ID = 'clover_collector'
 const RABBIT_ACHIEVEMENT_ID = 'rabbit_speed'
+const GRASS_DIET_ACHIEVEMENT_ID = 'grass_diet'
 
 const EventGroupTitle = ({
   children,
@@ -170,18 +175,39 @@ export const EventRecordsPanel = ({
   const isCloverQuestClear =
     !!achievementState.unlocked[CLOVER_COLLECTOR_ACHIEVEMENT_ID] ||
     progressRows.every((row) => row.count >= row.target)
-  const eventAchievementLinks = [
+  const grassDietReward = getRewardsForAchievement(GRASS_DIET_ACHIEVEMENT_ID)[0]
+  const grassDietIcon = grassDietReward ? (
+    <CosmeticPreview
+      category={grassDietReward.category}
+      optionId={grassDietReward.id}
+      compact
+    />
+  ) : (
+    '💚'
+  )
+  const eventAchievementLinks: Array<{
+    id: string
+    icon: ReactNode
+    label: string
+    clear: boolean
+  }> = [
     {
       id: CLOVER_COLLECTOR_ACHIEVEMENT_ID,
-      emoji: collectible?.emoji ?? '🍀',
+      icon: collectible?.emoji ?? '🍀',
       label: t('achievement_clover_collector_title'),
       clear: isCloverQuestClear,
     },
     {
       id: RABBIT_ACHIEVEMENT_ID,
-      emoji: '🐇',
+      icon: '🐇',
       label: t('eventAchievementRabbitPlaceholder'),
       clear: fastWinCount >= ONE_MINUTE_TARGET,
+    },
+    {
+      id: GRASS_DIET_ACHIEVEMENT_ID,
+      icon: grassDietIcon,
+      label: t('achievement_grass_diet_title'),
+      clear: !!achievementState.unlocked[GRASS_DIET_ACHIEVEMENT_ID],
     },
   ]
   const completedCurrentEvent = isCurrentEvent && (isGameWon || isGameLost)
@@ -323,8 +349,8 @@ export const EventRecordsPanel = ({
                   className="group grid w-full min-w-0 grid-cols-[1.25rem_minmax(0,1fr)_3.125rem] items-center gap-1.5 text-left text-xs font-medium text-gray-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   onClick={() => onOpenAchievement(achievement.id)}
                 >
-                  <span className="text-center leading-none">
-                    {achievement.emoji}
+                  <span className="flex items-center justify-center leading-none">
+                    {achievement.icon}
                   </span>
                   <span className="min-w-0 truncate text-indigo-600 underline group-hover:text-indigo-700">
                     {achievement.label}
