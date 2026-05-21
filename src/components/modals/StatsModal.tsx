@@ -43,6 +43,7 @@ import { summarizeResultsAsGameStats } from '../../lib/resultStats'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { DetailStatsPanel } from '../stats/DetailStatsPanel'
 import { CONFIG } from '../../constants/config'
+import { getLoseReasonIcon } from '../../lib/loseReasons'
 import { Cell } from '../grid/Cell'
 import { CharStatus } from '../../lib/statuses'
 import {
@@ -551,7 +552,17 @@ export const StatsModal = ({
       : undefined
 
   const completedToday = isGameWon || isGameLost
-  const todayResult = isGameWon ? '😎' : isGameLost ? '🥲' : '😶‍🌫️'
+  const todayStoredResult = isEventRecords
+    ? selectedEventResults[currentDateKey]
+    : dailyResults[currentDateKey]
+  const todayResult = isGameWon
+    ? '😎'
+    : isGameLost
+    ? getLoseReasonIcon(
+        todayStoredResult?.endReason,
+        isEventRecords ? selectedEvent?.loseReasons : undefined
+      )
+    : '😶‍🌫️'
   const todayResultStatus: CharStatus = isGameWon
     ? 'correct'
     : isGameLost

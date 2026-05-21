@@ -6,6 +6,7 @@ import { loadAchievementState } from '../../lib/achievements'
 import { loadAchievementProgress } from '../../lib/achievementProgress'
 import { PlayStats, getTotalGuessTimeMs } from '../../lib/playStats'
 import { shareStatus } from '../../lib/share'
+import { getLoseReasonIcon } from '../../lib/loseReasons'
 import {
   CollectedRowsByCollectible,
   getCollectibleProgressItemId,
@@ -61,10 +62,14 @@ const getResultLabel = ({
   t,
   won,
   lost,
+  endReason,
+  event,
 }: {
   t: (key: string) => string
   won: boolean
   lost: boolean
+  endReason?: string
+  event?: EventDefinition | null
 }) => {
   if (won) {
     return {
@@ -75,7 +80,7 @@ const getResultLabel = ({
   }
   if (lost) {
     return {
-      icon: '🥲',
+      icon: getLoseReasonIcon(endReason, event?.loseReasons),
       label: t('playStatsResultLose'),
       status: 'present' as const,
     }
@@ -126,6 +131,8 @@ export const EventRecordsPanel = ({
     t,
     won: todayWon,
     lost: !!todayLost && !todayWon,
+    endReason: todayResult?.endReason,
+    event,
   })
   const todayCollectedRows =
     collectible && isCurrentEvent ? collectedRows[collectible.id] ?? [] : []
