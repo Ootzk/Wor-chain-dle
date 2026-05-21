@@ -42,9 +42,11 @@ type Props = {
 
 const ONE_MINUTE_MS = 60 * 1000
 const ONE_MINUTE_TARGET = 7
+const EVENT_GAMES_TARGET = 5
 const EMPTY_VALUE = '-'
 const CLOVER_COLLECTOR_ACHIEVEMENT_ID = 'clover_collector'
 const RABBIT_ACHIEVEMENT_ID = 'rabbit_speed'
+const GRASSLAND_TRAIL_ACHIEVEMENT_ID = 'grassland_trail'
 const GRASS_DIET_ACHIEVEMENT_ID = 'grass_diet'
 
 const EventGroupTitle = ({
@@ -122,6 +124,7 @@ export const EventRecordsPanel = ({
   const progressTargets = collectible?.progressTargets ?? {}
   const targetRows = collectible?.targetRows ?? []
   const todayResult = results[currentDateKey]
+  const totalEventTries = Object.keys(results).length
   const todayPlayStats = isCurrentEvent ? playStats : todayResult?.playStats
   const todayWon = isCurrentEvent ? isGameWon : todayResult?.won ?? false
   const todayLost = isCurrentEvent ? isGameLost : todayResult
@@ -167,15 +170,36 @@ export const EventRecordsPanel = ({
     fillClassName: 'bg-lime-400',
     clearClassName: 'bg-lime-400',
   }
+  const eventGamesProgressRow = {
+    id: 'games',
+    label: t('eventGames'),
+    count: totalEventTries,
+    target: EVENT_GAMES_TARGET,
+    fillClassName: 'bg-lime-400',
+    clearClassName: 'bg-lime-400',
+  }
   const maxProgressTarget = Math.max(
     maxTarget,
     ONE_MINUTE_TARGET,
+    EVENT_GAMES_TARGET,
     ...progressRows.map((row) => row.target)
   )
   const isCloverQuestClear =
     !!achievementState.unlocked[CLOVER_COLLECTOR_ACHIEVEMENT_ID] ||
     progressRows.every((row) => row.count >= row.target)
   const grassDietReward = getRewardsForAchievement(GRASS_DIET_ACHIEVEMENT_ID)[0]
+  const grasslandTrailReward = getRewardsForAchievement(
+    GRASSLAND_TRAIL_ACHIEVEMENT_ID
+  )[0]
+  const grasslandTrailIcon = grasslandTrailReward ? (
+    <CosmeticPreview
+      category={grasslandTrailReward.category}
+      optionId={grasslandTrailReward.id}
+      compact
+    />
+  ) : (
+    '🌿'
+  )
   const grassDietIcon = grassDietReward ? (
     <CosmeticPreview
       category={grassDietReward.category}
@@ -202,6 +226,14 @@ export const EventRecordsPanel = ({
       icon: '🐇',
       label: t('achievement_rabbit_speed_title'),
       clear: fastWinCount >= ONE_MINUTE_TARGET,
+    },
+    {
+      id: GRASSLAND_TRAIL_ACHIEVEMENT_ID,
+      icon: grasslandTrailIcon,
+      label: t('achievement_grassland_trail_title'),
+      clear:
+        !!achievementState.unlocked[GRASSLAND_TRAIL_ACHIEVEMENT_ID] ||
+        totalEventTries >= EVENT_GAMES_TARGET,
     },
     {
       id: GRASS_DIET_ACHIEVEMENT_ID,
@@ -234,7 +266,7 @@ export const EventRecordsPanel = ({
     >
       <section>
         <EventGroupTitle>{t('statsDashboard')}</EventGroupTitle>
-        <div className="grid grid-cols-2 gap-2 text-center">
+        <div className="grid grid-cols-3 gap-2 text-center">
           <div className="m-0.5 min-w-0 text-center">
             <div className="flex h-14 items-center justify-center">
               <Cell value={result.icon} status={result.status} />
@@ -246,13 +278,23 @@ export const EventRecordsPanel = ({
           <div className="m-0.5 min-w-0 text-center">
             <div className="flex h-14 items-center justify-center">
               <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
+                {totalEventTries}
+              </div>
+            </div>
+            <div className="text-[10px] leading-3 text-gray-900">
+              {t('totalTries')}
+            </div>
+          </div>
+          <div className="m-0.5 min-w-0 text-center">
+            <div className="flex h-14 items-center justify-center">
+              <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
                 {todayPlayStats
                   ? String(Math.round(todayGuessTimeMs / 1000))
                   : EMPTY_VALUE}
               </div>
             </div>
             <div className="text-[10px] leading-3 text-gray-900">
-              {t('detailTotalGuessTime')}
+              {t('eventGuessTimeSeconds')}
             </div>
           </div>
         </div>
@@ -287,54 +329,56 @@ export const EventRecordsPanel = ({
       <section>
         <EventGroupTitle separated>{t('eventProgress')}</EventGroupTitle>
         <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-1.5 gap-y-2 pt-1.5">
-          {[...progressRows, oneMinuteProgressRow].map((row) => {
-            const targetWidth = (row.target / maxProgressTarget) * 100
-            const progress = Math.min(1, row.count / row.target)
-            const isClear = row.count >= row.target
+          {[...progressRows, eventGamesProgressRow, oneMinuteProgressRow].map(
+            (row) => {
+              const targetWidth = (row.target / maxProgressTarget) * 100
+              const progress = Math.min(1, row.count / row.target)
+              const isClear = row.count >= row.target
 
-            return (
-              <Fragment key={row.id}>
-                <div
-                  key={`${row.id}-label`}
-                  className="flex items-center text-xs font-semibold text-gray-700"
-                >
-                  {row.label}
-                </div>
-                <div
-                  key={`${row.id}-bar`}
-                  className="flex h-4 min-w-0 items-center"
-                >
+              return (
+                <Fragment key={row.id}>
                   <div
-                    className="relative h-2.5 rounded-full bg-gray-200"
-                    style={{ width: `${targetWidth}%` }}
+                    key={`${row.id}-label`}
+                    className="flex items-center text-xs font-semibold text-gray-700"
+                  >
+                    {row.label}
+                  </div>
+                  <div
+                    key={`${row.id}-bar`}
+                    className="flex h-4 min-w-0 items-center"
                   >
                     <div
-                      className={`h-2.5 rounded-full ${row.fillClassName}`}
-                      style={{ width: `${progress * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div
-                  key={`${row.id}-clear`}
-                  className="flex items-center justify-center"
-                >
-                  {isClear && (
-                    <span
-                      className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${row.clearClassName}`}
+                      className="relative h-2.5 rounded-full bg-gray-200"
+                      style={{ width: `${targetWidth}%` }}
                     >
-                      CLEAR!
-                    </span>
-                  )}
-                </div>
-                <div
-                  key={`${row.id}-count`}
-                  className="flex items-center justify-end text-xs font-semibold text-gray-700"
-                >
-                  {row.count}/{row.target}
-                </div>
-              </Fragment>
-            )
-          })}
+                      <div
+                        className={`h-2.5 rounded-full ${row.fillClassName}`}
+                        style={{ width: `${progress * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    key={`${row.id}-clear`}
+                    className="flex items-center justify-center"
+                  >
+                    {isClear && (
+                      <span
+                        className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${row.clearClassName}`}
+                      >
+                        CLEAR!
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    key={`${row.id}-count`}
+                    className="flex items-center justify-end text-xs font-semibold text-gray-700"
+                  >
+                    {row.count}/{row.target}
+                  </div>
+                </Fragment>
+              )
+            }
+          )}
         </div>
       </section>
       <section>

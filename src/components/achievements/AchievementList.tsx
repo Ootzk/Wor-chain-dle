@@ -91,7 +91,12 @@ const AchievementDescription = ({
   }
 
   if (
-    ['clover_collector', 'rabbit_speed', 'grass_diet'].includes(achievementId)
+    [
+      'clover_collector',
+      'rabbit_speed',
+      'grassland_trail',
+      'grass_diet',
+    ].includes(achievementId)
   ) {
     return (
       <Trans

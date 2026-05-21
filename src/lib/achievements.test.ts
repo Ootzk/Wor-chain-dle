@@ -174,14 +174,12 @@ describe('share badge achievements', () => {
         'play_150',
         'fail_100',
         'streak_14',
-        'streak_5',
         'win_in_6_20',
       ])
     )
     expect(loadAchievementState().unlocked.play_150).toBeTruthy()
     expect(loadAchievementState().unlocked.fail_100).toBeTruthy()
     expect(loadAchievementState().unlocked.streak_14).toBeTruthy()
-    expect(loadAchievementState().unlocked.streak_5).toBeTruthy()
     expect(loadAchievementState().unlocked.win_in_6_20).toBeTruthy()
   })
 
@@ -250,9 +248,9 @@ describe('share badge achievements', () => {
     expect(getRewardsForAchievement('rabbit_speed').map((r) => r.id)).toContain(
       'badge_rabbit'
     )
-    expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
-      'chaincolor_grass'
-    )
+    expect(
+      getRewardsForAchievement('grassland_trail').map((r) => r.id)
+    ).toContain('chaincolor_grass')
     expect(getRewardsForAchievement('grass_diet').map((r) => r.id)).toContain(
       'color_grass'
     )
@@ -414,6 +412,39 @@ describe('share badge achievements', () => {
     ).toContain('grass_diet')
   })
 
+  it('unlocks the grass chain color after completing 5 event games', () => {
+    for (let day = 1; day <= 4; day += 1) {
+      const dateKey = `2026-05-${String(day).padStart(2, '0')}`
+      saveEventResult('v1.7.0', {
+        dateKey,
+        solution: 'chain',
+        won: false,
+        guessCount: 2,
+        endReason: 'pacman',
+        playStats: createFastEventWinStats(dateKey, 30_000),
+      })
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        game: {
+          dateKey: '2026-05-05',
+          eventVersion: 'v1.7.0',
+          guesses: [
+            ['c', 'h', 'a', 'i', 'n'],
+            ['n', 'e', 'v', 'e', 'r'],
+          ],
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
+      })
+    ).toContain('grassland_trail')
+  })
+
   it('records unique words from completed wins for word achievements', () => {
     const progress = recordCompletedGameProgress({
       mode: 'daily',
@@ -431,7 +462,6 @@ describe('share badge achievements', () => {
       'play_150',
       'fail_100',
       'streak_14',
-      'streak_5',
       'win_in_6_20',
       'no_present_game',
       'no_correct_game',
@@ -473,7 +503,6 @@ describe('share badge achievements', () => {
         'play_150',
         'fail_100',
         'streak_14',
-        'streak_5',
         'win_in_6_20',
       ])
     )

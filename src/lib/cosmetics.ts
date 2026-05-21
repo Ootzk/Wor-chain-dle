@@ -428,7 +428,7 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chaincolor_grass',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_grass',
-    requiresAchievement: 'streak_5',
+    requiresAchievement: 'grassland_trail',
     metadata: REWARD_METADATA.v1_7_0,
   },
 

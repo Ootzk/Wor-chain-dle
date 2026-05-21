@@ -238,6 +238,32 @@ const getSummerGardenFastWinProgress = (
   }
 }
 
+const getSummerGardenCompletedGameProgress = (
+  ctx: AchievementContext
+): AchievementProgress => {
+  const target = 5
+  let current = 0
+  const activeDateKey = ctx.mode === 'event' ? ctx.game?.dateKey : undefined
+
+  if (
+    ctx.mode === 'event' &&
+    ctx.game &&
+    ctx.game.eventVersion === SUMMER_GARDEN_VERSION
+  ) {
+    current += 1
+  }
+
+  for (const result of Object.values(loadEventResults(SUMMER_GARDEN_VERSION))) {
+    if (activeDateKey && result.dateKey === activeDateKey) continue
+    current += 1
+  }
+
+  return {
+    current: Math.min(current, target),
+    target,
+  }
+}
+
 const getRequiredAchievementProgress = (
   ids: string[],
   state: Pick<AchievementState, 'unlocked'> = loadAchievementState()
@@ -519,14 +545,14 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
   },
   {
-    id: 'streak_5',
-    category: 'streak',
-    modes: ['daily'],
-    difficulty: 5,
+    id: 'grassland_trail',
+    category: 'milestone',
+    modes: ['event'],
+    difficulty: 3,
     metadata: REWARD_METADATA.v1_7_0,
-    titleKey: 'achievement_streak_5_title',
-    descriptionKey: 'achievement_streak_5_desc',
-    progress: ({ stats }) => ({ current: stats.bestStreak, target: 5 }),
+    titleKey: 'achievement_grassland_trail_title',
+    descriptionKey: 'achievement_grassland_trail_desc',
+    progress: getSummerGardenCompletedGameProgress,
   },
   {
     id: 'streak_7',
