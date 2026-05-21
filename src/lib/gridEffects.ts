@@ -8,6 +8,7 @@ export type GridCellEffect = {
   marker?: string
   value?: string
   hideLetter?: boolean
+  hideStatus?: boolean
 }
 
 export type GridCellEffects = Record<string, GridCellEffect>
@@ -31,6 +32,7 @@ export const mergeGridCellEffects = (
         ...merged[key],
         ...effect,
         hideLetter: merged[key]?.hideLetter || effect.hideLetter,
+        hideStatus: merged[key]?.hideStatus || effect.hideStatus,
       }
     })
     return merged

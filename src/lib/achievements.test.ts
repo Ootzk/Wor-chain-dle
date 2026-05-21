@@ -199,12 +199,12 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_apple')).toBe('\uD83C\uDF4F')
     expect(getShareBadge('badge_grape')).toBe('\uD83C\uDF47')
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
-    expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
+    expect(getShareBadge('badge_azure')).toBe('\uD83D\uDC9A')
     expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
     expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
     expect(getShareBadge('badge_rabbit')).toBe('\uD83D\uDC07')
-    expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
-    expect(CELL_COLOR_STYLES.color_azure).toBe('text-sky-300')
+    expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-lime-400')
+    expect(CELL_COLOR_STYLES.color_azure).toBe('text-lime-300')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -393,14 +393,21 @@ describe('share badge achievements', () => {
     ).toContain('garden_set')
   })
 
-  it('unlocks the azure letter color from tracked Daily wins using AZURE', () => {
-    const progress = createDefaultAchievementTrackingState()
-    progress.words.azure = { gamesWon: 5 }
-
+  it('unlocks the lime letter color from GREEN and GRASS with no purple tiles', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
         mode: 'daily',
-        progress,
+        game: {
+          guesses: [
+            ['g', 'r', 'e', 'e', 'n'],
+            ['g', 'r', 'a', 's', 's'],
+          ],
+          solution: 'graft',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
       })
     ).toContain('azure_word')
   })
@@ -410,10 +417,10 @@ describe('share badge achievements', () => {
       mode: 'daily',
       appVersion: '1.7.0',
       won: true,
-      wonWords: ['AZURE', 'crane', 'azure'],
+      wonWords: ['GREEN', 'crane', 'green'],
     })
 
-    expect(progress.words.azure.gamesWon).toBe(1)
+    expect(progress.words.green.gamesWon).toBe(1)
     expect(progress.words.crane.gamesWon).toBe(1)
   })
 

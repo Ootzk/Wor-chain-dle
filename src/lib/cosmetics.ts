@@ -85,7 +85,7 @@ const SHARE_BADGES: Record<string, string> = {
   badge_apple: '\uD83C\uDF4F',
   badge_grape: '\uD83C\uDF47',
   badge_milk: '\uD83E\uDD5B',
-  badge_azure: '\uD83E\uDE75',
+  badge_azure: '\uD83D\uDC9A',
   badge_clover: '\uD83C\uDF40',
   badge_hyacinth: '\uD83E\uDEBB',
   badge_rabbit: '\uD83D\uDC07',
@@ -105,7 +105,7 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
   color_default: '',
   color_gold: 'text-yellow-300',
   color_black: 'text-black',
-  color_azure: 'text-sky-300',
+  color_azure: 'text-lime-300',
 }
 
 // --- Chain Style Options ---
@@ -145,7 +145,7 @@ export const CHAIN_COLOR_STYLES: Record<string, string> = {
   chaincolor_black: 'border-black',
   chaincolor_silver: 'border-gray-400',
   chaincolor_gold: 'border-yellow-500',
-  chaincolor_azure: 'border-sky-400',
+  chaincolor_azure: 'border-lime-400',
 }
 
 // --- Alert Message Theme Emoji ---

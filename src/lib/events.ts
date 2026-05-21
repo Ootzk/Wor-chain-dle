@@ -67,7 +67,7 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       absent: 1500,
       default: 1500,
     },
-    effect: 'hide-letter',
+    effect: 'hide-letter-and-status',
   },
   collectibles: [
     {

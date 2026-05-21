@@ -37,6 +37,7 @@ export const Cell = ({
   const cosmeticColor = getEquippedCellColor(cosmeticOverrides)
   const chainStyle = getEquippedChainStyle(cosmeticOverrides)
   const chainColor = getEquippedChainColor(cosmeticOverrides)
+  const effectiveStatus = cellEffect?.hideStatus ? undefined : status
   const chainBorderWidth = isChain
     ? chainStyle.borderWidth || 'border-2'
     : 'border-2'
@@ -50,19 +51,24 @@ export const Cell = ({
     chainBorderStyle,
     cosmeticFont,
     {
-      'bg-white border-slate-200': !status && !isLocked && !isChain,
+      'bg-white border-slate-200': !effectiveStatus && !isLocked && !isChain,
       'border-black':
-        (value || cellEffect?.value) && !status && !isLocked && !isChain,
-      [`bg-white ${chainColor}`]: isChain && !status && !isLocked,
-      [`bg-slate-100 ${chainColor}`]: isLocked && !status && isChain,
-      'bg-slate-100 border-black': isLocked && !status && !isChain,
-      'bg-slate-400 border-slate-400': status === 'absent' && !isChain,
-      [`bg-slate-400 ${chainColor}`]: status === 'absent' && isChain,
-      'bg-green-500 border-green-500': status === 'correct' && !isChain,
-      'bg-purple-500 border-purple-500': status === 'present' && !isChain,
-      [`bg-green-500 ${chainColor}`]: status === 'correct' && isChain,
-      [`bg-purple-500 ${chainColor}`]: status === 'present' && isChain,
-      [cosmeticColor || 'text-white']: !!status,
+        (value || cellEffect?.value) &&
+        !effectiveStatus &&
+        !isLocked &&
+        !isChain,
+      [`bg-white ${chainColor}`]: isChain && !effectiveStatus && !isLocked,
+      [`bg-slate-100 ${chainColor}`]: isLocked && !effectiveStatus && isChain,
+      'bg-slate-100 border-black': isLocked && !effectiveStatus && !isChain,
+      'bg-slate-400 border-slate-400': effectiveStatus === 'absent' && !isChain,
+      [`bg-slate-400 ${chainColor}`]: effectiveStatus === 'absent' && isChain,
+      'bg-green-500 border-green-500':
+        effectiveStatus === 'correct' && !isChain,
+      'bg-purple-500 border-purple-500':
+        effectiveStatus === 'present' && !isChain,
+      [`bg-green-500 ${chainColor}`]: effectiveStatus === 'correct' && isChain,
+      [`bg-purple-500 ${chainColor}`]: effectiveStatus === 'present' && isChain,
+      [cosmeticColor || 'text-white']: !!effectiveStatus,
       'border-b-0 rounded-b-none': chainBottom,
       'border-t-0 rounded-t-none': chainTop,
       'cell-animation': !!value,

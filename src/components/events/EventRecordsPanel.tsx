@@ -159,8 +159,8 @@ export const EventRecordsPanel = ({
     label: t('eventOneMinute'),
     count: fastWinCount,
     target: ONE_MINUTE_TARGET,
-    fillClassName: 'bg-sky-400',
-    clearClassName: 'bg-sky-400',
+    fillClassName: 'bg-lime-400',
+    clearClassName: 'bg-lime-400',
   }
   const maxProgressTarget = Math.max(
     maxTarget,

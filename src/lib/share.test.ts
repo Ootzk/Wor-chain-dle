@@ -90,7 +90,7 @@ describe('share header badge', () => {
       { shareBadge: 'badge_azure' }
     )
 
-    expect(text.split('\n')[0]).toBe('Wor\uD83E\uDE75dle 2026-05-09 1/6')
+    expect(text.split('\n')[0]).toBe('Wor\uD83D\uDC9Adle 2026-05-09 1/6')
     expect(localStorage.getItem('cosmeticState')).toContain('badge_fire')
   })
 
@@ -108,7 +108,7 @@ describe('share header badge', () => {
     )
 
     expect(text.split('\n').slice(0, 2)).toEqual([
-      'Wor\uD83E\uDE75dle 2026-05-09 1/6',
+      'Wor\uD83D\uDC9Adle 2026-05-09 1/6',
       'Event: Summer Garden',
     ])
   })
@@ -129,7 +129,7 @@ describe('share header badge', () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalled()
     const text = (navigator.clipboard.writeText as jest.Mock).mock.calls[0][0]
     expect(text.split('\n').slice(0, 2)).toEqual([
-      'Wor\uD83E\uDE75dle 2026-01',
+      'Wor\uD83D\uDC9Adle 2026-01',
       'Event: Summer Garden',
     ])
   })

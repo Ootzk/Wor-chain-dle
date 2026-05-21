@@ -40,7 +40,7 @@ test('defines cosmetic overrides for the active event theme', () => {
   expect(event.modeKind).toBe('pacman')
   expect(event.pacman).toMatchObject({
     actor: '🐇',
-    effect: 'hide-letter',
+    effect: 'hide-letter-and-status',
   })
   expect(event.collectibles).toEqual([
     expect.objectContaining({

@@ -15,7 +15,7 @@ export type PacmanCellEffects = GridCellEffects
 export type PacmanConfig = {
   actor: string
   stepMsByStatus: PacmanStepMsByStatus
-  effect: 'hide-letter'
+  effect: 'hide-letter' | 'hide-letter-and-status'
 }
 
 export type PacmanStepMsByStatus = Record<CharStatus, number> & {
@@ -109,10 +109,12 @@ export const getPacmanCellEffects = ({
   path,
   pathIndex,
   actor,
+  effect = 'hide-letter',
 }: {
   path: PacmanCell[]
   pathIndex: number
   actor: string
+  effect?: PacmanConfig['effect']
 }): PacmanCellEffects => {
   if (pathIndex < 0) return {}
 
@@ -121,6 +123,7 @@ export const getPacmanCellEffects = ({
       getGridCellKey(cell),
       {
         hideLetter: true,
+        hideStatus: effect === 'hide-letter-and-status' ? true : undefined,
         actor: index === pathIndex ? actor : undefined,
       },
     ])

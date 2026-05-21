@@ -122,3 +122,17 @@ test('marks eaten cells as hidden and places the actor on the current cell', () 
     '0:2': { hideLetter: true, actor: '🐇' },
   })
 })
+
+test('can hide both letters and evaluated status colors', () => {
+  const effects = getPacmanCellEffects({
+    path: getPacmanPath(1, 5),
+    pathIndex: 1,
+    actor: '🐇',
+    effect: 'hide-letter-and-status',
+  })
+
+  expect(effects).toEqual({
+    '0:0': { hideLetter: true, hideStatus: true, actor: undefined },
+    '0:1': { hideLetter: true, hideStatus: true, actor: '🐇' },
+  })
+})

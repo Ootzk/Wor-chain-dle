@@ -636,6 +636,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           path: pacmanPath,
           pathIndex: pacmanPathIndex,
           actor: event.pacman.actor,
+          effect: event.pacman.effect,
         })
       : undefined
   const collectibleCellEffects = getCollectibleCellEffects({
