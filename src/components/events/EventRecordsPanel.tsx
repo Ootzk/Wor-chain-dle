@@ -200,7 +200,7 @@ export const EventRecordsPanel = ({
     {
       id: RABBIT_ACHIEVEMENT_ID,
       icon: '🐇',
-      label: t('eventAchievementRabbitPlaceholder'),
+      label: t('achievement_rabbit_speed_title'),
       clear: fastWinCount >= ONE_MINUTE_TARGET,
     },
     {
