@@ -905,7 +905,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
                   <ModeBadge mode="event" />
                   <span>| {localDateStr}</span>
                 </span>
-                <span className="absolute left-0 top-full text-sky-500 whitespace-nowrap">
+                <span className="absolute left-0 top-full text-lime-600 whitespace-nowrap">
                   {event ? t(event.themeKey) : ''}
                 </span>
               </>
