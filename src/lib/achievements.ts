@@ -246,9 +246,10 @@ const getRequiredAchievementProgress = (
   target: ids.length,
 })
 
-const isGreenGrassNoPresentGame = (game: CompletedGameContext): boolean =>
-  usedAllWords(game.guesses, ['green', 'grass']) &&
-  tileCountsFromGame(game).present === 0
+const isGreenGrassEventWin = (game: CompletedGameContext): boolean =>
+  game.eventVersion === SUMMER_GARDEN_VERSION &&
+  game.won &&
+  usedAllWords(game.guesses, ['green', 'grass'])
 
 // --- Achievement Definitions ---
 
@@ -633,13 +634,13 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'grass_diet',
     category: 'event',
-    modes: ['daily'],
-    difficulty: 9,
+    modes: ['event'],
+    difficulty: 8,
     metadata: REWARD_METADATA.v1_7_0,
     titleKey: 'achievement_grass_diet_title',
     descriptionKey: 'achievement_grass_diet_desc',
     progress: ({ game }) => ({
-      current: game && isGreenGrassNoPresentGame(game) ? 1 : 0,
+      current: game && isGreenGrassEventWin(game) ? 1 : 0,
       target: 1,
     }),
   },

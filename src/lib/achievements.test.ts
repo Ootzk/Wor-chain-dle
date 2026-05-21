@@ -393,20 +393,22 @@ describe('share badge achievements', () => {
     ).toContain('garden_set')
   })
 
-  it('unlocks the grass letter color from GREEN and GRASS with no purple tiles', () => {
+  it('unlocks the grass letter color from a GREEN and GRASS Summer Garden win', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
-        mode: 'daily',
+        mode: 'event',
+        eventVersion: 'v1.7.0',
         game: {
+          eventVersion: 'v1.7.0',
           guesses: [
             ['g', 'r', 'e', 'e', 'n'],
             ['g', 'r', 'a', 's', 's'],
           ],
-          solution: 'graft',
-          won: false,
-          lost: true,
+          solution: 'grass',
+          won: true,
+          lost: false,
           guessCount: 2,
-          endReason: 'fail',
+          endReason: 'win',
         },
       })
     ).toContain('grass_diet')
