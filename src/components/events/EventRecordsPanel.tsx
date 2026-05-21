@@ -1,11 +1,13 @@
 import { Fragment, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import Countdown from 'react-countdown'
 import { EventDefinition } from '../../lib/events'
 import { EventResults } from '../../lib/eventResults'
 import { loadAchievementState } from '../../lib/achievements'
 import { loadAchievementProgress } from '../../lib/achievementProgress'
 import { PlayStats, getTotalGuessTimeMs } from '../../lib/playStats'
 import { shareStatus } from '../../lib/share'
+import { tomorrow } from '../../lib/words'
 import { getLoseReasonIcon } from '../../lib/loseReasons'
 import {
   CollectedRowsByCollectible,
@@ -38,6 +40,17 @@ type Props = {
   handleShare: () => void
   cosmeticOverrides?: CosmeticOverrides
   hasNewRewards: boolean
+}
+
+type EventAchievementProgressItem = {
+  id: string
+  icon: ReactNode
+  label: string
+  count: number
+  target: number
+  clear: boolean
+  fillClassName: string
+  clearClassName: string
 }
 
 const ONE_MINUTE_MS = 60 * 1000
@@ -99,6 +112,11 @@ const getResultLabel = ({
   }
 }
 
+const usedWords = (guesses: string[][], words: string[]): boolean => {
+  const used = new Set(guesses.map((guess) => guess.join('').toLowerCase()))
+  return words.every((word) => used.has(word.toLowerCase()))
+}
+
 export const EventRecordsPanel = ({
   event,
   selectedVersion,
@@ -121,7 +139,6 @@ export const EventRecordsPanel = ({
 }: Props) => {
   const { t } = useTranslation()
   const collectible = event?.collectibles?.[0]
-  const targetRows = collectible?.targetRows ?? []
   const todayResult = results[currentDateKey]
   const totalEventTries = Object.keys(results).length
   const todayPlayStats = isCurrentEvent ? playStats : todayResult?.playStats
@@ -143,6 +160,7 @@ export const EventRecordsPanel = ({
   })
   const todayCollectedRows =
     collectible && isCurrentEvent ? collectedRows[collectible.id] ?? [] : []
+  const todayCloverCount = todayCollectedRows.length
   const achievementProgress = loadAchievementProgress()
   const achievementState = loadAchievementState()
   const collectionProgress = collectible
@@ -152,30 +170,6 @@ export const EventRecordsPanel = ({
     (sum, count) => sum + count,
     0
   )
-  const cloverProgressRow = {
-    id: 'clovers',
-    label: t('eventClovers'),
-    count: cloverCount,
-    target: SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
-    fillClassName: 'bg-green-500',
-    clearClassName: 'bg-green-500',
-  }
-  const oneMinuteProgressRow = {
-    id: 'one-minute',
-    label: t('eventOneMinute'),
-    count: fastWinCount,
-    target: ONE_MINUTE_TARGET,
-    fillClassName: 'bg-lime-400',
-    clearClassName: 'bg-lime-400',
-  }
-  const eventGamesProgressRow = {
-    id: 'games',
-    label: t('eventGames'),
-    count: totalEventTries,
-    target: EVENT_GAMES_TARGET,
-    fillClassName: 'bg-lime-400',
-    clearClassName: 'bg-lime-400',
-  }
   const maxProgressTarget = Math.max(
     SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
     ONE_MINUTE_TARGET,
@@ -184,6 +178,9 @@ export const EventRecordsPanel = ({
   const isCloverQuestClear =
     !!achievementState.unlocked[CLOVER_COLLECTOR_ACHIEVEMENT_ID] ||
     cloverCount >= SUMMER_GARDEN_CLOVER_TOTAL_TARGET
+  const todayGrassDiet = todayWon && usedWords(guesses, ['green', 'grass'])
+  const isGrassDietClear =
+    !!achievementState.unlocked[GRASS_DIET_ACHIEVEMENT_ID] || todayGrassDiet
   const grassDietReward = getRewardsForAchievement(GRASS_DIET_ACHIEVEMENT_ID)[0]
   const grasslandTrailReward = getRewardsForAchievement(
     GRASSLAND_TRAIL_ACHIEVEMENT_ID
@@ -206,37 +203,48 @@ export const EventRecordsPanel = ({
   ) : (
     '💚'
   )
-  const eventAchievementLinks: Array<{
-    id: string
-    icon: ReactNode
-    label: string
-    clear: boolean
-  }> = [
+  const eventAchievementItems: EventAchievementProgressItem[] = [
     {
       id: CLOVER_COLLECTOR_ACHIEVEMENT_ID,
       icon: collectible?.emoji ?? '🍀',
       label: t('achievement_clover_collector_title'),
+      count: cloverCount,
+      target: SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
       clear: isCloverQuestClear,
+      fillClassName: 'bg-green-500',
+      clearClassName: 'bg-green-500',
     },
     {
       id: RABBIT_ACHIEVEMENT_ID,
       icon: '🐇',
       label: t('achievement_rabbit_speed_title'),
+      count: fastWinCount,
+      target: ONE_MINUTE_TARGET,
       clear: fastWinCount >= ONE_MINUTE_TARGET,
+      fillClassName: 'bg-lime-400',
+      clearClassName: 'bg-lime-400',
     },
     {
       id: GRASSLAND_TRAIL_ACHIEVEMENT_ID,
       icon: grasslandTrailIcon,
       label: t('achievement_grassland_trail_title'),
+      count: totalEventTries,
+      target: EVENT_GAMES_TARGET,
       clear:
         !!achievementState.unlocked[GRASSLAND_TRAIL_ACHIEVEMENT_ID] ||
         totalEventTries >= EVENT_GAMES_TARGET,
+      fillClassName: 'bg-lime-400',
+      clearClassName: 'bg-lime-400',
     },
     {
       id: GRASS_DIET_ACHIEVEMENT_ID,
       icon: grassDietIcon,
       label: t('achievement_grass_diet_title'),
-      clear: !!achievementState.unlocked[GRASS_DIET_ACHIEVEMENT_ID],
+      count: isGrassDietClear ? 1 : 0,
+      target: 1,
+      clear: isGrassDietClear,
+      fillClassName: 'bg-lime-400',
+      clearClassName: 'bg-lime-400',
     },
   ]
   const completedCurrentEvent = isCurrentEvent && (isGameWon || isGameLost)
@@ -300,119 +308,167 @@ export const EventRecordsPanel = ({
 
         <section>
           <EventGroupTitle separated>{t('eventMission')}</EventGroupTitle>
-          <div className="grid grid-cols-5 items-end gap-2 text-center">
-            {targetRows.map((rowIndex) => {
-              const collected = todayCollectedRows.includes(rowIndex)
-              return (
-                <div
-                  key={rowIndex}
-                  className="flex min-w-0 flex-col items-center justify-center"
+          <ul className="mt-1.5 space-y-1 text-left text-[10px] leading-[0.875rem] text-gray-500">
+            <li className="flex items-start gap-1.5">
+              <span className="w-5 flex-shrink-0 text-center leading-4">
+                {collectible.emoji}
+              </span>
+              <span className="min-w-0">
+                <button
+                  type="button"
+                  className="font-medium text-indigo-600 underline focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  onClick={() =>
+                    onOpenAchievement(CLOVER_COLLECTOR_ACHIEVEMENT_ID)
+                  }
                 >
-                  <Cell value={collected ? collectible.emoji : undefined} />
-                  <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
-                    {t('eventRowLabel', { row: rowIndex + 1 })}
-                  </div>
-                </div>
-              )
-            })}
-            <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200 pl-2">
-              <Cell value={todayFastWin ? '🐇' : undefined} />
-              <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
-                {t('eventOneMinute')}
+                  {t('achievement_clover_collector_title')}
+                </button>
+                <span>: {t('eventMissionCloverCollectorHelp')}</span>
+              </span>
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="w-5 flex-shrink-0 text-center leading-4">
+                🐇
+              </span>
+              <span className="min-w-0">
+                <button
+                  type="button"
+                  className="font-medium text-indigo-600 underline focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  onClick={() => onOpenAchievement(RABBIT_ACHIEVEMENT_ID)}
+                >
+                  {t('achievement_rabbit_speed_title')}
+                </button>
+                <span>: {t('eventMissionRabbitDashHelp')}</span>
+              </span>
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="flex w-5 flex-shrink-0 justify-center leading-4">
+                {grasslandTrailIcon}
+              </span>
+              <span className="min-w-0">
+                <button
+                  type="button"
+                  className="font-medium text-indigo-600 underline focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  onClick={() =>
+                    onOpenAchievement(GRASSLAND_TRAIL_ACHIEVEMENT_ID)
+                  }
+                >
+                  {t('achievement_grassland_trail_title')}
+                </button>
+                <span>: {t('eventMissionGrasslandTrailHelp')}</span>
+              </span>
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="flex w-5 flex-shrink-0 justify-center leading-4">
+                {grassDietIcon}
+              </span>
+              <span className="min-w-0">
+                <button
+                  type="button"
+                  className="font-medium text-indigo-600 underline focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  onClick={() => onOpenAchievement(GRASS_DIET_ACHIEVEMENT_ID)}
+                >
+                  {t('achievement_grass_diet_title')}
+                </button>
+                <span>: {t('eventMissionGrassDietHelp')}</span>
+              </span>
+            </li>
+          </ul>
+          <div className="mt-2 grid grid-cols-4 items-stretch text-center">
+            <div className="flex min-w-0 flex-col items-center justify-center">
+              <div className="h-6 text-lg font-bold leading-6 text-gray-900">
+                {collectible.emoji}
+                {todayCloverCount}
+              </div>
+              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
+                {t('achievement_clover_collector_title')}
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200">
+              <div className="h-6 text-lg leading-6">
+                {todayFastWin ? '🐇' : ''}
+              </div>
+              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
+                {t('achievement_rabbit_speed_title')}
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200">
+              <div className="flex h-6 items-center justify-center text-lg leading-6">
+                {completedCurrentEvent ? grasslandTrailIcon : ''}
+              </div>
+              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
+                {t('achievement_grassland_trail_title')}
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200">
+              <div className="flex h-6 items-center justify-center text-lg leading-6">
+                {todayGrassDiet ? grassDietIcon : ''}
+              </div>
+              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
+                {t('achievement_grass_diet_title')}
               </div>
             </div>
           </div>
         </section>
 
         <section>
-          <EventGroupTitle separated>{t('eventProgress')}</EventGroupTitle>
-          <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-1.5 gap-y-2 pt-1.5">
-            {[
-              cloverProgressRow,
-              eventGamesProgressRow,
-              oneMinuteProgressRow,
-            ].map((row) => {
-              const targetWidth = (row.target / maxProgressTarget) * 100
-              const progress = Math.min(1, row.count / row.target)
-              const isClear = row.count >= row.target
+          <EventGroupTitle separated>
+            {t('eventAchievementProgress')}
+          </EventGroupTitle>
+          <div className="grid grid-cols-[1.25rem_minmax(5.5rem,1fr)_minmax(0,1fr)_3.125rem_2.75rem] gap-x-1.5 gap-y-1 pt-1">
+            {eventAchievementItems.map((achievement) => {
+              const targetWidth = (achievement.target / maxProgressTarget) * 100
+              const progress = Math.min(
+                1,
+                achievement.count / achievement.target
+              )
 
               return (
-                <Fragment key={row.id}>
-                  <div
-                    key={`${row.id}-label`}
-                    className="flex items-center text-xs font-semibold text-gray-700"
-                  >
-                    {row.label}
+                <Fragment key={achievement.id}>
+                  <div className="flex items-center justify-center leading-none">
+                    {achievement.icon}
                   </div>
-                  <div
-                    key={`${row.id}-bar`}
-                    className="flex h-4 min-w-0 items-center"
-                  >
+                  <div className="min-w-0 truncate text-left text-xs font-medium text-gray-900">
+                    {achievement.label}
+                  </div>
+                  <div className="flex h-4 min-w-0 items-center">
                     <div
                       className="relative h-2.5 rounded-full bg-gray-200"
                       style={{ width: `${targetWidth}%` }}
                     >
                       <div
-                        className={`h-2.5 rounded-full ${row.fillClassName}`}
+                        className={`h-2.5 rounded-full ${achievement.fillClassName}`}
                         style={{ width: `${progress * 100}%` }}
                       />
                     </div>
                   </div>
-                  <div
-                    key={`${row.id}-clear`}
-                    className="flex items-center justify-center"
-                  >
-                    {isClear && (
+                  <div className="flex items-center justify-center">
+                    {achievement.clear && (
                       <span
-                        className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${row.clearClassName}`}
+                        className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${achievement.clearClassName}`}
                       >
                         CLEAR!
                       </span>
                     )}
                   </div>
-                  <div
-                    key={`${row.id}-count`}
-                    className="flex items-center justify-end text-xs font-semibold text-gray-700"
-                  >
-                    {row.count}/{row.target}
+                  <div className="flex items-center justify-end text-xs font-semibold text-gray-700">
+                    {achievement.count}/{achievement.target}
                   </div>
                 </Fragment>
               )
             })}
           </div>
         </section>
-        <section>
-          <EventGroupTitle separated>{t('achievements')}</EventGroupTitle>
-          <div className="grid grid-cols-2 items-start gap-3 pt-1">
-            <div className="space-y-0.5">
-              {eventAchievementLinks.map((achievement) => (
-                <button
-                  key={achievement.id}
-                  type="button"
-                  className="group grid w-full min-w-0 grid-cols-[1.25rem_minmax(0,1fr)_3.125rem] items-center gap-1.5 text-left text-xs font-medium text-gray-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  onClick={() => onOpenAchievement(achievement.id)}
-                >
-                  <span className="flex items-center justify-center leading-none">
-                    {achievement.icon}
-                  </span>
-                  <span className="min-w-0 truncate text-indigo-600 underline group-hover:text-indigo-700">
-                    {achievement.label}
-                  </span>
-                  <span
-                    className={`justify-self-end rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${
-                      achievement.clear ? '' : 'invisible'
-                    }`}
-                  >
-                    {achievement.clear ? 'CLEAR!' : 'CLEAR!'}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
       </div>
       <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
-        <div />
+        <div>
+          <h5>{t('newWordCountdown')}</h5>
+          <Countdown
+            className="text-lg font-medium text-gray-900"
+            date={tomorrow}
+            daysInHours={true}
+          />
+        </div>
         <div className="space-y-2">
           <button
             type="button"
