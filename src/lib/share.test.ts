@@ -87,7 +87,7 @@ describe('share header badge', () => {
       '2026-05-09',
       true,
       undefined,
-      { shareBadge: 'badge_azure' }
+      { shareBadge: 'badge_grass' }
     )
 
     expect(text.split('\n')[0]).toBe('Wor\uD83D\uDC9Adle 2026-05-09 1/6')
@@ -103,7 +103,7 @@ describe('share header badge', () => {
       '2026-05-09',
       true,
       undefined,
-      { shareBadge: 'badge_azure' },
+      { shareBadge: 'badge_grass' },
       'Event: Summer Garden'
     )
 
@@ -122,7 +122,7 @@ describe('share header badge', () => {
       false,
       true,
       null,
-      { shareBadge: 'badge_azure' },
+      { shareBadge: 'badge_grass' },
       'Event: Summer Garden'
     )
 

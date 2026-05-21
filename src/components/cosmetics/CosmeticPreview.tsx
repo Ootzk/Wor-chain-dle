@@ -13,7 +13,7 @@ const CHAIN_COLOR_BG: Record<string, string> = {
   chaincolor_black: 'bg-black',
   chaincolor_silver: 'bg-gray-400',
   chaincolor_gold: 'bg-yellow-500',
-  chaincolor_azure: 'bg-lime-400',
+  chaincolor_grass: 'bg-lime-400',
 }
 
 export const CosmeticPreview = ({

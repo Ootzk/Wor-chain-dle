@@ -86,13 +86,13 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       'badge_apple',
       'badge_grape',
       'badge_milk',
-      'badge_azure',
+      'badge_grass',
       'badge_clover',
       'badge_hyacinth',
       'badge_rabbit',
     ],
-    cellColor: 'color_azure',
-    chainColor: 'chaincolor_azure',
+    cellColor: 'color_grass',
+    chainColor: 'chaincolor_grass',
   },
   loseReasons: [
     {

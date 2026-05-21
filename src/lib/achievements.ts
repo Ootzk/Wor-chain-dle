@@ -631,13 +631,13 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       getTilePatternProgress(ctx, (counts) => counts.correct === 0),
   },
   {
-    id: 'azure_word',
+    id: 'grass_diet',
     category: 'event',
     modes: ['daily'],
     difficulty: 9,
     metadata: REWARD_METADATA.v1_7_0,
-    titleKey: 'achievement_azure_word_title',
-    descriptionKey: 'achievement_azure_word_desc',
+    titleKey: 'achievement_grass_diet_title',
+    descriptionKey: 'achievement_grass_diet_desc',
     progress: ({ game }) => ({
       current: game && isGreenGrassNoPresentGame(game) ? 1 : 0,
       target: 1,

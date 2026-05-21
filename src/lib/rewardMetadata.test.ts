@@ -25,7 +25,7 @@ describe('reward metadata', () => {
 
     expect(achievementIds).toEqual(
       [
-        'azure_word',
+        'grass_diet',
         'clover_collector',
         'garden_set',
         'no_correct_game',
@@ -48,14 +48,14 @@ describe('reward metadata', () => {
       [
         'emoji_garden',
         'badge_apple',
-        'badge_azure',
+        'badge_grass',
         'badge_clover',
         'badge_grape',
         'badge_hyacinth',
         'badge_milk',
         'badge_rabbit',
-        'chaincolor_azure',
-        'color_azure',
+        'chaincolor_grass',
+        'color_grass',
       ].sort()
     )
   })

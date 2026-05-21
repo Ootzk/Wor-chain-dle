@@ -85,7 +85,7 @@ const SHARE_BADGES: Record<string, string> = {
   badge_apple: '\uD83C\uDF4F',
   badge_grape: '\uD83C\uDF47',
   badge_milk: '\uD83E\uDD5B',
-  badge_azure: '\uD83D\uDC9A',
+  badge_grass: '\uD83D\uDC9A',
   badge_clover: '\uD83C\uDF40',
   badge_hyacinth: '\uD83E\uDEBB',
   badge_rabbit: '\uD83D\uDC07',
@@ -105,7 +105,7 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
   color_default: '',
   color_gold: 'text-yellow-300',
   color_black: 'text-black',
-  color_azure: 'text-lime-300',
+  color_grass: 'text-lime-300',
 }
 
 // --- Chain Style Options ---
@@ -145,7 +145,7 @@ export const CHAIN_COLOR_STYLES: Record<string, string> = {
   chaincolor_black: 'border-black',
   chaincolor_silver: 'border-gray-400',
   chaincolor_gold: 'border-yellow-500',
-  chaincolor_azure: 'border-lime-400',
+  chaincolor_grass: 'border-lime-400',
 }
 
 // --- Alert Message Theme Emoji ---
@@ -302,9 +302,9 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     metadata: REWARD_METADATA.v1_7_0,
   },
   {
-    id: 'badge_azure',
+    id: 'badge_grass',
     category: 'shareBadge',
-    titleKey: 'cosmetic_badge_azure',
+    titleKey: 'cosmetic_badge_grass',
     requiresAchievement: 'played_v1_7_0_5',
     metadata: REWARD_METADATA.v1_7_0,
   },
@@ -374,10 +374,10 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     metadata: REWARD_METADATA.v1_5_0,
   },
   {
-    id: 'color_azure',
+    id: 'color_grass',
     category: 'cellColor',
-    titleKey: 'cosmetic_color_azure',
-    requiresAchievement: 'azure_word',
+    titleKey: 'cosmetic_color_grass',
+    requiresAchievement: 'grass_diet',
     metadata: REWARD_METADATA.v1_7_0,
   },
 
@@ -425,9 +425,9 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     metadata: REWARD_METADATA.v1_5_0,
   },
   {
-    id: 'chaincolor_azure',
+    id: 'chaincolor_grass',
     category: 'chainColor',
-    titleKey: 'cosmetic_chaincolor_azure',
+    titleKey: 'cosmetic_chaincolor_grass',
     requiresAchievement: 'streak_5',
     metadata: REWARD_METADATA.v1_7_0,
   },
