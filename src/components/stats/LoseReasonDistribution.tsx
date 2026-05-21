@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { GameStats } from '../../lib/localStorage'
 import { DailyResults } from '../../lib/dailyResults'
 import { EventLoseReasonDefinition } from '../../lib/events'
+import { DEFAULT_LOSE_REASONS } from '../../lib/loseReasons'
 
 type Props = {
   gameStats: GameStats
@@ -17,31 +18,6 @@ type LoseReasonItem = {
   value: number
   colorClass: string
 }
-
-const DEFAULT_LOSE_REASONS: EventLoseReasonDefinition[] = [
-  {
-    id: 'guess_limit',
-    icon: '❌',
-    titleKey: 'loseReasonOutOfGuesses',
-    infoKey: 'loseReasonGuessLimitInfo',
-    colorClass: 'bg-purple-500 text-purple-50',
-  },
-  {
-    id: 'dead_end',
-    icon: '🦎',
-    titleKey: 'loseReasonDeadEnd',
-    infoKey: 'loseReasonDeadEndInfo',
-    colorClass: 'bg-purple-500 text-purple-50',
-  },
-  {
-    id: 'unknown',
-    icon: '❓',
-    titleKey: 'loseReasonUnknown',
-    infoKey: 'loseReasonUnknownInfoBody',
-    colorClass: 'bg-gray-400 text-gray-50',
-    isUnknown: true,
-  },
-]
 
 export const LoseReasonDistribution = ({
   gameStats,
