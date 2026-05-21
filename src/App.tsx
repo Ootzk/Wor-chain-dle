@@ -128,9 +128,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       isEvent ? resolveCosmeticOverrides(event?.cosmeticOverrides) : undefined,
     [isEvent, event?.cosmeticOverrides]
   )
+  const matchingEventResult =
+    isEvent && event ? loadEventResults(event.version)[localDateStr] : undefined
+  const completedEventResult =
+    matchingEventResult?.solution === solution ? matchingEventResult : undefined
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
-  const [isGameWon, setIsGameWon] = useState(false)
+  const [isGameWon, setIsGameWon] = useState(
+    () => completedEventResult?.won ?? false
+  )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
   const [infoInitialSection, setInfoInitialSection] = useState<
@@ -173,7 +179,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     settingOverrides?.lettersHidden ?? lettersHidden
   const canToggleLettersHidden = settingOverrides?.lettersHidden === undefined
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
-  const [isGameLost, setIsGameLost] = useState(false)
+  const [isGameLost, setIsGameLost] = useState(() =>
+    completedEventResult ? !completedEventResult.won : false
+  )
   const [successAlert, setSuccessAlert] = useState('')
   const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
   const applyLoadedGameStatus = (loadedGuesses: string[][]) => {
@@ -236,14 +244,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
   const [stats, setStats] = useState(() => loadStats())
   const [playStats, setPlayStats] = useState<PlayStats>(() => {
-    const eventResult =
-      isEvent && event ? loadEventResults(event.version)[localDateStr] : null
-    const completedEventStats =
-      eventResult?.solution === solution ? eventResult.playStats : null
-
     return (
       (isDaily ? loadDailyDetailStats(localDateStr, solution) : null) ||
-      completedEventStats ||
+      completedEventResult?.playStats ||
       loadCurrentPlayStats({
         mode,
         solution,

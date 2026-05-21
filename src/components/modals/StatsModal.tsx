@@ -11,6 +11,7 @@ import {
   DetailStatsSummary,
   getCurrentPlayDurationMs,
   getFirstInputDelayMs,
+  getTotalGuessTimeMs,
   getTotalLongPauseMs,
   getTotalDeletePresses,
   getTotalEnterPresses,
@@ -584,13 +585,14 @@ export const StatsModal = ({
     ? getFirstInputDelayMs(playStats)
     : undefined
   const totalLongPauseMs = getTotalLongPauseMs(playStats)
-  const totalGuessTimeMs =
-    currentPlayDurationMs === undefined || firstInputDelayMs === undefined
-      ? undefined
-      : Math.max(
-          0,
-          currentPlayDurationMs - firstInputDelayMs - totalLongPauseMs
-        )
+  const completedGuessTimeMs = playStats.completedAt
+    ? getTotalGuessTimeMs(playStats)
+    : undefined
+  const totalGuessTimeMs = completedToday
+    ? completedGuessTimeMs
+    : currentPlayDurationMs === undefined || firstInputDelayMs === undefined
+    ? undefined
+    : Math.max(0, currentPlayDurationMs - firstInputDelayMs - totalLongPauseMs)
   const totalEnterPresses = getTotalEnterPresses(playStats)
   const totalIncompleteEnterPresses = playStats.guessStats.reduce(
     (sum, guess) => sum + guess.incompleteEnterPresses,
