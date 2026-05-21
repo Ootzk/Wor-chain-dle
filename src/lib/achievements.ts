@@ -13,7 +13,7 @@ import {
 } from './achievementProgress'
 import {
   SUMMER_GARDEN_CLOVER_COLLECTION_ID,
-  SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+  SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
 } from './eventCollectibles'
 import { CharStatus, getGuessStatuses } from './statuses'
 import {
@@ -381,18 +381,15 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ progress, eventVersion }) => {
       const collection =
         progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
-      const rowTargets = Object.entries(SUMMER_GARDEN_CLOVER_ROW_TARGETS)
-      const target = rowTargets.reduce((sum, [, target]) => sum + target, 0)
       if (eventVersion && eventVersion !== SUMMER_GARDEN_VERSION) {
-        return { current: 0, target }
+        return { current: 0, target: SUMMER_GARDEN_CLOVER_TOTAL_TARGET }
       }
       return {
-        current: rowTargets.reduce(
-          (sum, [itemId, target]) =>
-            sum + Math.min(collection[itemId] ?? 0, target),
+        current: Object.values(collection).reduce(
+          (sum, count) => sum + count,
           0
         ),
-        target,
+        target: SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
       }
     },
   },

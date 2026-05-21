@@ -31,6 +31,8 @@ export const SUMMER_GARDEN_CLOVER_ROW_TARGETS: Record<string, number> = {
   row_5: 15,
 }
 
+export const SUMMER_GARDEN_CLOVER_TOTAL_TARGET = 37
+
 const hashSeed = (seed: string) =>
   seed.split('').reduce((hash, char) => {
     return (hash * 31 + char.charCodeAt(0)) >>> 0

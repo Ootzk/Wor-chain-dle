@@ -256,13 +256,13 @@ describe('share badge achievements', () => {
     )
   })
 
-  it('unlocks the clover badge after meeting every event row target', () => {
+  it('unlocks the clover badge after collecting 37 clovers total', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.collectibles['v1.7.0-summer-garden-clover'] = {
-      row_2: 3,
-      row_3: 7,
+      row_2: 20,
+      row_3: 5,
       row_4: 10,
-      row_5: 15,
+      row_5: 2,
     }
 
     expect(
@@ -325,13 +325,13 @@ describe('share badge achievements', () => {
     ).toContain('rabbit_speed')
   })
 
-  it('does not let extra clovers in one row replace another row target', () => {
+  it('does not unlock the clover badge below the total clover target', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.collectibles['v1.7.0-summer-garden-clover'] = {
       row_2: 20,
-      row_3: 20,
-      row_4: 20,
-      row_5: 14,
+      row_3: 5,
+      row_4: 10,
+      row_5: 1,
     }
 
     expect(
