@@ -34,7 +34,7 @@ import {
   getAchievementModes,
   getAchievementsWithStatus,
   markAchievementsSeen,
-  AchievementCategory,
+  AchievementType,
 } from '../../lib/achievements'
 import { loadDailyResultHistory } from '../../lib/dailyResults'
 import { loadStats } from '../../lib/stats'
@@ -55,7 +55,7 @@ import { RELEASE_METADATA } from '../../lib/releaseMetadata'
 import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
 import { GameMode } from '../../lib/gameMode'
 
-const CATEGORY_ICONS: Record<AchievementCategory, string> = {
+const ACHIEVEMENT_TYPE_ICONS: Record<AchievementType, string> = {
   milestone: '\uD83C\uDFAF',
   guess: '\uD83C\uDFB2',
   streak: '\uD83D\uDD25',
@@ -64,7 +64,7 @@ const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   performance: '\uD83D\uDCCA',
 }
 
-const ACHIEVEMENT_CATEGORY_LABEL_KEYS: Record<AchievementCategory, string> = {
+const ACHIEVEMENT_TYPE_LABEL_KEYS: Record<AchievementType, string> = {
   milestone: 'achievementCategoryMilestone',
   guess: 'achievementCategoryGuess',
   streak: 'achievementCategoryStreak',
@@ -73,7 +73,7 @@ const ACHIEVEMENT_CATEGORY_LABEL_KEYS: Record<AchievementCategory, string> = {
   performance: 'achievementCategoryPerformance',
 }
 
-const ACHIEVEMENT_CATEGORY_DESC_KEYS: Record<AchievementCategory, string> = {
+const ACHIEVEMENT_TYPE_DESC_KEYS: Record<AchievementType, string> = {
   milestone: 'achievementCategoryMilestoneDesc',
   guess: 'achievementCategoryGuessDesc',
   streak: 'achievementCategoryStreakDesc',
@@ -96,9 +96,9 @@ type FilterKey =
   | 'priority'
   | 'status'
   | 'version'
-  | 'category'
-  | 'rewardCategory'
-  | 'mode'
+  | 'achievementType'
+  | 'cosmeticCategory'
+  | 'gameMode'
 type PriorityFilterValue = 'new' | 'favorite' | 'normal'
 type StatusFilterValue = 'equipped' | 'unlocked' | 'locked'
 type FilterPickerOption = {
@@ -112,9 +112,9 @@ const DEFAULT_FILTER_ORDER: FilterKey[] = [
   'priority',
   'status',
   'version',
-  'category',
-  'rewardCategory',
-  'mode',
+  'achievementType',
+  'cosmeticCategory',
+  'gameMode',
 ]
 const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
   'new',
@@ -132,9 +132,9 @@ const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
   priority: [],
   status: [],
   version: [],
-  category: [],
-  rewardCategory: [],
-  mode: [],
+  achievementType: [],
+  cosmeticCategory: [],
+  gameMode: [],
 })
 
 type AchievementFilterPreferences = {
@@ -143,9 +143,9 @@ type AchievementFilterPreferences = {
   priorityFilters: string[]
   statusFilters: string[]
   versionFilters: string[]
-  categoryFilters: string[]
-  rewardCategoryFilters: string[]
-  modeFilters: string[]
+  achievementTypeFilters: string[]
+  cosmeticCategoryFilters: string[]
+  gameModeFilters: string[]
   filterOrder: FilterKey[]
   optionOrders: Record<FilterKey, string[]>
 }
@@ -163,16 +163,23 @@ const normalizeDisplayMode = (
 ): VisibleAchievementFilterDisplayMode =>
   value === 'collapsed' ? 'collapsed' : 'expanded'
 
+const normalizeFilterKey = (value: unknown): FilterKey | undefined => {
+  return DEFAULT_FILTER_ORDER.includes(value as FilterKey)
+    ? (value as FilterKey)
+    : undefined
+}
+
 const normalizeFilterOrder = (value: unknown): FilterKey[] => {
   const seen = new Set<FilterKey>()
-  const storedOrder = Array.isArray(value)
-    ? value.filter((item): item is FilterKey => {
-        if (!DEFAULT_FILTER_ORDER.includes(item as FilterKey)) return false
-        if (seen.has(item as FilterKey)) return false
-        seen.add(item as FilterKey)
-        return true
-      })
-    : []
+  const storedOrder: FilterKey[] = []
+  if (Array.isArray(value)) {
+    value.forEach((item) => {
+      const filterKey = normalizeFilterKey(item)
+      if (!filterKey || seen.has(filterKey)) return
+      seen.add(filterKey)
+      storedOrder.push(filterKey)
+    })
+  }
 
   return [
     ...DEFAULT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
@@ -205,9 +212,9 @@ const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
     priorityFilters: [],
     statusFilters: [],
     versionFilters: [],
-    categoryFilters: [],
-    rewardCategoryFilters: [],
-    modeFilters: [],
+    achievementTypeFilters: [],
+    cosmeticCategoryFilters: [],
+    gameModeFilters: [],
     filterOrder: DEFAULT_FILTER_ORDER,
     optionOrders: createDefaultOptionOrders(),
   }
@@ -224,9 +231,13 @@ const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
       priorityFilters: normalizeStringArray(parsed.priorityFilters),
       statusFilters: normalizeStringArray(parsed.statusFilters),
       versionFilters: normalizeStringArray(parsed.versionFilters),
-      categoryFilters: normalizeStringArray(parsed.categoryFilters),
-      rewardCategoryFilters: normalizeStringArray(parsed.rewardCategoryFilters),
-      modeFilters: normalizeStringArray(parsed.modeFilters),
+      achievementTypeFilters: normalizeStringArray(
+        parsed.achievementTypeFilters
+      ),
+      cosmeticCategoryFilters: normalizeStringArray(
+        parsed.cosmeticCategoryFilters
+      ),
+      gameModeFilters: normalizeStringArray(parsed.gameModeFilters),
       filterOrder: normalizeFilterOrder(parsed.filterOrder),
       optionOrders: normalizeOptionOrders(parsed.optionOrders),
     }
@@ -1031,16 +1042,22 @@ export const AchievementList = ({
         ? initialFilterPreferences.versionFilters
         : [])
   )
-  const [categoryFilters, setCategoryFilters] = useState<string[]>(
-    shouldUsePersistentFilters ? initialFilterPreferences.categoryFilters : []
-  )
-  const [rewardCategoryFilters, setRewardCategoryFilters] = useState<string[]>(
+  const [achievementTypeFilters, setAchievementTypeFilters] = useState<
+    string[]
+  >(
     shouldUsePersistentFilters
-      ? initialFilterPreferences.rewardCategoryFilters
+      ? initialFilterPreferences.achievementTypeFilters
       : []
   )
-  const [modeFilters, setModeFilters] = useState<string[]>(
-    shouldUsePersistentFilters ? initialFilterPreferences.modeFilters : []
+  const [cosmeticCategoryFilters, setCosmeticCategoryFilters] = useState<
+    string[]
+  >(
+    shouldUsePersistentFilters
+      ? initialFilterPreferences.cosmeticCategoryFilters
+      : []
+  )
+  const [gameModeFilters, setGameModeFilters] = useState<string[]>(
+    shouldUsePersistentFilters ? initialFilterPreferences.gameModeFilters : []
   )
   const [filterOrder, setFilterOrder] = useState<FilterKey[]>(
     initialFilterPreferences.filterOrder
@@ -1078,13 +1095,13 @@ export const AchievementList = ({
     ).reverse(),
     optionOrders.version
   )
-  const categoryOptions = mergeOptionOrder(
+  const achievementTypeOptions = mergeOptionOrder(
     uniqueSorted(
-      scopedAchievements.map((achievement) => achievement.category)
-    ) as AchievementCategory[],
-    optionOrders.category
-  ) as AchievementCategory[]
-  const rewardCategoryOptions = mergeOptionOrder(
+      scopedAchievements.map((achievement) => achievement.achievementType)
+    ) as AchievementType[],
+    optionOrders.achievementType
+  ) as AchievementType[]
+  const cosmeticCategoryOptions = mergeOptionOrder(
     uniqueSorted(
       scopedAchievements.flatMap((achievement) =>
         getRewardsForAchievement(achievement.id).map(
@@ -1092,15 +1109,15 @@ export const AchievementList = ({
         )
       )
     ) as CosmeticCategory[],
-    optionOrders.rewardCategory
+    optionOrders.cosmeticCategory
   ) as CosmeticCategory[]
-  const modeOptions = mergeOptionOrder(
+  const gameModeOptions = mergeOptionOrder(
     uniqueSorted(
       scopedAchievements.flatMap((achievement) =>
         getAchievementModes(achievement)
       )
     ) as GameMode[],
-    optionOrders.mode
+    optionOrders.gameMode
   ) as GameMode[]
   const statusOptions = mergeOptionOrder(
     STATUS_FILTER_OPTIONS,
@@ -1122,9 +1139,9 @@ export const AchievementList = ({
         priority: priorityOptions,
         status: statusOptions,
         version: versionOptions,
-        category: categoryOptions,
-        rewardCategory: rewardCategoryOptions,
-        mode: modeOptions,
+        achievementType: achievementTypeOptions,
+        cosmeticCategory: cosmeticCategoryOptions,
+        gameMode: gameModeOptions,
       }[filterKey]
       const currentOrder = mergeOptionOrder(
         availableValues,
@@ -1157,9 +1174,9 @@ export const AchievementList = ({
       priority: priorityOptions,
       status: statusOptions,
       version: versionOptions,
-      category: categoryOptions,
-      rewardCategory: rewardCategoryOptions,
-      mode: modeOptions,
+      achievementType: achievementTypeOptions,
+      cosmeticCategory: cosmeticCategoryOptions,
+      gameMode: gameModeOptions,
     }
     const rank = optionsByKey[filterKey].indexOf(value)
     return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
@@ -1200,10 +1217,10 @@ export const AchievementList = ({
     if (filterKey === 'version') {
       return getRank(filterKey, achievement.metadata?.introducedInVersion)
     }
-    if (filterKey === 'category') {
-      return getRank(filterKey, achievement.category)
+    if (filterKey === 'achievementType') {
+      return getRank(filterKey, achievement.achievementType)
     }
-    if (filterKey === 'rewardCategory') {
+    if (filterKey === 'cosmeticCategory') {
       const ranks = getRewardsForAchievement(achievement.id).map((reward) =>
         getRank(filterKey, reward.category)
       )
@@ -1280,41 +1297,43 @@ export const AchievementList = ({
       description: getVersionFilterDescription(version, t),
     })),
   ]
-  const categoryFilterOptions: FilterPickerOption[] = [
+  const achievementTypeFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
       label: t('achievementFilterAllOption'),
       description: t('achievementFilterAllCategoriesDesc'),
     },
-    ...categoryOptions.map((category) => ({
-      value: category,
-      label: t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category]),
-      description: t(ACHIEVEMENT_CATEGORY_DESC_KEYS[category]),
+    ...achievementTypeOptions.map((achievementType) => ({
+      value: achievementType,
+      label: t(ACHIEVEMENT_TYPE_LABEL_KEYS[achievementType]),
+      description: t(ACHIEVEMENT_TYPE_DESC_KEYS[achievementType]),
       marker: (
-        <span className="text-lg leading-none">{CATEGORY_ICONS[category]}</span>
+        <span className="text-lg leading-none">
+          {ACHIEVEMENT_TYPE_ICONS[achievementType]}
+        </span>
       ),
     })),
   ]
-  const rewardCategoryFilterOptions: FilterPickerOption[] = [
+  const cosmeticCategoryFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
       label: t('achievementFilterAllOption'),
       description: t('achievementFilterAllRewardsDesc'),
     },
-    ...rewardCategoryOptions.map((category) => ({
+    ...cosmeticCategoryOptions.map((category) => ({
       value: category,
       label: t(`${category}Label`),
       description: t(COSMETIC_CATEGORY_DESC_KEYS[category]),
       marker: FILTER_REWARD_MARKERS[category],
     })),
   ]
-  const modeFilterOptions: FilterPickerOption[] = [
+  const gameModeFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
       label: t('achievementFilterAllOption'),
       description: t('achievementFilterAllModesDesc'),
     },
-    ...modeOptions.map((mode) => ({
+    ...gameModeOptions.map((mode) => ({
       value: mode,
       label: t(mode),
       description: t(MODE_DESC_KEYS[mode]),
@@ -1344,18 +1363,18 @@ export const AchievementList = ({
       const matchesVersion =
         versionFilters.length === 0 ||
         versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
-      const matchesCategory =
-        categoryFilters.length === 0 ||
-        categoryFilters.includes(achievement.category)
-      const matchesRewardCategory =
-        rewardCategoryFilters.length === 0 ||
+      const matchesAchievementType =
+        achievementTypeFilters.length === 0 ||
+        achievementTypeFilters.includes(achievement.achievementType)
+      const matchesCosmeticCategory =
+        cosmeticCategoryFilters.length === 0 ||
         rewards.some((reward) =>
-          rewardCategoryFilters.includes(reward.category)
+          cosmeticCategoryFilters.includes(reward.category)
         )
-      const matchesMode =
-        modeFilters.length === 0 ||
+      const matchesGameMode =
+        gameModeFilters.length === 0 ||
         getAchievementModes(achievement).some((achievementMode) =>
-          modeFilters.includes(achievementMode)
+          gameModeFilters.includes(achievementMode)
         )
 
       return (
@@ -1363,9 +1382,9 @@ export const AchievementList = ({
         matchesPriority &&
         matchesStatus &&
         matchesVersion &&
-        matchesCategory &&
-        matchesRewardCategory &&
-        matchesMode
+        matchesAchievementType &&
+        matchesCosmeticCategory &&
+        matchesGameMode
       )
     })
     .sort((a, b) => {
@@ -1402,9 +1421,9 @@ export const AchievementList = ({
       priorityFilters,
       statusFilters,
       versionFilters,
-      categoryFilters,
-      rewardCategoryFilters,
-      modeFilters,
+      achievementTypeFilters,
+      cosmeticCategoryFilters,
+      gameModeFilters,
       filterOrder,
       optionOrders,
     })
@@ -1414,9 +1433,9 @@ export const AchievementList = ({
     priorityFilters,
     statusFilters,
     versionFilters,
-    categoryFilters,
-    rewardCategoryFilters,
-    modeFilters,
+    achievementTypeFilters,
+    cosmeticCategoryFilters,
+    gameModeFilters,
     filterOrder,
     optionOrders,
     shouldUsePersistentFilters,
@@ -1448,13 +1467,13 @@ export const AchievementList = ({
       t(STATUS_LABEL_KEYS[status as StatusFilterValue])
     ),
     ...versionFilters.map((version) => `v${version}`),
-    ...categoryFilters.map((category) =>
-      t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category as AchievementCategory])
+    ...achievementTypeFilters.map((achievementType) =>
+      t(ACHIEVEMENT_TYPE_LABEL_KEYS[achievementType as AchievementType])
     ),
-    ...rewardCategoryFilters.map((category) =>
-      t(`${category as CosmeticCategory}Label`)
+    ...cosmeticCategoryFilters.map((cosmeticCategory) =>
+      t(`${cosmeticCategory as CosmeticCategory}Label`)
     ),
-    ...modeFilters.map((mode) => t(mode)),
+    ...gameModeFilters.map((mode) => t(mode)),
   ].filter(Boolean)
   const filterSummary =
     activeFilterLabels.length > 0
@@ -1465,17 +1484,17 @@ export const AchievementList = ({
     priorityFilters.length > 0 ||
     statusFilters.length > 0 ||
     versionFilters.length > 0 ||
-    categoryFilters.length > 0 ||
-    rewardCategoryFilters.length > 0 ||
-    modeFilters.length > 0
+    achievementTypeFilters.length > 0 ||
+    cosmeticCategoryFilters.length > 0 ||
+    gameModeFilters.length > 0
   const resetFilters = () => {
     setSearchQuery('')
     setPriorityFilters([])
     setStatusFilters([])
     setVersionFilters([])
-    setCategoryFilters([])
-    setRewardCategoryFilters([])
-    setModeFilters([])
+    setAchievementTypeFilters([])
+    setCosmeticCategoryFilters([])
+    setGameModeFilters([])
   }
   const filterRowConfigs: Record<
     FilterKey,
@@ -1504,23 +1523,23 @@ export const AchievementList = ({
       onChange: setVersionFilters,
       options: versionFilterOptions,
     },
-    category: {
+    achievementType: {
       label: t('achievementFilterAchievementType'),
-      values: categoryFilters,
-      onChange: setCategoryFilters,
-      options: categoryFilterOptions,
+      values: achievementTypeFilters,
+      onChange: setAchievementTypeFilters,
+      options: achievementTypeFilterOptions,
     },
-    rewardCategory: {
+    cosmeticCategory: {
       label: t('achievementFilterCosmeticCategory'),
-      values: rewardCategoryFilters,
-      onChange: setRewardCategoryFilters,
-      options: rewardCategoryFilterOptions,
+      values: cosmeticCategoryFilters,
+      onChange: setCosmeticCategoryFilters,
+      options: cosmeticCategoryFilterOptions,
     },
-    mode: {
+    gameMode: {
       label: t('achievementFilterGameMode'),
-      values: modeFilters,
-      onChange: setModeFilters,
-      options: modeFilterOptions,
+      values: gameModeFilters,
+      onChange: setGameModeFilters,
+      options: gameModeFilterOptions,
     },
   }
 
@@ -1626,7 +1645,7 @@ export const AchievementList = ({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-lg flex-shrink-0 w-7 text-center inline-block">
-                      {CATEGORY_ICONS[achievement.category]}
+                      {ACHIEVEMENT_TYPE_ICONS[achievement.achievementType]}
                     </span>
                     <span className="text-sm font-semibold truncate text-gray-900">
                       {t(achievement.titleKey)}

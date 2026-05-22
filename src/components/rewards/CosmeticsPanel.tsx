@@ -49,9 +49,9 @@ type SortFilterKey =
   | 'priority'
   | 'status'
   | 'version'
-  | 'category'
-  | 'rewardCategory'
-  | 'mode'
+  | 'achievementType'
+  | 'cosmeticCategory'
+  | 'gameMode'
 type PriorityFilterValue = 'new' | 'favorite' | 'normal'
 type StatusFilterValue = 'equipped' | 'unlocked' | 'locked'
 
@@ -59,9 +59,9 @@ const DEFAULT_SORT_FILTER_ORDER: SortFilterKey[] = [
   'priority',
   'status',
   'version',
-  'category',
-  'rewardCategory',
-  'mode',
+  'achievementType',
+  'cosmeticCategory',
+  'gameMode',
 ]
 const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
   'new',
@@ -85,18 +85,23 @@ const normalizeStringArray = (value: unknown): string[] =>
     ? value.filter((item): item is string => typeof item === 'string')
     : []
 
+const normalizeSortFilterKey = (value: unknown): SortFilterKey | undefined => {
+  return DEFAULT_SORT_FILTER_ORDER.includes(value as SortFilterKey)
+    ? (value as SortFilterKey)
+    : undefined
+}
+
 const normalizeFilterOrder = (value: unknown): SortFilterKey[] => {
   const seen = new Set<SortFilterKey>()
-  const storedOrder = Array.isArray(value)
-    ? value.filter((item): item is SortFilterKey => {
-        if (!DEFAULT_SORT_FILTER_ORDER.includes(item as SortFilterKey)) {
-          return false
-        }
-        if (seen.has(item as SortFilterKey)) return false
-        seen.add(item as SortFilterKey)
-        return true
-      })
-    : []
+  const storedOrder: SortFilterKey[] = []
+  if (Array.isArray(value)) {
+    value.forEach((item) => {
+      const filterKey = normalizeSortFilterKey(item)
+      if (!filterKey || seen.has(filterKey)) return
+      seen.add(filterKey)
+      storedOrder.push(filterKey)
+    })
+  }
 
   return [
     ...DEFAULT_SORT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
@@ -111,9 +116,9 @@ const normalizeOptionOrders = (
     priority: [],
     status: [],
     version: [],
-    category: [],
-    rewardCategory: [],
-    mode: [],
+    achievementType: [],
+    cosmeticCategory: [],
+    gameMode: [],
   }
   if (!value || typeof value !== 'object') return optionOrders
 
@@ -197,10 +202,10 @@ const getSortValues = (
       ? [achievement.metadata.introducedInVersion]
       : []
   }
-  if (filterKey === 'category') {
-    return achievement ? [achievement.category] : []
+  if (filterKey === 'achievementType') {
+    return achievement ? [achievement.achievementType] : []
   }
-  if (filterKey === 'rewardCategory') {
+  if (filterKey === 'cosmeticCategory') {
     return [option.category]
   }
   return achievement ? getAchievementModes(achievement) : []
