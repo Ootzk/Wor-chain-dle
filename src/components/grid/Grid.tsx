@@ -4,7 +4,7 @@ import { EmptyRow } from './EmptyRow'
 import { ChainBridge } from './ChainBridge'
 import { CONFIG } from '../../constants/config'
 import React from 'react'
-import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline'
+import { EyeIcon, EyeOffIcon, StatusOnlineIcon } from '@heroicons/react/outline'
 import { CosmeticOverrides } from '../../lib/cosmetics'
 import {
   getGridCellKey,
@@ -12,15 +12,17 @@ import {
   GridCellEffects,
   GridRowEffects,
 } from '../../lib/gridEffects'
+import { GridViewOptions } from '../../lib/gridViewOptions'
 
 type Props = {
   guesses: string[][]
   currentGuess: string[]
   solution: string
   isGameComplete?: boolean
-  hideLetters?: boolean
-  showHideLettersToggle?: boolean
-  onToggleHideLetters?: () => void
+  viewOptions: GridViewOptions
+  showLettersToggle?: boolean
+  showLiveEffectsToggle?: boolean
+  onChangeViewOptions?: (options: GridViewOptions) => void
   cellEffects?: GridCellEffects
   rowEffects?: GridRowEffects
   cosmeticOverrides?: CosmeticOverrides
@@ -51,21 +53,43 @@ export const Grid = ({
   currentGuess,
   solution,
   isGameComplete = false,
-  hideLetters = false,
-  showHideLettersToggle = false,
-  onToggleHideLetters,
+  viewOptions,
+  showLettersToggle = false,
+  showLiveEffectsToggle = false,
+  onChangeViewOptions,
   cellEffects,
   rowEffects,
   cosmeticOverrides,
 }: Props) => {
   const elements: React.ReactNode[] = []
+  const hideLetters = viewOptions.lettersHidden
+  const hasViewControls = showLettersToggle || showLiveEffectsToggle
+  const handleToggleLetters = () => {
+    onChangeViewOptions?.({
+      ...viewOptions,
+      lettersHidden: !viewOptions.lettersHidden,
+    })
+  }
+  const handleToggleLiveEffects = () => {
+    onChangeViewOptions?.({
+      ...viewOptions,
+      liveEffectsEnabled: !viewOptions.liveEffectsEnabled,
+    })
+  }
   const getRowCellEffects = (rowIndex: number) =>
     Array.from({ length: CONFIG.wordLength }).reduce<
       Record<number, GridCellEffect>
     >((effects, _, colIndex) => {
       const effect = cellEffects?.[getGridCellKey({ rowIndex, colIndex })]
       if (effect) {
-        effects[colIndex] = effect
+        effects[colIndex] = viewOptions.liveEffectsEnabled
+          ? effect
+          : {
+              ...effect,
+              actor: undefined,
+              hideLetter: false,
+              hideStatus: false,
+            }
       }
       return effects
     }, {})
@@ -122,24 +146,48 @@ export const Grid = ({
           </span>
         )}
         {row}
-        {i === CONFIG.tries - 1 &&
-          showHideLettersToggle &&
-          onToggleHideLetters && (
-            <button
-              type="button"
-              aria-label="Toggle transparent letters"
-              className={`absolute left-[calc(50%+9.5rem)] top-1/2 h-6 w-6 -translate-y-1/2 transition-colors ${
-                hideLetters ? 'text-gray-400 hover:text-gray-500' : 'text-black'
-              }`}
-              onClick={onToggleHideLetters}
-            >
-              {hideLetters ? (
-                <EyeOffIcon className="h-6 w-6" />
-              ) : (
-                <EyeIcon className="h-6 w-6" />
-              )}
-            </button>
-          )}
+        {i === CONFIG.tries - 1 && hasViewControls && (
+          <div className="absolute left-[calc(50%+9.5rem)] top-1/2 flex -translate-y-1/2 flex-col gap-1">
+            {showLiveEffectsToggle ? (
+              <button
+                type="button"
+                aria-label="Toggle live effects"
+                className={`h-6 w-6 transition-colors ${
+                  viewOptions.liveEffectsEnabled
+                    ? 'text-lime-600 hover:text-lime-700'
+                    : 'text-gray-400 hover:text-gray-500'
+                }`}
+                onClick={handleToggleLiveEffects}
+              >
+                <StatusOnlineIcon className="h-6 w-6" />
+              </button>
+            ) : showLettersToggle ? (
+              <span
+                aria-hidden="true"
+                data-testid="view-control-placeholder"
+                className="h-6 w-6"
+              />
+            ) : null}
+            {showLettersToggle && (
+              <button
+                type="button"
+                aria-label="Toggle letters"
+                className={`h-6 w-6 transition-colors ${
+                  viewOptions.lettersHidden
+                    ? 'text-gray-400 hover:text-gray-500'
+                    : 'text-black hover:text-gray-700'
+                }`}
+                onClick={handleToggleLetters}
+              >
+                {viewOptions.lettersHidden ? (
+                  <EyeOffIcon className="h-6 w-6" />
+                ) : (
+                  <EyeIcon className="h-6 w-6" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     )
 

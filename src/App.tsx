@@ -96,6 +96,7 @@ import {
   isPacmanCellRevealed,
 } from './lib/pacman'
 import { mergeGridCellEffects } from './lib/gridEffects'
+import { GridViewOptions } from './lib/gridViewOptions'
 import ReactGA from 'react-ga'
 import '@bcgov/bc-sans/css/BCSans.css'
 import './i18n'
@@ -167,7 +168,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     () => loadSettings().weekStartsOnMonday
   )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
-  const [lettersHidden, setLettersHidden] = useState(false)
+  const [gridViewOptions, setGridViewOptions] = useState<GridViewOptions>({
+    lettersHidden: false,
+    liveEffectsEnabled: true,
+  })
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
@@ -175,13 +179,24 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const effectiveExcludeUrl = settingOverrides?.excludeUrl ?? excludeUrl
   const effectiveEnterValidationHint =
     settingOverrides?.enterValidationHint ?? enterValidationHint
-  const effectiveLettersHidden =
-    settingOverrides?.lettersHidden ?? lettersHidden
-  const canToggleLettersHidden = settingOverrides?.lettersHidden === undefined
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(() =>
     completedEventResult ? !completedEventResult.won : false
   )
+  const canChangeLettersVisibility =
+    settingOverrides?.gridViewOptions?.lettersHidden === undefined
+  const canChangeLiveEffects =
+    isEvent &&
+    (isGameWon || isGameLost) &&
+    settingOverrides?.gridViewOptions?.liveEffectsEnabled === undefined
+  const effectiveGridViewOptions: GridViewOptions = {
+    lettersHidden:
+      settingOverrides?.gridViewOptions?.lettersHidden ??
+      gridViewOptions.lettersHidden,
+    liveEffectsEnabled:
+      settingOverrides?.gridViewOptions?.liveEffectsEnabled ??
+      (isEvent ? gridViewOptions.liveEffectsEnabled : false),
+  }
   const [lossAlert, setLossAlert] = useState('')
   const [successAlert, setSuccessAlert] = useState('')
   const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
@@ -424,9 +439,12 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (!isGameWon && !isGameLost) {
-      setLettersHidden(false)
+      setGridViewOptions({
+        lettersHidden: false,
+        liveEffectsEnabled: true,
+      })
     }
-  }, [isGameWon, isGameLost, mode, solution])
+  }, [isEvent, isGameWon, isGameLost, mode, solution])
 
   useEffect(() => {
     const shouldPersistPlayStats = isDaily || isEvent
@@ -966,9 +984,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           currentGuess={currentGuess}
           solution={solution}
           isGameComplete={isGameWon || isGameLost}
-          hideLetters={effectiveLettersHidden}
-          showHideLettersToggle={canToggleLettersHidden}
-          onToggleHideLetters={() => setLettersHidden((hidden) => !hidden)}
+          viewOptions={effectiveGridViewOptions}
+          showLettersToggle={canChangeLettersVisibility}
+          showLiveEffectsToggle={canChangeLiveEffects}
+          onChangeViewOptions={setGridViewOptions}
           cellEffects={gridCellEffects}
           rowEffects={collectibleRowEffects}
           cosmeticOverrides={cosmeticOverrides}
