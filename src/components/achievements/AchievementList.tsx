@@ -303,7 +303,10 @@ const SortableDragHandle = ({
       className="grid grid-cols-2 gap-[2px] rounded px-0.5 py-1"
     >
       {Array.from({ length: 6 }).map((_, index) => (
-        <span key={index} className="h-1 w-1 rounded-full bg-current" />
+        <span
+          key={index}
+          className="h-[0.1875rem] w-[0.1875rem] rounded-full bg-current"
+        />
       ))}
     </span>
   </button>
