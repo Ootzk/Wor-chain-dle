@@ -264,6 +264,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   )
   const playStatsRef = useRef(playStats)
   const guessesRef = useRef(guesses)
+  const autoOpenedEventInfoRef = useRef<string | undefined>(undefined)
   const pacmanLossHandledRef = useRef(false)
   const pacmanResetKeyRef = useRef(`${mode}:${solution}`)
   const isPacmanEvent =
@@ -373,6 +374,17 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       document.title = `Wor\u{1F517}dle Practice`
     }
   }, [isDaily, isCustom, isEvent, questioner, stats])
+
+  useEffect(() => {
+    if (!isEvent || !event || isPatchNotesModalOpen) return
+    if (isGameWon || isGameLost) return
+    if (autoOpenedEventInfoRef.current === event.version) return
+
+    autoOpenedEventInfoRef.current = event.version
+    setInfoInitialTab('mode')
+    setInfoInitialSection(undefined)
+    setIsInfoModalOpen(true)
+  }, [isEvent, event, isPatchNotesModalOpen, isGameWon, isGameLost])
 
   useEffect(() => {
     if (isDaily) {
