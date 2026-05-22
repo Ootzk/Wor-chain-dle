@@ -91,12 +91,12 @@ const AchievementEquipButton = ({
     <button
       type="button"
       disabled={disabled}
-      className={`flex w-8 flex-shrink-0 items-center justify-center border-l text-sm font-semibold transition-colors ${
+      className={`flex w-8 flex-shrink-0 items-center justify-center border-l text-lg font-semibold transition-colors ${
         !unlocked
           ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-300'
           : isEquipped
-          ? 'cursor-default border-green-300 bg-green-50 text-green-600'
-          : 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+          ? 'cursor-default border-green-500 bg-green-500 text-white'
+          : 'border-green-400 bg-green-50 text-green-600 hover:bg-green-100'
       }`}
       onClick={() => onEquip(rewards)}
       title={rewards.map((reward) => t(reward.titleKey)).join(', ')}
@@ -107,7 +107,7 @@ const AchievementEquipButton = ({
       ) : isEquipped ? (
         '\u2713'
       ) : (
-        '\u2795'
+        '\uD83D\uDD13'
       )}
     </button>
   )
@@ -254,7 +254,7 @@ export const AchievementList = ({
               scrollToId === achievement.id
                 ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
                 : achievement.unlocked
-                ? 'border border-green-400 bg-green-50'
+                ? 'border border-green-500 bg-green-50'
                 : 'border border-gray-200'
             }`}
           >
