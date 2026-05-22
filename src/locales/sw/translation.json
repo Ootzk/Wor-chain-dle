@@ -641,7 +641,7 @@
   "achievement_rabbit_speed_title": "Rabbit Dash",
   "achievement_rabbit_speed_desc": "Shinda michezo 7 ya <eventLink>Summer Garden</eventLink> ndani ya dakika 1",
   "achievement_garden_set_title": "Summer Garden",
-  "achievement_garden_set_desc": "Fungua beji za Clover, Hyacinth, na Rabbit",
+  "achievement_garden_set_desc": "Fungua beji za <cloverLink>Clover</cloverLink>, <hyacinthLink>Hyacinth</hyacinthLink>, na <rabbitLink>Rabbit</rabbitLink>",
   "achievement_practice_win_100_title": "Mazoezi huleta ukamilifu",
   "achievement_practice_win_100_desc": "Shinda michezo 100 ya Mazoezi",
   "achievement_custom_win_10_title": "Mpinzani rafiki",

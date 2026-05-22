@@ -648,7 +648,7 @@
   "achievement_rabbit_speed_title": "Rabbit Dash",
   "achievement_rabbit_speed_desc": "Win 7 <eventLink>Summer Garden</eventLink> games within 1 minute",
   "achievement_garden_set_title": "Summer Garden",
-  "achievement_garden_set_desc": "Unlock the Clover, Hyacinth, and Rabbit badges",
+  "achievement_garden_set_desc": "Unlock the <cloverLink>Clover</cloverLink>, <hyacinthLink>Hyacinth</hyacinthLink>, and <rabbitLink>Rabbit</rabbitLink> badges",
   "achievement_practice_win_100_title": "Practice Makes Perfect",
   "achievement_practice_win_100_desc": "Win 100 games",
   "achievement_custom_win_10_title": "Friendly Rival",

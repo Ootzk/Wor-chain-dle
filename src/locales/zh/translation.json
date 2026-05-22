@@ -641,7 +641,7 @@
   "achievement_rabbit_speed_title": "兔子冲刺",
   "achievement_rabbit_speed_desc": "在 <eventLink>Summer Garden</eventLink> 中7次于1分钟内获胜",
   "achievement_garden_set_title": "Summer Garden",
-  "achievement_garden_set_desc": "解锁四叶草、风信子和兔子徽章",
+  "achievement_garden_set_desc": "解锁<cloverLink>四叶草</cloverLink>、<hyacinthLink>风信子</hyacinthLink>和<rabbitLink>兔子</rabbitLink>徽章",
   "achievement_practice_win_100_title": "熟能生巧",
   "achievement_practice_win_100_desc": "赢得100局",
   "achievement_custom_win_10_title": "友好对手",

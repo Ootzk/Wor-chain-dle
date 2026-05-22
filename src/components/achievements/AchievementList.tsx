@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Trans, useTranslation } from 'react-i18next'
@@ -1009,13 +1009,17 @@ const AchievementDescription = ({
   descriptionKey,
   onOpenDeadEndHelp,
   onOpenEventRecords,
+  onOpenAchievement,
 }: {
   achievementId: string
   descriptionKey: string
   onOpenDeadEndHelp?: () => void
   onOpenEventRecords?: () => void
+  onOpenAchievement?: (achievementId: string) => void
 }) => {
   const { t } = useTranslation()
+  const achievementLinkClassName =
+    'font-medium text-indigo-600 hover:text-indigo-700 underline'
 
   if (achievementId === 'dead_end_tail' && onOpenDeadEndHelp) {
     return (
@@ -1025,7 +1029,7 @@ const AchievementDescription = ({
           deadEndLink: (
             <button
               type="button"
-              className="font-medium text-indigo-600 hover:text-indigo-700 underline"
+              className={achievementLinkClassName}
               onClick={onOpenDeadEndHelp}
             />
           ),
@@ -1049,12 +1053,36 @@ const AchievementDescription = ({
           eventLink: onOpenEventRecords ? (
             <button
               type="button"
-              className="font-medium text-indigo-600 hover:text-indigo-700 underline"
+              className={achievementLinkClassName}
               onClick={onOpenEventRecords}
             />
           ) : (
             <span className="font-medium text-indigo-600 underline" />
           ),
+        }}
+      />
+    )
+  }
+
+  if (achievementId === 'garden_set') {
+    const linkComponent = (targetId: string) =>
+      onOpenAchievement ? (
+        <button
+          type="button"
+          className={achievementLinkClassName}
+          onClick={() => onOpenAchievement(targetId)}
+        />
+      ) : (
+        <span className="font-medium text-indigo-600 underline" />
+      )
+
+    return (
+      <Trans
+        i18nKey={descriptionKey}
+        components={{
+          cloverLink: linkComponent('clover_collector'),
+          hyacinthLink: linkComponent('practice_win_10'),
+          rabbitLink: linkComponent('rabbit_speed'),
         }}
       />
     )
@@ -1093,6 +1121,9 @@ export const AchievementList = ({
   filterDisplayMode?: AchievementFilterDisplayMode
 }) => {
   const { t } = useTranslation()
+  const [focusedAchievementId, setFocusedAchievementId] = useState<
+    string | undefined
+  >(scrollToId)
   const [initialFilterPreferences] = useState(loadAchievementFilterPreferences)
   const shouldUsePersistentFilters =
     persistFilters ??
@@ -1625,10 +1656,10 @@ export const AchievementList = ({
     }
   }, [markSeenOnUnmount])
 
-  useEffect(() => {
-    if (scrollToId && scrollRef.current) {
+  const scrollAchievementIntoView = useCallback((achievementId: string) => {
+    if (scrollRef.current) {
       const el = scrollRef.current.querySelector(
-        `[data-achievement-id="${scrollToId}"]`
+        `[data-achievement-id="${achievementId}"]`
       )
       if (el) {
         setTimeout(
@@ -1637,7 +1668,22 @@ export const AchievementList = ({
         )
       }
     }
+  }, [])
+
+  useEffect(() => {
+    setFocusedAchievementId(scrollToId)
   }, [scrollToId])
+
+  useEffect(() => {
+    if (focusedAchievementId) {
+      scrollAchievementIntoView(focusedAchievementId)
+    }
+  }, [focusedAchievementId, scrollAchievementIntoView])
+
+  const handleOpenAchievement = (achievementId: string) => {
+    setFocusedAchievementId(achievementId)
+    scrollAchievementIntoView(achievementId)
+  }
 
   return (
     <div
@@ -1708,7 +1754,7 @@ export const AchievementList = ({
             key={achievement.id}
             data-achievement-id={achievement.id}
             className={`flex min-h-[5.5rem] items-stretch overflow-hidden rounded-lg transition-colors ${
-              scrollToId === achievement.id
+              focusedAchievementId === achievement.id
                 ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
                 : achievement.unlocked
                 ? 'border border-green-500 bg-green-50'
@@ -1747,6 +1793,7 @@ export const AchievementList = ({
                         descriptionKey={achievement.descriptionKey}
                         onOpenDeadEndHelp={onOpenDeadEndHelp}
                         onOpenEventRecords={onOpenEventRecords}
+                        onOpenAchievement={handleOpenAchievement}
                       />
                     </span>
                   </p>
