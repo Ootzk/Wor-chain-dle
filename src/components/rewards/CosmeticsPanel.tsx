@@ -53,7 +53,7 @@ type SortFilterKey =
   | 'rewardCategory'
   | 'mode'
 type PriorityFilterValue = 'new' | 'favorite' | 'normal'
-type StatusFilterValue = 'unlocked' | 'locked'
+type StatusFilterValue = 'equipped' | 'unlocked' | 'locked'
 
 const DEFAULT_SORT_FILTER_ORDER: SortFilterKey[] = [
   'priority',
@@ -68,7 +68,11 @@ const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
   'favorite',
   'normal',
 ]
-const STATUS_FILTER_OPTIONS: StatusFilterValue[] = ['unlocked', 'locked']
+const STATUS_FILTER_OPTIONS: StatusFilterValue[] = [
+  'equipped',
+  'unlocked',
+  'locked',
+]
 const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
 const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 
@@ -204,10 +208,13 @@ const getSortValues = (
 
 const getCosmeticStatus = (
   option: CosmeticOption,
-  achievementState: ReturnType<typeof loadAchievementState>
+  achievementState: ReturnType<typeof loadAchievementState>,
+  equippedOptionId: string
 ): StatusFilterValue =>
-  !option.requiresAchievement ||
-  !!achievementState.unlocked[option.requiresAchievement]
+  option.id === equippedOptionId
+    ? 'equipped'
+    : !option.requiresAchievement ||
+      !!achievementState.unlocked[option.requiresAchievement]
     ? 'unlocked'
     : 'locked'
 
@@ -239,7 +246,8 @@ const getCosmeticPriority = (
 const sortCosmeticOptions = (
   options: typeof COSMETIC_OPTIONS,
   achievementState: ReturnType<typeof loadAchievementState>,
-  favoriteIds: Set<string>
+  favoriteIds: Set<string>,
+  equippedOptionId: string
 ): typeof COSMETIC_OPTIONS => {
   const { filterOrder, optionOrders } = loadCosmeticSortPreferences()
   const sourceIndexById = new Map(
@@ -257,7 +265,12 @@ const sortCosmeticOptions = (
             )
       return [
         filterKey,
-        mergeOrder(availableValues, optionOrders[filterKey] ?? []),
+        mergeOrder(
+          availableValues,
+          filterKey === 'status' && !optionOrders.status.includes('equipped')
+            ? ['equipped', ...optionOrders.status]
+            : optionOrders[filterKey] ?? []
+        ),
       ]
     })
   ) as Record<SortFilterKey, string[]>
@@ -272,7 +285,7 @@ const sortCosmeticOptions = (
 
     if (filterKey === 'status') {
       const rank = orders.status.indexOf(
-        getCosmeticStatus(option, achievementState)
+        getCosmeticStatus(option, achievementState, equippedOptionId)
       )
       return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
     }
@@ -401,7 +414,8 @@ const CosmeticPicker = ({
   const sortedOptions = sortCosmeticOptions(
     options,
     achievementState,
-    favoriteIdSet
+    favoriteIdSet,
+    equipped
   )
   const [isOpen, setIsOpen] = useState(false)
   const [msgIndex, setMsgIndex] = useState(() =>

@@ -100,7 +100,7 @@ type FilterKey =
   | 'rewardCategory'
   | 'mode'
 type PriorityFilterValue = 'new' | 'favorite' | 'normal'
-type StatusFilterValue = 'unlocked' | 'locked'
+type StatusFilterValue = 'equipped' | 'unlocked' | 'locked'
 type FilterPickerOption = {
   value: string
   label: string
@@ -121,7 +121,11 @@ const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
   'favorite',
   'normal',
 ]
-const STATUS_FILTER_OPTIONS: StatusFilterValue[] = ['unlocked', 'locked']
+const STATUS_FILTER_OPTIONS: StatusFilterValue[] = [
+  'equipped',
+  'unlocked',
+  'locked',
+]
 const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
 const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
@@ -343,11 +347,13 @@ const PRIORITY_DESC_KEYS: Record<PriorityFilterValue, string> = {
 }
 
 const STATUS_LABEL_KEYS: Record<StatusFilterValue, string> = {
+  equipped: 'achievementStatusEquipped',
   unlocked: 'achievementStatusUnlocked',
   locked: 'achievementStatusLocked',
 }
 
 const STATUS_DESC_KEYS: Record<StatusFilterValue, string> = {
+  equipped: 'achievementStatusEquippedDesc',
   unlocked: 'achievementStatusUnlockedDesc',
   locked: 'achievementStatusLockedDesc',
 }
@@ -1043,6 +1049,7 @@ export const AchievementList = ({
     initialFilterPreferences.optionOrders
   )
   const [favoriteIds, setFavoriteIds] = useState(loadAchievementFavoriteIds)
+  const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
   const favoriteIdSet = new Set(favoriteIds)
   const filterSensors = useSensors(
     useSensor(PointerSensor),
@@ -1097,7 +1104,9 @@ export const AchievementList = ({
   ) as GameMode[]
   const statusOptions = mergeOptionOrder(
     STATUS_FILTER_OPTIONS,
-    optionOrders.status
+    optionOrders.status.includes('equipped')
+      ? optionOrders.status
+      : ['equipped', ...optionOrders.status]
   ) as StatusFilterValue[]
   const priorityOptions = mergeOptionOrder(
     PRIORITY_FILTER_OPTIONS,
@@ -1119,7 +1128,9 @@ export const AchievementList = ({
       }[filterKey]
       const currentOrder = mergeOptionOrder(
         availableValues,
-        currentOrders[filterKey]
+        filterKey === 'status' && !currentOrders.status.includes('equipped')
+          ? ['equipped', ...currentOrders.status]
+          : currentOrders[filterKey]
       )
       const oldIndex = currentOrder.indexOf(activeValue)
       const newIndex = currentOrder.indexOf(overValue)
@@ -1160,6 +1171,22 @@ export const AchievementList = ({
     if (favoriteIdSet.has(achievement.id)) return 'favorite'
     return 'normal'
   }
+  const isAchievementEquipped = (
+    achievement: AchievementWithStatus
+  ): boolean => {
+    const rewards = getRewardsForAchievement(achievement.id)
+    return (
+      rewards.length > 0 &&
+      achievement.unlocked &&
+      rewards.every((reward) => equipped[reward.category] === reward.id)
+    )
+  }
+  const getAchievementStatus = (
+    achievement: AchievementWithStatus
+  ): StatusFilterValue => {
+    if (isAchievementEquipped(achievement)) return 'equipped'
+    return achievement.unlocked ? 'unlocked' : 'locked'
+  }
   const getAchievementSortRank = (
     achievement: AchievementWithStatus,
     filterKey: FilterKey
@@ -1168,7 +1195,7 @@ export const AchievementList = ({
       return getRank(filterKey, getAchievementPriority(achievement))
     }
     if (filterKey === 'status') {
-      return getRank(filterKey, achievement.unlocked ? 'unlocked' : 'locked')
+      return getRank(filterKey, getAchievementStatus(achievement))
     }
     if (filterKey === 'version') {
       return getRank(filterKey, achievement.metadata?.introducedInVersion)
@@ -1232,7 +1259,9 @@ export const AchievementList = ({
       label: t(STATUS_LABEL_KEYS[status]),
       description: t(STATUS_DESC_KEYS[status]),
       marker:
-        status === 'unlocked' ? (
+        status === 'equipped' ? (
+          <CheckIcon className="h-5 w-5 text-green-500" />
+        ) : status === 'unlocked' ? (
           <LockOpenIcon className="h-5 w-5 text-green-500" />
         ) : (
           <LockClosedIcon className="h-5 w-5 text-gray-400" />
@@ -1311,7 +1340,7 @@ export const AchievementList = ({
         priorityFilters.includes(getAchievementPriority(achievement))
       const matchesStatus =
         statusFilters.length === 0 ||
-        statusFilters.includes(achievement.unlocked ? 'unlocked' : 'locked')
+        statusFilters.includes(getAchievementStatus(achievement))
       const matchesVersion =
         versionFilters.length === 0 ||
         versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
@@ -1358,8 +1387,6 @@ export const AchievementList = ({
       return (sourceIndexById.get(a.id) ?? 0) - (sourceIndexById.get(b.id) ?? 0)
     })
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
-
   useEffect(() => {
     setActiveFilterDisplayMode(resolvedFilterDisplayMode)
   }, [resolvedFilterDisplayMode])
