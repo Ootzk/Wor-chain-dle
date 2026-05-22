@@ -61,9 +61,7 @@ export const RewardsModal = ({
 
   const tabs = [
     { id: 'achievements' as const, label: t('achievements') },
-    ...(isEventRewards
-      ? []
-      : [{ id: 'cosmetics' as const, label: t('cosmetics') }]),
+    { id: 'cosmetics' as const, label: t('cosmetics') },
   ]
 
   return (
@@ -101,7 +99,7 @@ export const RewardsModal = ({
             filterDisplayMode="expanded"
           />
         )}
-        {!isEventRewards && activeTab === 'cosmetics' && (
+        {activeTab === 'cosmetics' && (
           <CosmeticsPanel
             isUppercase={isUppercase}
             onToggleUppercase={onToggleUppercase}
