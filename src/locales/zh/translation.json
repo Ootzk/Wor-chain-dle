@@ -195,6 +195,8 @@
   "gameplaySettingsGroup": "玩法",
   "uppercaseLabel": "以大写显示",
   "uppercaseDescription": "以大写显示棋盘字母和键盘标签。",
+  "darkModeLabel": "深色模式",
+  "darkModeDescription": "为游戏、记录、奖励和设置使用较暗的界面。",
   "weekStartLabel": "以周一作为每周起始日",
   "weekStartDescription": "在日历中将周一作为一周的第一天。",
   "excludeUrlLabel": "分享时排除URL",

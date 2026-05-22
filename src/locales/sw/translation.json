@@ -195,6 +195,8 @@
   "gameplaySettingsGroup": "Uchezaji",
   "uppercaseLabel": "Onyesha kwa herufi kubwa",
   "uppercaseDescription": "Onyesha herufi za ubao na kibodi kwa herufi kubwa.",
+  "darkModeLabel": "Hali ya giza",
+  "darkModeDescription": "Tumia muonekano wa giza kwa mchezo, rekodi, zawadi na mipangilio.",
   "weekStartLabel": "Anza wiki siku ya Jumatatu",
   "weekStartDescription": "Tumia Jumatatu kama siku ya kwanza kwenye kalenda.",
   "excludeUrlLabel": "Ondoa URL wakati wa kushiriki",

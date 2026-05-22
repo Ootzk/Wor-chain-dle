@@ -170,6 +170,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
+  const [isDarkMode, setIsDarkMode] = useState(() => loadSettings().isDarkMode)
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
     () => loadSettings().weekStartsOnMonday
   )
@@ -436,11 +437,22 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   useEffect(() => {
     saveSettings({
       isUppercase,
+      isDarkMode,
       weekStartsOnMonday,
       excludeUrl,
       enterValidationHint,
     })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl, enterValidationHint])
+  }, [
+    isUppercase,
+    isDarkMode,
+    weekStartsOnMonday,
+    excludeUrl,
+    enterValidationHint,
+  ])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-dark', isDarkMode)
+  }, [isDarkMode])
 
   useEffect(() => {
     if (!isGameWon && !isGameLost) {
@@ -1121,6 +1133,8 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStartsOnMonday={() =>
           setWeekStartsOnMonday(!weekStartsOnMonday)

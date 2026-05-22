@@ -21,6 +21,8 @@ type Props = {
   handleClose: () => void
   isUppercase: boolean
   onToggleUppercase: () => void
+  isDarkMode: boolean
+  onToggleDarkMode: () => void
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   excludeUrl: boolean
@@ -108,6 +110,8 @@ export const SettingsModal = ({
   handleClose,
   isUppercase,
   onToggleUppercase,
+  isDarkMode,
+  onToggleDarkMode,
   weekStartsOnMonday,
   onToggleWeekStartsOnMonday,
   excludeUrl,
@@ -220,6 +224,17 @@ export const SettingsModal = ({
           >
             <Toggle checked={isUppercase} onClick={onToggleUppercase} />
           </SettingRow>
+          {/*
+            Dark mode support is implemented, but the Settings entry stays
+            hidden in v1.7.0 so the later horror Event theme can introduce it
+            with stronger impact. Re-enable this row when the theme is ready.
+            <SettingRow
+              label={t('darkModeLabel')}
+              description={t('darkModeDescription')}
+            >
+              <Toggle checked={isDarkMode} onClick={onToggleDarkMode} />
+            </SettingRow>
+          */}
           <SettingRow
             label={t('excludeUrlLabel')}
             description={t('excludeUrlDescription')}

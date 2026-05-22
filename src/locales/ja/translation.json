@@ -195,6 +195,8 @@
   "gameplaySettingsGroup": "ゲームプレイ",
   "uppercaseLabel": "大文字で表示",
   "uppercaseDescription": "盤面の文字とキーボードの表示を大文字にします。",
+  "darkModeLabel": "ダークモード",
+  "darkModeDescription": "ゲーム、記録、リワード、設定を暗いインターフェースで表示します。",
   "weekStartLabel": "週の始まりを月曜日に",
   "weekStartDescription": "カレンダーで週の始まりを月曜日にします。",
   "excludeUrlLabel": "共有時にURLを除外",

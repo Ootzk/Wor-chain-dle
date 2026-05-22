@@ -32,6 +32,7 @@ export const CreatePuzzlePage = () => {
   const [isUppercase, setIsUppercase] = useState(
     () => loadSettings().isUppercase
   )
+  const [isDarkMode, setIsDarkMode] = useState(() => loadSettings().isDarkMode)
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
     () => loadSettings().weekStartsOnMonday
   )
@@ -51,11 +52,22 @@ export const CreatePuzzlePage = () => {
   useEffect(() => {
     saveSettings({
       isUppercase,
+      isDarkMode,
       weekStartsOnMonday,
       excludeUrl,
       enterValidationHint,
     })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl, enterValidationHint])
+  }, [
+    isUppercase,
+    isDarkMode,
+    weekStartsOnMonday,
+    excludeUrl,
+    enterValidationHint,
+  ])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-dark', isDarkMode)
+  }, [isDarkMode])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -326,6 +338,8 @@ export const CreatePuzzlePage = () => {
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
         weekStartsOnMonday={weekStartsOnMonday}
         onToggleWeekStartsOnMonday={() =>
           setWeekStartsOnMonday(!weekStartsOnMonday)
