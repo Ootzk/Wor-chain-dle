@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { AdjustmentsIcon } from '@heroicons/react/outline'
+import {
+  AdjustmentsIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  XIcon,
+} from '@heroicons/react/outline'
 import {
   closestCenter,
   DndContext,
@@ -413,16 +418,19 @@ const FilterPicker = ({
   label,
   values,
   onChange,
+  onReset,
   onReorderOption,
   options,
 }: {
   label: string
   values: string[]
   onChange: (values: string[]) => void
+  onReset: () => void
   onReorderOption: (activeValue: string, overValue: string) => void
   options: FilterPickerOption[]
 }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const isActive = values.length > 0
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -470,15 +478,39 @@ const FilterPicker = ({
   }
 
   return (
-    <div className="min-w-0">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_1.75rem_1.75rem] overflow-hidden rounded border border-gray-300 bg-white">
       <button
         type="button"
-        className="flex h-7 w-full items-center justify-between gap-1.5 rounded border border-gray-300 bg-white px-2 text-left text-xs text-gray-700"
+        className="flex h-7 min-w-0 items-center px-2 text-left text-xs text-gray-700"
         onClick={() => setIsOpen(true)}
         aria-label={label}
       >
         <span className="min-w-0 truncate">{displayLabel}</span>
-        <span className="flex-shrink-0 text-gray-400">{'\u25BE'}</span>
+      </button>
+      <button
+        type="button"
+        className={`flex h-7 w-7 items-center justify-center border-l text-xs font-semibold ${
+          isActive
+            ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
+            : 'cursor-default border-gray-200 text-gray-200'
+        }`}
+        disabled={!isActive}
+        onClick={onReset}
+        aria-label={`${label} reset`}
+      >
+        <XIcon className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        className="flex h-7 w-7 items-center justify-center border-l border-gray-300 text-gray-500 hover:bg-gray-50"
+        onClick={() => setIsOpen(true)}
+        aria-label={label}
+      >
+        {isOpen ? (
+          <ChevronUpIcon className="h-4 w-4" />
+        ) : (
+          <ChevronDownIcon className="h-4 w-4" />
+        )}
       </button>
 
       {isOpen &&
@@ -553,7 +585,6 @@ const FilterRow = ({
   onReorderOption: (activeValue: string, overValue: string) => void
   options: FilterPickerOption[]
 }) => {
-  const isActive = values.length > 0
   const {
     attributes,
     listeners,
@@ -570,7 +601,7 @@ const FilterRow = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`grid grid-cols-[1.25rem_8.25rem_minmax(0,1fr)_1.75rem] items-center gap-x-1 ${
+      className={`grid grid-cols-[1.25rem_8.25rem_minmax(0,1fr)] items-center gap-x-1 ${
         isDragging ? 'relative z-10 opacity-60' : ''
       }`}
     >
@@ -582,22 +613,10 @@ const FilterRow = ({
         label={label}
         values={values}
         onChange={onChange}
+        onReset={() => onChange([])}
         onReorderOption={onReorderOption}
         options={options}
       />
-      <button
-        type="button"
-        className={`flex h-7 w-7 items-center justify-center rounded border text-xs font-semibold ${
-          isActive
-            ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
-            : 'cursor-default border-transparent text-gray-200'
-        }`}
-        disabled={!isActive}
-        onClick={() => onChange([])}
-        aria-label={`${label} reset`}
-      >
-        {'×'}
-      </button>
     </div>
   )
 }
@@ -631,10 +650,10 @@ const FilterShell = ({
   const resetButton = (
     <button
       type="button"
-      className={`flex h-7 w-7 items-center justify-center rounded border text-xs font-semibold ${
+      className={`flex h-7 w-7 items-center justify-center rounded-l border text-xs font-semibold ${
         hasActiveFilters
           ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
-          : 'cursor-default border-transparent text-gray-200'
+          : 'cursor-default border-gray-200 text-gray-200'
       }`}
       disabled={!hasActiveFilters}
       onClick={(event) => {
@@ -643,17 +662,17 @@ const FilterShell = ({
       }}
       aria-label={t('achievementFilterResetAll')}
     >
-      {'×'}
+      <XIcon className="h-3.5 w-3.5" />
     </button>
   )
 
   if (mode === 'collapsed') {
     return (
       <div className="sticky top-0 z-10 rounded border border-gray-200 bg-white p-2 text-xs">
-        <div className="grid grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-x-1">
+        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-1">
           <button
             type="button"
-            className="flex min-w-0 items-center justify-between gap-2 text-left text-gray-500"
+            className="min-w-0 text-left text-gray-500"
             onClick={onExpand}
             aria-label={t('achievementFilterExpand')}
           >
@@ -667,11 +686,18 @@ const FilterShell = ({
               <span className="text-gray-300">|</span>
               <span className="min-w-0 truncate">{summary}</span>
             </span>
-            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-xs text-gray-500 hover:bg-gray-50">
-              {'\u25BE'}
-            </span>
           </button>
-          {resetButton}
+          <div className="flex">
+            {resetButton}
+            <button
+              type="button"
+              className="-ml-px flex h-7 w-7 items-center justify-center rounded-r border border-gray-300 text-gray-500 hover:bg-gray-50"
+              onClick={onExpand}
+              aria-label={t('achievementFilterExpand')}
+            >
+              <ChevronDownIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -679,8 +705,8 @@ const FilterShell = ({
 
   return (
     <div className="sticky top-0 z-10 space-y-2 rounded border border-gray-200 bg-white p-2">
-      <div className="grid grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-x-1 text-xs">
-        <span className="flex min-w-0 items-center justify-between gap-2 text-gray-500">
+      <div className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-1 text-xs">
+        <span className="min-w-0 text-gray-500">
           <span className="grid min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
             <span
               className="flex items-center justify-center font-semibold text-gray-900"
@@ -691,16 +717,18 @@ const FilterShell = ({
             <span className="text-gray-300">|</span>
             <span className="min-w-0 truncate">{countLabel}</span>
           </span>
+        </span>
+        <div className="flex">
+          {resetButton}
           <button
             type="button"
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-xs text-gray-500 hover:bg-gray-50"
+            className="-ml-px flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-r border border-gray-300 text-gray-500 hover:bg-gray-50"
             onClick={onCollapse}
             aria-label={t('achievementFilterCollapse')}
           >
-            {'\u25B4'}
+            <ChevronUpIcon className="h-4 w-4" />
           </button>
-        </span>
-        {resetButton}
+        </div>
       </div>
       {children}
     </div>
