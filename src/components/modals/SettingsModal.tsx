@@ -5,6 +5,12 @@ import { CheckIcon, ChevronDownIcon, CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../../constants/config'
 import { localeLanguageKey } from '../../i18n'
+import {
+  createProfileExportString,
+  getProfileImportPreview,
+  importProfile,
+  ProfileImportPreview,
+} from '../../lib/profileTransfer'
 
 const langFlags: Record<string, string> = {
   en: '\uD83C\uDDFA\uD83C\uDDF8\uD83C\uDDEC\uD83C\uDDE7',
@@ -121,9 +127,57 @@ export const SettingsModal = ({
 }: Props) => {
   const { t, i18n } = useTranslation()
   const [isLangOpen, setIsLangOpen] = useState(false)
+  const [profileExport, setProfileExport] = useState('')
+  const [profileImport, setProfileImport] = useState('')
+  const [profilePreview, setProfilePreview] =
+    useState<ProfileImportPreview | null>(null)
+  const [profileMessage, setProfileMessage] = useState('')
+  const [profileError, setProfileError] = useState('')
+  const [includeProfileSettings, setIncludeProfileSettings] = useState(true)
+  const [includeProfileCosmetics, setIncludeProfileCosmetics] = useState(true)
   const closeSettings = () => {
     setIsLangOpen(false)
     handleClose()
+  }
+  const resetProfileStatus = () => {
+    setProfileMessage('')
+    setProfileError('')
+  }
+  const getProfileErrorMessage = (error: unknown) => {
+    if (error instanceof Error && i18n.exists(error.message)) {
+      return t(error.message)
+    }
+    return t('profileImportInvalidGeneric')
+  }
+  const handleProfileExport = () => {
+    resetProfileStatus()
+    const value = createProfileExportString()
+    setProfileExport(value)
+    navigator.clipboard?.writeText(value).catch(() => undefined)
+    setProfileMessage(t('profileExportCopied'))
+  }
+  const handleProfilePreview = () => {
+    resetProfileStatus()
+    try {
+      setProfilePreview(getProfileImportPreview(profileImport))
+    } catch (error) {
+      setProfilePreview(null)
+      setProfileError(getProfileErrorMessage(error))
+    }
+  }
+  const handleProfileImport = () => {
+    resetProfileStatus()
+    try {
+      const result = importProfile(profileImport, {
+        includeSettings: includeProfileSettings,
+        includeCosmetics: includeProfileCosmetics,
+      })
+      setProfileExport(result.backup)
+      setProfilePreview(result)
+      setProfileMessage(t('profileImportSuccess'))
+    } catch (error) {
+      setProfileError(getProfileErrorMessage(error))
+    }
   }
   const languagePicker =
     isOpen && isLangOpen
@@ -269,6 +323,130 @@ export const SettingsModal = ({
               onClick={onToggleEnterValidationHint}
             />
           </SettingRow>
+
+          <SettingsGroupTitle separated>
+            {t('profileTransferSettingsGroup')}
+          </SettingsGroupTitle>
+          <div className="space-y-3 py-3 text-left">
+            <p className="text-xs leading-4 text-gray-500">
+              {t('profileTransferDescription')}
+            </p>
+
+            <button
+              type="button"
+              className="w-full rounded border border-indigo-500 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-100"
+              onClick={handleProfileExport}
+            >
+              {t('profileExportButton')}
+            </button>
+            {profileExport && (
+              <textarea
+                className="h-20 w-full resize-none rounded border border-gray-300 p-2 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                readOnly
+                value={profileExport}
+                aria-label={t('profileExportLabel')}
+              />
+            )}
+
+            <textarea
+              className="h-20 w-full resize-none rounded border border-gray-300 p-2 text-xs text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={profileImport}
+              onChange={(event) => {
+                setProfileImport(event.target.value)
+                setProfilePreview(null)
+                resetProfileStatus()
+              }}
+              placeholder={t('profileImportPlaceholder')}
+              aria-label={t('profileImportLabel')}
+            />
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                className="rounded border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={!profileImport.trim()}
+                onClick={handleProfilePreview}
+              >
+                {t('profilePreviewButton')}
+              </button>
+              <button
+                type="button"
+                className="rounded border border-green-500 bg-green-50 px-3 py-2 text-sm font-semibold text-green-600 hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={!profilePreview}
+                onClick={handleProfileImport}
+              >
+                {t('profileImportButton')}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={includeProfileCosmetics}
+                  onChange={() =>
+                    setIncludeProfileCosmetics(!includeProfileCosmetics)
+                  }
+                />
+                {t('profileImportCosmetics')}
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={includeProfileSettings}
+                  onChange={() =>
+                    setIncludeProfileSettings(!includeProfileSettings)
+                  }
+                />
+                {t('profileImportSettings')}
+              </label>
+            </div>
+
+            {profilePreview && (
+              <div className="rounded border border-gray-200 bg-gray-50 p-2 text-xs leading-5 text-gray-600">
+                <div className="font-semibold text-gray-800">
+                  {t('profilePreviewTitle')}
+                </div>
+                <div>
+                  {t('profilePreviewVersion')}: {profilePreview.appVersion}
+                </div>
+                <div>
+                  {t('profilePreviewExportedAt')}:{' '}
+                  {profilePreview.exportedAt.replace('T', ' ').slice(0, 16)}
+                </div>
+                <div>
+                  {t('profilePreviewDaily')}: {profilePreview.dailyResults}
+                </div>
+                <div>
+                  {t('profilePreviewEvent')}: {profilePreview.eventResults}
+                </div>
+                <div>
+                  {t('profilePreviewAchievements')}:{' '}
+                  {profilePreview.achievements}
+                </div>
+              </div>
+            )}
+
+            {profileMessage && (
+              <div className="text-xs font-medium text-green-600">
+                {profileMessage}
+              </div>
+            )}
+            {profileError && (
+              <div className="text-xs font-medium text-purple-600">
+                {profileError}
+              </div>
+            )}
+            {profileMessage === t('profileImportSuccess') && (
+              <button
+                type="button"
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                onClick={() => window.location.reload()}
+              >
+                {t('profileReloadButton')}
+              </button>
+            )}
+          </div>
         </div>
       </BaseModal>
       {languagePicker}

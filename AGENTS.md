@@ -40,6 +40,7 @@ src/
     dailyResults.ts               canonical Daily per-date results, loss reasons, and migration
     dailyHistory.ts               legacy Daily history migration and attendance helpers
     playStats.ts                  in-game detail stats, tile counts, and summaries
+    profileTransfer.ts            WCD1 profile export/import public schema
     resultStats.ts                shared result-to-summary aggregation helpers
     customPuzzle.ts               Custom puzzle URL-safe Base64 codec
     tokenizer.ts                  orthography-aware tokenization
@@ -222,6 +223,15 @@ When referring to versions in prose, use the full semver form with the `v` prefi
   - `unknown`: migrated legacy loss where the exact loss reason cannot be recovered.
 - Detail stats live on `DailyResult.playStats` and are accessed through the `loadDailyDetailStats*`, `saveDailyDetailStats`, and `summarizeDetailStats` helpers in `playStats.ts`.
 - Tile count achievements should use stored `tileCounts` when available. Legacy records without tile counts must not be guessed into retroactive tile-pattern unlocks.
+
+## Profile Transfer
+
+- `src/lib/profileTransfer.ts` owns the public backup format for browser-to-browser record/profile transfer.
+- Export strings use `WCD1:<base64url(json)>` with `schemaVersion: 1`. Treat this as a compatibility contract once released.
+- Use an explicit allowlist. Include records, aggregate stats, achievement state/progress, cosmetic equipment, and settings; do not export raw localStorage.
+- Exclude in-progress game state, patch-note seen state, device/browser metadata, and any private implementation-only keys.
+- Imports should be conservative: merge Daily/Event records by date, union known achievement unlocks, use max counters for achievement progress, ignore unknown achievement/cosmetic ids, and avoid summing aggregate stats across devices.
+- If profile schema changes, add migration/compatibility handling instead of silently changing the meaning of existing `WCD1` payloads.
 
 ## Calendar History Policy
 
