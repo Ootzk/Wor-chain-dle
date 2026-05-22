@@ -46,19 +46,27 @@ const cosmeticCategories: {
 ]
 
 type SortFilterKey =
+  | 'priority'
   | 'status'
   | 'version'
   | 'category'
   | 'rewardCategory'
   | 'mode'
+type PriorityFilterValue = 'new' | 'favorite' | 'normal'
 type StatusFilterValue = 'unlocked' | 'locked'
 
 const DEFAULT_SORT_FILTER_ORDER: SortFilterKey[] = [
+  'priority',
   'status',
   'version',
   'category',
   'rewardCategory',
   'mode',
+]
+const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
+  'new',
+  'favorite',
+  'normal',
 ]
 const STATUS_FILTER_OPTIONS: StatusFilterValue[] = ['unlocked', 'locked']
 const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
@@ -87,11 +95,8 @@ const normalizeFilterOrder = (value: unknown): SortFilterKey[] => {
     : []
 
   return [
-    ...(seen.has('status') ? [] : (['status'] as SortFilterKey[])),
+    ...DEFAULT_SORT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
     ...storedOrder,
-    ...DEFAULT_SORT_FILTER_ORDER.filter(
-      (filterKey) => filterKey !== 'status' && !seen.has(filterKey)
-    ),
   ]
 }
 
@@ -99,6 +104,7 @@ const normalizeOptionOrders = (
   value: unknown
 ): Record<SortFilterKey, string[]> => {
   const optionOrders: Record<SortFilterKey, string[]> = {
+    priority: [],
     status: [],
     version: [],
     category: [],
@@ -220,6 +226,16 @@ const getAchievementFavoriteState = (
 ): boolean =>
   !!option.requiresAchievement && favoriteIds.has(option.requiresAchievement)
 
+const getCosmeticPriority = (
+  option: CosmeticOption,
+  achievementState: ReturnType<typeof loadAchievementState>,
+  favoriteIds: Set<string>
+): PriorityFilterValue => {
+  if (getAchievementNewState(option, achievementState)) return 'new'
+  if (getAchievementFavoriteState(option, favoriteIds)) return 'favorite'
+  return 'normal'
+}
+
 const sortCosmeticOptions = (
   options: typeof COSMETIC_OPTIONS,
   achievementState: ReturnType<typeof loadAchievementState>,
@@ -232,7 +248,9 @@ const sortCosmeticOptions = (
   const orders = Object.fromEntries(
     DEFAULT_SORT_FILTER_ORDER.map((filterKey) => {
       const availableValues =
-        filterKey === 'status'
+        filterKey === 'priority'
+          ? PRIORITY_FILTER_OPTIONS
+          : filterKey === 'status'
           ? STATUS_FILTER_OPTIONS
           : uniqueSorted(
               options.flatMap((option) => getSortValues(option, filterKey))
@@ -245,6 +263,13 @@ const sortCosmeticOptions = (
   ) as Record<SortFilterKey, string[]>
 
   const getRank = (option: CosmeticOption, filterKey: SortFilterKey) => {
+    if (filterKey === 'priority') {
+      const rank = orders.priority.indexOf(
+        getCosmeticPriority(option, achievementState, favoriteIds)
+      )
+      return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
+    }
+
     if (filterKey === 'status') {
       const rank = orders.status.indexOf(
         getCosmeticStatus(option, achievementState)
@@ -258,16 +283,7 @@ const sortCosmeticOptions = (
     })
     return ranks.length > 0 ? Math.min(...ranks) : Number.MAX_SAFE_INTEGER
   }
-  const getPriority = (option: CosmeticOption) => {
-    if (getAchievementNewState(option, achievementState)) return 0
-    if (getAchievementFavoriteState(option, favoriteIds)) return 1
-    return 2
-  }
-
   return [...options].sort((a, b) => {
-    const priorityDiff = getPriority(a) - getPriority(b)
-    if (priorityDiff !== 0) return priorityDiff
-
     for (const filterKey of filterOrder) {
       const rankDiff = getRank(a, filterKey) - getRank(b, filterKey)
       if (rankDiff !== 0) return rankDiff

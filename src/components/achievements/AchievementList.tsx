@@ -92,7 +92,14 @@ type VisibleAchievementFilterDisplayMode = Exclude<
 type AchievementWithStatus = ReturnType<
   typeof getAchievementsWithStatus
 >[number]
-type FilterKey = 'status' | 'version' | 'category' | 'rewardCategory' | 'mode'
+type FilterKey =
+  | 'priority'
+  | 'status'
+  | 'version'
+  | 'category'
+  | 'rewardCategory'
+  | 'mode'
+type PriorityFilterValue = 'new' | 'favorite' | 'normal'
 type StatusFilterValue = 'unlocked' | 'locked'
 type FilterPickerOption = {
   value: string
@@ -102,16 +109,23 @@ type FilterPickerOption = {
 }
 
 const DEFAULT_FILTER_ORDER: FilterKey[] = [
+  'priority',
   'status',
   'version',
   'category',
   'rewardCategory',
   'mode',
 ]
+const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
+  'new',
+  'favorite',
+  'normal',
+]
 const STATUS_FILTER_OPTIONS: StatusFilterValue[] = ['unlocked', 'locked']
 const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
 const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
+  priority: [],
   status: [],
   version: [],
   category: [],
@@ -122,6 +136,7 @@ const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
 type AchievementFilterPreferences = {
   displayMode: VisibleAchievementFilterDisplayMode
   searchQuery: string
+  priorityFilters: string[]
   statusFilters: string[]
   versionFilters: string[]
   categoryFilters: string[]
@@ -156,11 +171,8 @@ const normalizeFilterOrder = (value: unknown): FilterKey[] => {
     : []
 
   return [
-    ...(seen.has('status') ? [] : (['status'] as FilterKey[])),
+    ...DEFAULT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
     ...storedOrder,
-    ...DEFAULT_FILTER_ORDER.filter(
-      (filterKey) => filterKey !== 'status' && !seen.has(filterKey)
-    ),
   ]
 }
 
@@ -186,6 +198,7 @@ const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
   const defaults = {
     displayMode: 'expanded' as const,
     searchQuery: '',
+    priorityFilters: [],
     statusFilters: [],
     versionFilters: [],
     categoryFilters: [],
@@ -204,6 +217,7 @@ const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
       displayMode: normalizeDisplayMode(parsed.displayMode),
       searchQuery:
         typeof parsed.searchQuery === 'string' ? parsed.searchQuery : '',
+      priorityFilters: normalizeStringArray(parsed.priorityFilters),
       statusFilters: normalizeStringArray(parsed.statusFilters),
       versionFilters: normalizeStringArray(parsed.versionFilters),
       categoryFilters: normalizeStringArray(parsed.categoryFilters),
@@ -314,6 +328,18 @@ const MODE_DESC_KEYS: Record<GameMode, string> = {
   practice: 'achievementModePracticeDesc',
   custom: 'achievementModeCustomDesc',
   event: 'achievementModeEventDesc',
+}
+
+const PRIORITY_LABEL_KEYS: Record<PriorityFilterValue, string> = {
+  new: 'achievementPriorityNew',
+  favorite: 'achievementPriorityFavorite',
+  normal: 'achievementPriorityNormal',
+}
+
+const PRIORITY_DESC_KEYS: Record<PriorityFilterValue, string> = {
+  new: 'achievementPriorityNewDesc',
+  favorite: 'achievementPriorityFavoriteDesc',
+  normal: 'achievementPriorityNormalDesc',
 }
 
 const STATUS_LABEL_KEYS: Record<StatusFilterValue, string> = {
@@ -987,6 +1013,9 @@ export const AchievementList = ({
   const [searchQuery, setSearchQuery] = useState(
     shouldUsePersistentFilters ? initialFilterPreferences.searchQuery : ''
   )
+  const [priorityFilters, setPriorityFilters] = useState<string[]>(
+    shouldUsePersistentFilters ? initialFilterPreferences.priorityFilters : []
+  )
   const [statusFilters, setStatusFilters] = useState<string[]>(
     shouldUsePersistentFilters ? initialFilterPreferences.statusFilters : []
   )
@@ -1013,6 +1042,8 @@ export const AchievementList = ({
   const [optionOrders, setOptionOrders] = useState<Record<FilterKey, string[]>>(
     initialFilterPreferences.optionOrders
   )
+  const [favoriteIds, setFavoriteIds] = useState(loadAchievementFavoriteIds)
+  const favoriteIdSet = new Set(favoriteIds)
   const filterSensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -1068,6 +1099,10 @@ export const AchievementList = ({
     STATUS_FILTER_OPTIONS,
     optionOrders.status
   ) as StatusFilterValue[]
+  const priorityOptions = mergeOptionOrder(
+    PRIORITY_FILTER_OPTIONS,
+    optionOrders.priority
+  ) as PriorityFilterValue[]
   const reorderOption = (
     filterKey: FilterKey,
     activeValue: string,
@@ -1075,6 +1110,7 @@ export const AchievementList = ({
   ) => {
     setOptionOrders((currentOrders) => {
       const availableValues = {
+        priority: priorityOptions,
         status: statusOptions,
         version: versionOptions,
         category: categoryOptions,
@@ -1107,6 +1143,7 @@ export const AchievementList = ({
   const getRank = (filterKey: FilterKey, value?: string): number => {
     if (!value) return Number.MAX_SAFE_INTEGER
     const optionsByKey: Record<FilterKey, string[]> = {
+      priority: priorityOptions,
       status: statusOptions,
       version: versionOptions,
       category: categoryOptions,
@@ -1116,10 +1153,20 @@ export const AchievementList = ({
     const rank = optionsByKey[filterKey].indexOf(value)
     return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
   }
+  const getAchievementPriority = (
+    achievement: AchievementWithStatus
+  ): PriorityFilterValue => {
+    if (achievement.isNew) return 'new'
+    if (favoriteIdSet.has(achievement.id)) return 'favorite'
+    return 'normal'
+  }
   const getAchievementSortRank = (
     achievement: AchievementWithStatus,
     filterKey: FilterKey
   ): number => {
+    if (filterKey === 'priority') {
+      return getRank(filterKey, getAchievementPriority(achievement))
+    }
     if (filterKey === 'status') {
       return getRank(filterKey, achievement.unlocked ? 'unlocked' : 'locked')
     }
@@ -1152,6 +1199,28 @@ export const AchievementList = ({
         )
       )
     : undefined
+  const priorityFilterOptions: FilterPickerOption[] = [
+    {
+      value: FILTER_ALL,
+      label: t('achievementFilterAllOption'),
+      description: t('achievementFilterAllPrioritiesDesc'),
+    },
+    ...priorityOptions.map((priority) => ({
+      value: priority,
+      label: t(PRIORITY_LABEL_KEYS[priority]),
+      description: t(PRIORITY_DESC_KEYS[priority]),
+      marker:
+        priority === 'new' ? (
+          <span className="rounded bg-yellow-100 px-1 py-0.5 text-[0.625rem] font-bold leading-none text-yellow-600">
+            NEW!
+          </span>
+        ) : priority === 'favorite' ? (
+          <StarSolidIcon className="h-5 w-5 text-yellow-500" />
+        ) : (
+          <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+        ),
+    })),
+  ]
   const statusFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
@@ -1223,8 +1292,6 @@ export const AchievementList = ({
       marker: <ModeBadge mode={mode} label={t(mode)} />,
     })),
   ]
-  const [favoriteIds, setFavoriteIds] = useState(loadAchievementFavoriteIds)
-  const favoriteIdSet = new Set(favoriteIds)
   const normalizedSearch = searchQuery.trim().toLowerCase()
   const achievements = scopedAchievements
     .filter((achievement) => {
@@ -1239,6 +1306,9 @@ export const AchievementList = ({
           .join(' ')
           .toLowerCase()
           .includes(normalizedSearch)
+      const matchesPriority =
+        priorityFilters.length === 0 ||
+        priorityFilters.includes(getAchievementPriority(achievement))
       const matchesStatus =
         statusFilters.length === 0 ||
         statusFilters.includes(achievement.unlocked ? 'unlocked' : 'locked')
@@ -1261,6 +1331,7 @@ export const AchievementList = ({
 
       return (
         matchesSearch &&
+        matchesPriority &&
         matchesStatus &&
         matchesVersion &&
         matchesCategory &&
@@ -1278,10 +1349,6 @@ export const AchievementList = ({
           if (aIndex !== bIndex) return aIndex - bIndex
         }
       }
-      const aPriority = a.isNew ? 0 : favoriteIdSet.has(a.id) ? 1 : 2
-      const bPriority = b.isNew ? 0 : favoriteIdSet.has(b.id) ? 1 : 2
-      if (aPriority !== bPriority) return aPriority - bPriority
-
       for (const filterKey of filterOrder) {
         const rankDiff =
           getAchievementSortRank(a, filterKey) -
@@ -1305,6 +1372,7 @@ export const AchievementList = ({
     saveAchievementFilterPreferences({
       displayMode: activeFilterDisplayMode,
       searchQuery,
+      priorityFilters,
       statusFilters,
       versionFilters,
       categoryFilters,
@@ -1316,6 +1384,7 @@ export const AchievementList = ({
   }, [
     activeFilterDisplayMode,
     searchQuery,
+    priorityFilters,
     statusFilters,
     versionFilters,
     categoryFilters,
@@ -1345,6 +1414,9 @@ export const AchievementList = ({
 
   const activeFilterLabels = [
     normalizedSearch ? `"${searchQuery.trim()}"` : '',
+    ...priorityFilters.map((priority) =>
+      t(PRIORITY_LABEL_KEYS[priority as PriorityFilterValue])
+    ),
     ...statusFilters.map((status) =>
       t(STATUS_LABEL_KEYS[status as StatusFilterValue])
     ),
@@ -1363,6 +1435,7 @@ export const AchievementList = ({
       : t('achievementFilterSummaryAll')
   const hasActiveFilters =
     normalizedSearch.length > 0 ||
+    priorityFilters.length > 0 ||
     statusFilters.length > 0 ||
     versionFilters.length > 0 ||
     categoryFilters.length > 0 ||
@@ -1370,6 +1443,7 @@ export const AchievementList = ({
     modeFilters.length > 0
   const resetFilters = () => {
     setSearchQuery('')
+    setPriorityFilters([])
     setStatusFilters([])
     setVersionFilters([])
     setCategoryFilters([])
@@ -1385,6 +1459,12 @@ export const AchievementList = ({
       options: FilterPickerOption[]
     }
   > = {
+    priority: {
+      label: t('achievementFilterPriority'),
+      values: priorityFilters,
+      onChange: setPriorityFilters,
+      options: priorityFilterOptions,
+    },
     status: {
       label: t('achievementFilterStatus'),
       values: statusFilters,
