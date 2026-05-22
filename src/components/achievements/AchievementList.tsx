@@ -92,7 +92,8 @@ type VisibleAchievementFilterDisplayMode = Exclude<
 type AchievementWithStatus = ReturnType<
   typeof getAchievementsWithStatus
 >[number]
-type FilterKey = 'version' | 'category' | 'rewardCategory' | 'mode'
+type FilterKey = 'status' | 'version' | 'category' | 'rewardCategory' | 'mode'
+type StatusFilterValue = 'unlocked' | 'locked'
 type FilterPickerOption = {
   value: string
   label: string
@@ -101,14 +102,17 @@ type FilterPickerOption = {
 }
 
 const DEFAULT_FILTER_ORDER: FilterKey[] = [
+  'status',
   'version',
   'category',
   'rewardCategory',
   'mode',
 ]
+const STATUS_FILTER_OPTIONS: StatusFilterValue[] = ['unlocked', 'locked']
 const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
 const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
+  status: [],
   version: [],
   category: [],
   rewardCategory: [],
@@ -118,6 +122,7 @@ const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
 type AchievementFilterPreferences = {
   displayMode: VisibleAchievementFilterDisplayMode
   searchQuery: string
+  statusFilters: string[]
   versionFilters: string[]
   categoryFilters: string[]
   rewardCategoryFilters: string[]
@@ -151,14 +156,15 @@ const normalizeFilterOrder = (value: unknown): FilterKey[] => {
     : []
 
   return [
+    ...(seen.has('status') ? [] : (['status'] as FilterKey[])),
     ...storedOrder,
-    ...DEFAULT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
+    ...DEFAULT_FILTER_ORDER.filter(
+      (filterKey) => filterKey !== 'status' && !seen.has(filterKey)
+    ),
   ]
 }
 
-const normalizeOptionOrders = (
-  value: unknown
-): Record<FilterKey, string[]> => {
+const normalizeOptionOrders = (value: unknown): Record<FilterKey, string[]> => {
   const optionOrders = createDefaultOptionOrders()
   if (!value || typeof value !== 'object') return optionOrders
 
@@ -180,6 +186,7 @@ const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
   const defaults = {
     displayMode: 'expanded' as const,
     searchQuery: '',
+    statusFilters: [],
     versionFilters: [],
     categoryFilters: [],
     rewardCategoryFilters: [],
@@ -197,11 +204,10 @@ const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
       displayMode: normalizeDisplayMode(parsed.displayMode),
       searchQuery:
         typeof parsed.searchQuery === 'string' ? parsed.searchQuery : '',
+      statusFilters: normalizeStringArray(parsed.statusFilters),
       versionFilters: normalizeStringArray(parsed.versionFilters),
       categoryFilters: normalizeStringArray(parsed.categoryFilters),
-      rewardCategoryFilters: normalizeStringArray(
-        parsed.rewardCategoryFilters
-      ),
+      rewardCategoryFilters: normalizeStringArray(parsed.rewardCategoryFilters),
       modeFilters: normalizeStringArray(parsed.modeFilters),
       filterOrder: normalizeFilterOrder(parsed.filterOrder),
       optionOrders: normalizeOptionOrders(parsed.optionOrders),
@@ -308,6 +314,16 @@ const MODE_DESC_KEYS: Record<GameMode, string> = {
   practice: 'achievementModePracticeDesc',
   custom: 'achievementModeCustomDesc',
   event: 'achievementModeEventDesc',
+}
+
+const STATUS_LABEL_KEYS: Record<StatusFilterValue, string> = {
+  unlocked: 'achievementStatusUnlocked',
+  locked: 'achievementStatusLocked',
+}
+
+const STATUS_DESC_KEYS: Record<StatusFilterValue, string> = {
+  unlocked: 'achievementStatusUnlockedDesc',
+  locked: 'achievementStatusLockedDesc',
 }
 
 const SortableDragHandle = ({
@@ -959,9 +975,7 @@ export const AchievementList = ({
   filterDisplayMode?: AchievementFilterDisplayMode
 }) => {
   const { t } = useTranslation()
-  const [initialFilterPreferences] = useState(
-    loadAchievementFilterPreferences
-  )
+  const [initialFilterPreferences] = useState(loadAchievementFilterPreferences)
   const shouldUsePersistentFilters =
     persistFilters ??
     (showFilters && !embedded && filterDisplayMode !== 'hidden')
@@ -972,6 +986,9 @@ export const AchievementList = ({
     useState<AchievementFilterDisplayMode>(resolvedFilterDisplayMode)
   const [searchQuery, setSearchQuery] = useState(
     shouldUsePersistentFilters ? initialFilterPreferences.searchQuery : ''
+  )
+  const [statusFilters, setStatusFilters] = useState<string[]>(
+    shouldUsePersistentFilters ? initialFilterPreferences.statusFilters : []
   )
   const [versionFilters, setVersionFilters] = useState<string[]>(
     initialVersionFilters ??
@@ -1047,6 +1064,10 @@ export const AchievementList = ({
     ) as GameMode[],
     optionOrders.mode
   ) as GameMode[]
+  const statusOptions = mergeOptionOrder(
+    STATUS_FILTER_OPTIONS,
+    optionOrders.status
+  ) as StatusFilterValue[]
   const reorderOption = (
     filterKey: FilterKey,
     activeValue: string,
@@ -1054,6 +1075,7 @@ export const AchievementList = ({
   ) => {
     setOptionOrders((currentOrders) => {
       const availableValues = {
+        status: statusOptions,
         version: versionOptions,
         category: categoryOptions,
         rewardCategory: rewardCategoryOptions,
@@ -1085,6 +1107,7 @@ export const AchievementList = ({
   const getRank = (filterKey: FilterKey, value?: string): number => {
     if (!value) return Number.MAX_SAFE_INTEGER
     const optionsByKey: Record<FilterKey, string[]> = {
+      status: statusOptions,
       version: versionOptions,
       category: categoryOptions,
       rewardCategory: rewardCategoryOptions,
@@ -1097,6 +1120,9 @@ export const AchievementList = ({
     achievement: AchievementWithStatus,
     filterKey: FilterKey
   ): number => {
+    if (filterKey === 'status') {
+      return getRank(filterKey, achievement.unlocked ? 'unlocked' : 'locked')
+    }
     if (filterKey === 'version') {
       return getRank(filterKey, achievement.metadata?.introducedInVersion)
     }
@@ -1126,6 +1152,24 @@ export const AchievementList = ({
         )
       )
     : undefined
+  const statusFilterOptions: FilterPickerOption[] = [
+    {
+      value: FILTER_ALL,
+      label: t('achievementFilterAllOption'),
+      description: t('achievementFilterAllStatusesDesc'),
+    },
+    ...statusOptions.map((status) => ({
+      value: status,
+      label: t(STATUS_LABEL_KEYS[status]),
+      description: t(STATUS_DESC_KEYS[status]),
+      marker:
+        status === 'unlocked' ? (
+          <LockOpenIcon className="h-5 w-5 text-green-500" />
+        ) : (
+          <LockClosedIcon className="h-5 w-5 text-gray-400" />
+        ),
+    })),
+  ]
   const versionFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
@@ -1195,6 +1239,9 @@ export const AchievementList = ({
           .join(' ')
           .toLowerCase()
           .includes(normalizedSearch)
+      const matchesStatus =
+        statusFilters.length === 0 ||
+        statusFilters.includes(achievement.unlocked ? 'unlocked' : 'locked')
       const matchesVersion =
         versionFilters.length === 0 ||
         versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
@@ -1214,6 +1261,7 @@ export const AchievementList = ({
 
       return (
         matchesSearch &&
+        matchesStatus &&
         matchesVersion &&
         matchesCategory &&
         matchesRewardCategory &&
@@ -1257,6 +1305,7 @@ export const AchievementList = ({
     saveAchievementFilterPreferences({
       displayMode: activeFilterDisplayMode,
       searchQuery,
+      statusFilters,
       versionFilters,
       categoryFilters,
       rewardCategoryFilters,
@@ -1267,6 +1316,7 @@ export const AchievementList = ({
   }, [
     activeFilterDisplayMode,
     searchQuery,
+    statusFilters,
     versionFilters,
     categoryFilters,
     rewardCategoryFilters,
@@ -1295,6 +1345,9 @@ export const AchievementList = ({
 
   const activeFilterLabels = [
     normalizedSearch ? `"${searchQuery.trim()}"` : '',
+    ...statusFilters.map((status) =>
+      t(STATUS_LABEL_KEYS[status as StatusFilterValue])
+    ),
     ...versionFilters.map((version) => `v${version}`),
     ...categoryFilters.map((category) =>
       t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category as AchievementCategory])
@@ -1310,12 +1363,14 @@ export const AchievementList = ({
       : t('achievementFilterSummaryAll')
   const hasActiveFilters =
     normalizedSearch.length > 0 ||
+    statusFilters.length > 0 ||
     versionFilters.length > 0 ||
     categoryFilters.length > 0 ||
     rewardCategoryFilters.length > 0 ||
     modeFilters.length > 0
   const resetFilters = () => {
     setSearchQuery('')
+    setStatusFilters([])
     setVersionFilters([])
     setCategoryFilters([])
     setRewardCategoryFilters([])
@@ -1330,6 +1385,12 @@ export const AchievementList = ({
       options: FilterPickerOption[]
     }
   > = {
+    status: {
+      label: t('achievementFilterStatus'),
+      values: statusFilters,
+      onChange: setStatusFilters,
+      options: statusFilterOptions,
+    },
     version: {
       label: t('achievementFilterVersionTheme'),
       values: versionFilters,
