@@ -65,6 +65,7 @@ const settingsKey = 'settings'
 
 export type Settings = {
   isUppercase: boolean
+  isDarkMode: boolean
   weekStartsOnMonday: boolean
   excludeUrl: boolean
   enterValidationHint: boolean
@@ -78,6 +79,7 @@ export const loadSettings = (): Settings => {
   const settings = localStorage.getItem(settingsKey)
   const defaults = {
     isUppercase: false,
+    isDarkMode: false,
     weekStartsOnMonday: false,
     excludeUrl: false,
     enterValidationHint: false,

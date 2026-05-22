@@ -195,6 +195,8 @@
   "gameplaySettingsGroup": "게임플레이",
   "uppercaseLabel": "대문자로 표시",
   "uppercaseDescription": "보드 글자와 키보드 라벨을 대문자로 표시합니다.",
+  "darkModeLabel": "다크 모드",
+  "darkModeDescription": "게임, 기록, 리워드, 설정 화면을 어두운 인터페이스로 표시합니다.",
   "weekStartLabel": "달력 주 시작을 월요일로",
   "weekStartDescription": "달력에서 한 주의 시작을 월요일로 표시합니다.",
   "excludeUrlLabel": "공유 시 URL 제외",

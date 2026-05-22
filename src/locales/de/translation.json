@@ -195,6 +195,8 @@
   "gameplaySettingsGroup": "Gameplay",
   "uppercaseLabel": "In Großbuchstaben anzeigen",
   "uppercaseDescription": "Zeigt Buchstaben auf dem Spielbrett und der Tastatur in Großbuchstaben an.",
+  "darkModeLabel": "Dunkelmodus",
+  "darkModeDescription": "Verwende eine dunklere Oberfläche für Spiel, Rekorde, Belohnungen und Einstellungen.",
   "weekStartLabel": "Woche am Montag beginnen",
   "weekStartDescription": "Verwendet Montag als ersten Tag im Kalender.",
   "excludeUrlLabel": "URL beim Teilen ausschließen",

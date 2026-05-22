@@ -21,6 +21,8 @@ type Props = {
   handleClose: () => void
   isUppercase: boolean
   onToggleUppercase: () => void
+  isDarkMode: boolean
+  onToggleDarkMode: () => void
   weekStartsOnMonday: boolean
   onToggleWeekStartsOnMonday: () => void
   excludeUrl: boolean
@@ -108,6 +110,8 @@ export const SettingsModal = ({
   handleClose,
   isUppercase,
   onToggleUppercase,
+  isDarkMode,
+  onToggleDarkMode,
   weekStartsOnMonday,
   onToggleWeekStartsOnMonday,
   excludeUrl,
@@ -219,6 +223,12 @@ export const SettingsModal = ({
             description={t('uppercaseDescription')}
           >
             <Toggle checked={isUppercase} onClick={onToggleUppercase} />
+          </SettingRow>
+          <SettingRow
+            label={t('darkModeLabel')}
+            description={t('darkModeDescription')}
+          >
+            <Toggle checked={isDarkMode} onClick={onToggleDarkMode} />
           </SettingRow>
           <SettingRow
             label={t('excludeUrlLabel')}
