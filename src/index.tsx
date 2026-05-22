@@ -9,14 +9,20 @@ import {
 } from 'react-router-dom'
 import './index.css'
 import App from './App'
-import { solution as dailySolution, isWordInWordList } from './lib/words'
+import {
+  solution as dailySolution,
+  dateKey as dailyDateKey,
+  isWordInWordList,
+} from './lib/words'
 import { getRandomWord } from './lib/words'
 import { decodeCustomPuzzle } from './lib/customPuzzle'
 import { getActiveEvent, getEventWordOfDay } from './lib/events'
 import { CreatePuzzlePage } from './components/pages/CreatePuzzlePage'
 import reportWebVitals from './reportWebVitals'
 
-const DailyPage = () => <App mode="daily" solution={dailySolution} />
+const DailyPage = () => (
+  <App mode="daily" solution={dailySolution} dateKey={dailyDateKey} />
+)
 
 const PracticePage = () => {
   const [practiceSolution] = useState(() => getRandomWord())

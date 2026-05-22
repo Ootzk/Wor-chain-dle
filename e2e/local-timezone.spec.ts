@@ -1,6 +1,10 @@
 import { test as base, expect, Page } from '@playwright/test'
 import { PATCH_NOTES_VERSION } from '../src/constants/config'
-import { waitForGameReady, screenshot } from './fixtures/game.fixture'
+import {
+  submitWord,
+  waitForGameReady,
+  screenshot,
+} from './fixtures/game.fixture'
 
 /**
  * Tests for local timezone word reset and dailyHistory migration.
@@ -22,9 +26,7 @@ function addGameInitScript(page: Page) {
     window.addEventListener('keydown', (e) => {
       if (
         e.code === 'Backspace' &&
-        !['INPUT', 'TEXTAREA'].includes(
-          (document.activeElement?.tagName ?? '')
-        )
+        !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName ?? '')
       ) {
         e.preventDefault()
       }
@@ -33,7 +35,9 @@ function addGameInitScript(page: Page) {
 }
 
 test.describe('Local Timezone', () => {
-  test('subtitle shows local date matching browser timezone', async ({ browser }) => {
+  test('subtitle shows local date matching browser timezone', async ({
+    browser,
+  }) => {
     // UTC 2026-03-15T22:00:00Z
     // Tokyo (UTC+9): 2026-03-16 07:00 → subtitle should show 2026-03-16
     // New York (UTC-4 EDT): 2026-03-15 18:00 → subtitle should show 2026-03-15
@@ -63,7 +67,9 @@ test.describe('Local Timezone', () => {
     await nyCtx.close()
   })
 
-  test('same local date in different timezones shows same word', async ({ browser }) => {
+  test('same local date in different timezones shows same word', async ({
+    browser,
+  }) => {
     // Both timezones see "2026-06-01" as local date, but at different UTC instants
     // Tokyo: 2026-06-01 12:00 JST = 2026-06-01T03:00:00Z
     // New York: 2026-06-01 12:00 EDT = 2026-06-01T16:00:00Z
@@ -107,7 +113,9 @@ test.describe('Local Timezone', () => {
     const tokyoTitle = await tokyoPage.title()
     await tokyoCtx.close()
 
-    const laCtx = await browser.newContext({ timezoneId: 'America/Los_Angeles' })
+    const laCtx = await browser.newContext({
+      timezoneId: 'America/Los_Angeles',
+    })
     const laPage = await laCtx.newPage()
     await addGameInitScript(laPage)
     await laPage.clock.setFixedTime(new Date('2026-04-10T23:00:00Z'))
@@ -121,10 +129,49 @@ test.describe('Local Timezone', () => {
     expect(laTitle).toContain('2026-04-10')
     expect(tokyoTitle).not.toBe(laTitle)
   })
+
+  test('Daily completion after midnight is saved to the loaded puzzle date', async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext({ timezoneId: 'Asia/Seoul' })
+    const page = await ctx.newPage()
+    await addGameInitScript(page)
+
+    // 2026-02-20 is the Daily date for HYDRO. Load just before midnight,
+    // then complete after midnight without reloading the page.
+    await page.clock.setFixedTime(new Date('2026-02-20T14:59:30Z'))
+    await page.goto('/')
+    await waitForGameReady(page)
+    await expect(page.locator('p.text-sm.text-gray-500')).toContainText(
+      '2026-02-20'
+    )
+
+    await page.clock.setFixedTime(new Date('2026-02-20T15:00:30Z'))
+    await submitWord(page, 'hydro')
+
+    await expect(page.locator('p.text-sm.text-gray-500')).toContainText(
+      '2026-02-20'
+    )
+
+    const dailyResults = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('dailyResults') || '{}')
+    )
+    expect(dailyResults['2026-02-20']).toMatchObject({
+      won: true,
+      guessCount: 1,
+      endReason: 'win',
+      solution: 'hydro',
+    })
+    expect(dailyResults['2026-02-21']).toBeUndefined()
+
+    await ctx.close()
+  })
 })
 
 test.describe('Daily History Migration', () => {
-  test('legacy integer-key dailyHistory is migrated to date-key format', async ({ browser }) => {
+  test('legacy integer-key dailyHistory is migrated to date-key format', async ({
+    browser,
+  }) => {
     const ctx = await browser.newContext({ timezoneId: 'Asia/Tokyo' })
     const page = await ctx.newPage()
     await addGameInitScript(page)
@@ -133,10 +180,13 @@ test.describe('Daily History Migration', () => {
     // epoch = 2026-02-16, so index 0 = 2026-02-16, index 1 = 2026-02-17, etc.
     // We set clock to March so these dates are in the past
     await page.addInitScript(() => {
-      const legacyHistory: Record<number, { guessCount: number; won: boolean }> = {
-        0: { guessCount: 3, won: true },   // 2026-02-16
-        1: { guessCount: 5, won: true },   // 2026-02-17
-        2: { guessCount: 6, won: false },  // 2026-02-18
+      const legacyHistory: Record<
+        number,
+        { guessCount: number; won: boolean }
+      > = {
+        0: { guessCount: 3, won: true }, // 2026-02-16
+        1: { guessCount: 5, won: true }, // 2026-02-17
+        2: { guessCount: 6, won: false }, // 2026-02-18
       }
       localStorage.setItem('dailyHistory', JSON.stringify(legacyHistory))
       localStorage.setItem('dailyHistoryStartIndex', '0')
@@ -184,9 +234,12 @@ test.describe('Daily History Migration', () => {
     // Inject legacy data for March 2026
     // epoch = 2026-02-16, index 13 = 2026-03-01, index 14 = 2026-03-02, index 15 = 2026-03-03
     await page.addInitScript(() => {
-      const legacyHistory: Record<number, { guessCount: number; won: boolean }> = {
-        13: { guessCount: 2, won: true },  // 2026-03-01
-        14: { guessCount: 4, won: true },  // 2026-03-02
+      const legacyHistory: Record<
+        number,
+        { guessCount: number; won: boolean }
+      > = {
+        13: { guessCount: 2, won: true }, // 2026-03-01
+        14: { guessCount: 4, won: true }, // 2026-03-02
         15: { guessCount: 6, won: false }, // 2026-03-03
       }
       localStorage.setItem('dailyHistory', JSON.stringify(legacyHistory))
@@ -211,7 +264,9 @@ test.describe('Daily History Migration', () => {
     await ctx.close()
   })
 
-  test('already-migrated date-key data is not re-migrated', async ({ browser }) => {
+  test('already-migrated date-key data is not re-migrated', async ({
+    browser,
+  }) => {
     const ctx = await browser.newContext()
     const page = await ctx.newPage()
     await addGameInitScript(page)
