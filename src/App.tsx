@@ -182,6 +182,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [isGameLost, setIsGameLost] = useState(() =>
     completedEventResult ? !completedEventResult.won : false
   )
+  const [lossAlert, setLossAlert] = useState('')
   const [successAlert, setSuccessAlert] = useState('')
   const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
   const applyLoadedGameStatus = (loadedGuesses: string[][]) => {
@@ -481,7 +482,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       }, ALERT_TIME_MS)
     }
     if (isGameLost) {
+      setLossAlert(t(alertKeys.loss, { solution }))
       setTimeout(() => {
+        setLossAlert('')
         setIsStatsModalOpen(true)
       }, ALERT_TIME_MS)
     }
@@ -1132,12 +1135,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
       <Alert message={t('notEnoughLetters')} isOpen={isNotEnoughLetters} />
       <Alert message={t('wordNotFound')} isOpen={isWordNotFoundAlertOpen} />
-      <Alert
-        message={t(getEquippedAlertMessageKeys(cosmeticOverrides).loss, {
-          solution,
-        })}
-        isOpen={isGameLost}
-      />
+      <Alert message={lossAlert} isOpen={lossAlert !== ''} />
       <Alert
         message={successAlert}
         isOpen={successAlert !== ''}
