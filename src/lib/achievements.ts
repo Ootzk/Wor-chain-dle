@@ -33,11 +33,11 @@ import { loadEventResults } from './eventResults'
 
 // --- Type Definitions ---
 
-export type AchievementCategory =
+export type AchievementType =
   | 'milestone'
   | 'guess'
   | 'streak'
-  | 'event'
+  | 'challenge'
   | 'collection'
   | 'performance'
 
@@ -81,7 +81,7 @@ export type AchievementProgress = {
 
 export type AchievementDef = {
   id: string
-  category: AchievementCategory
+  achievementType: AchievementType
   modes?: GameMode[]
   requiresAchievements?: string[]
   difficulty: number // 1-10, UI에서 별 5개로 매핑 (2당 별 1개)
@@ -283,7 +283,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Milestone
   {
     id: 'play_10',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily'],
     difficulty: 1,
     metadata: REWARD_METADATA.v1_5_0,
@@ -293,7 +293,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'play_50',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily'],
     difficulty: 4,
     metadata: REWARD_METADATA.v1_5_0,
@@ -303,7 +303,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'play_100',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily'],
     difficulty: 6,
     metadata: REWARD_METADATA.v1_5_0,
@@ -313,7 +313,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'play_150',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily'],
     difficulty: 8,
     metadata: REWARD_METADATA.v1_6_0,
@@ -323,7 +323,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'fail_100',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily'],
     difficulty: 8,
     metadata: REWARD_METADATA.v1_6_0,
@@ -333,7 +333,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'monthly_attendance',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily'],
     difficulty: 9,
     metadata: REWARD_METADATA.v1_6_0,
@@ -346,7 +346,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'played_v1_6_0_5',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily', 'practice', 'custom'],
     difficulty: 1,
     metadata: REWARD_METADATA.v1_6_0,
@@ -359,7 +359,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'played_v1_7_0_5',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['daily', 'practice', 'custom'],
     difficulty: 1,
     metadata: REWARD_METADATA.v1_7_0,
@@ -372,7 +372,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'clover_collector',
-    category: 'collection',
+    achievementType: 'collection',
     modes: ['event'],
     difficulty: 7,
     metadata: REWARD_METADATA.v1_7_0,
@@ -395,7 +395,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'practice_win_10',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['practice'],
     difficulty: 3,
     metadata: REWARD_METADATA.v1_7_0,
@@ -408,7 +408,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'rabbit_speed',
-    category: 'performance',
+    achievementType: 'performance',
     modes: ['event'],
     difficulty: 5,
     metadata: REWARD_METADATA.v1_7_0,
@@ -418,7 +418,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'garden_set',
-    category: 'collection',
+    achievementType: 'collection',
     modes: ['daily', 'practice', 'custom', 'event'],
     requiresAchievements: GARDEN_SET_COMPONENT_ACHIEVEMENTS,
     difficulty: 7,
@@ -430,7 +430,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'practice_win_100',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['practice'],
     difficulty: 8,
     metadata: REWARD_METADATA.v1_6_0,
@@ -443,7 +443,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'custom_win_10',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['custom'],
     difficulty: 4,
     metadata: REWARD_METADATA.v1_6_0,
@@ -458,7 +458,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Guess — N번째 시도로 N회 승리
   {
     id: 'win_in_1',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 10,
     metadata: REWARD_METADATA.v1_5_0,
@@ -468,7 +468,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_2',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 9,
     metadata: REWARD_METADATA.v1_5_0,
@@ -478,7 +478,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_3',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 7,
     metadata: REWARD_METADATA.v1_5_0,
@@ -488,7 +488,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_4',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 6,
     metadata: REWARD_METADATA.v1_5_0,
@@ -498,7 +498,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_5',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 4,
     metadata: REWARD_METADATA.v1_5_0,
@@ -508,7 +508,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_6',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 3,
     metadata: REWARD_METADATA.v1_5_0,
@@ -518,7 +518,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'win_in_6_20',
-    category: 'guess',
+    achievementType: 'guess',
     modes: ['daily'],
     difficulty: 6,
     metadata: REWARD_METADATA.v1_7_0,
@@ -533,7 +533,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Streak
   {
     id: 'streak_3',
-    category: 'streak',
+    achievementType: 'streak',
     modes: ['daily'],
     difficulty: 3,
     metadata: REWARD_METADATA.v1_5_0,
@@ -543,7 +543,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'grassland_trail',
-    category: 'milestone',
+    achievementType: 'milestone',
     modes: ['event'],
     difficulty: 3,
     metadata: REWARD_METADATA.v1_7_0,
@@ -553,7 +553,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'streak_7',
-    category: 'streak',
+    achievementType: 'streak',
     modes: ['daily'],
     difficulty: 6,
     metadata: REWARD_METADATA.v1_5_0,
@@ -563,7 +563,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'streak_14',
-    category: 'streak',
+    achievementType: 'streak',
     modes: ['daily'],
     difficulty: 8,
     metadata: REWARD_METADATA.v1_6_0,
@@ -573,7 +573,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'streak_30',
-    category: 'streak',
+    achievementType: 'streak',
     modes: ['daily'],
     difficulty: 10,
     metadata: REWARD_METADATA.v1_5_0,
@@ -585,7 +585,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Event — 특정 게임 상황에서 발생하는 업적
   {
     id: 'dead_end_tail',
-    category: 'event',
+    achievementType: 'challenge',
     modes: ['daily'],
     difficulty: 7,
     metadata: REWARD_METADATA.v1_6_0,
@@ -603,7 +603,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'bibimbap_balance',
-    category: 'event',
+    achievementType: 'challenge',
     difficulty: 9,
     metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_bibimbap_balance_title',
@@ -621,7 +621,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'yogurt_recipe',
-    category: 'event',
+    achievementType: 'challenge',
     difficulty: 6,
     metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_yogurt_recipe_title',
@@ -634,7 +634,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'no_present_game',
-    category: 'performance',
+    achievementType: 'performance',
     modes: ['daily'],
     difficulty: 5,
     metadata: REWARD_METADATA.v1_7_0,
@@ -645,7 +645,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'no_correct_game',
-    category: 'performance',
+    achievementType: 'performance',
     modes: ['daily'],
     difficulty: 6,
     metadata: REWARD_METADATA.v1_7_0,
@@ -656,7 +656,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'grass_diet',
-    category: 'event',
+    achievementType: 'challenge',
     modes: ['event'],
     difficulty: 8,
     metadata: REWARD_METADATA.v1_7_0,

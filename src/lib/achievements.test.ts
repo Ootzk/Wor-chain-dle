@@ -51,7 +51,7 @@ const createAchievement = (
   overrides: Partial<AchievementDef>
 ): AchievementDef => ({
   id: 'test_achievement',
-  category: 'milestone',
+  achievementType: 'milestone',
   difficulty: 1,
   progress: alwaysComplete,
   titleKey: 'test_title',

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { AchievementList } from '../achievements/AchievementList'
+import { SUMMER_GARDEN_DASHBOARD_ACHIEVEMENT_IDS } from './summerGardenAchievements'
 
 const EVENT_RULE_KEYS = [
   'eventSummerGardenRuleStart',
@@ -8,13 +9,6 @@ const EVENT_RULE_KEYS = [
   'eventSummerGardenRuleGameOver',
   'eventSummerGardenRuleClover',
 ] as const
-
-const SUMMER_GARDEN_ACHIEVEMENT_IDS = [
-  'clover_collector',
-  'rabbit_speed',
-  'grassland_trail',
-  'grass_diet',
-]
 
 export const SummerGardenEventGuide = () => {
   const { t } = useTranslation()
@@ -43,7 +37,8 @@ export const SummerGardenEventGuide = () => {
       </h5>
       <div className="mt-2">
         <AchievementList
-          achievementIds={SUMMER_GARDEN_ACHIEVEMENT_IDS}
+          achievementIds={SUMMER_GARDEN_DASHBOARD_ACHIEVEMENT_IDS}
+          sortAchievementIds={SUMMER_GARDEN_DASHBOARD_ACHIEVEMENT_IDS}
           mode="event"
           embedded
           markSeenOnUnmount={false}

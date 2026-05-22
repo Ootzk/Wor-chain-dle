@@ -222,7 +222,7 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'badge_chain',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_chain',
-    metadata: REWARD_METADATA.v1_6_0,
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'badge_fire',

@@ -15,6 +15,7 @@ import { Cell } from '../grid/Cell'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { AchievementList } from '../achievements/AchievementList'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
+import { SUMMER_GARDEN_DASHBOARD_ACHIEVEMENT_IDS } from './summerGardenAchievements'
 
 type Props = {
   event?: EventDefinition | null
@@ -38,13 +39,6 @@ type Props = {
 
 const EMPTY_VALUE = '-'
 const ONE_MINUTE_MS = 60 * 1000
-const SUMMER_GARDEN_ACHIEVEMENT_IDS = [
-  'clover_collector',
-  'rabbit_speed',
-  'grassland_trail',
-  'grass_diet',
-]
-
 const EventGroupTitle = ({
   children,
   separated = false,
@@ -258,7 +252,8 @@ export const EventRecordsPanel = ({
         <section>
           <EventGroupTitle separated>{t('eventAchievements')}</EventGroupTitle>
           <AchievementList
-            achievementIds={SUMMER_GARDEN_ACHIEVEMENT_IDS}
+            achievementIds={SUMMER_GARDEN_DASHBOARD_ACHIEVEMENT_IDS}
+            sortAchievementIds={SUMMER_GARDEN_DASHBOARD_ACHIEVEMENT_IDS}
             mode="event"
             embedded
             markSeenOnUnmount={false}

@@ -1,6 +1,15 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Temporal } from 'temporal-polyfill'
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  LockClosedIcon,
+  StarIcon as StarOutlineIcon,
+} from '@heroicons/react/outline'
+import { StarIcon as StarSolidIcon } from '@heroicons/react/solid'
 import { CONFIG } from '../../constants/config'
 import {
   ALERT_MESSAGE_KEYS,
@@ -10,7 +19,11 @@ import {
   loadCosmeticState,
   MSG_THEME_EMOJI,
 } from '../../lib/cosmetics'
-import { loadAchievementState } from '../../lib/achievements'
+import {
+  ACHIEVEMENTS,
+  getAchievementModes,
+  loadAchievementState,
+} from '../../lib/achievements'
 import { generateShareText } from '../../lib/share'
 import { getRewardMetadataLabel } from '../../lib/rewardMetadata'
 import { ChainBridge } from '../grid/ChainBridge'
@@ -31,6 +44,276 @@ const cosmeticCategories: {
   { category: 'chainColor', labelKey: 'chainColorLabel' },
   { category: 'endMessage', labelKey: 'endMessageLabel' },
 ]
+
+type SortFilterKey =
+  | 'priority'
+  | 'status'
+  | 'version'
+  | 'achievementType'
+  | 'cosmeticCategory'
+  | 'gameMode'
+type PriorityFilterValue = 'new' | 'favorite' | 'normal'
+type StatusFilterValue = 'equipped' | 'unlocked' | 'locked'
+
+const DEFAULT_SORT_FILTER_ORDER: SortFilterKey[] = [
+  'priority',
+  'status',
+  'version',
+  'achievementType',
+  'cosmeticCategory',
+  'gameMode',
+]
+const PRIORITY_FILTER_OPTIONS: PriorityFilterValue[] = [
+  'new',
+  'favorite',
+  'normal',
+]
+const STATUS_FILTER_OPTIONS: StatusFilterValue[] = [
+  'equipped',
+  'unlocked',
+  'locked',
+]
+const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences:v1.7.0'
+const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
+
+const achievementById = new Map(
+  ACHIEVEMENTS.map((achievement) => [achievement.id, achievement] as const)
+)
+
+const DEFAULT_REWARD_MODES = ['daily', 'practice', 'custom', 'event']
+
+const getCosmeticFavoriteId = (option: CosmeticOption): string =>
+  option.requiresAchievement ?? `default_${option.id}`
+
+const normalizeStringArray = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : []
+
+const normalizeSortFilterKey = (value: unknown): SortFilterKey | undefined => {
+  return DEFAULT_SORT_FILTER_ORDER.includes(value as SortFilterKey)
+    ? (value as SortFilterKey)
+    : undefined
+}
+
+const normalizeFilterOrder = (value: unknown): SortFilterKey[] => {
+  const seen = new Set<SortFilterKey>()
+  const storedOrder: SortFilterKey[] = []
+  if (Array.isArray(value)) {
+    value.forEach((item) => {
+      const filterKey = normalizeSortFilterKey(item)
+      if (!filterKey || seen.has(filterKey)) return
+      seen.add(filterKey)
+      storedOrder.push(filterKey)
+    })
+  }
+
+  return [
+    ...storedOrder,
+    ...DEFAULT_SORT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
+  ]
+}
+
+const normalizeOptionOrders = (
+  value: unknown
+): Record<SortFilterKey, string[]> => {
+  const optionOrders: Record<SortFilterKey, string[]> = {
+    priority: [],
+    status: [],
+    version: [],
+    achievementType: [],
+    cosmeticCategory: [],
+    gameMode: [],
+  }
+  if (!value || typeof value !== 'object') return optionOrders
+
+  DEFAULT_SORT_FILTER_ORDER.forEach((filterKey) => {
+    const storedOrder = (value as Partial<Record<SortFilterKey, unknown>>)[
+      filterKey
+    ]
+    optionOrders[filterKey] = normalizeStringArray(storedOrder)
+  })
+
+  return optionOrders
+}
+
+const loadCosmeticSortPreferences = (): {
+  filterOrder: SortFilterKey[]
+  optionOrders: Record<SortFilterKey, string[]>
+} => {
+  try {
+    const raw = localStorage.getItem(FILTER_PREFERENCES_STORAGE_KEY)
+    if (!raw) {
+      return {
+        filterOrder: DEFAULT_SORT_FILTER_ORDER,
+        optionOrders: normalizeOptionOrders(undefined),
+      }
+    }
+
+    const parsed = JSON.parse(raw) as {
+      filterOrder?: unknown
+      optionOrders?: unknown
+    }
+    return {
+      filterOrder: normalizeFilterOrder(parsed.filterOrder),
+      optionOrders: normalizeOptionOrders(parsed.optionOrders),
+    }
+  } catch {
+    return {
+      filterOrder: DEFAULT_SORT_FILTER_ORDER,
+      optionOrders: normalizeOptionOrders(undefined),
+    }
+  }
+}
+
+const loadAchievementFavoriteIds = (): string[] => {
+  try {
+    const raw = localStorage.getItem(FAVORITES_STORAGE_KEY)
+    if (!raw) return []
+    return normalizeStringArray(JSON.parse(raw))
+  } catch {
+    return []
+  }
+}
+
+const saveAchievementFavoriteIds = (achievementIds: string[]) => {
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(achievementIds))
+  } catch {
+    // Favorites are convenience-only; ignore storage failures.
+  }
+}
+
+const uniqueSorted = (values: string[]): string[] =>
+  Array.from(new Set(values)).sort((a, b) => a.localeCompare(b))
+
+const mergeOrder = (availableValues: string[], storedOrder: string[]) => [
+  ...storedOrder.filter((value) => availableValues.includes(value)),
+  ...availableValues.filter((value) => !storedOrder.includes(value)),
+]
+
+const getSortValues = (
+  option: CosmeticOption,
+  filterKey: SortFilterKey
+): string[] => {
+  const achievement = option.requiresAchievement
+    ? achievementById.get(option.requiresAchievement)
+    : undefined
+
+  if (filterKey === 'version') {
+    return option.metadata?.introducedInVersion
+      ? [option.metadata.introducedInVersion]
+      : achievement?.metadata?.introducedInVersion
+      ? [achievement.metadata.introducedInVersion]
+      : []
+  }
+  if (filterKey === 'achievementType') {
+    return achievement ? [achievement.achievementType] : ['default']
+  }
+  if (filterKey === 'cosmeticCategory') {
+    return [option.category]
+  }
+  return achievement ? getAchievementModes(achievement) : DEFAULT_REWARD_MODES
+}
+
+const getCosmeticStatus = (
+  option: CosmeticOption,
+  achievementState: ReturnType<typeof loadAchievementState>,
+  equippedOptionId: string
+): StatusFilterValue =>
+  option.id === equippedOptionId
+    ? 'equipped'
+    : !option.requiresAchievement ||
+      !!achievementState.unlocked[option.requiresAchievement]
+    ? 'unlocked'
+    : 'locked'
+
+const getAchievementNewState = (
+  option: CosmeticOption,
+  achievementState: ReturnType<typeof loadAchievementState>
+): boolean => {
+  if (!option.requiresAchievement) return false
+  const unlocked = achievementState.unlocked[option.requiresAchievement]
+  return !!unlocked && unlocked.unlockedAt > (achievementState.lastSeenAt || 0)
+}
+
+const getAchievementFavoriteState = (
+  option: CosmeticOption,
+  favoriteIds: Set<string>
+): boolean => favoriteIds.has(getCosmeticFavoriteId(option))
+
+const getCosmeticPriority = (
+  option: CosmeticOption,
+  achievementState: ReturnType<typeof loadAchievementState>,
+  favoriteIds: Set<string>
+): PriorityFilterValue => {
+  if (getAchievementNewState(option, achievementState)) return 'new'
+  if (getAchievementFavoriteState(option, favoriteIds)) return 'favorite'
+  return 'normal'
+}
+
+const sortCosmeticOptions = (
+  options: typeof COSMETIC_OPTIONS,
+  achievementState: ReturnType<typeof loadAchievementState>,
+  favoriteIds: Set<string>,
+  equippedOptionId: string
+): typeof COSMETIC_OPTIONS => {
+  const { filterOrder, optionOrders } = loadCosmeticSortPreferences()
+  const sourceIndexById = new Map(
+    options.map((option, index) => [option.id, index] as const)
+  )
+  const orders = Object.fromEntries(
+    DEFAULT_SORT_FILTER_ORDER.map((filterKey) => {
+      const availableValues =
+        filterKey === 'priority'
+          ? PRIORITY_FILTER_OPTIONS
+          : filterKey === 'status'
+          ? STATUS_FILTER_OPTIONS
+          : uniqueSorted(
+              options.flatMap((option) => getSortValues(option, filterKey))
+            )
+      return [
+        filterKey,
+        mergeOrder(
+          availableValues,
+          filterKey === 'status' && !optionOrders.status.includes('equipped')
+            ? ['equipped', ...optionOrders.status]
+            : optionOrders[filterKey] ?? []
+        ),
+      ]
+    })
+  ) as Record<SortFilterKey, string[]>
+
+  const getRank = (option: CosmeticOption, filterKey: SortFilterKey) => {
+    if (filterKey === 'priority') {
+      const rank = orders.priority.indexOf(
+        getCosmeticPriority(option, achievementState, favoriteIds)
+      )
+      return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
+    }
+
+    if (filterKey === 'status') {
+      const rank = orders.status.indexOf(
+        getCosmeticStatus(option, achievementState, equippedOptionId)
+      )
+      return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
+    }
+
+    const ranks = getSortValues(option, filterKey).map((value) => {
+      const rank = orders[filterKey].indexOf(value)
+      return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
+    })
+    return ranks.length > 0 ? Math.min(...ranks) : Number.MAX_SAFE_INTEGER
+  }
+  return [...options].sort((a, b) => {
+    for (const filterKey of filterOrder) {
+      const rankDiff = getRank(a, filterKey) - getRank(b, filterKey)
+      if (rankDiff !== 0) return rankDiff
+    }
+
+    return (sourceIndexById.get(a.id) ?? 0) - (sourceIndexById.get(b.id) ?? 0)
+  })
+}
 
 const Toggle = ({
   checked,
@@ -61,13 +344,19 @@ const CosmeticSettingRow = ({
   description,
   checked,
   onToggle,
+  divided = true,
 }: {
   label: string
   description: string
   checked: boolean
   onToggle: () => void
+  divided?: boolean
 }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-gray-100 py-2.5 last:border-b-0">
+  <div
+    className={`flex items-center justify-between gap-4 py-2.5 ${
+      divided ? 'border-b border-gray-100 last:border-b-0' : ''
+    }`}
+  >
     <div className="min-w-0 text-left">
       <div className="text-sm font-medium text-gray-900">{label}</div>
       <div className="mt-1 text-xs leading-4 text-gray-500">{description}</div>
@@ -78,6 +367,39 @@ const CosmeticSettingRow = ({
   </div>
 )
 
+const CosmeticFavoriteButton = ({
+  option,
+  active,
+  onToggle,
+}: {
+  option: CosmeticOption
+  active: boolean
+  onToggle: (favoriteId: string) => void
+}) => {
+  const { t } = useTranslation()
+  const label = active
+    ? t('achievementFavoriteRemove')
+    : t('achievementFavoriteAdd')
+  const Icon = active ? StarSolidIcon : StarOutlineIcon
+
+  return (
+    <button
+      type="button"
+      className={`flex h-8 w-8 flex-shrink-0 items-center justify-center transition-colors ${
+        active ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-500'
+      }`}
+      onClick={(event) => {
+        event.stopPropagation()
+        onToggle(getCosmeticFavoriteId(option))
+      }}
+      title={label}
+      aria-label={label}
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  )
+}
+
 const CosmeticPicker = ({
   category,
   options,
@@ -86,6 +408,7 @@ const CosmeticPicker = ({
   isUnlocked,
   labelKey,
   onNavigateToAchievement,
+  achievementState,
 }: {
   category: CosmeticCategory
   options: typeof COSMETIC_OPTIONS
@@ -94,13 +417,22 @@ const CosmeticPicker = ({
   isUnlocked: (option: CosmeticOption) => boolean
   labelKey: string
   onNavigateToAchievement?: (achievementId: string) => void
+  achievementState: ReturnType<typeof loadAchievementState>
 }) => {
   const { t } = useTranslation()
+  const [favoriteIds, setFavoriteIds] = useState(loadAchievementFavoriteIds)
+  const favoriteIdSet = new Set(favoriteIds)
+  const sortedOptions = sortCosmeticOptions(
+    options,
+    achievementState,
+    favoriteIdSet,
+    equipped
+  )
   const [isOpen, setIsOpen] = useState(false)
   const [msgIndex, setMsgIndex] = useState(() =>
     Math.max(
       0,
-      options.findIndex((o) => o.id === equipped)
+      sortedOptions.findIndex((o) => o.id === equipped)
     )
   )
 
@@ -112,9 +444,21 @@ const CosmeticPicker = ({
     />
   )
 
-  const equippedOption = options.find((o) => o.id === equipped)
+  const equippedOption = sortedOptions.find((o) => o.id === equipped)
+  const equippedIsFavorite = equippedOption
+    ? getAchievementFavoriteState(equippedOption, favoriteIdSet)
+    : false
   const getOptionMetadataLabel = (option: CosmeticOption) =>
     getRewardMetadataLabel(option.metadata)
+  const toggleFavorite = (achievementId: string) => {
+    setFavoriteIds((currentIds) => {
+      const nextIds = currentIds.includes(achievementId)
+        ? currentIds.filter((id) => id !== achievementId)
+        : [...currentIds, achievementId]
+      saveAchievementFavoriteIds(nextIds)
+      return nextIds
+    })
+  }
 
   return (
     <>
@@ -122,7 +466,7 @@ const CosmeticPicker = ({
         <span className="text-sm font-medium text-gray-700">{t(labelKey)}</span>
         <button
           type="button"
-          className="w-36 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
+          className="w-48 flex items-center justify-between rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700"
           onClick={() => setIsOpen(true)}
         >
           <span className="flex items-center justify-between w-full">
@@ -130,10 +474,13 @@ const CosmeticPicker = ({
               {renderPreview(equipped, true)}
             </span>
             <span className="flex items-center gap-1">
+              {equippedIsFavorite && (
+                <StarSolidIcon className="h-3.5 w-3.5 flex-shrink-0 text-yellow-500" />
+              )}
               <span className="truncate">
                 {equippedOption ? t(equippedOption.titleKey) : ''}
               </span>
-              <span className="text-xs text-gray-400">{'\u25BE'}</span>
+              <ChevronDownIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
             </span>
           </span>
         </button>
@@ -153,9 +500,14 @@ const CosmeticPicker = ({
                 {t(labelKey)}
               </span>
             </div>
-            {options.map((option) => {
+            {sortedOptions.map((option) => {
               const unlocked = isUnlocked(option)
               const selected = equipped === option.id
+              const isNew = getAchievementNewState(option, achievementState)
+              const isFavorite = getAchievementFavoriteState(
+                option,
+                favoriteIdSet
+              )
               return (
                 <div
                   key={option.id}
@@ -183,17 +535,31 @@ const CosmeticPicker = ({
                     {renderPreview(option.id)}
                   </span>
                   <span className="flex-1 text-right min-w-0">
-                    <span className="block truncate">{t(option.titleKey)}</span>
+                    <span className="flex min-w-0 items-center justify-end gap-1">
+                      {isNew && (
+                        <span className="text-[0.625rem] font-bold text-yellow-600 bg-yellow-100 rounded px-1 py-0.5 flex-shrink-0">
+                          NEW!
+                        </span>
+                      )}
+                      <span className="truncate">{t(option.titleKey)}</span>
+                    </span>
                     {getOptionMetadataLabel(option) && (
                       <span className="block text-[0.625rem] leading-tight text-gray-400">
                         {getOptionMetadataLabel(option)}
                       </span>
                     )}
                   </span>
+                  <CosmeticFavoriteButton
+                    option={option}
+                    active={isFavorite}
+                    onToggle={toggleFavorite}
+                  />
                   <span className="w-5 text-center flex-shrink-0">
-                    {!unlocked && '\uD83D\uDD12'}
+                    {!unlocked && (
+                      <LockClosedIcon className="mx-auto h-5 w-5" />
+                    )}
                     {selected && unlocked && (
-                      <span className="text-indigo-600">{'\u2713'}</span>
+                      <CheckIcon className="mx-auto h-5 w-5 text-indigo-600" />
                     )}
                   </span>
                 </div>
@@ -206,9 +572,14 @@ const CosmeticPicker = ({
       {isOpen &&
         category === 'endMessage' &&
         (() => {
-          const currentOption = options[msgIndex]
+          const currentOption = sortedOptions[msgIndex]
           const unlocked = isUnlocked(currentOption)
           const selected = equipped === currentOption.id
+          const isNew = getAchievementNewState(currentOption, achievementState)
+          const isFavorite = getAchievementFavoriteState(
+            currentOption,
+            favoriteIdSet
+          )
           const keys = ALERT_MESSAGE_KEYS[currentOption.id]
           const msgs = t(keys?.win || 'winMessages_classic', {
             returnObjects: true,
@@ -240,20 +611,28 @@ const CosmeticPicker = ({
                     className="text-gray-400 hover:text-gray-600 text-lg font-bold px-2"
                     onClick={() =>
                       setMsgIndex(
-                        (msgIndex - 1 + options.length) % options.length
+                        (msgIndex - 1 + sortedOptions.length) %
+                          sortedOptions.length
                       )
                     }
                   >
-                    {'<'}
+                    <ChevronLeftIcon className="h-5 w-5" />
                   </button>
                   <span className="min-w-0 text-center">
-                    <span
-                      className={`block truncate text-sm font-semibold ${
-                        selected ? 'text-indigo-600' : 'text-gray-900'
-                      }`}
-                    >
-                      {MSG_THEME_EMOJI[currentOption.id] || ''}{' '}
-                      {t(currentOption.titleKey)}
+                    <span className="flex min-w-0 items-center justify-center gap-1">
+                      {isNew && (
+                        <span className="text-[0.625rem] font-bold text-yellow-600 bg-yellow-100 rounded px-1 py-0.5 flex-shrink-0">
+                          NEW!
+                        </span>
+                      )}
+                      <span
+                        className={`block truncate text-sm font-semibold ${
+                          selected ? 'text-indigo-600' : 'text-gray-900'
+                        }`}
+                      >
+                        {MSG_THEME_EMOJI[currentOption.id] || ''}{' '}
+                        {t(currentOption.titleKey)}
+                      </span>
                     </span>
                     {getOptionMetadataLabel(currentOption) && (
                       <span className="block text-[0.625rem] leading-tight text-gray-400">
@@ -264,10 +643,23 @@ const CosmeticPicker = ({
                   <button
                     type="button"
                     className="text-gray-400 hover:text-gray-600 text-lg font-bold px-2"
-                    onClick={() => setMsgIndex((msgIndex + 1) % options.length)}
+                    onClick={() =>
+                      setMsgIndex((msgIndex + 1) % sortedOptions.length)
+                    }
                   >
-                    {'>'}
+                    <ChevronRightIcon className="h-5 w-5" />
                   </button>
+                </div>
+                <div
+                  className={`flex justify-end px-4 pb-2 ${
+                    selected ? 'bg-indigo-50' : ''
+                  }`}
+                >
+                  <CosmeticFavoriteButton
+                    option={currentOption}
+                    active={isFavorite}
+                    onToggle={toggleFavorite}
+                  />
                 </div>
 
                 <div className={`px-4 pb-3 ${selected ? 'bg-indigo-50' : ''}`}>
@@ -314,7 +706,7 @@ const CosmeticPicker = ({
                         }
                       }}
                     >
-                      {'\uD83D\uDD12'}
+                      <LockClosedIcon className="mx-auto h-5 w-5" />
                     </button>
                   )}
                   {unlocked && selected && (
@@ -323,7 +715,7 @@ const CosmeticPicker = ({
                       disabled
                       className="w-full rounded-md bg-indigo-100 px-3 py-2 text-sm font-medium text-indigo-600 cursor-default"
                     >
-                      {'\u2713'}
+                      <CheckIcon className="mx-auto h-5 w-5" />
                     </button>
                   )}
                   {unlocked && !selected && (
@@ -424,18 +816,20 @@ export const CosmeticsPanel = ({
         </pre>
       </div>
 
-      <div className="mb-3 rounded border border-gray-200 px-3">
+      <div className="mb-3">
         <CosmeticSettingRow
           label={t('uppercaseLabel')}
           description={t('uppercaseDescription')}
           checked={isUppercase}
           onToggle={onToggleUppercase}
+          divided={false}
         />
         <CosmeticSettingRow
           label={t('excludeUrlLabel')}
           description={t('excludeUrlDescription')}
           checked={excludeUrl}
           onToggle={onToggleExcludeUrl}
+          divided={false}
         />
       </div>
 
@@ -454,6 +848,7 @@ export const CosmeticsPanel = ({
             isUnlocked={isOptionUnlocked}
             labelKey={labelKey}
             onNavigateToAchievement={onNavigateToAchievement}
+            achievementState={achievementState}
           />
         )
       })}
