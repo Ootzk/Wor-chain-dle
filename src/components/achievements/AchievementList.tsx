@@ -288,13 +288,15 @@ const MODE_DESC_KEYS: Record<GameMode, string> = {
 const SortableDragHandle = ({
   attributes,
   listeners,
+  className = '',
 }: {
   attributes: any
   listeners?: any
+  className?: string
 }) => (
   <button
     type="button"
-    className="flex cursor-grab items-center justify-center text-gray-300 active:cursor-grabbing"
+    className={`flex cursor-grab items-center justify-center text-gray-300 active:cursor-grabbing ${className}`}
     {...attributes}
     {...listeners}
   >
@@ -481,10 +483,10 @@ const FilterPicker = ({
   }
 
   return (
-    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_1.75rem_1.75rem] overflow-hidden rounded border border-gray-300 bg-white">
+    <>
       <button
         type="button"
-        className="flex h-7 min-w-0 items-center px-2 text-left text-xs text-gray-700"
+        className="flex h-9 min-w-0 items-center px-2 text-left text-xs text-gray-700"
         onClick={() => setIsOpen(true)}
         aria-label={label}
       >
@@ -492,28 +494,16 @@ const FilterPicker = ({
       </button>
       <button
         type="button"
-        className={`flex h-7 w-7 items-center justify-center border-l text-xs font-semibold ${
+        className={`flex h-9 w-9 items-center justify-center text-xs font-semibold ${
           isActive
-            ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
-            : 'cursor-default border-gray-200 text-gray-200'
+            ? 'text-gray-500 hover:bg-gray-50'
+            : 'cursor-default text-gray-200'
         }`}
         disabled={!isActive}
         onClick={onReset}
         aria-label={`${label} reset`}
       >
         <XIcon className="h-3.5 w-3.5" />
-      </button>
-      <button
-        type="button"
-        className="flex h-7 w-7 items-center justify-center border-l border-gray-300 text-gray-500 hover:bg-gray-50"
-        onClick={() => setIsOpen(true)}
-        aria-label={label}
-      >
-        {isOpen ? (
-          <ChevronUpIcon className="h-4 w-4" />
-        ) : (
-          <ChevronDownIcon className="h-4 w-4" />
-        )}
       </button>
 
       {isOpen &&
@@ -569,7 +559,7 @@ const FilterPicker = ({
           </div>,
           document.body
         )}
-    </div>
+    </>
   )
 }
 
@@ -604,13 +594,19 @@ const FilterRow = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`grid grid-cols-[1.25rem_8.25rem_minmax(0,1fr)] items-center gap-x-1 ${
+      className={`grid grid-cols-[minmax(0,9.25rem)_minmax(0,1fr)_2.25rem] items-center bg-white ${
         isDragging ? 'relative z-10 opacity-60' : ''
       }`}
     >
-      <SortableDragHandle attributes={attributes} listeners={listeners} />
-      <span className="truncate whitespace-nowrap text-xs font-semibold text-gray-500">
-        {label}
+      <span className="grid h-9 min-w-0 grid-cols-[1.25rem_minmax(0,1fr)] items-center border-r border-gray-300 pr-1">
+        <SortableDragHandle
+          attributes={attributes}
+          listeners={listeners}
+          className="h-9"
+        />
+        <span className="truncate whitespace-nowrap text-xs font-semibold text-gray-500">
+          {label}
+        </span>
       </span>
       <FilterPicker
         label={label}
@@ -653,10 +649,10 @@ const FilterShell = ({
   const resetButton = (
     <button
       type="button"
-      className={`flex h-7 w-7 items-center justify-center rounded-l border text-xs font-semibold ${
+      className={`flex h-9 w-9 items-center justify-center text-xs font-semibold ${
         hasActiveFilters
-          ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
-          : 'cursor-default border-gray-200 text-gray-200'
+          ? 'text-gray-500 hover:bg-gray-50'
+          : 'cursor-default text-gray-200'
       }`}
       disabled={!hasActiveFilters}
       onClick={(event) => {
@@ -671,15 +667,15 @@ const FilterShell = ({
 
   if (mode === 'collapsed') {
     return (
-      <div className="sticky top-0 z-10 rounded border border-gray-200 bg-white p-2 text-xs">
-        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-1">
+      <div className="sticky top-0 z-10 overflow-hidden rounded-lg border border-gray-200 bg-white text-xs">
+        <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem] items-center">
           <button
             type="button"
-            className="min-w-0 text-left text-gray-500"
+            className="h-9 min-w-0 px-2 text-left text-gray-500"
             onClick={onExpand}
             aria-label={t('achievementFilterExpand')}
           >
-            <span className="grid min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
+            <span className="grid h-full min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
               <span
                 className="flex items-center justify-center font-semibold text-gray-900"
                 aria-label={t('achievementFilters')}
@@ -690,27 +686,25 @@ const FilterShell = ({
               <span className="min-w-0 truncate">{summary}</span>
             </span>
           </button>
-          <div className="flex">
-            {resetButton}
-            <button
-              type="button"
-              className="-ml-px flex h-7 w-7 items-center justify-center rounded-r border border-gray-300 text-gray-500 hover:bg-gray-50"
-              onClick={onExpand}
-              aria-label={t('achievementFilterExpand')}
-            >
-              <ChevronDownIcon className="h-4 w-4" />
-            </button>
-          </div>
+          {resetButton}
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center text-gray-500 hover:bg-gray-50"
+            onClick={onExpand}
+            aria-label={t('achievementFilterExpand')}
+          >
+            <ChevronDownIcon className="h-4 w-4" />
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="sticky top-0 z-10 space-y-2 rounded border border-gray-200 bg-white p-2">
-      <div className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-1 text-xs">
-        <span className="min-w-0 text-gray-500">
-          <span className="grid min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
+    <div className="sticky top-0 z-10 overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem] items-center border-b border-gray-200 text-xs">
+        <span className="h-9 min-w-0 px-2 text-gray-500">
+          <span className="grid h-full min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
             <span
               className="flex items-center justify-center font-semibold text-gray-900"
               aria-label={t('achievementFilters')}
@@ -721,19 +715,17 @@ const FilterShell = ({
             <span className="min-w-0 truncate">{countLabel}</span>
           </span>
         </span>
-        <div className="flex">
-          {resetButton}
-          <button
-            type="button"
-            className="-ml-px flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-r border border-gray-300 text-gray-500 hover:bg-gray-50"
-            onClick={onCollapse}
-            aria-label={t('achievementFilterCollapse')}
-          >
-            <ChevronUpIcon className="h-4 w-4" />
-          </button>
-        </div>
+        {resetButton}
+        <button
+          type="button"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-gray-500 hover:bg-gray-50"
+          onClick={onCollapse}
+          aria-label={t('achievementFilterCollapse')}
+        >
+          <ChevronUpIcon className="h-4 w-4" />
+        </button>
       </div>
-      {children}
+      <div>{children}</div>
     </div>
   )
 }
@@ -1328,7 +1320,7 @@ export const AchievementList = ({
         >
           <input
             type="search"
-            className="h-7 w-full rounded border border-gray-300 bg-white px-2 text-xs text-gray-700 placeholder:text-gray-400"
+            className="h-9 w-full border-b border-gray-200 bg-white px-2 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder={t('achievementSearchPlaceholder')}
@@ -1342,7 +1334,7 @@ export const AchievementList = ({
               items={filterOrder}
               strategy={verticalListSortingStrategy}
             >
-              <div className="space-y-1.5">
+              <div className="divide-y divide-gray-200">
                 {filterOrder.map((filterKey) => {
                   const config = filterRowConfigs[filterKey]
                   return (
