@@ -73,7 +73,7 @@ const STATUS_FILTER_OPTIONS: StatusFilterValue[] = [
   'unlocked',
   'locked',
 ]
-const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
+const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences:v1.7.0'
 const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 
 const achievementById = new Map(
@@ -104,8 +104,8 @@ const normalizeFilterOrder = (value: unknown): SortFilterKey[] => {
   }
 
   return [
-    ...DEFAULT_SORT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
     ...storedOrder,
+    ...DEFAULT_SORT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
   ]
 }
 

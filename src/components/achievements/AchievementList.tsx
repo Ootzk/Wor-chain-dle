@@ -126,7 +126,7 @@ const STATUS_FILTER_OPTIONS: StatusFilterValue[] = [
   'unlocked',
   'locked',
 ]
-const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
+const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences:v1.7.0'
 const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
   priority: [],
@@ -182,8 +182,8 @@ const normalizeFilterOrder = (value: unknown): FilterKey[] => {
   }
 
   return [
-    ...DEFAULT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
     ...storedOrder,
+    ...DEFAULT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
   ]
 }
 
