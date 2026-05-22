@@ -4,13 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { AchievementList } from '../achievements/AchievementList'
 import { CosmeticsPanel } from '../rewards/CosmeticsPanel'
 import { BaseModal } from './BaseModal'
-import { EventDefinition, getKnownEvents } from '../../lib/events'
+import { EventDefinition } from '../../lib/events'
 import { GameMode } from '../../lib/gameMode'
-import {
-  normalizeRewardVersion,
-  RewardMetadataFilter,
-} from '../../lib/rewardMetadata'
-import { EventVersionPicker } from '../events/EventVersionPicker'
+import { normalizeRewardVersion } from '../../lib/rewardMetadata'
 
 type RewardsTab = 'achievements' | 'cosmetics'
 
@@ -48,9 +44,6 @@ export const RewardsModal = ({
   const [activeTab, setActiveTab] = useState<RewardsTab>(
     isEventRewards ? 'achievements' : initialTab || 'achievements'
   )
-  const [selectedEventVersion, setSelectedEventVersion] = useState(
-    () => event?.version ?? ''
-  )
   const [focusedAchievement, setFocusedAchievement] = useState<
     string | undefined
   >(scrollToAchievement)
@@ -59,32 +52,12 @@ export const RewardsModal = ({
     if (!isOpen) return
     setActiveTab(isEventRewards ? 'achievements' : initialTab || 'achievements')
     setFocusedAchievement(scrollToAchievement)
-    if (isEventRewards && event) {
-      setSelectedEventVersion(event.version)
-    }
   }, [isOpen, initialTab, scrollToAchievement, isEventRewards, event])
 
-  const eventVersions = Array.from(
-    new Set([
-      ...(event ? [event.version] : []),
-      ...getKnownEvents().map((knownEvent) => knownEvent.version),
-    ])
-  ).sort((a, b) => b.localeCompare(a))
-  const selectedVersion =
-    selectedEventVersion || event?.version || eventVersions[0] || ''
-  const achievementMetadataFilter: RewardMetadataFilter | undefined =
-    isEventRewards && selectedVersion
-      ? { introducedInVersion: normalizeRewardVersion(selectedVersion) }
+  const eventVersionFilters =
+    isEventRewards && event
+      ? [normalizeRewardVersion(event.version)]
       : undefined
-  const titleAction =
-    isEventRewards && eventVersions.length > 0 ? (
-      <EventVersionPicker
-        versions={eventVersions}
-        selectedVersion={selectedVersion}
-        onChange={setSelectedEventVersion}
-        fallbackEvent={event}
-      />
-    ) : undefined
 
   const tabs = [
     { id: 'achievements' as const, label: t('achievements') },
@@ -96,7 +69,6 @@ export const RewardsModal = ({
   return (
     <BaseModal
       title={t('rewards')}
-      titleAction={titleAction}
       icon={<SparklesIcon />}
       isOpen={isOpen}
       handleClose={handleClose}
@@ -123,7 +95,9 @@ export const RewardsModal = ({
             scrollToId={focusedAchievement}
             onOpenDeadEndHelp={onOpenDeadEndHelp}
             onOpenEventRecords={onOpenEventRecords}
-            metadataFilter={achievementMetadataFilter}
+            initialVersionFilters={eventVersionFilters}
+            persistFilters={!isEventRewards}
+            showFilters
             filterDisplayMode="expanded"
           />
         )}

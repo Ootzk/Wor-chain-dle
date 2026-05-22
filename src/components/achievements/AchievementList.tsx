@@ -844,6 +844,8 @@ export const AchievementList = ({
   metadataFilter,
   achievementIds,
   sortAchievementIds,
+  initialVersionFilters,
+  persistFilters,
   mode = 'daily',
   embedded = false,
   markSeenOnUnmount = true,
@@ -856,6 +858,8 @@ export const AchievementList = ({
   metadataFilter?: RewardMetadataFilter
   achievementIds?: string[]
   sortAchievementIds?: string[]
+  initialVersionFilters?: string[]
+  persistFilters?: boolean
   mode?: GameMode
   embedded?: boolean
   markSeenOnUnmount?: boolean
@@ -867,7 +871,8 @@ export const AchievementList = ({
     loadAchievementFilterPreferences
   )
   const shouldUsePersistentFilters =
-    showFilters && !embedded && filterDisplayMode !== 'hidden'
+    persistFilters ??
+    (showFilters && !embedded && filterDisplayMode !== 'hidden')
   const resolvedFilterDisplayMode =
     filterDisplayMode ??
     (showFilters && !embedded ? initialFilterPreferences.displayMode : 'hidden')
@@ -877,7 +882,10 @@ export const AchievementList = ({
     shouldUsePersistentFilters ? initialFilterPreferences.searchQuery : ''
   )
   const [versionFilters, setVersionFilters] = useState<string[]>(
-    shouldUsePersistentFilters ? initialFilterPreferences.versionFilters : []
+    initialVersionFilters ??
+      (shouldUsePersistentFilters
+        ? initialFilterPreferences.versionFilters
+        : [])
   )
   const [categoryFilters, setCategoryFilters] = useState<string[]>(
     shouldUsePersistentFilters ? initialFilterPreferences.categoryFilters : []
