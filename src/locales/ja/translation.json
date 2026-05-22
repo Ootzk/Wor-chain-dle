@@ -627,9 +627,9 @@
   "achievement_yogurt_recipe_title": "ヨーグルトレシピ",
   "achievement_yogurt_recipe_desc": "1ゲームで APPLE、GRAPE、MILKS をすべて使う",
   "achievement_no_present_game_title": "青リンゴ",
-  "achievement_no_present_game_desc": "Daily モードで紫タイルなしでゲームを終了する",
+  "achievement_no_present_game_desc": "紫タイルなしでゲームを終了する",
   "achievement_no_correct_game_title": "紫ブドウ",
-  "achievement_no_correct_game_desc": "Daily モードで緑タイルなしでゲームを終了する",
+  "achievement_no_correct_game_desc": "緑タイルなしでゲームを終了する",
   "achievement_grass_diet_title": "草むしり",
   "achievement_grass_diet_desc": "<eventLink>Summer Garden</eventLink>でGREENとGRASSを使って勝利する",
   "achievement_win_in_6_20_title": "ミルクフィニッシュ",
@@ -641,13 +641,13 @@
   "achievement_clover_collector_title": "クローバーコレクター",
   "achievement_clover_collector_desc": "<eventLink>Summer Garden</eventLink>でクローバーを37個集める",
   "achievement_practice_win_10_title": "ヒヤシンスの開花",
-  "achievement_practice_win_10_desc": "練習モードで10回勝利する",
+  "achievement_practice_win_10_desc": "10回勝利する",
   "achievement_rabbit_speed_title": "うさぎダッシュ",
   "achievement_rabbit_speed_desc": "<eventLink>Summer Garden</eventLink>で1分以内の勝利を7回達成する",
   "achievement_garden_set_title": "Garden",
   "achievement_garden_set_desc": "クローバー、ヒヤシンス、うさぎのバッジをすべて解放する",
   "achievement_practice_win_100_title": "練習は裏切らない",
-  "achievement_practice_win_100_desc": "練習モードで100回勝利する",
+  "achievement_practice_win_100_desc": "100回勝利する",
   "achievement_custom_win_10_title": "友だちライバル",
-  "achievement_custom_win_10_desc": "カスタムモードで10回勝利する"
+  "achievement_custom_win_10_desc": "10回勝利する"
 }

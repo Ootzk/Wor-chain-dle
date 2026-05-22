@@ -627,9 +627,9 @@
   "achievement_yogurt_recipe_title": "Receta de yogur",
   "achievement_yogurt_recipe_desc": "Usar APPLE, GRAPE y MILKS en una partida",
   "achievement_no_present_game_title": "Manzana verde",
-  "achievement_no_present_game_desc": "Completar una partida Daily sin fichas moradas",
+  "achievement_no_present_game_desc": "Completar una partida sin fichas moradas",
   "achievement_no_correct_game_title": "Uva morada",
-  "achievement_no_correct_game_desc": "Completar una partida Daily sin fichas verdes",
+  "achievement_no_correct_game_desc": "Completar una partida sin fichas verdes",
   "achievement_grass_diet_title": "Dieta de césped",
   "achievement_grass_diet_desc": "Gana una partida de <eventLink>Summer Garden</eventLink> después de usar GREEN y GRASS",
   "achievement_win_in_6_20_title": "Final de leche",
@@ -641,13 +641,13 @@
   "achievement_clover_collector_title": "Coleccionista de tréboles",
   "achievement_clover_collector_desc": "Recoge 37 tréboles en <eventLink>Summer Garden</eventLink>",
   "achievement_practice_win_10_title": "Jacinto en flor",
-  "achievement_practice_win_10_desc": "Gana 10 partidas en modo Práctica",
+  "achievement_practice_win_10_desc": "Gana 10 partidas",
   "achievement_rabbit_speed_title": "Carrera de conejo",
   "achievement_rabbit_speed_desc": "Gana 7 partidas de <eventLink>Summer Garden</eventLink> en menos de 1 minuto",
   "achievement_garden_set_title": "Garden",
   "achievement_garden_set_desc": "Desbloquea las insignias de trébol, jacinto y conejo",
   "achievement_practice_win_100_title": "La práctica perfecciona",
-  "achievement_practice_win_100_desc": "Ganar 100 partidas en modo Práctica",
+  "achievement_practice_win_100_desc": "Ganar 100 partidas",
   "achievement_custom_win_10_title": "Rival amistoso",
-  "achievement_custom_win_10_desc": "Ganar 10 partidas en modo Personalizado"
+  "achievement_custom_win_10_desc": "Ganar 10 partidas"
 }

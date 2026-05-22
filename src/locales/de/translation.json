@@ -627,9 +627,9 @@
   "achievement_yogurt_recipe_title": "Joghurt-Rezept",
   "achievement_yogurt_recipe_desc": "Verwende APPLE, GRAPE und MILKS in einem Spiel",
   "achievement_no_present_game_title": "Grüner Apfel",
-  "achievement_no_present_game_desc": "Beende ein Daily-Spiel ohne violette Felder",
+  "achievement_no_present_game_desc": "Beende ein Spiel ohne violette Felder",
   "achievement_no_correct_game_title": "Violette Traube",
-  "achievement_no_correct_game_desc": "Beende ein Daily-Spiel ohne grüne Felder",
+  "achievement_no_correct_game_desc": "Beende ein Spiel ohne grüne Felder",
   "achievement_grass_diet_title": "Grasdiät",
   "achievement_grass_diet_desc": "Gewinne ein <eventLink>Summer Garden</eventLink>-Spiel nach Verwendung von GREEN und GRASS",
   "achievement_win_in_6_20_title": "Milch-Finish",
@@ -641,13 +641,13 @@
   "achievement_clover_collector_title": "Kleesammler",
   "achievement_clover_collector_desc": "Sammle 37 Kleeblätter in <eventLink>Summer Garden</eventLink>",
   "achievement_practice_win_10_title": "Hyazinthe in Blüte",
-  "achievement_practice_win_10_desc": "Gewinne 10 Übungsspiele",
+  "achievement_practice_win_10_desc": "Gewinne 10 Spiele",
   "achievement_rabbit_speed_title": "Hasensprint",
   "achievement_rabbit_speed_desc": "Gewinne 7 <eventLink>Summer Garden</eventLink>-Spiele innerhalb von 1 Minute",
   "achievement_garden_set_title": "Garden",
   "achievement_garden_set_desc": "Schalte Klee-, Hyazinthen- und Hasenabzeichen frei",
   "achievement_practice_win_100_title": "Übung macht den Meister",
-  "achievement_practice_win_100_desc": "Gewinne 100 Übungsspiele",
+  "achievement_practice_win_100_desc": "Gewinne 100 Spiele",
   "achievement_custom_win_10_title": "Freundlicher Rivale",
-  "achievement_custom_win_10_desc": "Gewinne 10 eigene Spiele"
+  "achievement_custom_win_10_desc": "Gewinne 10 Spiele"
 }
