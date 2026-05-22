@@ -105,26 +105,28 @@ const FilterShell = ({
     return (
       <button
         type="button"
-        className="sticky top-0 z-10 flex w-full items-center justify-between gap-2 rounded border border-gray-200 bg-white px-3 py-2 text-left text-xs text-gray-600"
+        className="sticky top-0 z-10 w-full rounded border border-gray-200 bg-white p-2 text-left text-xs text-gray-600"
         onClick={onExpand}
         aria-label={t('achievementFilterExpand')}
       >
-        <span className="min-w-0 truncate">
-          <span className="font-semibold text-gray-900">
-            {t('achievementFilters')}
+        <span className="flex w-full items-center justify-between gap-2">
+          <span className="min-w-0 truncate">
+            <span className="font-semibold text-gray-900">
+              {t('achievementFilters')}
+            </span>
+            <span className="mx-1 text-gray-300">|</span>
+            {summary}
           </span>
-          <span className="mx-1 text-gray-300">|</span>
-          {summary}
-        </span>
-        <span className="flex-shrink-0 text-gray-400">
-          {countLabel} {'\u25BE'}
+          <span className="flex-shrink-0 text-gray-400">
+            {countLabel} {'\u25BE'}
+          </span>
         </span>
       </button>
     )
   }
 
   return (
-    <div className="sticky top-0 z-10 space-y-2 bg-white pb-2">
+    <div className="sticky top-0 z-10 space-y-2 rounded border border-gray-200 bg-white p-2">
       <div className="flex items-center justify-between gap-2 text-xs">
         <span className="min-w-0 truncate text-gray-500">
           <span className="font-semibold text-gray-900">
