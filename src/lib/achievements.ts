@@ -37,7 +37,7 @@ export type AchievementType =
   | 'milestone'
   | 'guess'
   | 'streak'
-  | 'event'
+  | 'challenge'
   | 'collection'
   | 'performance'
 
@@ -585,7 +585,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Event — 특정 게임 상황에서 발생하는 업적
   {
     id: 'dead_end_tail',
-    achievementType: 'event',
+    achievementType: 'challenge',
     modes: ['daily'],
     difficulty: 7,
     metadata: REWARD_METADATA.v1_6_0,
@@ -603,7 +603,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'bibimbap_balance',
-    achievementType: 'event',
+    achievementType: 'challenge',
     difficulty: 9,
     metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_bibimbap_balance_title',
@@ -621,7 +621,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'yogurt_recipe',
-    achievementType: 'event',
+    achievementType: 'challenge',
     difficulty: 6,
     metadata: REWARD_METADATA.v1_6_0,
     titleKey: 'achievement_yogurt_recipe_title',
@@ -656,7 +656,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
   {
     id: 'grass_diet',
-    achievementType: 'event',
+    achievementType: 'challenge',
     modes: ['event'],
     difficulty: 8,
     metadata: REWARD_METADATA.v1_7_0,

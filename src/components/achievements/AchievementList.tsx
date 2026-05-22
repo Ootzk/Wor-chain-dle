@@ -76,7 +76,7 @@ const ACHIEVEMENT_TYPE_ICONS: Record<FilterAchievementType, string> = {
   milestone: '\uD83C\uDFAF',
   guess: '\uD83C\uDFB2',
   streak: '\uD83D\uDD25',
-  event: '\uD83E\uDDE9',
+  challenge: '\uD83E\uDDE9',
   collection: '\uD83D\uDDC4\uFE0F',
   performance: '\uD83D\uDCCA',
 }
@@ -86,7 +86,7 @@ const ACHIEVEMENT_TYPE_LABEL_KEYS: Record<FilterAchievementType, string> = {
   milestone: 'achievementCategoryMilestone',
   guess: 'achievementCategoryGuess',
   streak: 'achievementCategoryStreak',
-  event: 'achievementCategoryEvent',
+  challenge: 'achievementCategoryChallenge',
   collection: 'achievementCategoryCollection',
   performance: 'achievementCategoryPerformance',
 }
@@ -96,7 +96,7 @@ const ACHIEVEMENT_TYPE_DESC_KEYS: Record<FilterAchievementType, string> = {
   milestone: 'achievementCategoryMilestoneDesc',
   guess: 'achievementCategoryGuessDesc',
   streak: 'achievementCategoryStreakDesc',
-  event: 'achievementCategoryEventDesc',
+  challenge: 'achievementCategoryChallengeDesc',
   collection: 'achievementCategoryCollectionDesc',
   performance: 'achievementCategoryPerformanceDesc',
 }
