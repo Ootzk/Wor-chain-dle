@@ -4,8 +4,11 @@ import { createPortal } from 'react-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import {
   AdjustmentsIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  LockClosedIcon,
+  LockOpenIcon,
   XIcon,
 } from '@heroicons/react/outline'
 import {
@@ -787,6 +790,7 @@ const AchievementEquipButton = ({
     : isEquipped
     ? t('equipped')
     : t('equip')
+  const iconClassName = 'h-5 w-5'
 
   return (
     <button
@@ -803,7 +807,13 @@ const AchievementEquipButton = ({
       title={rewards.map((reward) => t(reward.titleKey)).join(', ')}
       aria-label={label}
     >
-      {!unlocked ? '\uD83D\uDD12' : isEquipped ? '\u2713' : '\uD83D\uDD13'}
+      {!unlocked ? (
+        <LockClosedIcon className={iconClassName} />
+      ) : isEquipped ? (
+        <CheckIcon className={iconClassName} />
+      ) : (
+        <LockOpenIcon className={iconClassName} />
+      )}
     </button>
   )
 }
