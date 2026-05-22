@@ -21,6 +21,7 @@ type Props = {
   event?: EventDefinition
   initialTab?: InfoTab
   initialSection?: InfoSection
+  initialPatchVersion?: string
 }
 
 export type InfoTab = 'mode' | 'howToPlay' | 'patchNotes' | 'about'
@@ -278,6 +279,7 @@ export const InfoModal = ({
   event,
   initialTab = 'mode',
   initialSection,
+  initialPatchVersion,
 }: Props) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<InfoTab>('mode')
@@ -324,7 +326,12 @@ export const InfoModal = ({
         <HowToPlayContent focusSection={initialSection} />
       )}
 
-      {activeTab === 'patchNotes' && <PatchNotesContent variant="history" />}
+      {activeTab === 'patchNotes' && (
+        <PatchNotesContent
+          variant="history"
+          initialVersion={initialPatchVersion}
+        />
+      )}
 
       {activeTab === 'about' && <AboutContent />}
     </BaseModal>

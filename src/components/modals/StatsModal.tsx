@@ -78,6 +78,7 @@ type Props = {
   onOpenCosmetics: () => void
   onOpenAchievement: (achievementId: string) => void
   onOpenDeadEndHelp?: () => void
+  onOpenPatchNotesVersion?: (version: string) => void
   initialTab?: RecordsTab
   isUppercase: boolean
   playStats: PlayStats
@@ -391,6 +392,7 @@ export const StatsModal = ({
   onOpenCosmetics,
   onOpenAchievement,
   onOpenDeadEndHelp,
+  onOpenPatchNotesVersion,
   initialTab,
   playStats,
   detailStatsSummary,
@@ -1042,6 +1044,7 @@ export const StatsModal = ({
             excludeUrl={excludeUrl}
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
+            onOpenPatchNotesVersion={onOpenPatchNotesVersion}
             hasNewRewards={hasNewAchievementsToday}
             cosmeticOverrides={
               activeTab === 'calendar'

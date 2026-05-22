@@ -143,6 +143,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [infoInitialSection, setInfoInitialSection] = useState<
     InfoSection | undefined
   >(undefined)
+  const [infoInitialPatchVersion, setInfoInitialPatchVersion] = useState<
+    string | undefined
+  >(undefined)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
@@ -399,6 +402,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     autoOpenedEventInfoRef.current = event.version
     setInfoInitialTab('mode')
     setInfoInitialSection(undefined)
+    setInfoInitialPatchVersion(undefined)
     setIsInfoModalOpen(true)
   }, [isEvent, event, isPatchNotesModalOpen, isGameWon, isGameLost])
 
@@ -949,6 +953,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           onClick={() => {
             setInfoInitialTab('mode')
             setInfoInitialSection(undefined)
+            setInfoInitialPatchVersion(undefined)
             setIsInfoModalOpen(true)
           }}
         />
@@ -1006,12 +1011,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         handleClose={() => {
           setIsInfoModalOpen(false)
           setInfoInitialSection(undefined)
+          setInfoInitialPatchVersion(undefined)
         }}
         mode={mode}
         questioner={questioner}
         event={event}
         initialTab={infoInitialTab}
         initialSection={infoInitialSection}
+        initialPatchVersion={infoInitialPatchVersion}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -1056,6 +1063,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setIsStatsModalOpen(false)
           setInfoInitialTab('howToPlay')
           setInfoInitialSection('deadEnd')
+          setInfoInitialPatchVersion(undefined)
+          setTimeout(() => setIsInfoModalOpen(true), 300)
+        }}
+        onOpenPatchNotesVersion={(version) => {
+          setIsStatsModalOpen(false)
+          setInfoInitialTab('patchNotes')
+          setInfoInitialSection(undefined)
+          setInfoInitialPatchVersion(version)
           setTimeout(() => setIsInfoModalOpen(true), 300)
         }}
         initialTab={statsInitialTab}
