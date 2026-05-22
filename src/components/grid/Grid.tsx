@@ -148,6 +148,26 @@ export const Grid = ({
         {row}
         {i === CONFIG.tries - 1 && hasViewControls && (
           <div className="absolute left-[calc(50%+9.5rem)] top-1/2 flex -translate-y-1/2 flex-col gap-1">
+            {showLiveEffectsToggle ? (
+              <button
+                type="button"
+                aria-label="Toggle live effects"
+                className={`h-6 w-6 transition-colors ${
+                  viewOptions.liveEffectsEnabled
+                    ? 'text-lime-600 hover:text-lime-700'
+                    : 'text-gray-400 hover:text-gray-500'
+                }`}
+                onClick={handleToggleLiveEffects}
+              >
+                <StatusOnlineIcon className="h-6 w-6" />
+              </button>
+            ) : showLettersToggle ? (
+              <span
+                aria-hidden="true"
+                data-testid="view-control-placeholder"
+                className="h-6 w-6"
+              />
+            ) : null}
             {showLettersToggle && (
               <button
                 type="button"
@@ -164,20 +184,6 @@ export const Grid = ({
                 ) : (
                   <EyeIcon className="h-6 w-6" />
                 )}
-              </button>
-            )}
-            {showLiveEffectsToggle && (
-              <button
-                type="button"
-                aria-label="Toggle live effects"
-                className={`h-6 w-6 transition-colors ${
-                  viewOptions.liveEffectsEnabled
-                    ? 'text-lime-600 hover:text-lime-700'
-                    : 'text-gray-400 hover:text-gray-500'
-                }`}
-                onClick={handleToggleLiveEffects}
-              >
-                <StatusOnlineIcon className="h-6 w-6" />
               </button>
             )}
           </div>

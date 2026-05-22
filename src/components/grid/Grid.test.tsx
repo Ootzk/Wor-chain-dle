@@ -80,7 +80,7 @@ test('shows a cursor on the active transparent-letter cell', () => {
 
 test('shows the letter toggle beside the final row', () => {
   const onChangeViewOptions = jest.fn()
-  const { getByLabelText } = render(
+  const { getByLabelText, getByTestId } = render(
     <Grid
       guesses={[winningGuess]}
       currentGuess={[]}
@@ -92,12 +92,33 @@ test('shows the letter toggle beside the final row', () => {
     />
   )
 
+  expect(getByTestId('view-control-placeholder')).toBeInTheDocument()
   fireEvent.click(getByLabelText('Toggle letters'))
 
   expect(onChangeViewOptions).toHaveBeenCalledWith({
     lettersHidden: true,
     liveEffectsEnabled: false,
   })
+})
+
+test('orders live effects above the letter toggle', () => {
+  const { container } = render(
+    <Grid
+      guesses={[winningGuess]}
+      currentGuess={[]}
+      solution="crane"
+      isGameComplete
+      viewOptions={{ lettersHidden: false, liveEffectsEnabled: true }}
+      showLettersToggle
+      showLiveEffectsToggle
+    />
+  )
+
+  expect(
+    Array.from(container.querySelectorAll('button')).map((button) =>
+      button.getAttribute('aria-label')
+    )
+  ).toEqual(['Toggle live effects', 'Toggle letters'])
 })
 
 test('shows the live effects toggle beside the final row', () => {
