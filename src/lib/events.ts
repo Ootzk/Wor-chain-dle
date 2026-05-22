@@ -62,12 +62,12 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
   pacman: {
     actor: '🐇',
     stepMsByStatus: {
-      correct: 3000,
-      present: 2000,
-      absent: 1500,
-      default: 1500,
+      correct: 5000,
+      present: 3000,
+      absent: 3000,
+      default: 3000,
     },
-    effect: 'hide-letter',
+    effect: 'hide-letter-and-status',
   },
   collectibles: [
     {
@@ -86,13 +86,13 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       'badge_apple',
       'badge_grape',
       'badge_milk',
-      'badge_azure',
+      'badge_grass',
       'badge_clover',
       'badge_hyacinth',
       'badge_rabbit',
     ],
-    cellColor: 'color_azure',
-    chainColor: 'chaincolor_azure',
+    cellColor: 'color_grass',
+    chainColor: 'chaincolor_grass',
   },
   loseReasons: [
     {

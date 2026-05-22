@@ -13,7 +13,7 @@ import {
 } from './achievementProgress'
 import {
   SUMMER_GARDEN_CLOVER_COLLECTION_ID,
-  SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+  SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
 } from './eventCollectibles'
 import { CharStatus, getGuessStatuses } from './statuses'
 import {
@@ -238,6 +238,32 @@ const getSummerGardenFastWinProgress = (
   }
 }
 
+const getSummerGardenCompletedGameProgress = (
+  ctx: AchievementContext
+): AchievementProgress => {
+  const target = 5
+  let current = 0
+  const activeDateKey = ctx.mode === 'event' ? ctx.game?.dateKey : undefined
+
+  if (
+    ctx.mode === 'event' &&
+    ctx.game &&
+    ctx.game.eventVersion === SUMMER_GARDEN_VERSION
+  ) {
+    current += 1
+  }
+
+  for (const result of Object.values(loadEventResults(SUMMER_GARDEN_VERSION))) {
+    if (activeDateKey && result.dateKey === activeDateKey) continue
+    current += 1
+  }
+
+  return {
+    current: Math.min(current, target),
+    target,
+  }
+}
+
 const getRequiredAchievementProgress = (
   ids: string[],
   state: Pick<AchievementState, 'unlocked'> = loadAchievementState()
@@ -245,6 +271,11 @@ const getRequiredAchievementProgress = (
   current: ids.filter((id) => state.unlocked[id]).length,
   target: ids.length,
 })
+
+const isGreenGrassEventWin = (game: CompletedGameContext): boolean =>
+  game.eventVersion === SUMMER_GARDEN_VERSION &&
+  game.won &&
+  usedAllWords(game.guesses, ['green', 'grass'])
 
 // --- Achievement Definitions ---
 
@@ -350,18 +381,15 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ progress, eventVersion }) => {
       const collection =
         progress.collectibles[SUMMER_GARDEN_CLOVER_COLLECTION_ID] ?? {}
-      const rowTargets = Object.entries(SUMMER_GARDEN_CLOVER_ROW_TARGETS)
-      const target = rowTargets.reduce((sum, [, target]) => sum + target, 0)
       if (eventVersion && eventVersion !== SUMMER_GARDEN_VERSION) {
-        return { current: 0, target }
+        return { current: 0, target: SUMMER_GARDEN_CLOVER_TOTAL_TARGET }
       }
       return {
-        current: rowTargets.reduce(
-          (sum, [itemId, target]) =>
-            sum + Math.min(collection[itemId] ?? 0, target),
+        current: Object.values(collection).reduce(
+          (sum, count) => sum + count,
           0
         ),
-        target,
+        target: SUMMER_GARDEN_CLOVER_TOTAL_TARGET,
       }
     },
   },
@@ -514,14 +542,14 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: ({ stats }) => ({ current: stats.bestStreak, target: 3 }),
   },
   {
-    id: 'streak_5',
-    category: 'streak',
-    modes: ['daily'],
-    difficulty: 5,
+    id: 'grassland_trail',
+    category: 'milestone',
+    modes: ['event'],
+    difficulty: 3,
     metadata: REWARD_METADATA.v1_7_0,
-    titleKey: 'achievement_streak_5_title',
-    descriptionKey: 'achievement_streak_5_desc',
-    progress: ({ stats }) => ({ current: stats.bestStreak, target: 5 }),
+    titleKey: 'achievement_grassland_trail_title',
+    descriptionKey: 'achievement_grassland_trail_desc',
+    progress: getSummerGardenCompletedGameProgress,
   },
   {
     id: 'streak_7',
@@ -627,16 +655,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       getTilePatternProgress(ctx, (counts) => counts.correct === 0),
   },
   {
-    id: 'azure_word',
+    id: 'grass_diet',
     category: 'event',
-    modes: ['daily'],
-    difficulty: 4,
+    modes: ['event'],
+    difficulty: 8,
     metadata: REWARD_METADATA.v1_7_0,
-    titleKey: 'achievement_azure_word_title',
-    descriptionKey: 'achievement_azure_word_desc',
-    progress: ({ progress }) => ({
-      current: progress.words.azure?.gamesWon ?? 0,
-      target: 5,
+    titleKey: 'achievement_grass_diet_title',
+    descriptionKey: 'achievement_grass_diet_desc',
+    progress: ({ game }) => ({
+      current: game && isGreenGrassEventWin(game) ? 1 : 0,
+      target: 1,
     }),
   },
 ]

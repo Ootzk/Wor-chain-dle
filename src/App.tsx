@@ -128,9 +128,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       isEvent ? resolveCosmeticOverrides(event?.cosmeticOverrides) : undefined,
     [isEvent, event?.cosmeticOverrides]
   )
+  const matchingEventResult =
+    isEvent && event ? loadEventResults(event.version)[localDateStr] : undefined
+  const completedEventResult =
+    matchingEventResult?.solution === solution ? matchingEventResult : undefined
 
   const [currentGuess, setCurrentGuess] = useState<Array<string>>([])
-  const [isGameWon, setIsGameWon] = useState(false)
+  const [isGameWon, setIsGameWon] = useState(
+    () => completedEventResult?.won ?? false
+  )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
   const [infoInitialSection, setInfoInitialSection] = useState<
@@ -173,7 +179,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     settingOverrides?.lettersHidden ?? lettersHidden
   const canToggleLettersHidden = settingOverrides?.lettersHidden === undefined
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
-  const [isGameLost, setIsGameLost] = useState(false)
+  const [isGameLost, setIsGameLost] = useState(() =>
+    completedEventResult ? !completedEventResult.won : false
+  )
   const [successAlert, setSuccessAlert] = useState('')
   const [achievementAlerts, setAchievementAlerts] = useState<string[]>([])
   const applyLoadedGameStatus = (loadedGuesses: string[][]) => {
@@ -236,14 +244,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }
   const [stats, setStats] = useState(() => loadStats())
   const [playStats, setPlayStats] = useState<PlayStats>(() => {
-    const eventResult =
-      isEvent && event ? loadEventResults(event.version)[localDateStr] : null
-    const completedEventStats =
-      eventResult?.solution === solution ? eventResult.playStats : null
-
     return (
       (isDaily ? loadDailyDetailStats(localDateStr, solution) : null) ||
-      completedEventStats ||
+      completedEventResult?.playStats ||
       loadCurrentPlayStats({
         mode,
         solution,
@@ -261,7 +264,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   )
   const playStatsRef = useRef(playStats)
   const guessesRef = useRef(guesses)
-  const currentGuessRef = useRef(currentGuess)
+  const autoOpenedEventInfoRef = useRef<string | undefined>(undefined)
   const pacmanLossHandledRef = useRef(false)
   const pacmanResetKeyRef = useRef(`${mode}:${solution}`)
   const isPacmanEvent =
@@ -342,10 +345,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   }, [guesses])
 
   useEffect(() => {
-    currentGuessRef.current = currentGuess
-  }, [currentGuess])
-
-  useEffect(() => {
     if (!isDaily && !isEvent) return
 
     const clearUnstartedPlayStats = () => {
@@ -375,6 +374,17 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       document.title = `Wor\u{1F517}dle Practice`
     }
   }, [isDaily, isCustom, isEvent, questioner, stats])
+
+  useEffect(() => {
+    if (!isEvent || !event || isPatchNotesModalOpen) return
+    if (isGameWon || isGameLost) return
+    if (autoOpenedEventInfoRef.current === event.version) return
+
+    autoOpenedEventInfoRef.current = event.version
+    setInfoInitialTab('mode')
+    setInfoInitialSection(undefined)
+    setIsInfoModalOpen(true)
+  }, [isEvent, event, isPatchNotesModalOpen, isGameWon, isGameLost])
 
   useEffect(() => {
     if (isDaily) {
@@ -593,7 +603,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           !isPacmanCellRevealed({
             cell: nextCell,
             guesses: guessesRef.current,
-            currentGuess: currentGuessRef.current,
           })
         ) {
           setPacmanPathIndex(nextIndex)
@@ -608,10 +617,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         guesses,
         solution,
         stepMsByStatus: event?.pacman?.stepMsByStatus ?? {
-          correct: 3000,
-          present: 2000,
-          absent: 1000,
-          default: 1000,
+          correct: 5000,
+          present: 3000,
+          absent: 3000,
+          default: 3000,
         },
       })
     )
@@ -636,6 +645,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           path: pacmanPath,
           pathIndex: pacmanPathIndex,
           actor: event.pacman.actor,
+          effect: event.pacman.effect,
         })
       : undefined
   const collectibleCellEffects = getCollectibleCellEffects({
@@ -904,7 +914,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
                   <ModeBadge mode="event" />
                   <span>| {localDateStr}</span>
                 </span>
-                <span className="absolute left-0 top-full text-sky-500 whitespace-nowrap">
+                <span className="absolute left-0 top-full text-lime-600 whitespace-nowrap">
                   {event ? t(event.themeKey) : ''}
                 </span>
               </>

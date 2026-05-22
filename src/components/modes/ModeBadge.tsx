@@ -13,7 +13,7 @@ export const MODE_BADGE_CLASSES: Record<ModeBadgeMode, string> = {
   daily: 'bg-gray-50 text-gray-500 border-gray-400',
   practice: 'bg-purple-50 text-purple-500 border-purple-500',
   custom: 'bg-green-50 text-green-500 border-green-500',
-  event: 'bg-sky-50 text-sky-500 border-sky-400',
+  event: 'bg-lime-50 text-lime-600 border-lime-400',
   create: 'bg-green-50 text-green-500 border-green-500',
   all: 'bg-gray-50 text-gray-500 border-gray-400',
 }

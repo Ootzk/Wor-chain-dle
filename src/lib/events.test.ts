@@ -40,7 +40,13 @@ test('defines cosmetic overrides for the active event theme', () => {
   expect(event.modeKind).toBe('pacman')
   expect(event.pacman).toMatchObject({
     actor: '🐇',
-    effect: 'hide-letter',
+    effect: 'hide-letter-and-status',
+    stepMsByStatus: {
+      correct: 5000,
+      present: 3000,
+      absent: 3000,
+      default: 3000,
+    },
   })
   expect(event.collectibles).toEqual([
     expect.objectContaining({
@@ -55,13 +61,13 @@ test('defines cosmetic overrides for the active event theme', () => {
       'badge_apple',
       'badge_grape',
       'badge_milk',
-      'badge_azure',
+      'badge_grass',
       'badge_clover',
       'badge_hyacinth',
       'badge_rabbit',
     ],
-    cellColor: 'color_azure',
-    chainColor: 'chaincolor_azure',
+    cellColor: 'color_grass',
+    chainColor: 'chaincolor_grass',
   })
   expect(event.shareContextLabel).toBe('Event: Summer Garden')
 })
@@ -74,15 +80,15 @@ test('resolves random event cosmetic candidates without mutating the config', ()
 
   expect(resolved).toMatchObject({
     shareEmoji: 'emoji_garden',
-    shareBadge: 'badge_azure',
-    cellColor: 'color_azure',
-    chainColor: 'chaincolor_azure',
+    shareBadge: 'badge_grass',
+    cellColor: 'color_grass',
+    chainColor: 'chaincolor_grass',
   })
   expect(event.cosmeticOverrides?.shareBadge).toEqual([
     'badge_apple',
     'badge_grape',
     'badge_milk',
-    'badge_azure',
+    'badge_grass',
     'badge_clover',
     'badge_hyacinth',
     'badge_rabbit',

@@ -174,14 +174,12 @@ describe('share badge achievements', () => {
         'play_150',
         'fail_100',
         'streak_14',
-        'streak_5',
         'win_in_6_20',
       ])
     )
     expect(loadAchievementState().unlocked.play_150).toBeTruthy()
     expect(loadAchievementState().unlocked.fail_100).toBeTruthy()
     expect(loadAchievementState().unlocked.streak_14).toBeTruthy()
-    expect(loadAchievementState().unlocked.streak_5).toBeTruthy()
     expect(loadAchievementState().unlocked.win_in_6_20).toBeTruthy()
   })
 
@@ -199,12 +197,12 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_apple')).toBe('\uD83C\uDF4F')
     expect(getShareBadge('badge_grape')).toBe('\uD83C\uDF47')
     expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
-    expect(getShareBadge('badge_azure')).toBe('\uD83E\uDE75')
+    expect(getShareBadge('badge_grass')).toBe('\uD83D\uDC9A')
     expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
     expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
     expect(getShareBadge('badge_rabbit')).toBe('\uD83D\uDC07')
-    expect(CHAIN_COLOR_STYLES.chaincolor_azure).toBe('border-sky-400')
-    expect(CELL_COLOR_STYLES.color_azure).toBe('text-sky-300')
+    expect(CHAIN_COLOR_STYLES.chaincolor_grass).toBe('border-lime-400')
+    expect(CELL_COLOR_STYLES.color_grass).toBe('text-lime-300')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -240,7 +238,7 @@ describe('share badge achievements', () => {
     )
     expect(
       getRewardsForAchievement('played_v1_7_0_5').map((r) => r.id)
-    ).toContain('badge_azure')
+    ).toContain('badge_grass')
     expect(
       getRewardsForAchievement('clover_collector').map((r) => r.id)
     ).toContain('badge_clover')
@@ -250,21 +248,21 @@ describe('share badge achievements', () => {
     expect(getRewardsForAchievement('rabbit_speed').map((r) => r.id)).toContain(
       'badge_rabbit'
     )
-    expect(getRewardsForAchievement('streak_5').map((r) => r.id)).toContain(
-      'chaincolor_azure'
-    )
-    expect(getRewardsForAchievement('azure_word').map((r) => r.id)).toContain(
-      'color_azure'
+    expect(
+      getRewardsForAchievement('grassland_trail').map((r) => r.id)
+    ).toContain('chaincolor_grass')
+    expect(getRewardsForAchievement('grass_diet').map((r) => r.id)).toContain(
+      'color_grass'
     )
   })
 
-  it('unlocks the clover badge after meeting every event row target', () => {
+  it('unlocks the clover badge after collecting 37 clovers total', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.collectibles['v1.7.0-summer-garden-clover'] = {
-      row_2: 3,
-      row_3: 7,
+      row_2: 20,
+      row_3: 5,
       row_4: 10,
-      row_5: 15,
+      row_5: 2,
     }
 
     expect(
@@ -327,13 +325,13 @@ describe('share badge achievements', () => {
     ).toContain('rabbit_speed')
   })
 
-  it('does not let extra clovers in one row replace another row target', () => {
+  it('does not unlock the clover badge below the total clover target', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.collectibles['v1.7.0-summer-garden-clover'] = {
       row_2: 20,
-      row_3: 20,
-      row_4: 20,
-      row_5: 14,
+      row_3: 5,
+      row_4: 10,
+      row_5: 1,
     }
 
     expect(
@@ -393,16 +391,58 @@ describe('share badge achievements', () => {
     ).toContain('garden_set')
   })
 
-  it('unlocks the azure letter color from tracked Daily wins using AZURE', () => {
-    const progress = createDefaultAchievementTrackingState()
-    progress.words.azure = { gamesWon: 5 }
+  it('unlocks the grass letter color from a GREEN and GRASS Summer Garden win', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.7.0',
+        game: {
+          eventVersion: 'v1.7.0',
+          guesses: [
+            ['g', 'r', 'e', 'e', 'n'],
+            ['g', 'r', 'a', 's', 's'],
+          ],
+          solution: 'grass',
+          won: true,
+          lost: false,
+          guessCount: 2,
+          endReason: 'win',
+        },
+      })
+    ).toContain('grass_diet')
+  })
+
+  it('unlocks the grass chain color after completing 5 event games', () => {
+    for (let day = 1; day <= 4; day += 1) {
+      const dateKey = `2026-05-${String(day).padStart(2, '0')}`
+      saveEventResult('v1.7.0', {
+        dateKey,
+        solution: 'chain',
+        won: false,
+        guessCount: 2,
+        endReason: 'pacman',
+        playStats: createFastEventWinStats(dateKey, 30_000),
+      })
+    }
 
     expect(
       evaluateAchievements(stats, dailyHistory, {
-        mode: 'daily',
-        progress,
+        mode: 'event',
+        game: {
+          dateKey: '2026-05-05',
+          eventVersion: 'v1.7.0',
+          guesses: [
+            ['c', 'h', 'a', 'i', 'n'],
+            ['n', 'e', 'v', 'e', 'r'],
+          ],
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
       })
-    ).toContain('azure_word')
+    ).toContain('grassland_trail')
   })
 
   it('records unique words from completed wins for word achievements', () => {
@@ -410,10 +450,10 @@ describe('share badge achievements', () => {
       mode: 'daily',
       appVersion: '1.7.0',
       won: true,
-      wonWords: ['AZURE', 'crane', 'azure'],
+      wonWords: ['GREEN', 'crane', 'green'],
     })
 
-    expect(progress.words.azure.gamesWon).toBe(1)
+    expect(progress.words.green.gamesWon).toBe(1)
     expect(progress.words.crane.gamesWon).toBe(1)
   })
 
@@ -422,7 +462,6 @@ describe('share badge achievements', () => {
       'play_150',
       'fail_100',
       'streak_14',
-      'streak_5',
       'win_in_6_20',
       'no_present_game',
       'no_correct_game',
@@ -464,7 +503,6 @@ describe('share badge achievements', () => {
         'play_150',
         'fail_100',
         'streak_14',
-        'streak_5',
         'win_in_6_20',
       ])
     )

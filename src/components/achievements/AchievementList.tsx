@@ -16,6 +16,7 @@ import {
   RewardMetadataFilter,
 } from '../../lib/rewardMetadata'
 import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
+import { GameMode } from '../../lib/gameMode'
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   milestone: '\uD83C\uDFAF',
@@ -90,7 +91,14 @@ const AchievementDescription = ({
     )
   }
 
-  if (['clover_collector', 'rabbit_speed'].includes(achievementId)) {
+  if (
+    [
+      'clover_collector',
+      'rabbit_speed',
+      'grassland_trail',
+      'grass_diet',
+    ].includes(achievementId)
+  ) {
     return (
       <Trans
         i18nKey={descriptionKey}
@@ -117,28 +125,43 @@ export const AchievementList = ({
   onOpenDeadEndHelp,
   onOpenEventRecords,
   metadataFilter,
+  achievementIds,
+  mode = 'daily',
+  embedded = false,
+  markSeenOnUnmount = true,
 }: {
   scrollToId?: string
   onOpenDeadEndHelp?: () => void
   onOpenEventRecords?: () => void
   metadataFilter?: RewardMetadataFilter
+  achievementIds?: string[]
+  mode?: GameMode
+  embedded?: boolean
+  markSeenOnUnmount?: boolean
 }) => {
   const { t } = useTranslation()
   const stats = loadStats()
   const dailyHistory = loadDailyResultHistory()
-  const achievements = metadataFilter
+  const achievementsWithMetadata = metadataFilter
     ? filterRewardsByMetadata(
-        getAchievementsWithStatus(stats, dailyHistory),
+        getAchievementsWithStatus(stats, dailyHistory, mode),
         metadataFilter
       )
-    : getAchievementsWithStatus(stats, dailyHistory)
+    : getAchievementsWithStatus(stats, dailyHistory, mode)
+  const achievements = achievementIds
+    ? achievementsWithMetadata.filter((achievement) =>
+        achievementIds.includes(achievement.id)
+      )
+    : achievementsWithMetadata
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     return () => {
-      markAchievementsSeen()
+      if (markSeenOnUnmount) {
+        markAchievementsSeen()
+      }
     }
-  }, [])
+  }, [markSeenOnUnmount])
 
   useEffect(() => {
     if (scrollToId && scrollRef.current) {
@@ -155,7 +178,12 @@ export const AchievementList = ({
   }, [scrollToId])
 
   return (
-    <div ref={scrollRef} className="h-full overflow-y-auto space-y-2 pr-1">
+    <div
+      ref={scrollRef}
+      className={
+        embedded ? 'space-y-2 pr-1' : 'h-full overflow-y-auto space-y-2 pr-1'
+      }
+    >
       {achievements.map((achievement) => (
         <div
           key={achievement.id}

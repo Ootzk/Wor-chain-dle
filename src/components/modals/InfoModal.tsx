@@ -9,6 +9,7 @@ import 'i18next'
 import { PatchNotesContent } from './PatchNotesContent'
 import { GameMode } from '../../lib/gameMode'
 import { EventDefinition } from '../../lib/events'
+import { SummerGardenEventGuide } from '../events/SummerGardenEventGuide'
 
 type InfoMode = GameMode | 'create'
 
@@ -80,9 +81,12 @@ const ModeContent = ({
 
   if (mode === 'event') {
     return (
-      <p className="text-sm text-gray-500 whitespace-pre-line">
-        {event ? t(event.descriptionKey) : t('eventModeDesc')}
-      </p>
+      <>
+        <p className="text-sm text-gray-500 whitespace-pre-line">
+          {event ? t(event.descriptionKey) : t('eventModeDesc')}
+        </p>
+        {event?.version === 'v1.7.0' && <SummerGardenEventGuide />}
+      </>
     )
   }
 

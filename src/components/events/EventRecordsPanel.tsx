@@ -1,19 +1,20 @@
-import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
+import Countdown from 'react-countdown'
 import { EventDefinition } from '../../lib/events'
 import { EventResults } from '../../lib/eventResults'
-import { loadAchievementState } from '../../lib/achievements'
-import { loadAchievementProgress } from '../../lib/achievementProgress'
 import { PlayStats, getTotalGuessTimeMs } from '../../lib/playStats'
 import { shareStatus } from '../../lib/share'
+import { tomorrow } from '../../lib/words'
 import { getLoseReasonIcon } from '../../lib/loseReasons'
 import {
-  CollectedRowsByCollectible,
-  getCollectibleProgressItemId,
-} from '../../lib/eventCollectibles'
-import { CosmeticOverrides } from '../../lib/cosmetics'
+  CosmeticOverrides,
+  getRewardsForAchievement,
+} from '../../lib/cosmetics'
+import { CollectedRowsByCollectible } from '../../lib/eventCollectibles'
 import { Cell } from '../grid/Cell'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
+import { AchievementList } from '../achievements/AchievementList'
+import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
 
 type Props = {
   event?: EventDefinition | null
@@ -30,17 +31,19 @@ type Props = {
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
   onOpenCosmetics: () => void
-  onOpenAchievement: (achievementId: string) => void
   handleShare: () => void
   cosmeticOverrides?: CosmeticOverrides
   hasNewRewards: boolean
 }
 
-const ONE_MINUTE_MS = 60 * 1000
-const ONE_MINUTE_TARGET = 7
 const EMPTY_VALUE = '-'
-const CLOVER_COLLECTOR_ACHIEVEMENT_ID = 'clover_collector'
-const RABBIT_ACHIEVEMENT_ID = 'rabbit_speed'
+const ONE_MINUTE_MS = 60 * 1000
+const SUMMER_GARDEN_ACHIEVEMENT_IDS = [
+  'clover_collector',
+  'rabbit_speed',
+  'grassland_trail',
+  'grass_diet',
+]
 
 const EventGroupTitle = ({
   children,
@@ -51,7 +54,7 @@ const EventGroupTitle = ({
 }) => (
   <div
     className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
-      separated ? 'mt-1.5 border-t border-gray-200 pt-1.5' : ''
+      separated ? 'mt-1 border-t border-gray-200 pt-1.5' : ''
     }`}
   >
     {children}
@@ -92,6 +95,11 @@ const getResultLabel = ({
   }
 }
 
+const usedWords = (guesses: string[][], words: string[]): boolean => {
+  const used = new Set(guesses.map((guess) => guess.join('').toLowerCase()))
+  return words.every((word) => used.has(word.toLowerCase()))
+}
+
 export const EventRecordsPanel = ({
   event,
   selectedVersion,
@@ -107,26 +115,47 @@ export const EventRecordsPanel = ({
   excludeUrl,
   onToggleExcludeUrl,
   onOpenCosmetics,
-  onOpenAchievement,
   handleShare,
   cosmeticOverrides,
   hasNewRewards,
 }: Props) => {
   const { t } = useTranslation()
   const collectible = event?.collectibles?.[0]
-  const progressTargets = collectible?.progressTargets ?? {}
-  const targetRows = collectible?.targetRows ?? []
   const todayResult = results[currentDateKey]
+  const totalEventTries = Object.keys(results).length
   const todayPlayStats = isCurrentEvent ? playStats : todayResult?.playStats
   const todayWon = isCurrentEvent ? isGameWon : todayResult?.won ?? false
   const todayLost = isCurrentEvent ? isGameLost : todayResult
   const todayGuessTimeMs = getTotalGuessTimeMs(todayPlayStats)
   const todayFastWin = todayWon && todayGuessTimeMs <= ONE_MINUTE_MS
-  const fastWinCount = Object.values(results).filter(
-    (eventResult) =>
-      eventResult.won &&
-      getTotalGuessTimeMs(eventResult.playStats) <= ONE_MINUTE_MS
-  ).length
+  const todayCollectedRows =
+    collectible && isCurrentEvent ? collectedRows[collectible.id] ?? [] : []
+  const todayCloverDisplay =
+    todayCollectedRows.length > 0
+      ? collectible?.emoji.repeat(todayCollectedRows.length)
+      : EMPTY_VALUE
+  const completedCurrentEvent = isCurrentEvent && (isGameWon || isGameLost)
+  const grasslandTrailReward = getRewardsForAchievement('grassland_trail')[0]
+  const grassDietReward = getRewardsForAchievement('grass_diet')[0]
+  const grasslandTrailIcon = grasslandTrailReward ? (
+    <CosmeticPreview
+      category={grasslandTrailReward.category}
+      optionId={grasslandTrailReward.id}
+      compact
+    />
+  ) : (
+    '🌿'
+  )
+  const grassDietIcon = grassDietReward ? (
+    <CosmeticPreview
+      category={grassDietReward.category}
+      optionId={grassDietReward.id}
+      compact
+    />
+  ) : (
+    '💚'
+  )
+  const todayGrassDiet = todayWon && usedWords(guesses, ['green', 'grass'])
   const result = getResultLabel({
     t,
     won: todayWon,
@@ -134,64 +163,13 @@ export const EventRecordsPanel = ({
     endReason: todayResult?.endReason,
     event,
   })
-  const todayCollectedRows =
-    collectible && isCurrentEvent ? collectedRows[collectible.id] ?? [] : []
-  const achievementProgress = loadAchievementProgress()
-  const achievementState = loadAchievementState()
-  const collectionProgress = collectible
-    ? achievementProgress.collectibles[collectible.collectionId] ?? {}
-    : {}
-  const maxTarget = Math.max(1, ...Object.values(progressTargets))
-  const progressRows = targetRows.map((rowIndex) => {
-    const itemId = getCollectibleProgressItemId(rowIndex)
-    const target = progressTargets[itemId] ?? 1
-    return {
-      id: itemId,
-      label: t('eventRowLabel', { row: rowIndex + 1 }),
-      count: collectionProgress[itemId] ?? 0,
-      target,
-      fillClassName: 'bg-green-500',
-      clearClassName: 'bg-green-500',
-    }
-  })
-  const oneMinuteProgressRow = {
-    id: 'one-minute',
-    label: t('eventOneMinute'),
-    count: fastWinCount,
-    target: ONE_MINUTE_TARGET,
-    fillClassName: 'bg-sky-400',
-    clearClassName: 'bg-sky-400',
-  }
-  const maxProgressTarget = Math.max(
-    maxTarget,
-    ONE_MINUTE_TARGET,
-    ...progressRows.map((row) => row.target)
-  )
-  const isCloverQuestClear =
-    !!achievementState.unlocked[CLOVER_COLLECTOR_ACHIEVEMENT_ID] ||
-    progressRows.every((row) => row.count >= row.target)
-  const eventAchievementLinks = [
-    {
-      id: CLOVER_COLLECTOR_ACHIEVEMENT_ID,
-      emoji: collectible?.emoji ?? '🍀',
-      label: t('achievement_clover_collector_title'),
-      clear: isCloverQuestClear,
-    },
-    {
-      id: RABBIT_ACHIEVEMENT_ID,
-      emoji: '🐇',
-      label: t('eventAchievementRabbitPlaceholder'),
-      clear: fastWinCount >= ONE_MINUTE_TARGET,
-    },
-  ]
-  const completedCurrentEvent = isCurrentEvent && (isGameWon || isGameLost)
 
-  if (!event || !collectible) {
+  if (!event) {
     return (
       <div
         className="flex h-full items-center justify-center text-sm text-gray-400"
         aria-label="Event records panel"
-        data-event-id={event?.id ?? ''}
+        data-event-id=""
         data-event-version={selectedVersion}
       >
         {t('eventRecordsEmpty')}
@@ -201,177 +179,133 @@ export const EventRecordsPanel = ({
 
   return (
     <div
-      className="h-full overflow-y-auto pr-1"
+      className="relative flex h-full flex-col pb-20"
       aria-label="Event records panel"
       data-event-id={event.id}
       data-event-version={selectedVersion}
     >
-      <section>
-        <EventGroupTitle>{t('statsDashboard')}</EventGroupTitle>
-        <div className="grid grid-cols-2 gap-2 text-center">
-          <div className="m-0.5 min-w-0 text-center">
-            <div className="flex h-14 items-center justify-center">
-              <Cell value={result.icon} status={result.status} />
-            </div>
-            <div className="text-[10px] leading-3 text-gray-900">
-              {t('playStatsResult')}
-            </div>
-          </div>
-          <div className="m-0.5 min-w-0 text-center">
-            <div className="flex h-14 items-center justify-center">
-              <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
-                {todayPlayStats
-                  ? String(Math.round(todayGuessTimeMs / 1000))
-                  : EMPTY_VALUE}
+      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+        <section>
+          <EventGroupTitle>{t('statsDashboard')}</EventGroupTitle>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="m-0.5 min-w-0 text-center">
+              <div className="flex h-14 items-center justify-center">
+                <Cell value={result.icon} status={result.status} />
+              </div>
+              <div className="text-[10px] leading-3 text-gray-900">
+                {t('playStatsResult')}
               </div>
             </div>
-            <div className="text-[10px] leading-3 text-gray-900">
-              {t('detailTotalGuessTime')}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <EventGroupTitle separated>{t('eventMission')}</EventGroupTitle>
-        <div className="grid grid-cols-5 items-end gap-2 text-center">
-          {targetRows.map((rowIndex) => {
-            const collected = todayCollectedRows.includes(rowIndex)
-            return (
-              <div
-                key={rowIndex}
-                className="flex min-w-0 flex-col items-center justify-center"
-              >
-                <Cell value={collected ? collectible.emoji : undefined} />
-                <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
-                  {t('eventRowLabel', { row: rowIndex + 1 })}
+            <div className="m-0.5 min-w-0 text-center">
+              <div className="flex h-14 items-center justify-center">
+                <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
+                  {totalEventTries}
                 </div>
               </div>
-            )
-          })}
-          <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200 pl-2">
-            <Cell value={todayFastWin ? '🐇' : undefined} />
-            <div className="mt-0.5 text-[10px] leading-3 text-gray-900">
-              {t('eventOneMinute')}
+              <div className="text-[10px] leading-3 text-gray-900">
+                {t('totalTries')}
+              </div>
+            </div>
+            <div className="m-0.5 min-w-0 text-center">
+              <div className="flex h-14 items-center justify-center">
+                <div className="min-w-0 whitespace-nowrap text-xl font-bold text-gray-900 sm:text-2xl">
+                  {todayPlayStats
+                    ? String(Math.round(todayGuessTimeMs / 1000))
+                    : EMPTY_VALUE}
+                </div>
+              </div>
+              <div className="text-[10px] leading-3 text-gray-900">
+                {t('eventGuessTimeSeconds')}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section>
-        <EventGroupTitle separated>{t('eventProgress')}</EventGroupTitle>
-        <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_3.5rem_3.5rem] gap-x-1.5 gap-y-2 pt-1.5">
-          {[...progressRows, oneMinuteProgressRow].map((row) => {
-            const targetWidth = (row.target / maxProgressTarget) * 100
-            const progress = Math.min(1, row.count / row.target)
-            const isClear = row.count >= row.target
-
-            return (
-              <Fragment key={row.id}>
-                <div
-                  key={`${row.id}-label`}
-                  className="flex items-center text-xs font-semibold text-gray-700"
-                >
-                  {row.label}
-                </div>
-                <div
-                  key={`${row.id}-bar`}
-                  className="flex h-4 min-w-0 items-center"
-                >
-                  <div
-                    className="relative h-2.5 rounded-full bg-gray-200"
-                    style={{ width: `${targetWidth}%` }}
-                  >
-                    <div
-                      className={`h-2.5 rounded-full ${row.fillClassName}`}
-                      style={{ width: `${progress * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div
-                  key={`${row.id}-clear`}
-                  className="flex items-center justify-center"
-                >
-                  {isClear && (
-                    <span
-                      className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${row.clearClassName}`}
-                    >
-                      CLEAR!
-                    </span>
-                  )}
-                </div>
-                <div
-                  key={`${row.id}-count`}
-                  className="flex items-center justify-end text-xs font-semibold text-gray-700"
-                >
-                  {row.count}/{row.target}
-                </div>
-              </Fragment>
-            )
-          })}
-        </div>
-      </section>
-      <section>
-        <EventGroupTitle separated>{t('achievements')}</EventGroupTitle>
-        <div className="grid grid-cols-2 items-center gap-3 pt-1">
-          <div className="min-w-0">
-            <div className="space-y-0.5">
-              {eventAchievementLinks.map((achievement) => (
-                <button
-                  key={achievement.id}
-                  type="button"
-                  className="group grid w-full min-w-0 grid-cols-[1.25rem_minmax(0,1fr)_3.125rem] items-center gap-1.5 text-left text-xs font-medium text-gray-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  onClick={() => onOpenAchievement(achievement.id)}
-                >
-                  <span className="text-center leading-none">
-                    {achievement.emoji}
-                  </span>
-                  <span className="min-w-0 truncate text-indigo-600 underline group-hover:text-indigo-700">
-                    {achievement.label}
-                  </span>
-                  <span
-                    className={`justify-self-end rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white ${
-                      achievement.clear ? '' : 'invisible'
-                    }`}
-                  >
-                    {achievement.clear ? 'CLEAR!' : 'CLEAR!'}
-                  </span>
-                </button>
-              ))}
+          <div className="mt-3 grid grid-cols-4 items-stretch border-t border-gray-100 pt-3 text-center">
+            <div className="flex min-w-0 flex-col items-center justify-start px-1">
+              <div className="flex h-8 max-w-full items-center justify-center truncate text-lg font-bold leading-8 text-gray-900">
+                {todayCloverDisplay}
+              </div>
+              <div className="mt-1.5 min-h-[1.5rem] max-w-full text-[10px] leading-3 text-gray-500">
+                {t('eventTodayClovers')}
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col items-center justify-start border-l border-gray-200 px-1">
+              <div className="flex h-8 items-center justify-center text-lg leading-8">
+                {todayFastWin ? '🐇' : EMPTY_VALUE}
+              </div>
+              <div className="mt-1.5 min-h-[1.5rem] max-w-full text-[10px] leading-3 text-gray-500">
+                {t('eventTodayOneMinute')}
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col items-center justify-start border-l border-gray-200 px-1">
+              <div className="flex h-8 items-center justify-center text-lg leading-8">
+                {completedCurrentEvent ? grasslandTrailIcon : EMPTY_VALUE}
+              </div>
+              <div className="mt-1.5 min-h-[1.5rem] max-w-full text-[10px] leading-3 text-gray-500">
+                {t('eventTodayComplete')}
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col items-center justify-start border-l border-gray-200 px-1">
+              <div className="flex h-8 items-center justify-center text-lg leading-8">
+                {todayGrassDiet ? grassDietIcon : EMPTY_VALUE}
+              </div>
+              <div className="mt-1.5 min-h-[1.5rem] max-w-full text-[10px] leading-3 text-gray-500">
+                {t('eventTodayGrass')}
+              </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <button
-              type="button"
-              disabled={!completedCurrentEvent}
-              className={`w-full rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm ${
-                completedCurrentEvent
-                  ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'
-                  : 'bg-gray-300 cursor-default'
-              }`}
-              onClick={() => {
-                shareStatus(
-                  guesses,
-                  isGameLost,
-                  solution,
-                  excludeUrl,
-                  cosmeticOverrides,
-                  event.shareContextLabel
-                )
-                handleShare()
-              }}
-            >
-              {t('share')}
-            </button>
-            <ShareOptionsRow
-              excludeUrl={excludeUrl}
-              onToggleExcludeUrl={onToggleExcludeUrl}
-              onOpenCosmetics={onOpenCosmetics}
-              hasNewRewards={hasNewRewards}
-            />
-          </div>
+        </section>
+
+        <section>
+          <EventGroupTitle separated>{t('eventAchievements')}</EventGroupTitle>
+          <AchievementList
+            achievementIds={SUMMER_GARDEN_ACHIEVEMENT_IDS}
+            mode="event"
+            embedded
+            markSeenOnUnmount={false}
+            onOpenEventRecords={() => undefined}
+          />
+        </section>
+      </div>
+      <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
+        <div>
+          <h5>{t('newWordCountdown')}</h5>
+          <Countdown
+            className="text-lg font-medium text-gray-900"
+            date={tomorrow}
+            daysInHours={true}
+          />
         </div>
-      </section>
+        <div className="space-y-2">
+          <button
+            type="button"
+            disabled={!completedCurrentEvent}
+            className={`w-full rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm ${
+              completedCurrentEvent
+                ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'
+                : 'bg-gray-300 cursor-default'
+            }`}
+            onClick={() => {
+              shareStatus(
+                guesses,
+                isGameLost,
+                solution,
+                excludeUrl,
+                cosmeticOverrides,
+                event.shareContextLabel
+              )
+              handleShare()
+            }}
+          >
+            {t('share')}
+          </button>
+          <ShareOptionsRow
+            excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
+            onOpenCosmetics={onOpenCosmetics}
+            hasNewRewards={hasNewRewards}
+          />
+        </div>
+      </div>
     </div>
   )
 }

@@ -47,22 +47,19 @@ test('maps current row values with locked chain cells in their visual column', (
   ).toEqual(['e', 'o'])
 })
 
-test('detects whether the next pacman cell has been filled', () => {
+test('detects whether the next pacman cell has been submitted', () => {
   const guesses = [['s', 't', 'a', 'l', 'e']]
-  const currentGuess = ['a', 'b']
 
   expect(
     isPacmanCellRevealed({
-      cell: { rowIndex: 1, colIndex: 4 },
+      cell: { rowIndex: 0, colIndex: 4 },
       guesses,
-      currentGuess,
     })
   ).toBe(true)
   expect(
     isPacmanCellRevealed({
-      cell: { rowIndex: 1, colIndex: 3 },
+      cell: { rowIndex: 1, colIndex: 4 },
       guesses,
-      currentGuess,
     })
   ).toBe(false)
 })
@@ -120,5 +117,19 @@ test('marks eaten cells as hidden and places the actor on the current cell', () 
     '0:0': { hideLetter: true, actor: undefined },
     '0:1': { hideLetter: true, actor: undefined },
     '0:2': { hideLetter: true, actor: '🐇' },
+  })
+})
+
+test('can hide both letters and evaluated status colors', () => {
+  const effects = getPacmanCellEffects({
+    path: getPacmanPath(1, 5),
+    pathIndex: 1,
+    actor: '🐇',
+    effect: 'hide-letter-and-status',
+  })
+
+  expect(effects).toEqual({
+    '0:0': { hideLetter: true, hideStatus: true, actor: undefined },
+    '0:1': { hideLetter: true, hideStatus: true, actor: '🐇' },
   })
 })

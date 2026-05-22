@@ -25,7 +25,8 @@ describe('reward metadata', () => {
 
     expect(achievementIds).toEqual(
       [
-        'azure_word',
+        'grass_diet',
+        'grassland_trail',
         'clover_collector',
         'garden_set',
         'no_correct_game',
@@ -33,7 +34,6 @@ describe('reward metadata', () => {
         'played_v1_7_0_5',
         'practice_win_10',
         'rabbit_speed',
-        'streak_5',
         'win_in_6_20',
       ].sort()
     )
@@ -48,14 +48,14 @@ describe('reward metadata', () => {
       [
         'emoji_garden',
         'badge_apple',
-        'badge_azure',
+        'badge_grass',
         'badge_clover',
         'badge_grape',
         'badge_hyacinth',
         'badge_milk',
         'badge_rabbit',
-        'chaincolor_azure',
-        'color_azure',
+        'chaincolor_grass',
+        'color_grass',
       ].sort()
     )
   })
