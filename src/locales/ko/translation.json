@@ -384,7 +384,7 @@
   "customModeTitle": "커스텀 모드",
   "customModeDesc": "{{questioner}}님이 출제한 문제를 풀고 있습니다.\n게임 결과나 게임 URL을 친구에게 공유할 수 있습니다.",
   "eventModeTitle": "이벤트 모드",
-  "eventModeDesc": "이벤트 모드는 시즌마다 다른 규칙과 보상을 들고 오는 특별 퍼즐입니다.\nDaily와는 별도의 정답과 기록을 사용하므로, 오늘의 Daily를 끝낸 뒤에도 부담 없이 한 판 더 즐길 수 있어요.",
+  "eventModeDesc": "이벤트 모드는 시즌마다 다른 규칙, 보상, 그리고 자동 적용되는 전용 치장품을 들고 오는 특별 퍼즐입니다.\nDaily와는 별도의 정답과 기록을 사용하므로, 오늘의 Daily를 끝낸 뒤에도 부담 없이 한 판 더 즐길 수 있어요.",
   "eventThemeSummerGarden": "Summer Garden",
   "eventSummerGardenInfoTitle": "🍀🐇 Summer Garden",
   "eventSummerGardenStoryQuote": "평화로운 Summer Garden에 토끼가 나타났습니다. 토끼가 풀밭을 다 뜯어먹기 전에 네잎클로버를 수집하세요!",
