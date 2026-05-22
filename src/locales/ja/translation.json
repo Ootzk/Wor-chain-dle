@@ -522,6 +522,8 @@
   "achievementUnlocked": "達成: {{name}}",
   "unlocked": "解除済み",
   "locked": "未解除",
+  "achievementFavoriteAdd": "お気に入りに追加",
+  "achievementFavoriteRemove": "お気に入りから外す",
   "achievementSearchPlaceholder": "実績とコスメを検索",
   "achievementFilterVersion": "バージョン",
   "achievementFilterVersionTheme": "Version / Theme",

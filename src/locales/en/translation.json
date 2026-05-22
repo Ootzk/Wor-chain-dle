@@ -522,6 +522,8 @@
   "achievementUnlocked": "Achieved: {{name}}",
   "unlocked": "Unlocked",
   "locked": "Locked",
+  "achievementFavoriteAdd": "Add to favorites",
+  "achievementFavoriteRemove": "Remove from favorites",
   "achievementSearchPlaceholder": "Search achievements & cosmetics",
   "achievementFilterVersion": "Version",
   "achievementFilterVersionTheme": "Version / Theme",

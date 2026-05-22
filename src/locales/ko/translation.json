@@ -515,6 +515,8 @@
   "achievementUnlocked": "달성: {{name}}",
   "unlocked": "달성",
   "locked": "미달성",
+  "achievementFavoriteAdd": "즐겨찾기 추가",
+  "achievementFavoriteRemove": "즐겨찾기 해제",
   "achievementSearchPlaceholder": "업적 & 치장품 검색",
   "achievementFilterVersion": "버전",
   "achievementFilterVersionTheme": "Version / Theme",

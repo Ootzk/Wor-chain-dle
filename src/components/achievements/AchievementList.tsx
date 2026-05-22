@@ -9,8 +9,10 @@ import {
   ChevronUpIcon,
   LockClosedIcon,
   LockOpenIcon,
+  StarIcon as StarOutlineIcon,
   XIcon,
 } from '@heroicons/react/outline'
+import { StarIcon as StarSolidIcon } from '@heroicons/react/solid'
 import {
   closestCenter,
   DndContext,
@@ -105,6 +107,7 @@ const DEFAULT_FILTER_ORDER: FilterKey[] = [
   'mode',
 ]
 const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
+const FAVORITES_STORAGE_KEY = 'achievementFavoriteIds'
 const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
   version: [],
   category: [],
@@ -218,6 +221,25 @@ const saveAchievementFilterPreferences = (
     )
   } catch {
     // Filter preferences are convenience-only; ignore storage failures.
+  }
+}
+
+const loadAchievementFavoriteIds = (): string[] => {
+  try {
+    const raw = localStorage.getItem(FAVORITES_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return normalizeStringArray(parsed)
+  } catch {
+    return []
+  }
+}
+
+const saveAchievementFavoriteIds = (achievementIds: string[]) => {
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(achievementIds))
+  } catch {
+    // Favorites are convenience-only; ignore storage failures.
   }
 }
 
@@ -767,6 +789,34 @@ const ProgressBar = ({
   )
 }
 
+const FavoriteButton = ({
+  active,
+  onToggle,
+}: {
+  active: boolean
+  onToggle: () => void
+}) => {
+  const { t } = useTranslation()
+  const label = active
+    ? t('achievementFavoriteRemove')
+    : t('achievementFavoriteAdd')
+  const Icon = active ? StarSolidIcon : StarOutlineIcon
+
+  return (
+    <button
+      type="button"
+      className={`flex h-8 w-full items-center justify-center transition-colors ${
+        active ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-500'
+      }`}
+      onClick={onToggle}
+      title={label}
+      aria-label={label}
+    >
+      <Icon className="h-5 w-5" />
+    </button>
+  )
+}
+
 const AchievementEquipButton = ({
   rewards,
   unlocked,
@@ -779,7 +829,9 @@ const AchievementEquipButton = ({
   onEquip: (rewards: CosmeticOption[]) => void
 }) => {
   const { t } = useTranslation()
-  if (rewards.length === 0) return null
+  if (rewards.length === 0) {
+    return <span className="flex min-h-0 flex-1" />
+  }
 
   const isEquipped = rewards.every(
     (reward) => equipped[reward.category] === reward.id
@@ -796,12 +848,12 @@ const AchievementEquipButton = ({
     <button
       type="button"
       disabled={disabled}
-      className={`flex w-8 flex-shrink-0 items-center justify-center border-l text-lg font-semibold transition-colors ${
+      className={`flex min-h-0 flex-1 items-center justify-center text-lg font-semibold transition-colors ${
         !unlocked
-          ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-300'
+          ? 'cursor-not-allowed bg-gray-50 text-gray-300'
           : isEquipped
-          ? 'cursor-default border-green-500 bg-green-500 text-white'
-          : 'border-green-400 bg-green-50 text-green-600 hover:bg-green-100'
+          ? 'cursor-default bg-green-500 text-white'
+          : 'bg-green-50 text-green-600 hover:bg-green-100'
       }`}
       onClick={() => onEquip(rewards)}
       title={rewards.map((reward) => t(reward.titleKey)).join(', ')}
@@ -1127,6 +1179,8 @@ export const AchievementList = ({
       marker: <ModeBadge mode={mode} label={t(mode)} />,
     })),
   ]
+  const [favoriteIds, setFavoriteIds] = useState(loadAchievementFavoriteIds)
+  const favoriteIdSet = new Set(favoriteIds)
   const normalizedSearch = searchQuery.trim().toLowerCase()
   const achievements = scopedAchievements
     .filter((achievement) => {
@@ -1176,6 +1230,10 @@ export const AchievementList = ({
           if (aIndex !== bIndex) return aIndex - bIndex
         }
       }
+      const aPriority = a.isNew ? 0 : favoriteIdSet.has(a.id) ? 1 : 2
+      const bPriority = b.isNew ? 0 : favoriteIdSet.has(b.id) ? 1 : 2
+      if (aPriority !== bPriority) return aPriority - bPriority
+
       for (const filterKey of filterOrder) {
         const rankDiff =
           getAchievementSortRank(a, filterKey) -
@@ -1223,6 +1281,16 @@ export const AchievementList = ({
       equipCosmetic(reward.category, reward.id)
     })
     setEquipped(loadCosmeticState().equipped)
+  }
+
+  const toggleFavorite = (achievementId: string) => {
+    setFavoriteIds((currentIds) => {
+      const nextIds = currentIds.includes(achievementId)
+        ? currentIds.filter((currentId) => currentId !== achievementId)
+        : [...currentIds, achievementId]
+      saveAchievementFavoriteIds(nextIds)
+      return nextIds
+    })
   }
 
   const activeFilterLabels = [
@@ -1459,12 +1527,18 @@ export const AchievementList = ({
                 </div>
               </div>
             </div>
-            <AchievementEquipButton
-              rewards={rewards}
-              unlocked={achievement.unlocked}
-              equipped={equipped}
-              onEquip={handleEquipRewards}
-            />
+            <div className="flex w-8 flex-shrink-0 flex-col border-l border-gray-200">
+              <FavoriteButton
+                active={favoriteIdSet.has(achievement.id)}
+                onToggle={() => toggleFavorite(achievement.id)}
+              />
+              <AchievementEquipButton
+                rewards={rewards}
+                unlocked={achievement.unlocked}
+                equipped={equipped}
+                onEquip={handleEquipRewards}
+              />
+            </div>
           </div>
         )
       })}

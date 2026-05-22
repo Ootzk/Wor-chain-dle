@@ -515,6 +515,8 @@
   "achievementUnlocked": "已达成: {{name}}",
   "unlocked": "已解锁",
   "locked": "未解锁",
+  "achievementFavoriteAdd": "添加到收藏",
+  "achievementFavoriteRemove": "从收藏中移除",
   "achievementSearchPlaceholder": "搜索成就和装饰",
   "achievementFilterVersion": "版本",
   "achievementFilterVersionTheme": "Version / Theme",

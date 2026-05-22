@@ -515,6 +515,8 @@
   "achievementUnlocked": "Imefanikiwa: {{name}}",
   "unlocked": "Imefunguliwa",
   "locked": "Imefungwa",
+  "achievementFavoriteAdd": "Ongeza kwenye vipendwa",
+  "achievementFavoriteRemove": "Ondoa kwenye vipendwa",
   "achievementSearchPlaceholder": "Tafuta mafanikio na mapambo",
   "achievementFilterVersion": "Toleo",
   "achievementFilterVersionTheme": "Version / Theme",

@@ -522,6 +522,8 @@
   "achievementUnlocked": "Logrado: {{name}}",
   "unlocked": "Desbloqueado",
   "locked": "Bloqueado",
+  "achievementFavoriteAdd": "Añadir a favoritos",
+  "achievementFavoriteRemove": "Quitar de favoritos",
   "achievementSearchPlaceholder": "Buscar logros y cosméticos",
   "achievementFilterVersion": "Versión",
   "achievementFilterVersionTheme": "Version / Theme",

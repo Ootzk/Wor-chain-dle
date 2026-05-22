@@ -522,6 +522,8 @@
   "achievementUnlocked": "Erreicht: {{name}}",
   "unlocked": "Freigeschaltet",
   "locked": "Gesperrt",
+  "achievementFavoriteAdd": "Zu Favoriten hinzufügen",
+  "achievementFavoriteRemove": "Aus Favoriten entfernen",
   "achievementSearchPlaceholder": "Erfolge und Kosmetik suchen",
   "achievementFilterVersion": "Version",
   "achievementFilterVersionTheme": "Version / Theme",
