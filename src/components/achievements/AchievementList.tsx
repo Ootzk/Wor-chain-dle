@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Trans, useTranslation } from 'react-i18next'
+import { AdjustmentsIcon } from '@heroicons/react/outline'
 import {
   closestCenter,
   DndContext,
@@ -656,12 +657,15 @@ const FilterShell = ({
             onClick={onExpand}
             aria-label={t('achievementFilterExpand')}
           >
-            <span className="min-w-0 truncate">
-              <span className="font-semibold text-gray-900">
-                {t('achievementFilters')}
+            <span className="grid min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
+              <span
+                className="flex items-center justify-center font-semibold text-gray-900"
+                aria-label={t('achievementFilters')}
+              >
+                <AdjustmentsIcon className="h-6 w-6" />
               </span>
-              <span className="mx-1 text-gray-300">|</span>
-              {summary}
+              <span className="text-gray-300">|</span>
+              <span className="min-w-0 truncate">{summary}</span>
             </span>
             <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-xs text-gray-500 hover:bg-gray-50">
               {'\u25BE'}
@@ -677,12 +681,15 @@ const FilterShell = ({
     <div className="sticky top-0 z-10 space-y-2 rounded border border-gray-200 bg-white p-2">
       <div className="grid grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-x-1 text-xs">
         <span className="flex min-w-0 items-center justify-between gap-2 text-gray-500">
-          <span className="min-w-0 truncate">
-            <span className="font-semibold text-gray-900">
-              {t('achievementFilters')}
+          <span className="grid min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
+            <span
+              className="flex items-center justify-center font-semibold text-gray-900"
+              aria-label={t('achievementFilters')}
+            >
+              <AdjustmentsIcon className="h-6 w-6" />
             </span>
-            <span className="mx-1 text-gray-300">|</span>
-            {countLabel}
+            <span className="text-gray-300">|</span>
+            <span className="min-w-0 truncate">{countLabel}</span>
           </span>
           <button
             type="button"
