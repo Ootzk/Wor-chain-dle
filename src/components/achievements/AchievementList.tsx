@@ -162,7 +162,7 @@ const FilterPicker = ({
     <div className="min-w-0">
       <button
         type="button"
-        className="flex h-5 w-full items-center justify-between gap-1.5 rounded border border-gray-300 bg-white px-1.5 text-left text-[0.625rem] text-gray-700"
+        className="flex h-7 w-full items-center justify-between gap-1.5 rounded border border-gray-300 bg-white px-2 text-left text-xs text-gray-700"
         onClick={() => setIsOpen(true)}
         aria-label={label}
       >
@@ -245,7 +245,7 @@ const FilterRow = ({
 }) => {
   const isActive = values.length > 0
   return (
-    <div className="grid grid-cols-[8.25rem_minmax(0,1fr)_1.25rem] items-center gap-x-1.5">
+    <div className="grid grid-cols-[8.25rem_minmax(0,1fr)_1.75rem] items-center gap-x-1">
       <span className="truncate whitespace-nowrap text-xs font-semibold text-gray-500">
         {label}
       </span>
@@ -257,7 +257,7 @@ const FilterRow = ({
       />
       <button
         type="button"
-        className={`flex h-5 w-5 items-center justify-center rounded border text-[0.625rem] font-semibold ${
+        className={`flex h-7 w-7 items-center justify-center rounded border text-xs font-semibold ${
           isActive
             ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
             : 'cursor-default border-transparent text-gray-200'
@@ -301,7 +301,7 @@ const FilterShell = ({
   const resetButton = (
     <button
       type="button"
-      className={`flex h-5 w-5 items-center justify-center rounded border text-[0.625rem] font-semibold ${
+      className={`flex h-7 w-7 items-center justify-center rounded border text-xs font-semibold ${
         hasActiveFilters
           ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
           : 'cursor-default border-transparent text-gray-200'
@@ -320,7 +320,7 @@ const FilterShell = ({
   if (mode === 'collapsed') {
     return (
       <div className="sticky top-0 z-10 rounded border border-gray-200 bg-white p-2 text-xs">
-        <div className="grid grid-cols-[minmax(0,1fr)_1.25rem] items-center gap-x-1.5">
+        <div className="grid grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-x-1">
           <button
             type="button"
             className="flex min-w-0 items-center justify-between gap-2 text-left text-gray-500"
@@ -334,7 +334,7 @@ const FilterShell = ({
               <span className="mx-1 text-gray-300">|</span>
               {summary}
             </span>
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-[0.625rem] text-gray-500 hover:bg-gray-50">
+            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-xs text-gray-500 hover:bg-gray-50">
               {'\u25BE'}
             </span>
           </button>
@@ -346,7 +346,7 @@ const FilterShell = ({
 
   return (
     <div className="sticky top-0 z-10 space-y-2 rounded border border-gray-200 bg-white p-2">
-      <div className="grid grid-cols-[minmax(0,1fr)_1.25rem] items-center gap-x-1.5 text-xs">
+      <div className="grid grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-x-1 text-xs">
         <span className="flex min-w-0 items-center justify-between gap-2 text-gray-500">
           <span className="min-w-0 truncate">
             <span className="font-semibold text-gray-900">
@@ -357,7 +357,7 @@ const FilterShell = ({
           </span>
           <button
             type="button"
-            className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-[0.625rem] text-gray-500 hover:bg-gray-50"
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-xs text-gray-500 hover:bg-gray-50"
             onClick={onCollapse}
             aria-label={t('achievementFilterCollapse')}
           >
@@ -748,7 +748,7 @@ export const AchievementList = ({
         >
           <input
             type="search"
-            className="w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 placeholder:text-gray-400"
+            className="h-7 w-full rounded border border-gray-300 bg-white px-2 text-xs text-gray-700 placeholder:text-gray-400"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder={t('achievementSearchPlaceholder')}

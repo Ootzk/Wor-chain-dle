@@ -515,7 +515,7 @@
   "achievementUnlocked": "已达成: {{name}}",
   "unlocked": "已解锁",
   "locked": "未解锁",
-  "achievementSearchPlaceholder": "搜索成就",
+  "achievementSearchPlaceholder": "搜索成就和装饰",
   "achievementFilterVersion": "版本",
   "achievementFilterVersionTheme": "Version / Theme",
   "achievementFilterCategory": "类别",
