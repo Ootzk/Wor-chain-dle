@@ -264,7 +264,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   )
   const playStatsRef = useRef(playStats)
   const guessesRef = useRef(guesses)
-  const currentGuessRef = useRef(currentGuess)
   const pacmanLossHandledRef = useRef(false)
   const pacmanResetKeyRef = useRef(`${mode}:${solution}`)
   const isPacmanEvent =
@@ -343,10 +342,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   useEffect(() => {
     guessesRef.current = guesses
   }, [guesses])
-
-  useEffect(() => {
-    currentGuessRef.current = currentGuess
-  }, [currentGuess])
 
   useEffect(() => {
     if (!isDaily && !isEvent) return
@@ -596,7 +591,6 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           !isPacmanCellRevealed({
             cell: nextCell,
             guesses: guessesRef.current,
-            currentGuess: currentGuessRef.current,
           })
         ) {
           setPacmanPathIndex(nextIndex)

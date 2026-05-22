@@ -47,22 +47,19 @@ test('maps current row values with locked chain cells in their visual column', (
   ).toEqual(['e', 'o'])
 })
 
-test('detects whether the next pacman cell has been filled', () => {
+test('detects whether the next pacman cell has been submitted', () => {
   const guesses = [['s', 't', 'a', 'l', 'e']]
-  const currentGuess = ['a', 'b']
 
   expect(
     isPacmanCellRevealed({
-      cell: { rowIndex: 1, colIndex: 4 },
+      cell: { rowIndex: 0, colIndex: 4 },
       guesses,
-      currentGuess,
     })
   ).toBe(true)
   expect(
     isPacmanCellRevealed({
-      cell: { rowIndex: 1, colIndex: 3 },
+      cell: { rowIndex: 1, colIndex: 4 },
       guesses,
-      currentGuess,
     })
   ).toBe(false)
 })

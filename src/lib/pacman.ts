@@ -60,18 +60,12 @@ export const getVisibleRowValues = ({
 export const isPacmanCellRevealed = ({
   cell,
   guesses,
-  currentGuess,
 }: {
   cell: PacmanCell
   guesses: string[][]
-  currentGuess: string[]
 }) => {
-  const rowValues = getVisibleRowValues({
-    rowIndex: cell.rowIndex,
-    guesses,
-    currentGuess,
-  })
-  return !!rowValues[cell.colIndex]
+  const guess = guesses[cell.rowIndex]
+  return !!guess?.[cell.colIndex]
 }
 
 export const getPacmanCellStatus = ({
