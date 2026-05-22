@@ -220,6 +220,15 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 - Detail stats live on `DailyResult.playStats` and are accessed through the `loadDailyDetailStats*`, `saveDailyDetailStats`, and `summarizeDetailStats` helpers in `playStats.ts`.
 - Tile count achievements should use stored `tileCounts` when available. Legacy records without tile counts must not be guessed into retroactive tile-pattern unlocks.
 
+## Calendar History Policy
+
+- Calendar history markers are user-facing record context, not a developer timeline. Prefer markers that help players understand what happened to the game or why old records may look different.
+- Version release markers should be based on actual release dates from `RELEASE_METADATA.releasedAt`, not planning dates, implementation dates, or PR merge dates.
+- Version summaries shown from Calendar should be derived from `PATCH_NOTES` feature titles and should link to the matching Information > Patch Notes version. Do not duplicate patch-note summaries inside Calendar-specific data.
+- Add extra non-release markers only when a data structure or tracking policy changed enough to affect user interpretation of records, such as Calendar history availability, detail-stat tracking, or a device's first date-based record.
+- Data/history marker descriptions should explain the practical consequence for the player, for example that older games can count in Summary but not appear by date on Calendar, or that behavior stats only exist after their tracking rollout.
+- Keep release metadata, patch notes, and calendar marker assembly as separate role-based sources of truth: `releaseMetadata.ts` for release dates and themes, `patchNotes.ts` for version content, and `calendarMilestones.ts` for assembling Calendar-visible milestones.
+
 ## Temporal And Local Time
 
 The app intentionally uses `Temporal` instead of `Date` for runtime date logic. Daily word selection, subtitles, calendar, share text, and countdown behavior should remain based on `Temporal.Now.plainDateISO()` and local time. Avoid adding new `Date`-based logic for gameplay dates.
