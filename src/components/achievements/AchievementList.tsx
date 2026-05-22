@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import {
   getAchievementModes,
@@ -22,6 +23,7 @@ import {
   getRewardMetadataLabel,
   RewardMetadataFilter,
 } from '../../lib/rewardMetadata'
+import { RELEASE_METADATA } from '../../lib/releaseMetadata'
 import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
 import { GameMode } from '../../lib/gameMode'
 
@@ -43,56 +45,252 @@ const ACHIEVEMENT_CATEGORY_LABEL_KEYS: Record<AchievementCategory, string> = {
   performance: 'achievementCategoryPerformance',
 }
 
+const ACHIEVEMENT_CATEGORY_DESC_KEYS: Record<AchievementCategory, string> = {
+  milestone: 'achievementCategoryMilestoneDesc',
+  guess: 'achievementCategoryGuessDesc',
+  streak: 'achievementCategoryStreakDesc',
+  event: 'achievementCategoryEventDesc',
+  collection: 'achievementCategoryCollectionDesc',
+  performance: 'achievementCategoryPerformanceDesc',
+}
+
 const FILTER_ALL = 'all'
 
 type AchievementFilterDisplayMode = 'expanded' | 'collapsed' | 'hidden'
+type FilterPickerOption = {
+  value: string
+  label: string
+  description: string
+  marker?: ReactNode
+}
 
 const uniqueSorted = (values: string[]): string[] =>
   Array.from(new Set(values)).sort((a, b) => a.localeCompare(b))
 
-const FilterSelect = ({
+const getVersionFilterDescription = (
+  version: string,
+  t: (key: string, options?: Record<string, string>) => string
+): string => {
+  const release = RELEASE_METADATA[version]
+  if (release?.theme) {
+    return release.theme
+  }
+  return t('achievementFilterVersionDesc', { version: `v${version}` })
+}
+
+const FILTER_REWARD_MARKERS: Record<CosmeticCategory, ReactNode> = {
+  shareEmoji: (
+    <CosmeticPreview category="shareEmoji" optionId="emoji_default" compact />
+  ),
+  shareBadge: (
+    <CosmeticPreview category="shareBadge" optionId="badge_chain" compact />
+  ),
+  cellFont: (
+    <CosmeticPreview category="cellFont" optionId="font_marker" compact />
+  ),
+  cellColor: (
+    <CosmeticPreview category="cellColor" optionId="color_grass" compact />
+  ),
+  chainStyle: (
+    <CosmeticPreview category="chainStyle" optionId="chain_thick" compact />
+  ),
+  chainColor: (
+    <CosmeticPreview
+      category="chainColor"
+      optionId="chaincolor_grass"
+      compact
+    />
+  ),
+  endMessage: (
+    <CosmeticPreview category="endMessage" optionId="msg_phrase" compact />
+  ),
+}
+
+const COSMETIC_CATEGORY_DESC_KEYS: Record<CosmeticCategory, string> = {
+  shareEmoji: 'achievementRewardShareEmojiDesc',
+  shareBadge: 'achievementRewardShareBadgeDesc',
+  cellFont: 'achievementRewardCellFontDesc',
+  cellColor: 'achievementRewardCellColorDesc',
+  chainStyle: 'achievementRewardChainStyleDesc',
+  chainColor: 'achievementRewardChainColorDesc',
+  endMessage: 'achievementRewardEndMessageDesc',
+}
+
+const MODE_DESC_KEYS: Record<GameMode, string> = {
+  daily: 'achievementModeDailyDesc',
+  practice: 'achievementModePracticeDesc',
+  custom: 'achievementModeCustomDesc',
+  event: 'achievementModeEventDesc',
+}
+
+const FilterPicker = ({
   label,
-  value,
+  values,
   onChange,
   options,
 }: {
   label: string
-  value: string
-  onChange: (value: string) => void
-  options: Array<{ value: string; label: string }>
-}) => (
-  <label className="min-w-0">
-    <span className="sr-only">{label}</span>
-    <select
-      className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700"
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-    >
-      <option value={FILTER_ALL}>{label}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  </label>
-)
+  values: string[]
+  onChange: (values: string[]) => void
+  options: FilterPickerOption[]
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const selectedOptions = options.filter(
+    (option) => option.value !== FILTER_ALL && values.includes(option.value)
+  )
+  const allOption = options[0]
+  const displayOption = selectedOptions[0] ?? allOption
+  const displayLabel =
+    selectedOptions.length > 0
+      ? selectedOptions.map((option) => option.label).join(', ')
+      : displayOption.label
+  const toggleValue = (nextValue: string) => {
+    if (nextValue === FILTER_ALL) {
+      onChange([])
+      return
+    }
+
+    if (values.includes(nextValue)) {
+      onChange(values.filter((currentValue) => currentValue !== nextValue))
+      return
+    }
+
+    onChange([...values, nextValue])
+  }
+
+  return (
+    <div className="min-w-0">
+      <button
+        type="button"
+        className="flex h-5 w-full items-center justify-between gap-1.5 rounded border border-gray-300 bg-white px-1.5 text-left text-[0.625rem] text-gray-700"
+        onClick={() => setIsOpen(true)}
+        aria-label={label}
+      >
+        <span className="min-w-0 truncate">{displayLabel}</span>
+        <span className="flex-shrink-0 text-gray-400">{'\u25BE'}</span>
+      </button>
+
+      {isOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-30 px-4"
+            onClick={() => setIsOpen(false)}
+          >
+            <div
+              className="max-h-[80vh] w-80 max-w-full overflow-y-auto rounded-lg bg-white shadow-xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="border-b border-gray-200 px-4 py-3">
+                <span className="text-sm font-bold text-gray-900">{label}</span>
+              </div>
+              {options.map((option) => {
+                const selected =
+                  option.value === FILTER_ALL
+                    ? selectedOptions.length === 0
+                    : values.includes(option.value)
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`flex w-full items-center gap-3 border-b border-gray-50 px-4 py-3 text-left text-sm ${
+                      selected
+                        ? 'bg-indigo-50 text-indigo-600'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      toggleValue(option.value)
+                    }}
+                  >
+                    <span className="flex w-9 flex-shrink-0 items-center justify-center text-base">
+                      {option.marker}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">
+                        {option.label}
+                      </span>
+                      <span
+                        className={`block text-xs leading-snug ${
+                          selected ? 'text-indigo-500' : 'text-gray-400'
+                        }`}
+                      >
+                        {option.description}
+                      </span>
+                    </span>
+                    <span className="w-5 flex-shrink-0 text-center">
+                      {selected && (
+                        <span className="text-indigo-600">{'\u2713'}</span>
+                      )}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>,
+          document.body
+        )}
+    </div>
+  )
+}
+
+const FilterRow = ({
+  label,
+  values,
+  onChange,
+  options,
+}: {
+  label: string
+  values: string[]
+  onChange: (values: string[]) => void
+  options: FilterPickerOption[]
+}) => {
+  const isActive = values.length > 0
+  return (
+    <div className="grid grid-cols-[8.25rem_minmax(0,1fr)_1.25rem] items-center gap-x-1.5">
+      <span className="truncate whitespace-nowrap text-xs font-semibold text-gray-500">
+        {label}
+      </span>
+      <FilterPicker
+        label={label}
+        values={values}
+        onChange={onChange}
+        options={options}
+      />
+      <button
+        type="button"
+        className={`flex h-5 w-5 items-center justify-center rounded border text-[0.625rem] font-semibold ${
+          isActive
+            ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
+            : 'cursor-default border-transparent text-gray-200'
+        }`}
+        disabled={!isActive}
+        onClick={() => onChange([])}
+        aria-label={`${label} reset`}
+      >
+        {'×'}
+      </button>
+    </div>
+  )
+}
 
 const FilterShell = ({
   mode,
   summary,
   resultCount,
   totalCount,
+  hasActiveFilters,
   onExpand,
   onCollapse,
+  onReset,
   children,
 }: {
   mode: Exclude<AchievementFilterDisplayMode, 'hidden'>
   summary: string
   resultCount: number
   totalCount: number
+  hasActiveFilters: boolean
   onExpand: () => void
   onCollapse: () => void
+  onReset: () => void
   children: ReactNode
 }) => {
   const { t } = useTranslation()
@@ -100,49 +298,73 @@ const FilterShell = ({
     count: resultCount,
     total: totalCount,
   })
+  const resetButton = (
+    <button
+      type="button"
+      className={`flex h-5 w-5 items-center justify-center rounded border text-[0.625rem] font-semibold ${
+        hasActiveFilters
+          ? 'border-gray-300 text-gray-500 hover:bg-gray-50'
+          : 'cursor-default border-transparent text-gray-200'
+      }`}
+      disabled={!hasActiveFilters}
+      onClick={(event) => {
+        event.stopPropagation()
+        onReset()
+      }}
+      aria-label={t('achievementFilterResetAll')}
+    >
+      {'×'}
+    </button>
+  )
 
   if (mode === 'collapsed') {
     return (
-      <button
-        type="button"
-        className="sticky top-0 z-10 w-full rounded border border-gray-200 bg-white p-2 text-left text-xs text-gray-600"
-        onClick={onExpand}
-        aria-label={t('achievementFilterExpand')}
-      >
-        <span className="flex w-full items-center justify-between gap-2">
-          <span className="min-w-0 truncate">
-            <span className="font-semibold text-gray-900">
-              {t('achievementFilters')}
+      <div className="sticky top-0 z-10 rounded border border-gray-200 bg-white p-2 text-xs">
+        <div className="grid grid-cols-[minmax(0,1fr)_1.25rem] items-center gap-x-1.5">
+          <button
+            type="button"
+            className="flex min-w-0 items-center justify-between gap-2 text-left text-gray-500"
+            onClick={onExpand}
+            aria-label={t('achievementFilterExpand')}
+          >
+            <span className="min-w-0 truncate">
+              <span className="font-semibold text-gray-900">
+                {t('achievementFilters')}
+              </span>
+              <span className="mx-1 text-gray-300">|</span>
+              {summary}
             </span>
-            <span className="mx-1 text-gray-300">|</span>
-            {summary}
-          </span>
-          <span className="flex-shrink-0 text-gray-400">
-            {countLabel} {'\u25BE'}
-          </span>
-        </span>
-      </button>
+            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-[0.625rem] text-gray-500 hover:bg-gray-50">
+              {'\u25BE'}
+            </span>
+          </button>
+          {resetButton}
+        </div>
+      </div>
     )
   }
 
   return (
     <div className="sticky top-0 z-10 space-y-2 rounded border border-gray-200 bg-white p-2">
-      <div className="flex items-center justify-between gap-2 text-xs">
-        <span className="min-w-0 truncate text-gray-500">
-          <span className="font-semibold text-gray-900">
-            {t('achievementFilters')}
+      <div className="grid grid-cols-[minmax(0,1fr)_1.25rem] items-center gap-x-1.5 text-xs">
+        <span className="flex min-w-0 items-center justify-between gap-2 text-gray-500">
+          <span className="min-w-0 truncate">
+            <span className="font-semibold text-gray-900">
+              {t('achievementFilters')}
+            </span>
+            <span className="mx-1 text-gray-300">|</span>
+            {countLabel}
           </span>
-          <span className="mx-1 text-gray-300">|</span>
-          {countLabel}
+          <button
+            type="button"
+            className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border border-gray-200 text-[0.625rem] text-gray-500 hover:bg-gray-50"
+            onClick={onCollapse}
+            aria-label={t('achievementFilterCollapse')}
+          >
+            {'\u25B4'}
+          </button>
         </span>
-        <button
-          type="button"
-          className="rounded border border-gray-200 px-2 py-0.5 text-gray-500 hover:bg-gray-50"
-          onClick={onCollapse}
-          aria-label={t('achievementFilterCollapse')}
-        >
-          {'\u25B4'}
-        </button>
+        {resetButton}
       </div>
       {children}
     </div>
@@ -201,7 +423,11 @@ const AchievementEquipButton = ({
     (reward) => equipped[reward.category] === reward.id
   )
   const disabled = !unlocked || isEquipped
-  const label = !unlocked ? t('locked') : isEquipped ? t('equipped') : t('equip')
+  const label = !unlocked
+    ? t('locked')
+    : isEquipped
+    ? t('equipped')
+    : t('equip')
 
   return (
     <button
@@ -218,13 +444,7 @@ const AchievementEquipButton = ({
       title={rewards.map((reward) => t(reward.titleKey)).join(', ')}
       aria-label={label}
     >
-      {!unlocked ? (
-        '\uD83D\uDD12'
-      ) : isEquipped ? (
-        '\u2713'
-      ) : (
-        '\uD83D\uDD13'
-      )}
+      {!unlocked ? '\uD83D\uDD12' : isEquipped ? '\u2713' : '\uD83D\uDD13'}
     </button>
   )
 }
@@ -317,10 +537,12 @@ export const AchievementList = ({
   const [activeFilterDisplayMode, setActiveFilterDisplayMode] =
     useState<AchievementFilterDisplayMode>(resolvedFilterDisplayMode)
   const [searchQuery, setSearchQuery] = useState('')
-  const [versionFilter, setVersionFilter] = useState(FILTER_ALL)
-  const [categoryFilter, setCategoryFilter] = useState(FILTER_ALL)
-  const [rewardCategoryFilter, setRewardCategoryFilter] = useState(FILTER_ALL)
-  const [modeFilter, setModeFilter] = useState(FILTER_ALL)
+  const [versionFilters, setVersionFilters] = useState<string[]>([])
+  const [categoryFilters, setCategoryFilters] = useState<string[]>([])
+  const [rewardCategoryFilters, setRewardCategoryFilters] = useState<string[]>(
+    []
+  )
+  const [modeFilters, setModeFilters] = useState<string[]>([])
   const stats = loadStats()
   const dailyHistory = loadDailyResultHistory()
   const achievementsWithMetadata = metadataFilter
@@ -352,6 +574,59 @@ export const AchievementList = ({
       getAchievementModes(achievement)
     )
   ) as GameMode[]
+  const versionFilterOptions: FilterPickerOption[] = [
+    {
+      value: FILTER_ALL,
+      label: t('achievementFilterAllOption'),
+      description: t('achievementFilterAllVersionsDesc'),
+    },
+    ...versionOptions.map((version) => ({
+      value: version,
+      label: `v${version}`,
+      description: getVersionFilterDescription(version, t),
+    })),
+  ]
+  const categoryFilterOptions: FilterPickerOption[] = [
+    {
+      value: FILTER_ALL,
+      label: t('achievementFilterAllOption'),
+      description: t('achievementFilterAllCategoriesDesc'),
+    },
+    ...categoryOptions.map((category) => ({
+      value: category,
+      label: t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category]),
+      description: t(ACHIEVEMENT_CATEGORY_DESC_KEYS[category]),
+      marker: (
+        <span className="text-lg leading-none">{CATEGORY_ICONS[category]}</span>
+      ),
+    })),
+  ]
+  const rewardCategoryFilterOptions: FilterPickerOption[] = [
+    {
+      value: FILTER_ALL,
+      label: t('achievementFilterAllOption'),
+      description: t('achievementFilterAllRewardsDesc'),
+    },
+    ...rewardCategoryOptions.map((category) => ({
+      value: category,
+      label: t(`${category}Label`),
+      description: t(COSMETIC_CATEGORY_DESC_KEYS[category]),
+      marker: FILTER_REWARD_MARKERS[category],
+    })),
+  ]
+  const modeFilterOptions: FilterPickerOption[] = [
+    {
+      value: FILTER_ALL,
+      label: t('achievementFilterAllOption'),
+      description: t('achievementFilterAllModesDesc'),
+    },
+    ...modeOptions.map((mode) => ({
+      value: mode,
+      label: t(mode),
+      description: t(MODE_DESC_KEYS[mode]),
+      marker: <ModeBadge mode={mode} label={t(mode)} />,
+    })),
+  ]
   const normalizedSearch = searchQuery.trim().toLowerCase()
   const achievements = scopedAchievements.filter((achievement) => {
     const rewards = getRewardsForAchievement(achievement.id)
@@ -366,16 +641,19 @@ export const AchievementList = ({
         .toLowerCase()
         .includes(normalizedSearch)
     const matchesVersion =
-      versionFilter === FILTER_ALL ||
-      achievement.metadata?.introducedInVersion === versionFilter
+      versionFilters.length === 0 ||
+      versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
     const matchesCategory =
-      categoryFilter === FILTER_ALL || achievement.category === categoryFilter
+      categoryFilters.length === 0 ||
+      categoryFilters.includes(achievement.category)
     const matchesRewardCategory =
-      rewardCategoryFilter === FILTER_ALL ||
-      rewards.some((reward) => reward.category === rewardCategoryFilter)
+      rewardCategoryFilters.length === 0 ||
+      rewards.some((reward) => rewardCategoryFilters.includes(reward.category))
     const matchesMode =
-      modeFilter === FILTER_ALL ||
-      getAchievementModes(achievement).includes(modeFilter as GameMode)
+      modeFilters.length === 0 ||
+      getAchievementModes(achievement).some((achievementMode) =>
+        modeFilters.includes(achievementMode)
+      )
 
     return (
       matchesSearch &&
@@ -401,19 +679,32 @@ export const AchievementList = ({
 
   const activeFilterLabels = [
     normalizedSearch ? `"${searchQuery.trim()}"` : '',
-    versionFilter !== FILTER_ALL ? `v${versionFilter}` : '',
-    categoryFilter !== FILTER_ALL
-      ? t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[categoryFilter as AchievementCategory])
-      : '',
-    rewardCategoryFilter !== FILTER_ALL
-      ? t(`${rewardCategoryFilter}Label`)
-      : '',
-    modeFilter !== FILTER_ALL ? t(modeFilter) : '',
+    ...versionFilters.map((version) => `v${version}`),
+    ...categoryFilters.map((category) =>
+      t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category as AchievementCategory])
+    ),
+    ...rewardCategoryFilters.map((category) =>
+      t(`${category as CosmeticCategory}Label`)
+    ),
+    ...modeFilters.map((mode) => t(mode)),
   ].filter(Boolean)
   const filterSummary =
     activeFilterLabels.length > 0
       ? activeFilterLabels.join(', ')
       : t('achievementFilterSummaryAll')
+  const hasActiveFilters =
+    normalizedSearch.length > 0 ||
+    versionFilters.length > 0 ||
+    categoryFilters.length > 0 ||
+    rewardCategoryFilters.length > 0 ||
+    modeFilters.length > 0
+  const resetFilters = () => {
+    setSearchQuery('')
+    setVersionFilters([])
+    setCategoryFilters([])
+    setRewardCategoryFilters([])
+    setModeFilters([])
+  }
 
   useEffect(() => {
     return () => {
@@ -450,8 +741,10 @@ export const AchievementList = ({
           summary={filterSummary}
           resultCount={achievements.length}
           totalCount={scopedAchievements.length}
+          hasActiveFilters={hasActiveFilters}
           onExpand={() => setActiveFilterDisplayMode('expanded')}
           onCollapse={() => setActiveFilterDisplayMode('collapsed')}
+          onReset={resetFilters}
         >
           <input
             type="search"
@@ -460,42 +753,30 @@ export const AchievementList = ({
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder={t('achievementSearchPlaceholder')}
           />
-          <div className="grid grid-cols-2 gap-1.5">
-            <FilterSelect
-              label={t('achievementFilterVersion')}
-              value={versionFilter}
-              onChange={setVersionFilter}
-              options={versionOptions.map((version) => ({
-                value: version,
-                label: `v${version}`,
-              }))}
+          <div className="space-y-1.5">
+            <FilterRow
+              label={t('achievementFilterVersionTheme')}
+              values={versionFilters}
+              onChange={setVersionFilters}
+              options={versionFilterOptions}
             />
-            <FilterSelect
-              label={t('achievementFilterCategory')}
-              value={categoryFilter}
-              onChange={setCategoryFilter}
-              options={categoryOptions.map((category) => ({
-                value: category,
-                label: t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category]),
-              }))}
+            <FilterRow
+              label={t('achievementFilterAchievementType')}
+              values={categoryFilters}
+              onChange={setCategoryFilters}
+              options={categoryFilterOptions}
             />
-            <FilterSelect
-              label={t('achievementFilterReward')}
-              value={rewardCategoryFilter}
-              onChange={setRewardCategoryFilter}
-              options={rewardCategoryOptions.map((category) => ({
-                value: category,
-                label: t(`${category}Label`),
-              }))}
+            <FilterRow
+              label={t('achievementFilterCosmeticCategory')}
+              values={rewardCategoryFilters}
+              onChange={setRewardCategoryFilters}
+              options={rewardCategoryFilterOptions}
             />
-            <FilterSelect
-              label={t('achievementFilterMode')}
-              value={modeFilter}
-              onChange={setModeFilter}
-              options={modeOptions.map((mode) => ({
-                value: mode,
-                label: t(mode),
-              }))}
+            <FilterRow
+              label={t('achievementFilterGameMode')}
+              values={modeFilters}
+              onChange={setModeFilters}
+              options={modeFilterOptions}
             />
           </div>
           {achievements.length === 0 && (
