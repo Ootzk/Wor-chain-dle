@@ -1025,7 +1025,6 @@ export const StatsModal = ({
             excludeUrl={excludeUrl}
             onToggleExcludeUrl={onToggleExcludeUrl}
             onOpenCosmetics={onOpenCosmetics}
-            onOpenAchievement={onOpenAchievement}
             handleShare={handleShare}
             cosmeticOverrides={selectedCosmeticOverrides}
             hasNewRewards={hasNewAchievementsToday}
