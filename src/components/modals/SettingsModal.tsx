@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BaseModal } from './BaseModal'
-import { ChevronDownIcon, CogIcon } from '@heroicons/react/outline'
+import { CheckIcon, ChevronDownIcon, CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../../constants/config'
 import { localeLanguageKey } from '../../i18n'
@@ -166,7 +166,7 @@ export const SettingsModal = ({
                     </span>
                     <span className="w-5 text-center flex-shrink-0">
                       {selected && (
-                        <span className="text-indigo-600">{'\u2713'}</span>
+                        <CheckIcon className="mx-auto h-5 w-5 text-indigo-600" />
                       )}
                     </span>
                   </button>
