@@ -80,6 +80,11 @@ const achievementById = new Map(
   ACHIEVEMENTS.map((achievement) => [achievement.id, achievement] as const)
 )
 
+const DEFAULT_REWARD_MODES = ['daily', 'practice', 'custom', 'event']
+
+const getCosmeticFavoriteId = (option: CosmeticOption): string =>
+  option.requiresAchievement ?? `default_${option.id}`
+
 const normalizeStringArray = (value: unknown): string[] =>
   Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string')
@@ -203,12 +208,12 @@ const getSortValues = (
       : []
   }
   if (filterKey === 'achievementType') {
-    return achievement ? [achievement.achievementType] : []
+    return achievement ? [achievement.achievementType] : ['default']
   }
   if (filterKey === 'cosmeticCategory') {
     return [option.category]
   }
-  return achievement ? getAchievementModes(achievement) : []
+  return achievement ? getAchievementModes(achievement) : DEFAULT_REWARD_MODES
 }
 
 const getCosmeticStatus = (
@@ -235,8 +240,7 @@ const getAchievementNewState = (
 const getAchievementFavoriteState = (
   option: CosmeticOption,
   favoriteIds: Set<string>
-): boolean =>
-  !!option.requiresAchievement && favoriteIds.has(option.requiresAchievement)
+): boolean => favoriteIds.has(getCosmeticFavoriteId(option))
 
 const getCosmeticPriority = (
   option: CosmeticOption,
@@ -364,13 +368,9 @@ const CosmeticFavoriteButton = ({
 }: {
   option: CosmeticOption
   active: boolean
-  onToggle: (achievementId: string) => void
+  onToggle: (favoriteId: string) => void
 }) => {
   const { t } = useTranslation()
-  if (!option.requiresAchievement) {
-    return <span className="h-8 w-8 flex-shrink-0" />
-  }
-
   const label = active
     ? t('achievementFavoriteRemove')
     : t('achievementFavoriteAdd')
@@ -384,7 +384,7 @@ const CosmeticFavoriteButton = ({
       }`}
       onClick={(event) => {
         event.stopPropagation()
-        onToggle(option.requiresAchievement!)
+        onToggle(getCosmeticFavoriteId(option))
       }}
       title={label}
       aria-label={label}

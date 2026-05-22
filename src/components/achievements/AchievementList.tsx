@@ -41,6 +41,7 @@ import { loadStats } from '../../lib/stats'
 import {
   CosmeticCategory,
   CosmeticOption,
+  COSMETIC_OPTIONS,
   equipCosmetic,
   getRewardsForAchievement,
   loadCosmeticState,
@@ -49,13 +50,29 @@ import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
 import {
   filterRewardsByMetadata,
   getRewardMetadataLabel,
+  matchesRewardMetadata,
   RewardMetadataFilter,
 } from '../../lib/rewardMetadata'
 import { RELEASE_METADATA } from '../../lib/releaseMetadata'
 import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
 import { GameMode } from '../../lib/gameMode'
 
-const ACHIEVEMENT_TYPE_ICONS: Record<AchievementType, string> = {
+type FilterAchievementType = AchievementType | 'default'
+
+const DEFAULT_REWARD_MODES: GameMode[] = [
+  'daily',
+  'practice',
+  'custom',
+  'event',
+]
+
+const DEFAULT_REWARD_ACHIEVEMENT_TYPE = 'default' as const
+
+const getDefaultRewardItemId = (optionId: string): string =>
+  `default_${optionId}`
+
+const ACHIEVEMENT_TYPE_ICONS: Record<FilterAchievementType, string> = {
+  default: '\uD83C\uDF81',
   milestone: '\uD83C\uDFAF',
   guess: '\uD83C\uDFB2',
   streak: '\uD83D\uDD25',
@@ -64,7 +81,8 @@ const ACHIEVEMENT_TYPE_ICONS: Record<AchievementType, string> = {
   performance: '\uD83D\uDCCA',
 }
 
-const ACHIEVEMENT_TYPE_LABEL_KEYS: Record<AchievementType, string> = {
+const ACHIEVEMENT_TYPE_LABEL_KEYS: Record<FilterAchievementType, string> = {
+  default: 'achievementCategoryDefault',
   milestone: 'achievementCategoryMilestone',
   guess: 'achievementCategoryGuess',
   streak: 'achievementCategoryStreak',
@@ -73,7 +91,8 @@ const ACHIEVEMENT_TYPE_LABEL_KEYS: Record<AchievementType, string> = {
   performance: 'achievementCategoryPerformance',
 }
 
-const ACHIEVEMENT_TYPE_DESC_KEYS: Record<AchievementType, string> = {
+const ACHIEVEMENT_TYPE_DESC_KEYS: Record<FilterAchievementType, string> = {
+  default: 'achievementCategoryDefaultDesc',
   milestone: 'achievementCategoryMilestoneDesc',
   guess: 'achievementCategoryGuessDesc',
   streak: 'achievementCategoryStreakDesc',
@@ -92,6 +111,26 @@ type VisibleAchievementFilterDisplayMode = Exclude<
 type AchievementWithStatus = ReturnType<
   typeof getAchievementsWithStatus
 >[number]
+type AchievementListItem =
+  | (AchievementWithStatus & { itemType: 'achievement' })
+  | {
+      itemType: 'defaultReward'
+      id: string
+      achievementType: typeof DEFAULT_REWARD_ACHIEVEMENT_TYPE
+      modes: GameMode[]
+      difficulty: number
+      metadata: CosmeticOption['metadata']
+      titleKey: string
+      descriptionKey: string
+      unlocked: true
+      unlockedAt?: number
+      currentProgress: {
+        current: number
+        target: number
+      }
+      isNew: false
+      rewards: CosmeticOption[]
+    }
 type FilterKey =
   | 'priority'
   | 'status'
@@ -288,6 +327,38 @@ const mergeOptionOrder = (availableValues: string[], order: string[]) => [
   ...order.filter((value) => availableValues.includes(value)),
   ...availableValues.filter((value) => !order.includes(value)),
 ]
+
+const createDefaultRewardItems = (
+  metadataFilter?: RewardMetadataFilter
+): AchievementListItem[] =>
+  COSMETIC_OPTIONS.filter((option) => !option.requiresAchievement)
+    .filter((option) =>
+      metadataFilter
+        ? matchesRewardMetadata(option.metadata, metadataFilter)
+        : true
+    )
+    .map((option) => ({
+      itemType: 'defaultReward',
+      id: getDefaultRewardItemId(option.id),
+      achievementType: DEFAULT_REWARD_ACHIEVEMENT_TYPE,
+      modes: DEFAULT_REWARD_MODES,
+      difficulty: 1,
+      metadata: option.metadata,
+      titleKey: option.titleKey,
+      descriptionKey: 'achievementDefaultRewardDescription',
+      unlocked: true,
+      currentProgress: { current: 1, target: 1 },
+      isNew: false,
+      rewards: [option],
+    }))
+
+const getListItemRewards = (item: AchievementListItem): CosmeticOption[] =>
+  item.itemType === 'defaultReward'
+    ? item.rewards
+    : getRewardsForAchievement(item.id)
+
+const getListItemModes = (item: AchievementListItem): GameMode[] =>
+  item.itemType === 'defaultReward' ? item.modes : getAchievementModes(item)
 
 const getVersionFilterDescription = (
   version: string,
@@ -1087,35 +1158,38 @@ export const AchievementList = ({
         achievementIds.includes(achievement.id)
       )
     : achievementsWithMetadata
+  const scopedItems: AchievementListItem[] = [
+    ...scopedAchievements.map((achievement) => ({
+      ...achievement,
+      itemType: 'achievement' as const,
+    })),
+    ...(achievementIds ? [] : createDefaultRewardItems(metadataFilter)),
+  ]
   const versionOptions = mergeOptionOrder(
     uniqueSorted(
-      scopedAchievements
-        .map((achievement) => achievement.metadata?.introducedInVersion)
+      scopedItems
+        .map((item) => item.metadata?.introducedInVersion)
         .filter((version): version is string => !!version)
     ).reverse(),
     optionOrders.version
   )
   const achievementTypeOptions = mergeOptionOrder(
     uniqueSorted(
-      scopedAchievements.map((achievement) => achievement.achievementType)
-    ) as AchievementType[],
+      scopedItems.map((item) => item.achievementType)
+    ) as FilterAchievementType[],
     optionOrders.achievementType
-  ) as AchievementType[]
+  ) as FilterAchievementType[]
   const cosmeticCategoryOptions = mergeOptionOrder(
     uniqueSorted(
-      scopedAchievements.flatMap((achievement) =>
-        getRewardsForAchievement(achievement.id).map(
-          (reward) => reward.category
-        )
+      scopedItems.flatMap((item) =>
+        getListItemRewards(item).map((reward) => reward.category)
       )
     ) as CosmeticCategory[],
     optionOrders.cosmeticCategory
   ) as CosmeticCategory[]
   const gameModeOptions = mergeOptionOrder(
     uniqueSorted(
-      scopedAchievements.flatMap((achievement) =>
-        getAchievementModes(achievement)
-      )
+      scopedItems.flatMap((item) => getListItemModes(item))
     ) as GameMode[],
     optionOrders.gameMode
   ) as GameMode[]
@@ -1182,59 +1256,55 @@ export const AchievementList = ({
     return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
   }
   const getAchievementPriority = (
-    achievement: AchievementWithStatus
+    item: AchievementListItem
   ): PriorityFilterValue => {
-    if (achievement.isNew) return 'new'
-    if (favoriteIdSet.has(achievement.id)) return 'favorite'
+    if (item.isNew) return 'new'
+    if (favoriteIdSet.has(item.id)) return 'favorite'
     return 'normal'
   }
-  const isAchievementEquipped = (
-    achievement: AchievementWithStatus
-  ): boolean => {
-    const rewards = getRewardsForAchievement(achievement.id)
+  const isAchievementEquipped = (item: AchievementListItem): boolean => {
+    const rewards = getListItemRewards(item)
     return (
       rewards.length > 0 &&
-      achievement.unlocked &&
+      item.unlocked &&
       rewards.every((reward) => equipped[reward.category] === reward.id)
     )
   }
   const getAchievementStatus = (
-    achievement: AchievementWithStatus
+    item: AchievementListItem
   ): StatusFilterValue => {
-    if (isAchievementEquipped(achievement)) return 'equipped'
-    return achievement.unlocked ? 'unlocked' : 'locked'
+    if (isAchievementEquipped(item)) return 'equipped'
+    return item.unlocked ? 'unlocked' : 'locked'
   }
   const getAchievementSortRank = (
-    achievement: AchievementWithStatus,
+    item: AchievementListItem,
     filterKey: FilterKey
   ): number => {
     if (filterKey === 'priority') {
-      return getRank(filterKey, getAchievementPriority(achievement))
+      return getRank(filterKey, getAchievementPriority(item))
     }
     if (filterKey === 'status') {
-      return getRank(filterKey, getAchievementStatus(achievement))
+      return getRank(filterKey, getAchievementStatus(item))
     }
     if (filterKey === 'version') {
-      return getRank(filterKey, achievement.metadata?.introducedInVersion)
+      return getRank(filterKey, item.metadata?.introducedInVersion)
     }
     if (filterKey === 'achievementType') {
-      return getRank(filterKey, achievement.achievementType)
+      return getRank(filterKey, item.achievementType)
     }
     if (filterKey === 'cosmeticCategory') {
-      const ranks = getRewardsForAchievement(achievement.id).map((reward) =>
+      const ranks = getListItemRewards(item).map((reward) =>
         getRank(filterKey, reward.category)
       )
       return ranks.length > 0 ? Math.min(...ranks) : Number.MAX_SAFE_INTEGER
     }
-    const ranks = getAchievementModes(achievement).map((achievementMode) =>
+    const ranks = getListItemModes(item).map((achievementMode) =>
       getRank(filterKey, achievementMode)
     )
     return ranks.length > 0 ? Math.min(...ranks) : Number.MAX_SAFE_INTEGER
   }
   const sourceIndexById = new Map(
-    scopedAchievements.map(
-      (achievement, index) => [achievement.id, index] as const
-    )
+    scopedItems.map((item, index) => [item.id, index] as const)
   )
   const explicitSortIndexById = sortAchievementIds
     ? new Map(
@@ -1341,14 +1411,14 @@ export const AchievementList = ({
     })),
   ]
   const normalizedSearch = searchQuery.trim().toLowerCase()
-  const achievements = scopedAchievements
-    .filter((achievement) => {
-      const rewards = getRewardsForAchievement(achievement.id)
+  const achievements = scopedItems
+    .filter((item) => {
+      const rewards = getListItemRewards(item)
       const matchesSearch =
         normalizedSearch.length === 0 ||
         [
-          t(achievement.titleKey),
-          t(achievement.descriptionKey),
+          t(item.titleKey),
+          t(item.descriptionKey),
           ...rewards.map((reward) => t(reward.titleKey)),
         ]
           .join(' ')
@@ -1356,16 +1426,16 @@ export const AchievementList = ({
           .includes(normalizedSearch)
       const matchesPriority =
         priorityFilters.length === 0 ||
-        priorityFilters.includes(getAchievementPriority(achievement))
+        priorityFilters.includes(getAchievementPriority(item))
       const matchesStatus =
         statusFilters.length === 0 ||
-        statusFilters.includes(getAchievementStatus(achievement))
+        statusFilters.includes(getAchievementStatus(item))
       const matchesVersion =
         versionFilters.length === 0 ||
-        versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
+        versionFilters.includes(item.metadata?.introducedInVersion ?? '')
       const matchesAchievementType =
         achievementTypeFilters.length === 0 ||
-        achievementTypeFilters.includes(achievement.achievementType)
+        achievementTypeFilters.includes(item.achievementType)
       const matchesCosmeticCategory =
         cosmeticCategoryFilters.length === 0 ||
         rewards.some((reward) =>
@@ -1373,7 +1443,7 @@ export const AchievementList = ({
         )
       const matchesGameMode =
         gameModeFilters.length === 0 ||
-        getAchievementModes(achievement).some((achievementMode) =>
+        getListItemModes(item).some((achievementMode) =>
           gameModeFilters.includes(achievementMode)
         )
 
@@ -1468,7 +1538,7 @@ export const AchievementList = ({
     ),
     ...versionFilters.map((version) => `v${version}`),
     ...achievementTypeFilters.map((achievementType) =>
-      t(ACHIEVEMENT_TYPE_LABEL_KEYS[achievementType as AchievementType])
+      t(ACHIEVEMENT_TYPE_LABEL_KEYS[achievementType as FilterAchievementType])
     ),
     ...cosmeticCategoryFilters.map((cosmeticCategory) =>
       t(`${cosmeticCategory as CosmeticCategory}Label`)
@@ -1577,7 +1647,7 @@ export const AchievementList = ({
           mode={activeFilterDisplayMode}
           summary={filterSummary}
           resultCount={achievements.length}
-          totalCount={scopedAchievements.length}
+          totalCount={scopedItems.length}
           hasActiveFilters={hasActiveFilters}
           onExpand={() => setActiveFilterDisplayMode('expanded')}
           onCollapse={() => setActiveFilterDisplayMode('collapsed')}
@@ -1627,7 +1697,8 @@ export const AchievementList = ({
         </FilterShell>
       )}
       {achievements.map((achievement) => {
-        const rewards = getRewardsForAchievement(achievement.id)
+        const rewards = getListItemRewards(achievement)
+        const modes = getListItemModes(achievement)
         return (
           <div
             key={achievement.id}
@@ -1658,15 +1729,13 @@ export const AchievementList = ({
                   </div>
                   <p className="text-xs mt-1 text-gray-600 text-left">
                     <span className="inline-flex flex-wrap items-center gap-1 align-middle mr-1">
-                      {getModeBadgeItems(getAchievementModes(achievement)).map(
-                        (badge) => (
-                          <ModeBadge
-                            key={badge.id}
-                            mode={badge.id}
-                            label={badge.label}
-                          />
-                        )
-                      )}
+                      {getModeBadgeItems(modes).map((badge) => (
+                        <ModeBadge
+                          key={badge.id}
+                          mode={badge.id}
+                          label={badge.label}
+                        />
+                      ))}
                     </span>
                     <span>
                       <AchievementDescription
@@ -1701,11 +1770,15 @@ export const AchievementList = ({
                   )}
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <DifficultyStars difficulty={achievement.difficulty} />
-                  <ProgressBar
-                    current={achievement.currentProgress.current}
-                    target={achievement.currentProgress.target}
-                  />
+                  {achievement.itemType === 'achievement' && (
+                    <>
+                      <DifficultyStars difficulty={achievement.difficulty} />
+                      <ProgressBar
+                        current={achievement.currentProgress.current}
+                        target={achievement.currentProgress.target}
+                      />
+                    </>
+                  )}
                   {achievement.metadata && (
                     <div className="mt-0.5 text-right text-[0.625rem] text-gray-400">
                       {getRewardMetadataLabel(achievement.metadata)}
