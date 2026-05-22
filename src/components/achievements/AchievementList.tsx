@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import {
   getAchievementModes,
@@ -44,6 +45,8 @@ const ACHIEVEMENT_CATEGORY_LABEL_KEYS: Record<AchievementCategory, string> = {
 
 const FILTER_ALL = 'all'
 
+type AchievementFilterDisplayMode = 'expanded' | 'collapsed' | 'hidden'
+
 const uniqueSorted = (values: string[]): string[] =>
   Array.from(new Set(values)).sort((a, b) => a.localeCompare(b))
 
@@ -74,6 +77,75 @@ const FilterSelect = ({
     </select>
   </label>
 )
+
+const FilterShell = ({
+  mode,
+  summary,
+  resultCount,
+  totalCount,
+  onExpand,
+  onCollapse,
+  children,
+}: {
+  mode: Exclude<AchievementFilterDisplayMode, 'hidden'>
+  summary: string
+  resultCount: number
+  totalCount: number
+  onExpand: () => void
+  onCollapse: () => void
+  children: ReactNode
+}) => {
+  const { t } = useTranslation()
+  const countLabel = t('achievementFilterCount', {
+    count: resultCount,
+    total: totalCount,
+  })
+
+  if (mode === 'collapsed') {
+    return (
+      <button
+        type="button"
+        className="sticky top-0 z-10 flex w-full items-center justify-between gap-2 rounded border border-gray-200 bg-white px-3 py-2 text-left text-xs text-gray-600"
+        onClick={onExpand}
+        aria-label={t('achievementFilterExpand')}
+      >
+        <span className="min-w-0 truncate">
+          <span className="font-semibold text-gray-900">
+            {t('achievementFilters')}
+          </span>
+          <span className="mx-1 text-gray-300">|</span>
+          {summary}
+        </span>
+        <span className="flex-shrink-0 text-gray-400">
+          {countLabel} {'\u25BE'}
+        </span>
+      </button>
+    )
+  }
+
+  return (
+    <div className="sticky top-0 z-10 space-y-2 bg-white pb-2">
+      <div className="flex items-center justify-between gap-2 text-xs">
+        <span className="min-w-0 truncate text-gray-500">
+          <span className="font-semibold text-gray-900">
+            {t('achievementFilters')}
+          </span>
+          <span className="mx-1 text-gray-300">|</span>
+          {countLabel}
+        </span>
+        <button
+          type="button"
+          className="rounded border border-gray-200 px-2 py-0.5 text-gray-500 hover:bg-gray-50"
+          onClick={onCollapse}
+          aria-label={t('achievementFilterCollapse')}
+        >
+          {'\u25B4'}
+        </button>
+      </div>
+      {children}
+    </div>
+  )
+}
 
 const DifficultyStars = ({ difficulty }: { difficulty: number }) => {
   return (
@@ -223,7 +295,8 @@ export const AchievementList = ({
   mode = 'daily',
   embedded = false,
   markSeenOnUnmount = true,
-  showFilters = true,
+  showFilters = false,
+  filterDisplayMode,
 }: {
   scrollToId?: string
   onOpenDeadEndHelp?: () => void
@@ -234,9 +307,13 @@ export const AchievementList = ({
   embedded?: boolean
   markSeenOnUnmount?: boolean
   showFilters?: boolean
+  filterDisplayMode?: AchievementFilterDisplayMode
 }) => {
   const { t } = useTranslation()
-  const shouldShowFilters = showFilters && !embedded
+  const resolvedFilterDisplayMode =
+    filterDisplayMode ?? (showFilters && !embedded ? 'expanded' : 'hidden')
+  const [activeFilterDisplayMode, setActiveFilterDisplayMode] =
+    useState<AchievementFilterDisplayMode>(resolvedFilterDisplayMode)
   const [searchQuery, setSearchQuery] = useState('')
   const [versionFilter, setVersionFilter] = useState(FILTER_ALL)
   const [categoryFilter, setCategoryFilter] = useState(FILTER_ALL)
@@ -309,12 +386,32 @@ export const AchievementList = ({
   const scrollRef = useRef<HTMLDivElement>(null)
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
 
+  useEffect(() => {
+    setActiveFilterDisplayMode(resolvedFilterDisplayMode)
+  }, [resolvedFilterDisplayMode])
+
   const handleEquipRewards = (rewards: CosmeticOption[]) => {
     rewards.forEach((reward) => {
       equipCosmetic(reward.category, reward.id)
     })
     setEquipped(loadCosmeticState().equipped)
   }
+
+  const activeFilterLabels = [
+    normalizedSearch ? `"${searchQuery.trim()}"` : '',
+    versionFilter !== FILTER_ALL ? `v${versionFilter}` : '',
+    categoryFilter !== FILTER_ALL
+      ? t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[categoryFilter as AchievementCategory])
+      : '',
+    rewardCategoryFilter !== FILTER_ALL
+      ? t(`${rewardCategoryFilter}Label`)
+      : '',
+    modeFilter !== FILTER_ALL ? t(modeFilter) : '',
+  ].filter(Boolean)
+  const filterSummary =
+    activeFilterLabels.length > 0
+      ? activeFilterLabels.join(', ')
+      : t('achievementFilterSummaryAll')
 
   useEffect(() => {
     return () => {
@@ -345,8 +442,15 @@ export const AchievementList = ({
         embedded ? 'space-y-2 pr-1' : 'h-full overflow-y-auto space-y-2 pr-1'
       }
     >
-      {shouldShowFilters && (
-        <div className="sticky top-0 z-10 space-y-2 bg-white pb-2">
+      {activeFilterDisplayMode !== 'hidden' && (
+        <FilterShell
+          mode={activeFilterDisplayMode}
+          summary={filterSummary}
+          resultCount={achievements.length}
+          totalCount={scopedAchievements.length}
+          onExpand={() => setActiveFilterDisplayMode('expanded')}
+          onCollapse={() => setActiveFilterDisplayMode('collapsed')}
+        >
           <input
             type="search"
             className="w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 placeholder:text-gray-400"
@@ -397,7 +501,7 @@ export const AchievementList = ({
               {t('achievementFilterNoResults')}
             </div>
           )}
-        </div>
+        </FilterShell>
       )}
       {achievements.map((achievement) => {
         const rewards = getRewardsForAchievement(achievement.id)

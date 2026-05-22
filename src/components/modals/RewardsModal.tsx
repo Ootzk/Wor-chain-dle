@@ -124,6 +124,7 @@ export const RewardsModal = ({
             onOpenDeadEndHelp={onOpenDeadEndHelp}
             onOpenEventRecords={onOpenEventRecords}
             metadataFilter={achievementMetadataFilter}
+            filterDisplayMode="expanded"
           />
         )}
         {!isEventRewards && activeTab === 'cosmetics' && (
