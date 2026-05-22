@@ -33,6 +33,48 @@ const CATEGORY_ICONS: Record<AchievementCategory, string> = {
   performance: '\uD83D\uDCCA',
 }
 
+const ACHIEVEMENT_CATEGORY_LABEL_KEYS: Record<AchievementCategory, string> = {
+  milestone: 'achievementCategoryMilestone',
+  guess: 'achievementCategoryGuess',
+  streak: 'achievementCategoryStreak',
+  event: 'achievementCategoryEvent',
+  collection: 'achievementCategoryCollection',
+  performance: 'achievementCategoryPerformance',
+}
+
+const FILTER_ALL = 'all'
+
+const uniqueSorted = (values: string[]): string[] =>
+  Array.from(new Set(values)).sort((a, b) => a.localeCompare(b))
+
+const FilterSelect = ({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: Array<{ value: string; label: string }>
+}) => (
+  <label className="min-w-0">
+    <span className="sr-only">{label}</span>
+    <select
+      className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      <option value={FILTER_ALL}>{label}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </label>
+)
+
 const DifficultyStars = ({ difficulty }: { difficulty: number }) => {
   return (
     <span className="text-xs text-yellow-500 whitespace-nowrap">
@@ -181,6 +223,7 @@ export const AchievementList = ({
   mode = 'daily',
   embedded = false,
   markSeenOnUnmount = true,
+  showFilters = true,
 }: {
   scrollToId?: string
   onOpenDeadEndHelp?: () => void
@@ -190,8 +233,15 @@ export const AchievementList = ({
   mode?: GameMode
   embedded?: boolean
   markSeenOnUnmount?: boolean
+  showFilters?: boolean
 }) => {
   const { t } = useTranslation()
+  const shouldShowFilters = showFilters && !embedded
+  const [searchQuery, setSearchQuery] = useState('')
+  const [versionFilter, setVersionFilter] = useState(FILTER_ALL)
+  const [categoryFilter, setCategoryFilter] = useState(FILTER_ALL)
+  const [rewardCategoryFilter, setRewardCategoryFilter] = useState(FILTER_ALL)
+  const [modeFilter, setModeFilter] = useState(FILTER_ALL)
   const stats = loadStats()
   const dailyHistory = loadDailyResultHistory()
   const achievementsWithMetadata = metadataFilter
@@ -200,11 +250,62 @@ export const AchievementList = ({
         metadataFilter
       )
     : getAchievementsWithStatus(stats, dailyHistory, mode)
-  const achievements = achievementIds
+  const scopedAchievements = achievementIds
     ? achievementsWithMetadata.filter((achievement) =>
         achievementIds.includes(achievement.id)
       )
     : achievementsWithMetadata
+  const versionOptions = uniqueSorted(
+    scopedAchievements
+      .map((achievement) => achievement.metadata?.introducedInVersion)
+      .filter((version): version is string => !!version)
+  ).reverse()
+  const categoryOptions = uniqueSorted(
+    scopedAchievements.map((achievement) => achievement.category)
+  ) as AchievementCategory[]
+  const rewardCategoryOptions = uniqueSorted(
+    scopedAchievements.flatMap((achievement) =>
+      getRewardsForAchievement(achievement.id).map((reward) => reward.category)
+    )
+  ) as CosmeticCategory[]
+  const modeOptions = uniqueSorted(
+    scopedAchievements.flatMap((achievement) =>
+      getAchievementModes(achievement)
+    )
+  ) as GameMode[]
+  const normalizedSearch = searchQuery.trim().toLowerCase()
+  const achievements = scopedAchievements.filter((achievement) => {
+    const rewards = getRewardsForAchievement(achievement.id)
+    const matchesSearch =
+      normalizedSearch.length === 0 ||
+      [
+        t(achievement.titleKey),
+        t(achievement.descriptionKey),
+        ...rewards.map((reward) => t(reward.titleKey)),
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedSearch)
+    const matchesVersion =
+      versionFilter === FILTER_ALL ||
+      achievement.metadata?.introducedInVersion === versionFilter
+    const matchesCategory =
+      categoryFilter === FILTER_ALL || achievement.category === categoryFilter
+    const matchesRewardCategory =
+      rewardCategoryFilter === FILTER_ALL ||
+      rewards.some((reward) => reward.category === rewardCategoryFilter)
+    const matchesMode =
+      modeFilter === FILTER_ALL ||
+      getAchievementModes(achievement).includes(modeFilter as GameMode)
+
+    return (
+      matchesSearch &&
+      matchesVersion &&
+      matchesCategory &&
+      matchesRewardCategory &&
+      matchesMode
+    )
+  })
   const scrollRef = useRef<HTMLDivElement>(null)
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
 
@@ -244,6 +345,60 @@ export const AchievementList = ({
         embedded ? 'space-y-2 pr-1' : 'h-full overflow-y-auto space-y-2 pr-1'
       }
     >
+      {shouldShowFilters && (
+        <div className="sticky top-0 z-10 space-y-2 bg-white pb-2">
+          <input
+            type="search"
+            className="w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 placeholder:text-gray-400"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder={t('achievementSearchPlaceholder')}
+          />
+          <div className="grid grid-cols-2 gap-1.5">
+            <FilterSelect
+              label={t('achievementFilterVersion')}
+              value={versionFilter}
+              onChange={setVersionFilter}
+              options={versionOptions.map((version) => ({
+                value: version,
+                label: `v${version}`,
+              }))}
+            />
+            <FilterSelect
+              label={t('achievementFilterCategory')}
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              options={categoryOptions.map((category) => ({
+                value: category,
+                label: t(ACHIEVEMENT_CATEGORY_LABEL_KEYS[category]),
+              }))}
+            />
+            <FilterSelect
+              label={t('achievementFilterReward')}
+              value={rewardCategoryFilter}
+              onChange={setRewardCategoryFilter}
+              options={rewardCategoryOptions.map((category) => ({
+                value: category,
+                label: t(`${category}Label`),
+              }))}
+            />
+            <FilterSelect
+              label={t('achievementFilterMode')}
+              value={modeFilter}
+              onChange={setModeFilter}
+              options={modeOptions.map((mode) => ({
+                value: mode,
+                label: t(mode),
+              }))}
+            />
+          </div>
+          {achievements.length === 0 && (
+            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-4 text-center text-xs text-gray-500">
+              {t('achievementFilterNoResults')}
+            </div>
+          )}
+        </div>
+      )}
       {achievements.map((achievement) => {
         const rewards = getRewardsForAchievement(achievement.id)
         return (
