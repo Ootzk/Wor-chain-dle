@@ -1,16 +1,20 @@
 import { useTranslation } from 'react-i18next'
+import { AchievementList } from '../achievements/AchievementList'
 
 const EVENT_RULE_KEYS = [
   'eventSummerGardenRuleStart',
   'eventSummerGardenRuleTiming',
   'eventSummerGardenRuleHide',
   'eventSummerGardenRuleGameOver',
+  'eventSummerGardenRuleClover',
 ] as const
 
-const EVENT_REWARD_KEYS = [
-  'eventSummerGardenRuleClover',
-  'eventSummerGardenRuleRabbit',
-] as const
+const SUMMER_GARDEN_ACHIEVEMENT_IDS = [
+  'clover_collector',
+  'rabbit_speed',
+  'grassland_trail',
+  'grass_diet',
+]
 
 export const SummerGardenEventGuide = () => {
   const { t } = useTranslation()
@@ -20,6 +24,9 @@ export const SummerGardenEventGuide = () => {
       <h4 className="text-sm font-bold text-green-700">
         {t('eventSummerGardenInfoTitle')}
       </h4>
+      <blockquote className="mt-2 border-l-4 border-green-300 pl-3 text-sm font-medium italic text-green-800">
+        {t('eventSummerGardenStoryQuote')}
+      </blockquote>
       <p className="mt-2 text-sm text-gray-600">
         {t('eventSummerGardenInfoIntro')}
       </p>
@@ -32,13 +39,16 @@ export const SummerGardenEventGuide = () => {
         ))}
       </ul>
       <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-green-700">
-        {t('eventSummerGardenRewardsTitle')}
+        {t('eventAchievements')}
       </h5>
-      <ul className="mt-1.5 list-disc space-y-1.5 pl-5 text-sm text-gray-600">
-        {EVENT_REWARD_KEYS.map((ruleKey) => (
-          <li key={ruleKey}>{t(ruleKey)}</li>
-        ))}
-      </ul>
+      <div className="mt-2">
+        <AchievementList
+          achievementIds={SUMMER_GARDEN_ACHIEVEMENT_IDS}
+          mode="event"
+          embedded
+          markSeenOnUnmount={false}
+        />
+      </div>
     </section>
   )
 }
