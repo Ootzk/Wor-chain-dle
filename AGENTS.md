@@ -21,7 +21,7 @@ Based on the [AnyLanguage-Word-Guessing-Game](https://github.com/roedoejet/AnyLa
 
 ```text
 src/
-  index.tsx                       HashRouter routes (/, /practice, /create, /custom/:code)
+  index.tsx                       HashRouter routes (/, /practice, /event, /create, /custom/:code)
   App.tsx                         main game flow and input handlers
   i18n.ts                         i18next setup with bundled locale resources
   locales/{lang}/translation.json translations
@@ -36,9 +36,11 @@ src/
     chain.ts                      chain-rule and dead-end helpers
     share.ts                      share text generation
     events.ts                     active Event slot definition and seeded Event word selection
+    eventResults.ts               Event per-version results, detail stats, and localStorage helpers
     dailyResults.ts               canonical Daily per-date results, loss reasons, and migration
     dailyHistory.ts               legacy Daily history migration and attendance helpers
     playStats.ts                  in-game detail stats, tile counts, and summaries
+    resultStats.ts                shared result-to-summary aggregation helpers
     customPuzzle.ts               Custom puzzle URL-safe Base64 codec
     tokenizer.ts                  orthography-aware tokenization
     achievements.ts               achievement definitions and unlock engine
@@ -191,11 +193,11 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 | Item                   | Daily                                                  | Practice             | Event                       | Custom                |
 | ---------------------- | ------------------------------------------------------ | -------------------- | --------------------------- | --------------------- |
 | Answer source          | `WORDS`, local midnight reset                          | random `WORDS` entry | active Event seeded `WORDS` | creator-selected word |
-| Stats                  | aggregate `gameStats`; date/detail `dailyResults`      | none currently       | none currently              | `customGameStats`     |
+| Stats                  | aggregate `gameStats`; date/detail `dailyResults`      | none currently       | per-version `eventResults`  | `customGameStats`     |
 | Daily history          | `dailyResults`; legacy `dailyHistory` migrates into it | no                   | no                          | no                    |
-| Game state persistence | yes                                                    | no                   | no                          | no                    |
-| Share button           | yes                                                    | no                   | no                          | yes                   |
-| Calendar               | yes                                                    | no                   | no                          | no                    |
+| Game state persistence | yes                                                    | no                   | yes                         | no                    |
+| Share button           | yes                                                    | no                   | yes                         | yes                   |
+| Calendar               | yes                                                    | no                   | yes, per Event version      | no                    |
 | Route                  | `/#/`                                                  | `/#/practice`        | `/#/event`                  | `/#/custom/:code`     |
 
 - Custom URL encoding: `btoa("word_questioner")`, converted to URL-safe Base64 by replacing `+` with `-`, `/` with `_`, and removing `=`.
@@ -204,7 +206,8 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 - The Create Puzzle page reuses the Keyboard component and keeps cells read-only to suppress the mobile virtual keyboard.
 - Questioner names are limited to 10 characters to avoid overlay layout breakage.
 - Current achievements are Daily-only unless a task explicitly broadens mode support. When adding Practice, Event, or Custom achievements, keep existing Daily achievement behavior intact and add mode support deliberately.
-- Event mode is an infrastructure slot. The active Event definition lives in `events.ts`; plug special rules such as Hardcore or AI through that context instead of hard-coding them into Daily.
+- Event mode is an infrastructure slot. The active Event definition lives in `events.ts`; plug special rules such as Pacman, Hardcore, or AI through that context instead of hard-coding them into Daily.
+- Event results are keyed by Event version. Keep version-specific records, calendars, custom lose reasons, cosmetic overrides, and Event-only Records tabs scoped through the Event definition so future seasons can reuse the same shell.
 
 ## Daily Records And Migration
 
@@ -240,14 +243,16 @@ Translations live in `src/locales/{lang}/translation.json` and are bundled throu
 ## UI Notes
 
 - Info, Stats, Rewards, Settings, Donate, and Patch Notes are modal-based.
-- `InfoModal` uses mode-specific tab content for `daily`, `practice`, `custom`, and `create`.
+- `InfoModal` uses mode-specific tab content for `daily`, `practice`, `event`, `custom`, and `create`.
 - `PatchNotesModal` is shown when localStorage `seenPatchNotesVersion` differs from `PATCH_NOTES_VERSION`. Because it is a simple mismatch check, downgrades can also show the modal.
 - `DonateModal` uses tabs for payment methods including KakaoPay QR, Toss Pay, and GitHub Sponsors. Payment URLs live in `config.ts`.
 - `StatsModal` is mode-dependent:
   - Daily: Records tabs are Today, Calendar, Summary, and Details. Today shows the current Daily result, countdown, share controls, and current-day detail stats. Calendar renders monthly `dailyResults`. Summary combines aggregate `gameStats` with per-date loss reasons. Details summarizes tracked `playStats`.
+  - Event: Records tabs are Event, Today, Calendar, Summary, and Details. Event records are selected by Event version and use `eventResults` plus the active Event definition for custom panels, lose reasons, share context, and cosmetic overrides.
   - Custom: compact Records view with share and no histogram.
-  - localStorage keys: Daily aggregate stats use `gameStats`; Daily date-level records use `dailyResults`; Custom uses `customGameStats`.
+  - localStorage keys: Daily aggregate stats use `gameStats`; Daily date-level records use `dailyResults`; Event records use `eventResults`; Custom uses `customGameStats`.
 - `RewardsModal` owns Achievements and Cosmetics. Rewards must remain reachable outside Daily because some achievements and cosmetics can target non-Daily modes.
+- Event Rewards opens on Achievements with the active Event version pre-filtered, but users can adjust the filter view without persisting those Event-specific filter choices.
 - `SettingsModal` is a single-scroll layout with grouped settings, language selection popup, uppercase/share URL toggles, week-start setting, and Enter hint setting. Do not put reward selection controls back into Settings unless the product direction changes.
 
 Header icons by mode:
@@ -255,12 +260,12 @@ Header icons by mode:
 | Icon     | Daily | Practice | Event | Custom | Create |
 | -------- | ----- | -------- | ----- | ------ | ------ |
 | Info     | yes   | yes      | yes   | yes    | yes    |
-| Stats    | yes   | no       | no    | no     | no     |
+| Stats    | yes   | no       | yes   | no     | no     |
 | Rewards  | yes   | yes      | yes   | yes    | yes    |
 | Settings | yes   | yes      | yes   | yes    | yes    |
 | Donate   | yes   | yes      | yes   | yes    | yes    |
 
-Stats is Daily-only. Screenshot scripts rely on icon positions: Daily uses Info=0, Stats=1, Rewards=2, Settings=3, Donate=4; other modes use Info=0, Rewards=1, Settings=2, Donate=3.
+Stats is available for Daily and Event. Screenshot scripts rely on icon positions: Daily/Event use Info=0, Stats=1, Rewards=2, Settings=3, Donate=4; other modes use Info=0, Rewards=1, Settings=2, Donate=3.
 
 ## Chain Rule
 
