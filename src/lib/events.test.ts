@@ -41,6 +41,12 @@ test('defines cosmetic overrides for the active event theme', () => {
   expect(event.pacman).toMatchObject({
     actor: '🐇',
     effect: 'hide-letter-and-status',
+    stepMsByStatus: {
+      correct: 4000,
+      present: 3000,
+      absent: 2000,
+      default: 2000,
+    },
   })
   expect(event.collectibles).toEqual([
     expect.objectContaining({
