@@ -605,10 +605,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         guesses,
         solution,
         stepMsByStatus: event?.pacman?.stepMsByStatus ?? {
-          correct: 4000,
+          correct: 5000,
           present: 3000,
-          absent: 2000,
-          default: 2000,
+          absent: 3000,
+          default: 3000,
         },
       })
     )

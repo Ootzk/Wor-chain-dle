@@ -62,10 +62,10 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
   pacman: {
     actor: '🐇',
     stepMsByStatus: {
-      correct: 4000,
+      correct: 5000,
       present: 3000,
-      absent: 2000,
-      default: 2000,
+      absent: 3000,
+      default: 3000,
     },
     effect: 'hide-letter-and-status',
   },

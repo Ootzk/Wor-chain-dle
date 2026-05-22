@@ -42,10 +42,10 @@ test('defines cosmetic overrides for the active event theme', () => {
     actor: '🐇',
     effect: 'hide-letter-and-status',
     stepMsByStatus: {
-      correct: 4000,
+      correct: 5000,
       present: 3000,
-      absent: 2000,
-      default: 2000,
+      absent: 3000,
+      default: 3000,
     },
   })
   expect(event.collectibles).toEqual([
