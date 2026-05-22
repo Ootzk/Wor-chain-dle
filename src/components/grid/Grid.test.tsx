@@ -21,6 +21,7 @@ test('hides the next row chain letter after game completion', () => {
       currentGuess={[]}
       solution="crane"
       isGameComplete={false}
+      viewMode="reveal"
     />
   )
 
@@ -32,6 +33,7 @@ test('hides the next row chain letter after game completion', () => {
       currentGuess={[]}
       solution="crane"
       isGameComplete
+      viewMode="reveal"
     />
   )
 
@@ -45,7 +47,7 @@ test('hides board letters without removing them from the layout', () => {
       guesses={[winningGuess]}
       currentGuess={[]}
       solution="crane"
-      hideLetters
+      viewMode="spoilerFree"
     />
   )
 
@@ -57,7 +59,12 @@ test('hides board letters without removing them from the layout', () => {
 
 test('shows a cursor on the active transparent-letter cell', () => {
   const { container } = render(
-    <Grid guesses={[]} currentGuess={['c', 'r']} solution="crane" hideLetters />
+    <Grid
+      guesses={[]}
+      currentGuess={['c', 'r']}
+      solution="crane"
+      viewMode="spoilerFree"
+    />
   )
 
   expect(getRow(container, 0)).toHaveTextContent('cr')
@@ -71,20 +78,84 @@ test('shows a cursor on the active transparent-letter cell', () => {
   ).toHaveLength(1)
 })
 
-test('shows the transparent-letter toggle beside the final row', () => {
-  const onToggleHideLetters = jest.fn()
+test('shows the view mode toggle beside the final row', () => {
+  const onChangeViewMode = jest.fn()
   const { getByLabelText } = render(
     <Grid
       guesses={[winningGuess]}
       currentGuess={[]}
       solution="crane"
       isGameComplete
-      showHideLettersToggle
-      onToggleHideLetters={onToggleHideLetters}
+      viewMode="reveal"
+      showViewModeToggle
+      onChangeViewMode={onChangeViewMode}
     />
   )
 
-  fireEvent.click(getByLabelText('Toggle transparent letters'))
+  fireEvent.click(getByLabelText('Change grid view mode'))
 
-  expect(onToggleHideLetters).toHaveBeenCalledTimes(1)
+  expect(onChangeViewMode).toHaveBeenCalledWith('spoilerFree')
+})
+
+test('cycles through configured grid view modes', () => {
+  const onChangeViewMode = jest.fn()
+  const { getByLabelText } = render(
+    <Grid
+      guesses={[winningGuess]}
+      currentGuess={[]}
+      solution="crane"
+      isGameComplete
+      viewMode="live"
+      availableViewModes={['live', 'spoilerFree', 'reveal']}
+      showViewModeToggle
+      onChangeViewMode={onChangeViewMode}
+    />
+  )
+
+  fireEvent.click(getByLabelText('Change grid view mode'))
+
+  expect(onChangeViewMode).toHaveBeenCalledWith('spoilerFree')
+})
+
+test('live view applies cell effects while reveal view restores cells', () => {
+  const cellEffects = {
+    '0:0': {
+      actor: '🐇',
+      hideLetter: true,
+      hideStatus: true,
+    },
+  }
+  const { container, rerender } = render(
+    <Grid
+      guesses={[winningGuess]}
+      currentGuess={[]}
+      solution="crane"
+      viewMode="live"
+      cellEffects={cellEffects}
+    />
+  )
+
+  expect(
+    container.querySelectorAll('[data-testid="pacman-actor"]')
+  ).toHaveLength(1)
+  expect(
+    getRow(container, 0).querySelectorAll('span.text-transparent')
+  ).toHaveLength(1)
+
+  rerender(
+    <Grid
+      guesses={[winningGuess]}
+      currentGuess={[]}
+      solution="crane"
+      viewMode="reveal"
+      cellEffects={cellEffects}
+    />
+  )
+
+  expect(
+    container.querySelectorAll('[data-testid="pacman-actor"]')
+  ).toHaveLength(0)
+  expect(
+    getRow(container, 0).querySelectorAll('span.text-transparent')
+  ).toHaveLength(0)
 })
