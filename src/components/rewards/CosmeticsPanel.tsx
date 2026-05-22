@@ -810,7 +810,7 @@ export const CosmeticsPanel = ({
         </pre>
       </div>
 
-      <div className="mb-3 rounded border border-gray-200 px-3">
+      <div className="mb-3">
         <CosmeticSettingRow
           label={t('uppercaseLabel')}
           description={t('uppercaseDescription')}
