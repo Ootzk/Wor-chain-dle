@@ -86,7 +86,6 @@ const AchievementEquipButton = ({
   )
   const disabled = !unlocked || isEquipped
   const label = !unlocked ? t('locked') : isEquipped ? t('equipped') : t('equip')
-  const primaryReward = rewards[0]
 
   return (
     <button
@@ -108,11 +107,7 @@ const AchievementEquipButton = ({
       ) : isEquipped ? (
         '\u2713'
       ) : (
-        <CosmeticPreview
-          category={primaryReward.category}
-          optionId={primaryReward.id}
-          compact
-        />
+        '\u2795'
       )}
     </button>
   )
