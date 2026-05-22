@@ -3,6 +3,23 @@ import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
   getAchievementModes,
   getAchievementsWithStatus,
   markAchievementsSeen,
@@ -57,6 +74,10 @@ const ACHIEVEMENT_CATEGORY_DESC_KEYS: Record<AchievementCategory, string> = {
 const FILTER_ALL = 'all'
 
 type AchievementFilterDisplayMode = 'expanded' | 'collapsed' | 'hidden'
+type AchievementWithStatus = ReturnType<
+  typeof getAchievementsWithStatus
+>[number]
+type FilterKey = 'version' | 'category' | 'rewardCategory' | 'mode'
 type FilterPickerOption = {
   value: string
   label: string
@@ -64,8 +85,26 @@ type FilterPickerOption = {
   marker?: ReactNode
 }
 
+const DEFAULT_FILTER_ORDER: FilterKey[] = [
+  'version',
+  'category',
+  'rewardCategory',
+  'mode',
+]
+
 const uniqueSorted = (values: string[]): string[] =>
   Array.from(new Set(values)).sort((a, b) => a.localeCompare(b))
+
+const normalizeSortableId = (value: string): string =>
+  value.replace(/[^a-zA-Z0-9_-]/g, '_')
+
+const getOptionSortableId = (label: string, value: string): string =>
+  `achievement-filter-option-${label}-${normalizeSortableId(value)}`
+
+const mergeOptionOrder = (availableValues: string[], order: string[]) => [
+  ...order.filter((value) => availableValues.includes(value)),
+  ...availableValues.filter((value) => !order.includes(value)),
+]
 
 const getVersionFilterDescription = (
   version: string,
@@ -123,18 +162,155 @@ const MODE_DESC_KEYS: Record<GameMode, string> = {
   event: 'achievementModeEventDesc',
 }
 
+const SortableDragHandle = ({
+  attributes,
+  listeners,
+}: {
+  attributes: any
+  listeners?: any
+}) => (
+  <button
+    type="button"
+    className="flex cursor-grab items-center justify-center text-gray-300 active:cursor-grabbing"
+    {...attributes}
+    {...listeners}
+  >
+    <span
+      aria-hidden="true"
+      className="grid grid-cols-2 gap-[2px] rounded px-0.5 py-1"
+    >
+      {Array.from({ length: 6 }).map((_, index) => (
+        <span key={index} className="h-1 w-1 rounded-full bg-current" />
+      ))}
+    </span>
+  </button>
+)
+
+const SortableOptionRow = ({
+  id,
+  option,
+  selected,
+  onToggle,
+}: {
+  id: string
+  option: FilterPickerOption
+  selected: boolean
+  onToggle: () => void
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: option.value === FILTER_ALL })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex w-full items-stretch border-b border-gray-50 ${
+        selected ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 bg-white'
+      } ${
+        isDragging ? 'relative z-10 opacity-60 shadow-sm' : 'hover:bg-gray-50'
+      }`}
+    >
+      <span className="flex w-7 flex-shrink-0 items-center justify-center">
+        {option.value !== FILTER_ALL && (
+          <SortableDragHandle attributes={attributes} listeners={listeners} />
+        )}
+      </span>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-3 px-2 py-3 text-left text-sm"
+        onClick={onToggle}
+      >
+        <span className="flex w-9 flex-shrink-0 items-center justify-center text-base">
+          {option.marker}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-medium">{option.label}</span>
+          <span
+            className={`block text-xs leading-snug ${
+              selected ? 'text-indigo-500' : 'text-gray-400'
+            }`}
+          >
+            {option.description}
+          </span>
+        </span>
+        <span className="w-5 flex-shrink-0 text-center">
+          {selected && <span className="text-indigo-600">{'\u2713'}</span>}
+        </span>
+      </button>
+    </div>
+  )
+}
+
+const StaticOptionRow = ({
+  option,
+  selected,
+  onToggle,
+}: {
+  option: FilterPickerOption
+  selected: boolean
+  onToggle: () => void
+}) => (
+  <div
+    className={`flex w-full items-stretch border-b border-gray-50 ${
+      selected ? 'bg-indigo-50 text-indigo-600' : 'bg-white text-gray-700'
+    } hover:bg-gray-50`}
+  >
+    <span className="flex w-7 flex-shrink-0 items-center justify-center" />
+    <button
+      type="button"
+      className="flex min-w-0 flex-1 items-center gap-3 px-2 py-3 text-left text-sm"
+      onClick={onToggle}
+    >
+      <span className="flex w-9 flex-shrink-0 items-center justify-center text-base">
+        {option.marker}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-medium">{option.label}</span>
+        <span
+          className={`block text-xs leading-snug ${
+            selected ? 'text-indigo-500' : 'text-gray-400'
+          }`}
+        >
+          {option.description}
+        </span>
+      </span>
+      <span className="w-5 flex-shrink-0 text-center">
+        {selected && <span className="text-indigo-600">{'\u2713'}</span>}
+      </span>
+    </button>
+  </div>
+)
+
 const FilterPicker = ({
   label,
   values,
   onChange,
+  onReorderOption,
   options,
 }: {
   label: string
   values: string[]
   onChange: (values: string[]) => void
+  onReorderOption: (activeValue: string, overValue: string) => void
   options: FilterPickerOption[]
 }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
   const selectedOptions = options.filter(
     (option) => option.value !== FILTER_ALL && values.includes(option.value)
   )
@@ -156,6 +332,23 @@ const FilterPicker = ({
     }
 
     onChange([...values, nextValue])
+  }
+  const sortableOptions = options
+    .filter((option) => option.value !== FILTER_ALL)
+    .map((option) => getOptionSortableId(label, option.value))
+  const handleOptionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const activeOption = options.find(
+      (option) => getOptionSortableId(label, option.value) === active.id
+    )
+    const overOption = options.find(
+      (option) => getOptionSortableId(label, option.value) === over.id
+    )
+    if (activeOption && overOption) {
+      onReorderOption(activeOption.value, overOption.value)
+    }
   }
 
   return (
@@ -183,47 +376,42 @@ const FilterPicker = ({
               <div className="border-b border-gray-200 px-4 py-3">
                 <span className="text-sm font-bold text-gray-900">{label}</span>
               </div>
-              {options.map((option) => {
-                const selected =
-                  option.value === FILTER_ALL
-                    ? selectedOptions.length === 0
-                    : values.includes(option.value)
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={`flex w-full items-center gap-3 border-b border-gray-50 px-4 py-3 text-left text-sm ${
-                      selected
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                    onClick={() => {
-                      toggleValue(option.value)
-                    }}
-                  >
-                    <span className="flex w-9 flex-shrink-0 items-center justify-center text-base">
-                      {option.marker}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium">
-                        {option.label}
-                      </span>
-                      <span
-                        className={`block text-xs leading-snug ${
-                          selected ? 'text-indigo-500' : 'text-gray-400'
-                        }`}
-                      >
-                        {option.description}
-                      </span>
-                    </span>
-                    <span className="w-5 flex-shrink-0 text-center">
-                      {selected && (
-                        <span className="text-indigo-600">{'\u2713'}</span>
-                      )}
-                    </span>
-                  </button>
-                )
-              })}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleOptionDragEnd}
+              >
+                <SortableContext
+                  items={sortableOptions}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {options.map((option) => {
+                    const selected =
+                      option.value === FILTER_ALL
+                        ? selectedOptions.length === 0
+                        : values.includes(option.value)
+                    if (option.value === FILTER_ALL) {
+                      return (
+                        <StaticOptionRow
+                          key={option.value}
+                          option={option}
+                          selected={selected}
+                          onToggle={() => toggleValue(option.value)}
+                        />
+                      )
+                    }
+                    return (
+                      <SortableOptionRow
+                        key={option.value}
+                        id={getOptionSortableId(label, option.value)}
+                        option={option}
+                        selected={selected}
+                        onToggle={() => toggleValue(option.value)}
+                      />
+                    )
+                  })}
+                </SortableContext>
+              </DndContext>
             </div>
           </div>,
           document.body
@@ -233,19 +421,42 @@ const FilterPicker = ({
 }
 
 const FilterRow = ({
+  filterKey,
   label,
   values,
   onChange,
+  onReorderOption,
   options,
 }: {
+  filterKey: FilterKey
   label: string
   values: string[]
   onChange: (values: string[]) => void
+  onReorderOption: (activeValue: string, overValue: string) => void
   options: FilterPickerOption[]
 }) => {
   const isActive = values.length > 0
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: filterKey })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
   return (
-    <div className="grid grid-cols-[8.25rem_minmax(0,1fr)_1.75rem] items-center gap-x-1">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`grid grid-cols-[1.25rem_8.25rem_minmax(0,1fr)_1.75rem] items-center gap-x-1 ${
+        isDragging ? 'relative z-10 opacity-60' : ''
+      }`}
+    >
+      <SortableDragHandle attributes={attributes} listeners={listeners} />
       <span className="truncate whitespace-nowrap text-xs font-semibold text-gray-500">
         {label}
       </span>
@@ -253,6 +464,7 @@ const FilterRow = ({
         label={label}
         values={values}
         onChange={onChange}
+        onReorderOption={onReorderOption}
         options={options}
       />
       <button
@@ -543,6 +755,22 @@ export const AchievementList = ({
     []
   )
   const [modeFilters, setModeFilters] = useState<string[]>([])
+  const [filterOrder, setFilterOrder] =
+    useState<FilterKey[]>(DEFAULT_FILTER_ORDER)
+  const [optionOrders, setOptionOrders] = useState<Record<FilterKey, string[]>>(
+    {
+      version: [],
+      category: [],
+      rewardCategory: [],
+      mode: [],
+    }
+  )
+  const filterSensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
   const stats = loadStats()
   const dailyHistory = loadDailyResultHistory()
   const achievementsWithMetadata = metadataFilter
@@ -556,24 +784,111 @@ export const AchievementList = ({
         achievementIds.includes(achievement.id)
       )
     : achievementsWithMetadata
-  const versionOptions = uniqueSorted(
-    scopedAchievements
-      .map((achievement) => achievement.metadata?.introducedInVersion)
-      .filter((version): version is string => !!version)
-  ).reverse()
-  const categoryOptions = uniqueSorted(
-    scopedAchievements.map((achievement) => achievement.category)
+  const versionOptions = mergeOptionOrder(
+    uniqueSorted(
+      scopedAchievements
+        .map((achievement) => achievement.metadata?.introducedInVersion)
+        .filter((version): version is string => !!version)
+    ).reverse(),
+    optionOrders.version
+  )
+  const categoryOptions = mergeOptionOrder(
+    uniqueSorted(
+      scopedAchievements.map((achievement) => achievement.category)
+    ) as AchievementCategory[],
+    optionOrders.category
   ) as AchievementCategory[]
-  const rewardCategoryOptions = uniqueSorted(
-    scopedAchievements.flatMap((achievement) =>
-      getRewardsForAchievement(achievement.id).map((reward) => reward.category)
-    )
+  const rewardCategoryOptions = mergeOptionOrder(
+    uniqueSorted(
+      scopedAchievements.flatMap((achievement) =>
+        getRewardsForAchievement(achievement.id).map(
+          (reward) => reward.category
+        )
+      )
+    ) as CosmeticCategory[],
+    optionOrders.rewardCategory
   ) as CosmeticCategory[]
-  const modeOptions = uniqueSorted(
-    scopedAchievements.flatMap((achievement) =>
-      getAchievementModes(achievement)
-    )
+  const modeOptions = mergeOptionOrder(
+    uniqueSorted(
+      scopedAchievements.flatMap((achievement) =>
+        getAchievementModes(achievement)
+      )
+    ) as GameMode[],
+    optionOrders.mode
   ) as GameMode[]
+  const reorderOption = (
+    filterKey: FilterKey,
+    activeValue: string,
+    overValue: string
+  ) => {
+    setOptionOrders((currentOrders) => {
+      const availableValues = {
+        version: versionOptions,
+        category: categoryOptions,
+        rewardCategory: rewardCategoryOptions,
+        mode: modeOptions,
+      }[filterKey]
+      const currentOrder = mergeOptionOrder(
+        availableValues,
+        currentOrders[filterKey]
+      )
+      const oldIndex = currentOrder.indexOf(activeValue)
+      const newIndex = currentOrder.indexOf(overValue)
+      if (oldIndex === -1 || newIndex === -1) return currentOrders
+      return {
+        ...currentOrders,
+        [filterKey]: arrayMove(currentOrder, oldIndex, newIndex),
+      }
+    })
+  }
+  const handleFilterDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = filterOrder.indexOf(active.id as FilterKey)
+    const newIndex = filterOrder.indexOf(over.id as FilterKey)
+    if (oldIndex !== -1 && newIndex !== -1) {
+      setFilterOrder(arrayMove(filterOrder, oldIndex, newIndex))
+    }
+  }
+  const getRank = (filterKey: FilterKey, value?: string): number => {
+    if (!value) return Number.MAX_SAFE_INTEGER
+    const optionsByKey: Record<FilterKey, string[]> = {
+      version: versionOptions,
+      category: categoryOptions,
+      rewardCategory: rewardCategoryOptions,
+      mode: modeOptions,
+    }
+    const rank = optionsByKey[filterKey].indexOf(value)
+    return rank === -1 ? Number.MAX_SAFE_INTEGER : rank
+  }
+  const getAchievementSortRank = (
+    achievement: AchievementWithStatus,
+    filterKey: FilterKey
+  ): number => {
+    if (filterKey === 'version') {
+      return getRank(filterKey, achievement.metadata?.introducedInVersion)
+    }
+    if (filterKey === 'category') {
+      return getRank(filterKey, achievement.category)
+    }
+    if (filterKey === 'rewardCategory') {
+      const ranks = getRewardsForAchievement(achievement.id).map((reward) =>
+        getRank(filterKey, reward.category)
+      )
+      return ranks.length > 0 ? Math.min(...ranks) : Number.MAX_SAFE_INTEGER
+    }
+    const ranks = getAchievementModes(achievement).map((achievementMode) =>
+      getRank(filterKey, achievementMode)
+    )
+    return ranks.length > 0 ? Math.min(...ranks) : Number.MAX_SAFE_INTEGER
+  }
+  const sourceIndexById = new Map(
+    scopedAchievements.map(
+      (achievement, index) => [achievement.id, index] as const
+    )
+  )
+  const shouldApplyInteractiveSort = activeFilterDisplayMode !== 'hidden'
   const versionFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
@@ -628,41 +943,58 @@ export const AchievementList = ({
     })),
   ]
   const normalizedSearch = searchQuery.trim().toLowerCase()
-  const achievements = scopedAchievements.filter((achievement) => {
-    const rewards = getRewardsForAchievement(achievement.id)
-    const matchesSearch =
-      normalizedSearch.length === 0 ||
-      [
-        t(achievement.titleKey),
-        t(achievement.descriptionKey),
-        ...rewards.map((reward) => t(reward.titleKey)),
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(normalizedSearch)
-    const matchesVersion =
-      versionFilters.length === 0 ||
-      versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
-    const matchesCategory =
-      categoryFilters.length === 0 ||
-      categoryFilters.includes(achievement.category)
-    const matchesRewardCategory =
-      rewardCategoryFilters.length === 0 ||
-      rewards.some((reward) => rewardCategoryFilters.includes(reward.category))
-    const matchesMode =
-      modeFilters.length === 0 ||
-      getAchievementModes(achievement).some((achievementMode) =>
-        modeFilters.includes(achievementMode)
-      )
+  const achievements = scopedAchievements
+    .filter((achievement) => {
+      const rewards = getRewardsForAchievement(achievement.id)
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        [
+          t(achievement.titleKey),
+          t(achievement.descriptionKey),
+          ...rewards.map((reward) => t(reward.titleKey)),
+        ]
+          .join(' ')
+          .toLowerCase()
+          .includes(normalizedSearch)
+      const matchesVersion =
+        versionFilters.length === 0 ||
+        versionFilters.includes(achievement.metadata?.introducedInVersion ?? '')
+      const matchesCategory =
+        categoryFilters.length === 0 ||
+        categoryFilters.includes(achievement.category)
+      const matchesRewardCategory =
+        rewardCategoryFilters.length === 0 ||
+        rewards.some((reward) =>
+          rewardCategoryFilters.includes(reward.category)
+        )
+      const matchesMode =
+        modeFilters.length === 0 ||
+        getAchievementModes(achievement).some((achievementMode) =>
+          modeFilters.includes(achievementMode)
+        )
 
-    return (
-      matchesSearch &&
-      matchesVersion &&
-      matchesCategory &&
-      matchesRewardCategory &&
-      matchesMode
-    )
-  })
+      return (
+        matchesSearch &&
+        matchesVersion &&
+        matchesCategory &&
+        matchesRewardCategory &&
+        matchesMode
+      )
+    })
+    .sort((a, b) => {
+      if (!shouldApplyInteractiveSort) {
+        return (
+          (sourceIndexById.get(a.id) ?? 0) - (sourceIndexById.get(b.id) ?? 0)
+        )
+      }
+      for (const filterKey of filterOrder) {
+        const rankDiff =
+          getAchievementSortRank(a, filterKey) -
+          getAchievementSortRank(b, filterKey)
+        if (rankDiff !== 0) return rankDiff
+      }
+      return (sourceIndexById.get(a.id) ?? 0) - (sourceIndexById.get(b.id) ?? 0)
+    })
   const scrollRef = useRef<HTMLDivElement>(null)
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
 
@@ -704,6 +1036,40 @@ export const AchievementList = ({
     setCategoryFilters([])
     setRewardCategoryFilters([])
     setModeFilters([])
+  }
+  const filterRowConfigs: Record<
+    FilterKey,
+    {
+      label: string
+      values: string[]
+      onChange: (values: string[]) => void
+      options: FilterPickerOption[]
+    }
+  > = {
+    version: {
+      label: t('achievementFilterVersionTheme'),
+      values: versionFilters,
+      onChange: setVersionFilters,
+      options: versionFilterOptions,
+    },
+    category: {
+      label: t('achievementFilterAchievementType'),
+      values: categoryFilters,
+      onChange: setCategoryFilters,
+      options: categoryFilterOptions,
+    },
+    rewardCategory: {
+      label: t('achievementFilterCosmeticCategory'),
+      values: rewardCategoryFilters,
+      onChange: setRewardCategoryFilters,
+      options: rewardCategoryFilterOptions,
+    },
+    mode: {
+      label: t('achievementFilterGameMode'),
+      values: modeFilters,
+      onChange: setModeFilters,
+      options: modeFilterOptions,
+    },
   }
 
   useEffect(() => {
@@ -753,32 +1119,35 @@ export const AchievementList = ({
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder={t('achievementSearchPlaceholder')}
           />
-          <div className="space-y-1.5">
-            <FilterRow
-              label={t('achievementFilterVersionTheme')}
-              values={versionFilters}
-              onChange={setVersionFilters}
-              options={versionFilterOptions}
-            />
-            <FilterRow
-              label={t('achievementFilterAchievementType')}
-              values={categoryFilters}
-              onChange={setCategoryFilters}
-              options={categoryFilterOptions}
-            />
-            <FilterRow
-              label={t('achievementFilterCosmeticCategory')}
-              values={rewardCategoryFilters}
-              onChange={setRewardCategoryFilters}
-              options={rewardCategoryFilterOptions}
-            />
-            <FilterRow
-              label={t('achievementFilterGameMode')}
-              values={modeFilters}
-              onChange={setModeFilters}
-              options={modeFilterOptions}
-            />
-          </div>
+          <DndContext
+            sensors={filterSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleFilterDragEnd}
+          >
+            <SortableContext
+              items={filterOrder}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-1.5">
+                {filterOrder.map((filterKey) => {
+                  const config = filterRowConfigs[filterKey]
+                  return (
+                    <FilterRow
+                      key={filterKey}
+                      filterKey={filterKey}
+                      label={config.label}
+                      values={config.values}
+                      onChange={config.onChange}
+                      onReorderOption={(activeValue, overValue) =>
+                        reorderOption(filterKey, activeValue, overValue)
+                      }
+                      options={config.options}
+                    />
+                  )
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
           {achievements.length === 0 && (
             <div className="rounded border border-gray-200 bg-gray-50 px-3 py-4 text-center text-xs text-gray-500">
               {t('achievementFilterNoResults')}
