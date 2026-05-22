@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BaseModal } from './BaseModal'
-import { CogIcon } from '@heroicons/react/outline'
+import { ChevronDownIcon, CogIcon } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../../constants/config'
 import { localeLanguageKey } from '../../i18n'
@@ -207,7 +207,7 @@ export const SettingsModal = ({
                       <span className="truncate">
                         {t(`languages.${i18n.language?.split('-')[0]}`)}
                       </span>
-                      <span className="text-xs text-gray-400">{'\u25BE'}</span>
+                      <ChevronDownIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
                     </span>
                   </span>
                 </button>
