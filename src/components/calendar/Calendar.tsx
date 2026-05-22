@@ -1,9 +1,9 @@
 import { Temporal } from 'temporal-polyfill'
 import { useState } from 'react'
 import {
+  CalendarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  InformationCircleIcon,
   RefreshIcon,
 } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
@@ -22,6 +22,7 @@ import {
   CalendarMilestone,
   getCalendarMilestones,
 } from '../../lib/calendarMilestones'
+import { getPatchNoteVersions, PatchNoteVersion } from '../../lib/patchNotes'
 
 const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
@@ -36,6 +37,7 @@ type Props = {
   excludeUrl: boolean
   onToggleExcludeUrl: () => void
   onOpenCosmetics: () => void
+  onOpenPatchNotesVersion?: (version: string) => void
   hasNewRewards?: boolean
   cosmeticOverrides?: CosmeticOverrides
   shareContextLabel?: string
@@ -65,81 +67,153 @@ const MiniToggle = ({
   </button>
 )
 
-const CalendarInfoButton = ({
+const MonthlyOverview = ({
+  success,
+  failure,
+  absence,
+}: {
+  success: number
+  failure: number
+  absence: number
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex justify-center pl-8 text-base leading-normal">
+      <div className="grid grid-cols-[max-content_auto_auto] gap-x-1">
+        <span className="text-right text-green-500">
+          {t('calendarSuccess')}
+        </span>
+        <span className="text-green-500">:</span>
+        <span className="text-left tabular-nums text-green-500">{success}</span>
+        <span className="text-right text-purple-500">
+          {t('calendarFailure')}
+        </span>
+        <span className="text-purple-500">:</span>
+        <span className="text-left tabular-nums text-purple-500">
+          {failure}
+        </span>
+        <span className="text-right text-gray-500">{t('calendarAbsence')}</span>
+        <span className="text-gray-500">:</span>
+        <span className="text-left tabular-nums text-gray-500">{absence}</span>
+      </div>
+    </div>
+  )
+}
+
+const MonthMilestonesButton = ({
   milestones,
+  monthLabel,
+  patchNoteVersions,
+  onOpenPatchNotesVersion,
 }: {
   milestones: CalendarMilestone[]
+  monthLabel: string
+  patchNoteVersions: PatchNoteVersion[]
+  onOpenPatchNotesVersion?: (version: string) => void
 }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const releaseMilestones = milestones.filter(
-    (milestone) => milestone.kind === 'release'
-  )
-  const dataMilestones = milestones.filter(
-    (milestone) => milestone.kind !== 'release'
-  )
+  const getReleaseSummary = (milestone: CalendarMilestone): string => {
+    if (milestone.kind !== 'release' || !milestone.version) {
+      return t(milestone.descriptionKey, {
+        version: milestone.version,
+      })
+    }
+
+    const version = milestone.version.replace(/^v/, '')
+    const patchNotes = patchNoteVersions.find(
+      (patchNote) => patchNote.version === version
+    )
+    if (!patchNotes) {
+      return t(milestone.descriptionKey, {
+        version: milestone.version,
+      })
+    }
+
+    return patchNotes.features.map((feature) => t(feature.titleKey)).join(' · ')
+  }
 
   return (
     <span className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-gray-400 hover:text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
+        className={`inline-flex shrink-0 items-center justify-center rounded p-1 focus:outline-none focus:ring-1 focus:ring-gray-400 ${
+          milestones.length > 0
+            ? 'text-gray-700 hover:bg-gray-100'
+            : 'text-gray-300'
+        }`}
         onClick={() => setIsOpen(!isOpen)}
-        aria-label={t('calendarInfoTitle')}
+        aria-label={t('calendarMonthEventsTitle', { month: monthLabel })}
+        title={t('calendarMonthEventsTitle', { month: monthLabel })}
       >
-        <InformationCircleIcon className="h-4 w-4" />
+        <CalendarIcon className="h-5 w-5" />
       </button>
       {isOpen && (
-        <div className="absolute left-1/2 top-6 z-30 max-h-96 w-72 -translate-x-1/2 overflow-y-auto whitespace-normal rounded border border-gray-200 bg-white p-3 text-left text-xs font-normal normal-case leading-4 tracking-normal text-gray-600 shadow-lg">
+        <div className="absolute left-0 top-7 z-30 max-h-72 w-72 overflow-y-auto rounded border border-gray-200 bg-white p-3 text-left text-xs font-normal normal-case leading-4 tracking-normal text-gray-600 shadow-lg">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="font-semibold text-gray-900">
-              {t('calendarInfoTitle')}
+              {t('calendarMonthEventsTitle', { month: monthLabel })}
             </div>
             <button
               type="button"
               className="shrink-0 font-semibold text-gray-400 hover:text-gray-700"
               onClick={() => setIsOpen(false)}
-              aria-label={t('calendarInfoClose')}
+              aria-label={t('calendarMonthEventsClose')}
             >
               ×
             </button>
           </div>
-          <p className="mb-2">{t('calendarInfoIntro')}</p>
-          <ul className="list-disc space-y-1 pl-4">
-            <li>{t('calendarInfoSummary')}</li>
-            <li>{t('calendarInfoCalendarScope')}</li>
-            <li>{t('calendarInfoLegacyDetails')}</li>
-            <li>{t('calendarInfoReleaseDates')}</li>
-          </ul>
-          <div className="mt-2 border-t border-gray-100 pt-2">
-            <div className="mb-1 font-semibold text-gray-900">
-              {t('calendarInfoMilestones')}
-            </div>
-            <ul className="space-y-1">
-              {[...dataMilestones, ...releaseMilestones].map((milestone) => (
+          {milestones.length === 0 ? (
+            <p>{t('calendarMonthEventsEmpty')}</p>
+          ) : (
+            <ul className="space-y-2">
+              {milestones.map((milestone) => (
                 <li key={milestone.id} className="flex gap-2">
                   <span className="w-5 shrink-0 text-center">
                     {milestone.icon}
                   </span>
-                  <span>
+                  <span className="min-w-0">
                     <span className="font-medium text-gray-800">
-                      {t(milestone.titleKey, {
-                        version: milestone.version,
-                      })}
+                      {milestone.date.slice(5)}
                     </span>
-                    <span className="text-gray-400"> · {milestone.date}</span>
+                    <span className="text-gray-400"> · </span>
+                    {milestone.kind === 'release' &&
+                    milestone.version &&
+                    onOpenPatchNotesVersion ? (
+                      <>
+                        <button
+                          type="button"
+                          className="font-semibold text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-800"
+                          onClick={() => {
+                            setIsOpen(false)
+                            onOpenPatchNotesVersion(milestone.version as string)
+                          }}
+                        >
+                          {milestone.version}
+                        </button>
+                        <span className="text-gray-500">
+                          {' '}
+                          {t('calendarReleaseSuffix')}
+                        </span>
+                      </>
+                    ) : (
+                      <span>
+                        {t(milestone.titleKey, {
+                          version: milestone.version,
+                        })}
+                      </span>
+                    )}
                     <br />
-                    <span>
-                      {t(milestone.descriptionKey, {
-                        version: milestone.version,
-                      })}
+                    <span className="text-gray-500">
+                      {getReleaseSummary(milestone)}
                     </span>
                   </span>
                 </li>
               ))}
             </ul>
-          </div>
+          )}
         </div>
       )}
     </span>
@@ -156,6 +230,7 @@ export const Calendar = ({
   excludeUrl,
   onToggleExcludeUrl,
   onOpenCosmetics,
+  onOpenPatchNotesVersion,
   hasNewRewards = false,
   cosmeticOverrides,
   shareContextLabel,
@@ -222,6 +297,11 @@ export const Calendar = ({
     year,
     calendarStartDate: effectiveCalendarStartDate,
   })
+  const patchNoteVersions = getPatchNoteVersions()
+  const visibleMonthKey = `${year}-${String(month + 1).padStart(2, '0')}`
+  const monthlyMilestones = calendarMilestones
+    .filter((milestone) => milestone.date.startsWith(visibleMonthKey))
+    .sort((a, b) => a.date.localeCompare(b.date))
   const milestonesByDate = calendarMilestones.reduce<
     Record<string, CalendarMilestone[]>
   >((grouped, milestone) => {
@@ -313,11 +393,16 @@ export const Calendar = ({
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
+        <div className="absolute left-8 top-0">
+          <MonthMilestonesButton
+            milestones={monthlyMilestones}
+            monthLabel={monthLabel}
+            patchNoteVersions={patchNoteVersions}
+            onOpenPatchNotesVersion={onOpenPatchNotesVersion}
+          />
+        </div>
         <span className="whitespace-nowrap text-center text-base font-semibold text-gray-900">
-          <span className="inline-flex items-center gap-1">
-            {monthLabel}
-            <CalendarInfoButton milestones={calendarMilestones} />
-          </span>
+          {monthLabel}
         </span>
         <div className="absolute right-0 flex items-center gap-1">
           <div
@@ -385,31 +470,11 @@ export const Calendar = ({
 
       {/* Monthly attendance + Share button */}
       <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
-        <div className="flex justify-center pl-8 text-base leading-normal">
-          <div className="grid grid-cols-[max-content_auto_auto] gap-x-1">
-            <span className="text-right text-green-500">
-              {t('calendarSuccess')}
-            </span>
-            <span className="text-green-500">:</span>
-            <span className="text-left tabular-nums text-green-500">
-              {monthlyWinCount}
-            </span>
-            <span className="text-right text-purple-500">
-              {t('calendarFailure')}
-            </span>
-            <span className="text-purple-500">:</span>
-            <span className="text-left tabular-nums text-purple-500">
-              {monthlyLossCount}
-            </span>
-            <span className="text-right text-gray-500">
-              {t('calendarAbsence')}
-            </span>
-            <span className="text-gray-500">:</span>
-            <span className="text-left tabular-nums text-gray-500">
-              {monthlyAbsenceCount}
-            </span>
-          </div>
-        </div>
+        <MonthlyOverview
+          success={monthlyWinCount}
+          failure={monthlyLossCount}
+          absence={monthlyAbsenceCount}
+        />
         <div className="space-y-2">
           <button
             type="button"

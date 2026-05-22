@@ -1,5 +1,6 @@
 import { Disclosure } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/outline'
+import { useEffect, useRef } from 'react'
 import { PATCH_NOTES_VERSION } from '../../constants/config'
 import {
   getCurrentPatchNotes,
@@ -47,16 +48,50 @@ const PatchNoteFeatureCard = ({ feature }: { feature: PatchNoteFeature }) => {
 
 type Props = {
   variant?: 'current' | 'history'
+  initialVersion?: string
 }
 
-export const PatchNotesContent = ({ variant = 'current' }: Props) => {
+const normalizeVersion = (version?: string): string | undefined =>
+  version?.replace(/^v/, '')
+
+export const PatchNotesContent = ({
+  variant = 'current',
+  initialVersion,
+}: Props) => {
+  const normalizedInitialVersion = normalizeVersion(initialVersion)
+  const initialVersionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (variant !== 'history' || !normalizedInitialVersion) return
+    window.setTimeout(() => {
+      initialVersionRef.current?.scrollIntoView({
+        block: 'start',
+        behavior: 'smooth',
+      })
+    }, 0)
+  }, [variant, normalizedInitialVersion])
+
   if (variant === 'history') {
     return (
       <div className="space-y-3 text-left">
         {patchNoteVersions.map(({ version, releasedAt, features }, index) => (
-          <Disclosure key={version} defaultOpen={index === 0}>
+          <Disclosure
+            key={version}
+            defaultOpen={
+              normalizedInitialVersion
+                ? version === normalizedInitialVersion
+                : index === 0
+            }
+          >
             {({ open }) => (
-              <div className="rounded-lg border border-gray-200 overflow-hidden">
+              <div
+                ref={
+                  version === normalizedInitialVersion
+                    ? initialVersionRef
+                    : undefined
+                }
+                className="rounded-lg border border-gray-200 overflow-hidden"
+              >
                 <Disclosure.Button className="flex w-full items-center justify-between gap-3 bg-gray-50 px-3 py-2 text-left">
                   <span className="flex items-center gap-2">
                     <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
