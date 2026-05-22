@@ -74,6 +74,10 @@ const ACHIEVEMENT_CATEGORY_DESC_KEYS: Record<AchievementCategory, string> = {
 const FILTER_ALL = 'all'
 
 type AchievementFilterDisplayMode = 'expanded' | 'collapsed' | 'hidden'
+type VisibleAchievementFilterDisplayMode = Exclude<
+  AchievementFilterDisplayMode,
+  'hidden'
+>
 type AchievementWithStatus = ReturnType<
   typeof getAchievementsWithStatus
 >[number]
@@ -91,9 +95,122 @@ const DEFAULT_FILTER_ORDER: FilterKey[] = [
   'rewardCategory',
   'mode',
 ]
+const FILTER_PREFERENCES_STORAGE_KEY = 'achievementFilterPreferences'
+const createDefaultOptionOrders = (): Record<FilterKey, string[]> => ({
+  version: [],
+  category: [],
+  rewardCategory: [],
+  mode: [],
+})
+
+type AchievementFilterPreferences = {
+  displayMode: VisibleAchievementFilterDisplayMode
+  searchQuery: string
+  versionFilters: string[]
+  categoryFilters: string[]
+  rewardCategoryFilters: string[]
+  modeFilters: string[]
+  filterOrder: FilterKey[]
+  optionOrders: Record<FilterKey, string[]>
+}
 
 const uniqueSorted = (values: string[]): string[] =>
   Array.from(new Set(values)).sort((a, b) => a.localeCompare(b))
+
+const normalizeStringArray = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : []
+
+const normalizeDisplayMode = (
+  value: unknown
+): VisibleAchievementFilterDisplayMode =>
+  value === 'collapsed' ? 'collapsed' : 'expanded'
+
+const normalizeFilterOrder = (value: unknown): FilterKey[] => {
+  const seen = new Set<FilterKey>()
+  const storedOrder = Array.isArray(value)
+    ? value.filter((item): item is FilterKey => {
+        if (!DEFAULT_FILTER_ORDER.includes(item as FilterKey)) return false
+        if (seen.has(item as FilterKey)) return false
+        seen.add(item as FilterKey)
+        return true
+      })
+    : []
+
+  return [
+    ...storedOrder,
+    ...DEFAULT_FILTER_ORDER.filter((filterKey) => !seen.has(filterKey)),
+  ]
+}
+
+const normalizeOptionOrders = (
+  value: unknown
+): Record<FilterKey, string[]> => {
+  const optionOrders = createDefaultOptionOrders()
+  if (!value || typeof value !== 'object') return optionOrders
+
+  DEFAULT_FILTER_ORDER.forEach((filterKey) => {
+    const storedOrder = (value as Partial<Record<FilterKey, unknown>>)[
+      filterKey
+    ]
+    if (Array.isArray(storedOrder)) {
+      optionOrders[filterKey] = storedOrder.filter(
+        (item): item is string => typeof item === 'string'
+      )
+    }
+  })
+
+  return optionOrders
+}
+
+const loadAchievementFilterPreferences = (): AchievementFilterPreferences => {
+  const defaults = {
+    displayMode: 'expanded' as const,
+    searchQuery: '',
+    versionFilters: [],
+    categoryFilters: [],
+    rewardCategoryFilters: [],
+    modeFilters: [],
+    filterOrder: DEFAULT_FILTER_ORDER,
+    optionOrders: createDefaultOptionOrders(),
+  }
+
+  try {
+    const raw = localStorage.getItem(FILTER_PREFERENCES_STORAGE_KEY)
+    if (!raw) return defaults
+
+    const parsed = JSON.parse(raw) as Partial<AchievementFilterPreferences>
+    return {
+      displayMode: normalizeDisplayMode(parsed.displayMode),
+      searchQuery:
+        typeof parsed.searchQuery === 'string' ? parsed.searchQuery : '',
+      versionFilters: normalizeStringArray(parsed.versionFilters),
+      categoryFilters: normalizeStringArray(parsed.categoryFilters),
+      rewardCategoryFilters: normalizeStringArray(
+        parsed.rewardCategoryFilters
+      ),
+      modeFilters: normalizeStringArray(parsed.modeFilters),
+      filterOrder: normalizeFilterOrder(parsed.filterOrder),
+      optionOrders: normalizeOptionOrders(parsed.optionOrders),
+    }
+  } catch {
+    return defaults
+  }
+}
+
+const saveAchievementFilterPreferences = (
+  preferences: AchievementFilterPreferences
+) => {
+  try {
+    localStorage.setItem(
+      FILTER_PREFERENCES_STORAGE_KEY,
+      JSON.stringify(preferences)
+    )
+  } catch {
+    // Filter preferences are convenience-only; ignore storage failures.
+  }
+}
 
 const normalizeSortableId = (value: string): string =>
   value.replace(/[^a-zA-Z0-9_-]/g, '_')
@@ -726,6 +843,7 @@ export const AchievementList = ({
   onOpenEventRecords,
   metadataFilter,
   achievementIds,
+  sortAchievementIds,
   mode = 'daily',
   embedded = false,
   markSeenOnUnmount = true,
@@ -737,6 +855,7 @@ export const AchievementList = ({
   onOpenEventRecords?: () => void
   metadataFilter?: RewardMetadataFilter
   achievementIds?: string[]
+  sortAchievementIds?: string[]
   mode?: GameMode
   embedded?: boolean
   markSeenOnUnmount?: boolean
@@ -744,26 +863,38 @@ export const AchievementList = ({
   filterDisplayMode?: AchievementFilterDisplayMode
 }) => {
   const { t } = useTranslation()
+  const [initialFilterPreferences] = useState(
+    loadAchievementFilterPreferences
+  )
+  const shouldUsePersistentFilters =
+    showFilters && !embedded && filterDisplayMode !== 'hidden'
   const resolvedFilterDisplayMode =
-    filterDisplayMode ?? (showFilters && !embedded ? 'expanded' : 'hidden')
+    filterDisplayMode ??
+    (showFilters && !embedded ? initialFilterPreferences.displayMode : 'hidden')
   const [activeFilterDisplayMode, setActiveFilterDisplayMode] =
     useState<AchievementFilterDisplayMode>(resolvedFilterDisplayMode)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [versionFilters, setVersionFilters] = useState<string[]>([])
-  const [categoryFilters, setCategoryFilters] = useState<string[]>([])
-  const [rewardCategoryFilters, setRewardCategoryFilters] = useState<string[]>(
-    []
+  const [searchQuery, setSearchQuery] = useState(
+    shouldUsePersistentFilters ? initialFilterPreferences.searchQuery : ''
   )
-  const [modeFilters, setModeFilters] = useState<string[]>([])
-  const [filterOrder, setFilterOrder] =
-    useState<FilterKey[]>(DEFAULT_FILTER_ORDER)
+  const [versionFilters, setVersionFilters] = useState<string[]>(
+    shouldUsePersistentFilters ? initialFilterPreferences.versionFilters : []
+  )
+  const [categoryFilters, setCategoryFilters] = useState<string[]>(
+    shouldUsePersistentFilters ? initialFilterPreferences.categoryFilters : []
+  )
+  const [rewardCategoryFilters, setRewardCategoryFilters] = useState<string[]>(
+    shouldUsePersistentFilters
+      ? initialFilterPreferences.rewardCategoryFilters
+      : []
+  )
+  const [modeFilters, setModeFilters] = useState<string[]>(
+    shouldUsePersistentFilters ? initialFilterPreferences.modeFilters : []
+  )
+  const [filterOrder, setFilterOrder] = useState<FilterKey[]>(
+    initialFilterPreferences.filterOrder
+  )
   const [optionOrders, setOptionOrders] = useState<Record<FilterKey, string[]>>(
-    {
-      version: [],
-      category: [],
-      rewardCategory: [],
-      mode: [],
-    }
+    initialFilterPreferences.optionOrders
   )
   const filterSensors = useSensors(
     useSensor(PointerSensor),
@@ -888,7 +1019,13 @@ export const AchievementList = ({
       (achievement, index) => [achievement.id, index] as const
     )
   )
-  const shouldApplyInteractiveSort = activeFilterDisplayMode !== 'hidden'
+  const explicitSortIndexById = sortAchievementIds
+    ? new Map(
+        sortAchievementIds.map(
+          (achievementId, index) => [achievementId, index] as const
+        )
+      )
+    : undefined
   const versionFilterOptions: FilterPickerOption[] = [
     {
       value: FILTER_ALL,
@@ -982,10 +1119,14 @@ export const AchievementList = ({
       )
     })
     .sort((a, b) => {
-      if (!shouldApplyInteractiveSort) {
-        return (
-          (sourceIndexById.get(a.id) ?? 0) - (sourceIndexById.get(b.id) ?? 0)
-        )
+      if (explicitSortIndexById) {
+        const aIndex = explicitSortIndexById.get(a.id)
+        const bIndex = explicitSortIndexById.get(b.id)
+        if (aIndex !== undefined || bIndex !== undefined) {
+          if (aIndex === undefined) return 1
+          if (bIndex === undefined) return -1
+          if (aIndex !== bIndex) return aIndex - bIndex
+        }
       }
       for (const filterKey of filterOrder) {
         const rankDiff =
@@ -1001,6 +1142,33 @@ export const AchievementList = ({
   useEffect(() => {
     setActiveFilterDisplayMode(resolvedFilterDisplayMode)
   }, [resolvedFilterDisplayMode])
+
+  useEffect(() => {
+    if (!shouldUsePersistentFilters || activeFilterDisplayMode === 'hidden') {
+      return
+    }
+
+    saveAchievementFilterPreferences({
+      displayMode: activeFilterDisplayMode,
+      searchQuery,
+      versionFilters,
+      categoryFilters,
+      rewardCategoryFilters,
+      modeFilters,
+      filterOrder,
+      optionOrders,
+    })
+  }, [
+    activeFilterDisplayMode,
+    searchQuery,
+    versionFilters,
+    categoryFilters,
+    rewardCategoryFilters,
+    modeFilters,
+    filterOrder,
+    optionOrders,
+    shouldUsePersistentFilters,
+  ])
 
   const handleEquipRewards = (rewards: CosmeticOption[]) => {
     rewards.forEach((reward) => {
