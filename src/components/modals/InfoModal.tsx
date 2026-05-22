@@ -227,47 +227,55 @@ const HowToPlayContent = ({ focusSection }: { focusSection?: InfoSection }) => {
 
 const AboutContent = () => {
   return (
-    <p className="text-sm text-gray-500">
-      <Trans
-        i18nKey="aboutAuthorSentence"
-        values={{ language: CONFIG.language, author: CONFIG.author }}
-      >
-        This is an open source word guessing game adapted to
-        {CONFIG.language} by
-        <a href={CONFIG.authorWebsite} className="underline font-bold">
-          {CONFIG.author}
-        </a>{' '}
-      </Trans>
-      <Trans i18nKey="aboutCodeSentence">
-        Have a look at
-        <a
-          href="https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game"
-          className="underline font-bold"
+    <div className="space-y-3 text-sm text-gray-500">
+      <p>
+        <Trans
+          i18nKey="aboutAuthorSentence"
+          values={{ language: CONFIG.language, author: CONFIG.author }}
         >
-          Aidan Pine's fork
-        </a>
-        and customize it for another language!
-      </Trans>
-      <Trans
-        i18nKey="aboutDataSentence"
-        values={{ wordListSource: CONFIG.wordListSource }}
-      >
-        The words for this game were sourced from
-        <a href={CONFIG.wordListSourceLink} className="underline font-bold">
-          {CONFIG.wordListSource}
-        </a>
-        .
-      </Trans>
-      <Trans i18nKey="aboutOriginalSentence">
-        You can also
-        <a
-          href="https://www.powerlanguage.co.uk/wordle/"
-          className="underline font-bold"
+          This is an open source word guessing game adapted to
+          {CONFIG.language} by
+          <a href={CONFIG.authorWebsite} className="underline font-bold">
+            {CONFIG.author}
+          </a>{' '}
+        </Trans>
+        <Trans i18nKey="aboutCodeSentence">
+          Have a look at
+          <a
+            href="https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game"
+            className="underline font-bold"
+          >
+            Aidan Pine's fork
+          </a>
+          and customize it for another language!
+        </Trans>
+        <Trans
+          i18nKey="aboutDataSentence"
+          values={{ wordListSource: CONFIG.wordListSource }}
         >
-          play the original here
-        </a>
-      </Trans>
-    </p>
+          The words for this game were sourced from
+          <a href={CONFIG.wordListSourceLink} className="underline font-bold">
+            {CONFIG.wordListSource}
+          </a>
+          .
+        </Trans>
+        <Trans i18nKey="aboutOriginalSentence">
+          You can also
+          <a
+            href="https://www.powerlanguage.co.uk/wordle/"
+            className="underline font-bold"
+          >
+            play the original here
+          </a>
+        </Trans>
+      </p>
+      <p>
+        <Trans i18nKey="aboutAiCreditSentence">
+          Development was assisted by <strong>Claude Code</strong> through
+          v1.6.0 and by <strong>Codex</strong> from v1.7.0 onward.
+        </Trans>
+      </p>
+    </div>
   )
 }
 
