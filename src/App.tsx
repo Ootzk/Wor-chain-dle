@@ -107,6 +107,7 @@ const ALERT_TIME_MS = 2000
 type AppOwnProps = {
   mode: GameMode
   solution: string
+  dateKey?: string
   questioner?: string
   event?: EventDefinition
 }
@@ -116,13 +117,15 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   i18n,
   mode,
   solution,
+  dateKey,
   questioner,
   event,
 }) => {
   const isDaily = mode === 'daily'
   const isCustom = mode === 'custom'
   const isEvent = mode === 'event'
-  const localDateStr = dateToKey(Temporal.Now.plainDateISO())
+  const currentDateKey = dateToKey(Temporal.Now.plainDateISO())
+  const localDateStr = isDaily ? dateKey ?? currentDateKey : currentDateKey
   const settingOverrides = isEvent ? event?.settingOverrides : undefined
   const cosmeticOverrides = useMemo(
     () =>
@@ -380,11 +383,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
 
   useEffect(() => {
     if (isDaily) {
-      const today = Temporal.Now.plainDateISO()
-      const todayKey = dateToKey(today)
-      initDailyHistoryStartDate(todayKey)
+      initDailyHistoryStartDate(localDateStr)
       retroUnlockAchievements(stats, loadDailyResultHistory())
-      document.title = `Wor\u{1F517}dle Daily | ${todayKey}`
+      document.title = `Wor\u{1F517}dle Daily | ${localDateStr}`
     } else if (isCustom) {
       document.title = `Wor\u{1F517}dle Custom | ${questioner}`
     } else if (isEvent) {
@@ -392,7 +393,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     } else {
       document.title = `Wor\u{1F517}dle Practice`
     }
-  }, [isDaily, isCustom, isEvent, questioner, stats])
+  }, [isDaily, isCustom, isEvent, localDateStr, questioner, stats])
 
   useEffect(() => {
     if (!isEvent || !event || isPatchNotesModalOpen) return
