@@ -12,17 +12,17 @@ import {
   GridCellEffects,
   GridRowEffects,
 } from '../../lib/gridEffects'
-import { cycleGridViewMode, GridViewMode } from '../../lib/gridViewMode'
+import { GridViewOptions } from '../../lib/gridViewOptions'
 
 type Props = {
   guesses: string[][]
   currentGuess: string[]
   solution: string
   isGameComplete?: boolean
-  showViewModeToggle?: boolean
-  viewMode: GridViewMode
-  availableViewModes?: GridViewMode[]
-  onChangeViewMode?: (mode: GridViewMode) => void
+  viewOptions: GridViewOptions
+  showLettersToggle?: boolean
+  showLiveEffectsToggle?: boolean
+  onChangeViewOptions?: (options: GridViewOptions) => void
   cellEffects?: GridCellEffects
   rowEffects?: GridRowEffects
   cosmeticOverrides?: CosmeticOverrides
@@ -53,42 +53,28 @@ export const Grid = ({
   currentGuess,
   solution,
   isGameComplete = false,
-  showViewModeToggle = false,
-  viewMode,
-  availableViewModes,
-  onChangeViewMode,
+  viewOptions,
+  showLettersToggle = false,
+  showLiveEffectsToggle = false,
+  onChangeViewOptions,
   cellEffects,
   rowEffects,
   cosmeticOverrides,
 }: Props) => {
   const elements: React.ReactNode[] = []
-  const hideLetters = viewMode === 'spoilerFree'
-  const effectiveAvailableViewModes =
-    availableViewModes ?? (showViewModeToggle ? ['reveal', 'spoilerFree'] : [])
-  const shouldShowViewModeToggle =
-    showViewModeToggle && effectiveAvailableViewModes.length > 1
-  const handleToggleViewMode = () => {
-    const nextMode = cycleGridViewMode(viewMode, effectiveAvailableViewModes)
-
-    if (onChangeViewMode) {
-      onChangeViewMode(nextMode)
-    }
+  const hideLetters = viewOptions.lettersHidden
+  const hasViewControls = showLettersToggle || showLiveEffectsToggle
+  const handleToggleLetters = () => {
+    onChangeViewOptions?.({
+      ...viewOptions,
+      lettersHidden: !viewOptions.lettersHidden,
+    })
   }
-  const getViewModeButtonClasses = () => {
-    if (viewMode === 'live') return 'text-lime-600 hover:text-lime-700'
-    if (viewMode === 'spoilerFree') {
-      return 'text-gray-400 hover:text-gray-500'
-    }
-    return 'text-black hover:text-gray-700'
-  }
-  const getViewModeIcon = () => {
-    if (viewMode === 'live') {
-      return <StatusOnlineIcon className="h-6 w-6" />
-    }
-    if (viewMode === 'spoilerFree') {
-      return <EyeOffIcon className="h-6 w-6" />
-    }
-    return <EyeIcon className="h-6 w-6" />
+  const handleToggleLiveEffects = () => {
+    onChangeViewOptions?.({
+      ...viewOptions,
+      liveEffectsEnabled: !viewOptions.liveEffectsEnabled,
+    })
   }
   const getRowCellEffects = (rowIndex: number) =>
     Array.from({ length: CONFIG.wordLength }).reduce<
@@ -96,15 +82,14 @@ export const Grid = ({
     >((effects, _, colIndex) => {
       const effect = cellEffects?.[getGridCellKey({ rowIndex, colIndex })]
       if (effect) {
-        effects[colIndex] =
-          viewMode === 'live'
-            ? effect
-            : {
-                ...effect,
-                actor: undefined,
-                hideLetter: false,
-                hideStatus: false,
-              }
+        effects[colIndex] = viewOptions.liveEffectsEnabled
+          ? effect
+          : {
+              ...effect,
+              actor: undefined,
+              hideLetter: false,
+              hideStatus: false,
+            }
       }
       return effects
     }, {})
@@ -161,15 +146,41 @@ export const Grid = ({
           </span>
         )}
         {row}
-        {i === CONFIG.tries - 1 && shouldShowViewModeToggle && (
-          <button
-            type="button"
-            aria-label="Change grid view mode"
-            className={`absolute left-[calc(50%+9.5rem)] top-1/2 h-6 w-6 -translate-y-1/2 transition-colors ${getViewModeButtonClasses()}`}
-            onClick={handleToggleViewMode}
-          >
-            {getViewModeIcon()}
-          </button>
+        {i === CONFIG.tries - 1 && hasViewControls && (
+          <div className="absolute left-[calc(50%+9.5rem)] top-1/2 flex -translate-y-1/2 flex-col gap-1">
+            {showLettersToggle && (
+              <button
+                type="button"
+                aria-label="Toggle letters"
+                className={`h-6 w-6 transition-colors ${
+                  viewOptions.lettersHidden
+                    ? 'text-gray-400 hover:text-gray-500'
+                    : 'text-black hover:text-gray-700'
+                }`}
+                onClick={handleToggleLetters}
+              >
+                {viewOptions.lettersHidden ? (
+                  <EyeOffIcon className="h-6 w-6" />
+                ) : (
+                  <EyeIcon className="h-6 w-6" />
+                )}
+              </button>
+            )}
+            {showLiveEffectsToggle && (
+              <button
+                type="button"
+                aria-label="Toggle live effects"
+                className={`h-6 w-6 transition-colors ${
+                  viewOptions.liveEffectsEnabled
+                    ? 'text-lime-600 hover:text-lime-700'
+                    : 'text-gray-400 hover:text-gray-500'
+                }`}
+                onClick={handleToggleLiveEffects}
+              >
+                <StatusOnlineIcon className="h-6 w-6" />
+              </button>
+            )}
+          </div>
         )}
       </div>
     )

@@ -2,7 +2,7 @@ import { Temporal } from 'temporal-polyfill'
 import { CONFIG } from '../constants/config'
 import { WORDS } from '../constants/wordlist'
 import { CosmeticOverrideConfig } from './cosmetics'
-import { GridViewMode } from './gridViewMode'
+import { GridViewOptions } from './gridViewOptions'
 import {
   EventCollectibleConfig,
   SUMMER_GARDEN_CLOVER_COLLECTION_ID,
@@ -41,7 +41,7 @@ export type EventSettingOverrides = Partial<{
   isUppercase: boolean
   excludeUrl: boolean
   enterValidationHint: boolean
-  gridViewMode: GridViewMode
+  gridViewOptions: Partial<GridViewOptions>
 }>
 
 export type EventWordOfDay = {
