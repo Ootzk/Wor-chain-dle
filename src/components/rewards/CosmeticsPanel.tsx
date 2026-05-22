@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Temporal } from 'temporal-polyfill'
+import { CheckIcon, LockClosedIcon } from '@heroicons/react/outline'
 import { CONFIG } from '../../constants/config'
 import {
   ALERT_MESSAGE_KEYS,
@@ -191,9 +192,11 @@ const CosmeticPicker = ({
                     )}
                   </span>
                   <span className="w-5 text-center flex-shrink-0">
-                    {!unlocked && '\uD83D\uDD12'}
+                    {!unlocked && (
+                      <LockClosedIcon className="mx-auto h-5 w-5" />
+                    )}
                     {selected && unlocked && (
-                      <span className="text-indigo-600">{'\u2713'}</span>
+                      <CheckIcon className="mx-auto h-5 w-5 text-indigo-600" />
                     )}
                   </span>
                 </div>
@@ -314,7 +317,7 @@ const CosmeticPicker = ({
                         }
                       }}
                     >
-                      {'\uD83D\uDD12'}
+                      <LockClosedIcon className="mx-auto h-5 w-5" />
                     </button>
                   )}
                   {unlocked && selected && (
@@ -323,7 +326,7 @@ const CosmeticPicker = ({
                       disabled
                       className="w-full rounded-md bg-indigo-100 px-3 py-2 text-sm font-medium text-indigo-600 cursor-default"
                     >
-                      {'\u2713'}
+                      <CheckIcon className="mx-auto h-5 w-5" />
                     </button>
                   )}
                   {unlocked && !selected && (
