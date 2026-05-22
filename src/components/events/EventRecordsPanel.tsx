@@ -71,7 +71,7 @@ const EventGroupTitle = ({
 }) => (
   <div
     className={`flex items-center justify-between gap-2 pb-0.5 text-left text-xs font-bold uppercase tracking-wide text-gray-400 ${
-      separated ? 'mt-1.5 border-t border-gray-200 pt-1.5' : ''
+      separated ? 'mt-1 border-t border-gray-200 pt-1.5' : ''
     }`}
   >
     {children}
@@ -161,6 +161,8 @@ export const EventRecordsPanel = ({
   const todayCollectedRows =
     collectible && isCurrentEvent ? collectedRows[collectible.id] ?? [] : []
   const todayCloverCount = todayCollectedRows.length
+  const todayCloverDisplay =
+    todayCloverCount > 0 ? collectible?.emoji.repeat(todayCloverCount) : ''
   const achievementProgress = loadAchievementProgress()
   const achievementState = loadAchievementState()
   const collectionProgress = collectible
@@ -307,8 +309,8 @@ export const EventRecordsPanel = ({
         </section>
 
         <section>
-          <EventGroupTitle separated>{t('eventMission')}</EventGroupTitle>
-          <ul className="mt-1.5 space-y-1 text-left text-[10px] leading-[0.875rem] text-gray-500">
+          <EventGroupTitle separated>{t('eventAchievements')}</EventGroupTitle>
+          <ul className="mt-1 space-y-0.5 text-left text-[10px] leading-[0.875rem] text-gray-500">
             <li className="flex items-start gap-1.5">
               <span className="w-5 flex-shrink-0 text-center leading-4">
                 {collectible.emoji}
@@ -374,38 +376,29 @@ export const EventRecordsPanel = ({
               </span>
             </li>
           </ul>
-          <div className="mt-2 grid grid-cols-4 items-stretch text-center">
+        </section>
+
+        <section>
+          <EventGroupTitle separated>{t('today')}</EventGroupTitle>
+          <div className="mt-1.5 grid grid-cols-4 items-stretch text-center">
             <div className="flex min-w-0 flex-col items-center justify-center">
-              <div className="h-6 text-lg font-bold leading-6 text-gray-900">
-                {collectible.emoji}
-                {todayCloverCount}
-              </div>
-              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
-                {t('achievement_clover_collector_title')}
+              <div className="h-6 max-w-full truncate text-lg font-bold leading-6 text-gray-900">
+                {todayCloverDisplay}
               </div>
             </div>
             <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200">
               <div className="h-6 text-lg leading-6">
                 {todayFastWin ? '🐇' : ''}
               </div>
-              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
-                {t('achievement_rabbit_speed_title')}
-              </div>
             </div>
             <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200">
               <div className="flex h-6 items-center justify-center text-lg leading-6">
                 {completedCurrentEvent ? grasslandTrailIcon : ''}
               </div>
-              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
-                {t('achievement_grassland_trail_title')}
-              </div>
             </div>
             <div className="flex min-w-0 flex-col items-center justify-center border-l border-gray-200">
               <div className="flex h-6 items-center justify-center text-lg leading-6">
                 {todayGrassDiet ? grassDietIcon : ''}
-              </div>
-              <div className="mt-0.5 max-w-full truncate text-[10px] leading-3 text-gray-900">
-                {t('achievement_grass_diet_title')}
               </div>
             </div>
           </div>
@@ -413,9 +406,9 @@ export const EventRecordsPanel = ({
 
         <section>
           <EventGroupTitle separated>
-            {t('eventAchievementProgress')}
+            {t('eventSeasonProgress')}
           </EventGroupTitle>
-          <div className="grid grid-cols-[1.25rem_minmax(5.5rem,1fr)_minmax(0,1fr)_3.125rem_2.75rem] gap-x-1.5 gap-y-1 pt-1">
+          <div className="grid grid-cols-[1.25rem_minmax(5.5rem,1fr)_minmax(0,1fr)_3.125rem_2.75rem] gap-x-1.5 gap-y-0.5 pt-0.5">
             {eventAchievementItems.map((achievement) => {
               const targetWidth = (achievement.target / maxProgressTarget) * 100
               const progress = Math.min(
