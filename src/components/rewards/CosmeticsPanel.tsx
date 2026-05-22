@@ -344,13 +344,19 @@ const CosmeticSettingRow = ({
   description,
   checked,
   onToggle,
+  divided = true,
 }: {
   label: string
   description: string
   checked: boolean
   onToggle: () => void
+  divided?: boolean
 }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-gray-100 py-2.5 last:border-b-0">
+  <div
+    className={`flex items-center justify-between gap-4 py-2.5 ${
+      divided ? 'border-b border-gray-100 last:border-b-0' : ''
+    }`}
+  >
     <div className="min-w-0 text-left">
       <div className="text-sm font-medium text-gray-900">{label}</div>
       <div className="mt-1 text-xs leading-4 text-gray-500">{description}</div>
@@ -816,12 +822,14 @@ export const CosmeticsPanel = ({
           description={t('uppercaseDescription')}
           checked={isUppercase}
           onToggle={onToggleUppercase}
+          divided={false}
         />
         <CosmeticSettingRow
           label={t('excludeUrlLabel')}
           description={t('excludeUrlDescription')}
           checked={excludeUrl}
           onToggle={onToggleExcludeUrl}
+          divided={false}
         />
       </div>
 
