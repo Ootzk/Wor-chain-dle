@@ -822,14 +822,46 @@ const FilterShell = ({
 
   if (mode === 'collapsed') {
     return (
-      <div className="sticky top-0 z-10 overflow-hidden rounded-lg border border-gray-200 bg-white text-xs">
-        <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem] items-center">
-          <button
-            type="button"
-            className="h-9 min-w-0 px-2 text-left text-gray-500"
-            onClick={onExpand}
-            aria-label={t('achievementFilterExpand')}
-          >
+      <div className="sticky top-0 z-10 bg-white pb-2">
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white text-xs">
+          <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem] items-center">
+            <button
+              type="button"
+              className="h-9 min-w-0 px-2 text-left text-gray-500"
+              onClick={onExpand}
+              aria-label={t('achievementFilterExpand')}
+            >
+              <span className="grid h-full min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
+                <span
+                  className="flex items-center justify-center font-semibold text-gray-900"
+                  aria-label={t('achievementFilters')}
+                >
+                  <AdjustmentsIcon className="h-6 w-6" />
+                </span>
+                <span className="text-gray-300">|</span>
+                <span className="min-w-0 truncate">{summary}</span>
+              </span>
+            </button>
+            {resetButton}
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center text-gray-500 hover:bg-gray-50"
+              onClick={onExpand}
+              aria-label={t('achievementFilterExpand')}
+            >
+              <ChevronDownIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="sticky top-0 z-10 bg-white pb-2">
+      <div className="overflow-hidden rounded-t-lg rounded-b-none border border-gray-200 bg-white">
+        <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem] items-center border-b border-gray-200 text-xs">
+          <span className="h-9 min-w-0 px-2 text-gray-500">
             <span className="grid h-full min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
               <span
                 className="flex items-center justify-center font-semibold text-gray-900"
@@ -838,49 +870,21 @@ const FilterShell = ({
                 <AdjustmentsIcon className="h-6 w-6" />
               </span>
               <span className="text-gray-300">|</span>
-              <span className="min-w-0 truncate">{summary}</span>
+              <span className="min-w-0 truncate">{countLabel}</span>
             </span>
-          </button>
+          </span>
           {resetButton}
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center text-gray-500 hover:bg-gray-50"
-            onClick={onExpand}
-            aria-label={t('achievementFilterExpand')}
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-gray-500 hover:bg-gray-50"
+            onClick={onCollapse}
+            aria-label={t('achievementFilterCollapse')}
           >
-            <ChevronDownIcon className="h-4 w-4" />
+            <ChevronUpIcon className="h-4 w-4" />
           </button>
         </div>
+        <div>{children}</div>
       </div>
-    )
-  }
-
-  return (
-    <div className="sticky top-0 z-10 overflow-hidden rounded-lg border border-gray-200 bg-white">
-      <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem] items-center border-b border-gray-200 text-xs">
-        <span className="h-9 min-w-0 px-2 text-gray-500">
-          <span className="grid h-full min-w-0 grid-cols-[1.5rem_auto_minmax(0,1fr)] items-center gap-x-1">
-            <span
-              className="flex items-center justify-center font-semibold text-gray-900"
-              aria-label={t('achievementFilters')}
-            >
-              <AdjustmentsIcon className="h-6 w-6" />
-            </span>
-            <span className="text-gray-300">|</span>
-            <span className="min-w-0 truncate">{countLabel}</span>
-          </span>
-        </span>
-        {resetButton}
-        <button
-          type="button"
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-gray-500 hover:bg-gray-50"
-          onClick={onCollapse}
-          aria-label={t('achievementFilterCollapse')}
-        >
-          <ChevronUpIcon className="h-4 w-4" />
-        </button>
-      </div>
-      <div>{children}</div>
     </div>
   )
 }
