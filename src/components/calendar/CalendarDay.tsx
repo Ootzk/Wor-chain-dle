@@ -1,11 +1,12 @@
+import { CalendarMilestone } from '../../lib/calendarMilestones'
+
 type Props = {
   day: number | null // null for placeholder cells (outside month)
   result?: { won: boolean; guessCount: number } | null
   isToday: boolean
   isFuture: boolean
   isBeforeEpoch: boolean
-  isBirthday: boolean // Feb 16 — Wor-chain-dle birthday
-  isCalendarEpoch: boolean // day calendar tracking started
+  milestones?: CalendarMilestone[]
 }
 
 export const CalendarDay = ({
@@ -14,8 +15,7 @@ export const CalendarDay = ({
   isToday,
   isFuture,
   isBeforeEpoch,
-  isBirthday,
-  isCalendarEpoch,
+  milestones = [],
 }: Props) => {
   if (day === null) {
     return <div className="w-10 h-12" />
@@ -44,17 +44,36 @@ export const CalendarDay = ({
     return <div className="w-7 h-7 rounded-full bg-gray-200" />
   }
 
-  const dayLabel = isBirthday ? '🎂' : isCalendarEpoch ? '📅' : day
+  const milestoneIcon =
+    milestones.length === 0
+      ? null
+      : milestones.length === 1
+      ? milestones[0].icon
+      : '✨'
+  const milestoneTitle = milestones
+    .map((milestone) =>
+      [milestone.version, milestone.id].filter(Boolean).join(' ')
+    )
+    .join('\n')
 
   return (
-    <div className="w-10 h-12 flex flex-col items-center">
+    <div className="relative flex h-12 w-10 flex-col items-center">
       <span
         className={`text-xs leading-tight ${
           inactive ? 'text-gray-300' : 'text-gray-500'
         }`}
       >
-        {dayLabel}
+        {day}
       </span>
+      {milestoneIcon && !isFuture && (
+        <span
+          className="absolute right-1 top-0 text-[0.625rem] leading-none"
+          title={milestoneTitle}
+          aria-hidden="true"
+        >
+          {milestoneIcon}
+        </span>
+      )}
       <div className={isToday ? 'ring-2 ring-indigo-500 rounded-full' : ''}>
         {renderIndicator()}
       </div>

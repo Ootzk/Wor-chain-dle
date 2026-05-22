@@ -3,6 +3,7 @@ import { useState } from 'react'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  InformationCircleIcon,
   RefreshIcon,
 } from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +18,10 @@ import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { CosmeticOverrides } from '../../lib/cosmetics'
+import {
+  CalendarMilestone,
+  getCalendarMilestones,
+} from '../../lib/calendarMilestones'
 
 const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
@@ -59,6 +64,87 @@ const MiniToggle = ({
     />
   </button>
 )
+
+const CalendarInfoButton = ({
+  milestones,
+}: {
+  milestones: CalendarMilestone[]
+}) => {
+  const { t } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const releaseMilestones = milestones.filter(
+    (milestone) => milestone.kind === 'release'
+  )
+  const dataMilestones = milestones.filter(
+    (milestone) => milestone.kind !== 'release'
+  )
+
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-gray-400 hover:text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={t('calendarInfoTitle')}
+      >
+        <InformationCircleIcon className="h-4 w-4" />
+      </button>
+      {isOpen && (
+        <div className="absolute left-1/2 top-6 z-30 max-h-96 w-72 -translate-x-1/2 overflow-y-auto whitespace-normal rounded border border-gray-200 bg-white p-3 text-left text-xs font-normal normal-case leading-4 tracking-normal text-gray-600 shadow-lg">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="font-semibold text-gray-900">
+              {t('calendarInfoTitle')}
+            </div>
+            <button
+              type="button"
+              className="shrink-0 font-semibold text-gray-400 hover:text-gray-700"
+              onClick={() => setIsOpen(false)}
+              aria-label={t('calendarInfoClose')}
+            >
+              ×
+            </button>
+          </div>
+          <p className="mb-2">{t('calendarInfoIntro')}</p>
+          <ul className="list-disc space-y-1 pl-4">
+            <li>{t('calendarInfoSummary')}</li>
+            <li>{t('calendarInfoCalendarScope')}</li>
+            <li>{t('calendarInfoLegacyDetails')}</li>
+            <li>{t('calendarInfoReleaseDates')}</li>
+          </ul>
+          <div className="mt-2 border-t border-gray-100 pt-2">
+            <div className="mb-1 font-semibold text-gray-900">
+              {t('calendarInfoMilestones')}
+            </div>
+            <ul className="space-y-1">
+              {[...dataMilestones, ...releaseMilestones].map((milestone) => (
+                <li key={milestone.id} className="flex gap-2">
+                  <span className="w-5 shrink-0 text-center">
+                    {milestone.icon}
+                  </span>
+                  <span>
+                    <span className="font-medium text-gray-800">
+                      {t(milestone.titleKey, {
+                        version: milestone.version,
+                      })}
+                    </span>
+                    <span className="text-gray-400"> · {milestone.date}</span>
+                    <br />
+                    <span>
+                      {t(milestone.descriptionKey, {
+                        version: milestone.version,
+                      })}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </span>
+  )
+}
 
 export const Calendar = ({
   gameStats,
@@ -132,6 +218,16 @@ export const Calendar = ({
     calendarStartDate === undefined
       ? getDailyResultsStartDate()
       : calendarStartDate
+  const calendarMilestones = getCalendarMilestones({
+    year,
+    calendarStartDate: effectiveCalendarStartDate,
+  })
+  const milestonesByDate = calendarMilestones.reduce<
+    Record<string, CalendarMilestone[]>
+  >((grouped, milestone) => {
+    grouped[milestone.date] = [...(grouped[milestone.date] ?? []), milestone]
+    return grouped
+  }, {})
 
   type CellData = {
     day: number | null
@@ -139,8 +235,7 @@ export const Calendar = ({
     isToday: boolean
     isFuture: boolean
     isBeforeEpoch: boolean
-    isBirthday: boolean
-    isCalendarEpoch: boolean
+    milestones: CalendarMilestone[]
   }
 
   const cells: CellData[] = []
@@ -152,8 +247,7 @@ export const Calendar = ({
       isToday: false,
       isFuture: false,
       isBeforeEpoch: false,
-      isBirthday: false,
-      isCalendarEpoch: false,
+      milestones: [],
     })
   }
 
@@ -166,7 +260,6 @@ export const Calendar = ({
     const isBeforeEpoch =
       Temporal.PlainDate.compare(date, epoch) < 0 ||
       (effectiveCalendarStartDate !== null && key < effectiveCalendarStartDate)
-    const isCalendarEpoch = effectiveCalendarStartDate === key
 
     cells.push({
       day: d,
@@ -174,8 +267,7 @@ export const Calendar = ({
       isToday,
       isFuture,
       isBeforeEpoch,
-      isBirthday: month === 1 && d === 16, // Feb 16 — Wor-chain-dle birthday
-      isCalendarEpoch,
+      milestones: milestonesByDate[key] ?? [],
     })
   }
 
@@ -186,8 +278,7 @@ export const Calendar = ({
       isToday: false,
       isFuture: false,
       isBeforeEpoch: false,
-      isBirthday: false,
-      isCalendarEpoch: false,
+      milestones: [],
     })
   }
 
@@ -223,7 +314,10 @@ export const Calendar = ({
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <span className="whitespace-nowrap text-center text-base font-semibold text-gray-900">
-          {monthLabel}
+          <span className="inline-flex items-center gap-1">
+            {monthLabel}
+            <CalendarInfoButton milestones={calendarMilestones} />
+          </span>
         </span>
         <div className="absolute right-0 flex items-center gap-1">
           <div
@@ -283,8 +377,7 @@ export const Calendar = ({
               isToday={cell.isToday}
               isFuture={cell.isFuture}
               isBeforeEpoch={cell.isBeforeEpoch}
-              isBirthday={cell.isBirthday}
-              isCalendarEpoch={cell.isCalendarEpoch}
+              milestones={cell.milestones}
             />
           ))}
         </div>
