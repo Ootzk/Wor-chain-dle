@@ -96,7 +96,7 @@ export const RewardsModal = ({
             initialVersionFilters={eventVersionFilters}
             persistFilters={!isEventRewards}
             showFilters
-            filterDisplayMode="expanded"
+            filterDisplayMode="collapsed"
           />
         )}
         {activeTab === 'cosmetics' && (
