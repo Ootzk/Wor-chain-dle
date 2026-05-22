@@ -326,6 +326,7 @@
   "aboutCodeSentence": "原專案作者為<3>Hannah Park</3>，原始碼在<1>the original code</1>。本遊戲的開發依據為<5>Aidan Pine's fork</5>。",
   "aboutDataSentence": "本遊戲的單詞來源為 <1>{{wordListSource}}</1>。",
   "aboutOriginalSentence": "您也可以前往 <1>here</1> 玩一玩原版的 Word-Guessing-Game 喔！",
+  "aboutAiCreditSentence": "開發過程中，v1.6.0 以前由 <1>Claude Code</1> 協助，v1.7.0 起由 <3>Codex</3> 協助。",
   "patchNote_updateHistory_title": "信息中的更新记录",
   "patchNote_updateHistory_desc": "你现在可以在信息弹窗中随时查看各版本更新记录。\n每次更新后的首次访问仍会显示 What's New 弹窗。",
   "patchNote_shareBadges_title": "分享徽章",

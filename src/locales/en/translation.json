@@ -333,6 +333,7 @@
   "aboutCodeSentence": "Check out <1>the original code</1> by <3>Hannah Park</3> or have a look at <5>Aidan Pine's fork</5> and customize it for another language! ",
   "aboutDataSentence": "The words for this game were sourced from <1>{{wordListSource}}</1>. ",
   "aboutOriginalSentence": "You can also play the original  <1>here</1>",
+  "aboutAiCreditSentence": "Development was assisted by <1>Claude Code</1> through v1.6.0 and by <3>Codex</3> from v1.7.0 onward.",
   "patchNote_updateHistory_title": "Patch Notes in Information",
   "patchNote_updateHistory_desc": "Open Information anytime to review update history by version.\nThe first-visit update popup still appears after each update.",
   "patchNote_shareBadges_title": "Share Badges",

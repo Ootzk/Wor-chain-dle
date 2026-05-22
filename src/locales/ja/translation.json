@@ -333,6 +333,7 @@
   "aboutCodeSentence": "<3>Hannah Park</3>が作成した<1>オリジナルコード</1>をチェックするか、<5>Aidan Pineのフォーク</5>を参考に他の言語を追加してみましょう！ ",
   "aboutDataSentence": "このゲームの単語は<1>{{wordListSource}}</1>から取得しています。 ",
   "aboutOriginalSentence": "オリジナルのゲームは<1>こちら</1>でプレイできます",
+  "aboutAiCreditSentence": "v1.6.0までは<1>Claude Code</1>、v1.7.0以降は<3>Codex</3>の支援を受けて開発しました。",
   "patchNote_updateHistory_title": "情報内のパッチノート",
   "patchNote_updateHistory_desc": "情報モーダルから、バージョンごとの更新履歴をいつでも確認できます。\n更新後の初回表示ポップアップもこれまで通り表示されます。",
   "patchNote_shareBadges_title": "共有バッジ",

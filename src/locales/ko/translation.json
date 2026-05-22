@@ -326,6 +326,7 @@
   "aboutCodeSentence": "<3>Hannah Park</3>이 만든 <1>원본 코드</1>를 확인하거나, <5>Aidan Pine의 포크</5>를 참고하여 다른 언어를 추가해 보세요! ",
   "aboutDataSentence": "이 게임의 단어는 <1>{{wordListSource}}</1>에서 가져왔습니다. ",
   "aboutOriginalSentence": "원본 게임은 <1>여기</1>에서 플레이할 수 있습니다",
+  "aboutAiCreditSentence": "v1.6.0까지의 개발은 <1>Claude Code</1>의 도움을, v1.7.0부터는 <3>Codex</3>의 도움을 받았습니다.",
   "patchNote_updateHistory_title": "Information 안의 패치노트",
   "patchNote_updateHistory_desc": "Information에서 버전별 업데이트 내역을 언제든 다시 확인할 수 있습니다.\n업데이트 후 첫 방문 What's New 팝업은 기존처럼 유지됩니다.",
   "patchNote_shareBadges_title": "공유 배지",

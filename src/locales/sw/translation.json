@@ -326,6 +326,7 @@
   "aboutCodeSentence": "Angalia <1>programmu</1> ya kwanza iliandikwa ni <3>Hannah Park</3> au angalia <5>mageuzi ya Aidan Pine</5> na ongeza lugha ingine! ",
   "aboutDataSentence": "Neno za mchezo huu zilitoa kutoka <1>{{wordListSource}}</1>. ",
   "aboutOriginalSentence": "Unaweza kucheza mchezo awali <1>hapa</1>",
+  "aboutAiCreditSentence": "Utengenezaji ulisaidiwa na <1>Claude Code</1> hadi v1.6.0 na <3>Codex</3> kuanzia v1.7.0.",
   "patchNote_updateHistory_title": "Vidokezo vya toleo katika Habari",
   "patchNote_updateHistory_desc": "Fungua Habari wakati wowote kuona historia ya masasisho kwa kila toleo.\nDirisha la mambo mapya la ziara ya kwanza bado litaonekana baada ya sasisho.",
   "patchNote_shareBadges_title": "Beji za kushiriki",
