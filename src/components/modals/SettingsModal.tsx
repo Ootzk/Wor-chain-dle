@@ -35,6 +35,7 @@ type Props = {
   onToggleExcludeUrl: () => void
   enterValidationHint: boolean
   onToggleEnterValidationHint: () => void
+  onResetSettings: () => void
 }
 
 const Toggle = ({
@@ -124,17 +125,16 @@ export const SettingsModal = ({
   onToggleExcludeUrl,
   enterValidationHint,
   onToggleEnterValidationHint,
+  onResetSettings,
 }: Props) => {
   const { t, i18n } = useTranslation()
   const [isLangOpen, setIsLangOpen] = useState(false)
-  const [profileExport, setProfileExport] = useState('')
   const [profileImport, setProfileImport] = useState('')
   const [profilePreview, setProfilePreview] =
     useState<ProfileImportPreview | null>(null)
   const [profileMessage, setProfileMessage] = useState('')
   const [profileError, setProfileError] = useState('')
-  const [includeProfileSettings, setIncludeProfileSettings] = useState(true)
-  const [includeProfileCosmetics, setIncludeProfileCosmetics] = useState(true)
+  const [profileImported, setProfileImported] = useState(false)
   const closeSettings = () => {
     setIsLangOpen(false)
     handleClose()
@@ -142,6 +142,7 @@ export const SettingsModal = ({
   const resetProfileStatus = () => {
     setProfileMessage('')
     setProfileError('')
+    setProfileImported(false)
   }
   const getProfileErrorMessage = (error: unknown) => {
     if (error instanceof Error && i18n.exists(error.message)) {
@@ -149,31 +150,63 @@ export const SettingsModal = ({
     }
     return t('profileImportInvalidGeneric')
   }
-  const handleProfileExport = () => {
+  const copyProfileText = async (value: string): Promise<boolean> => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value)
+        return true
+      }
+    } catch {
+      // Fall through to the legacy copy path.
+    }
+
+    try {
+      const textarea = document.createElement('textarea')
+      textarea.value = value
+      textarea.setAttribute('readonly', 'true')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      const copied = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      return copied
+    } catch {
+      return false
+    }
+  }
+  const handleProfileExport = async () => {
     resetProfileStatus()
     const value = createProfileExportString()
-    setProfileExport(value)
-    navigator.clipboard?.writeText(value).catch(() => undefined)
-    setProfileMessage(t('profileExportCopied'))
+    const copied = await copyProfileText(value)
+    if (copied) {
+      setProfileMessage(t('profileExportCopied'))
+    } else {
+      setProfileError(t('profileExportCopyFailed'))
+    }
   }
-  const handleProfilePreview = () => {
+  const updateProfileImport = (value: string) => {
+    setProfileImport(value)
     resetProfileStatus()
+    if (!value.trim()) {
+      setProfilePreview(null)
+      return
+    }
+
     try {
-      setProfilePreview(getProfileImportPreview(profileImport))
+      setProfilePreview(getProfileImportPreview(value))
     } catch (error) {
       setProfilePreview(null)
       setProfileError(getProfileErrorMessage(error))
     }
   }
-  const handleProfileImport = () => {
+  const handleProfileImport = async () => {
     resetProfileStatus()
     try {
-      const result = importProfile(profileImport, {
-        includeSettings: includeProfileSettings,
-        includeCosmetics: includeProfileCosmetics,
-      })
-      setProfileExport(result.backup)
+      const result = importProfile(profileImport)
+      await copyProfileText(result.backup)
       setProfilePreview(result)
+      setProfileImported(true)
       setProfileMessage(t('profileImportSuccess'))
     } catch (error) {
       setProfileError(getProfileErrorMessage(error))
@@ -334,73 +367,28 @@ export const SettingsModal = ({
 
             <button
               type="button"
-              className="w-full rounded border border-indigo-500 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-100"
+              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               onClick={handleProfileExport}
             >
               {t('profileExportButton')}
             </button>
-            {profileExport && (
-              <textarea
-                className="h-20 w-full resize-none rounded border border-gray-300 p-2 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                readOnly
-                value={profileExport}
-                aria-label={t('profileExportLabel')}
-              />
-            )}
 
             <textarea
               className="h-20 w-full resize-none rounded border border-gray-300 p-2 text-xs text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               value={profileImport}
-              onChange={(event) => {
-                setProfileImport(event.target.value)
-                setProfilePreview(null)
-                resetProfileStatus()
-              }}
+              onChange={(event) => updateProfileImport(event.target.value)}
               placeholder={t('profileImportPlaceholder')}
               aria-label={t('profileImportLabel')}
             />
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                className="rounded border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                disabled={!profileImport.trim()}
-                onClick={handleProfilePreview}
-              >
-                {t('profilePreviewButton')}
-              </button>
-              <button
-                type="button"
-                className="rounded border border-green-500 bg-green-50 px-3 py-2 text-sm font-semibold text-green-600 hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-40"
-                disabled={!profilePreview}
-                onClick={handleProfileImport}
-              >
-                {t('profileImportButton')}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={includeProfileCosmetics}
-                  onChange={() =>
-                    setIncludeProfileCosmetics(!includeProfileCosmetics)
-                  }
-                />
-                {t('profileImportCosmetics')}
-              </label>
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={includeProfileSettings}
-                  onChange={() =>
-                    setIncludeProfileSettings(!includeProfileSettings)
-                  }
-                />
-                {t('profileImportSettings')}
-              </label>
-            </div>
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-white disabled:shadow-none disabled:hover:bg-gray-300"
+              disabled={!profilePreview}
+              onClick={handleProfileImport}
+            >
+              {t('profileImportButton')}
+            </button>
 
             {profilePreview && (
               <div className="rounded border border-gray-200 bg-gray-50 p-2 text-xs leading-5 text-gray-600">
@@ -437,16 +425,24 @@ export const SettingsModal = ({
                 {profileError}
               </div>
             )}
-            {profileMessage === t('profileImportSuccess') && (
+            {profileImported && (
               <button
                 type="button"
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50"
                 onClick={() => window.location.reload()}
               >
                 {t('profileReloadButton')}
               </button>
             )}
           </div>
+
+          <button
+            type="button"
+            className="mt-3 w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            onClick={onResetSettings}
+          >
+            {t('resetToDefault')}
+          </button>
         </div>
       </BaseModal>
       {languagePicker}

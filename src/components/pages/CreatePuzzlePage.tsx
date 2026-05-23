@@ -10,7 +10,11 @@ import {
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
-import { loadSettings, saveSettings } from '../../lib/localStorage'
+import {
+  DEFAULT_SETTINGS,
+  loadSettings,
+  saveSettings,
+} from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
 import { InfoModal, InfoSection, InfoTab } from '../modals/InfoModal'
 import { SettingsModal } from '../modals/SettingsModal'
@@ -350,6 +354,13 @@ export const CreatePuzzlePage = () => {
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
         }
+        onResetSettings={() => {
+          setIsUppercase(DEFAULT_SETTINGS.isUppercase)
+          setIsDarkMode(DEFAULT_SETTINGS.isDarkMode)
+          setWeekStartsOnMonday(DEFAULT_SETTINGS.weekStartsOnMonday)
+          setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
+          setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
+        }}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

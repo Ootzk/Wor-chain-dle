@@ -25,6 +25,7 @@ import {
   clearEventGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
   saveEventGameStateToLocalStorage,
+  DEFAULT_SETTINGS,
   loadSettings,
   saveSettings,
   loadSeenPatchNotesVersion,
@@ -1145,6 +1146,13 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
         }
+        onResetSettings={() => {
+          setIsUppercase(DEFAULT_SETTINGS.isUppercase)
+          setIsDarkMode(DEFAULT_SETTINGS.isDarkMode)
+          setWeekStartsOnMonday(DEFAULT_SETTINGS.weekStartsOnMonday)
+          setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
+          setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
+        }}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

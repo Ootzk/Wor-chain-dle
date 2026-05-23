@@ -71,22 +71,23 @@ export type Settings = {
   enterValidationHint: boolean
 }
 
+export const DEFAULT_SETTINGS: Settings = {
+  isUppercase: false,
+  isDarkMode: false,
+  weekStartsOnMonday: false,
+  excludeUrl: false,
+  enterValidationHint: false,
+}
+
 export const saveSettings = (settings: Settings) => {
   localStorage.setItem(settingsKey, JSON.stringify(settings))
 }
 
 export const loadSettings = (): Settings => {
   const settings = localStorage.getItem(settingsKey)
-  const defaults = {
-    isUppercase: false,
-    isDarkMode: false,
-    weekStartsOnMonday: false,
-    excludeUrl: false,
-    enterValidationHint: false,
-  }
   return settings
-    ? { ...defaults, ...(JSON.parse(settings) as Partial<Settings>) }
-    : defaults
+    ? { ...DEFAULT_SETTINGS, ...(JSON.parse(settings) as Partial<Settings>) }
+    : DEFAULT_SETTINGS
 }
 
 const seenPatchNotesVersionKey = 'seenPatchNotesVersion'

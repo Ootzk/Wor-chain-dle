@@ -224,7 +224,7 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 - Detail stats live on `DailyResult.playStats` and are accessed through the `loadDailyDetailStats*`, `saveDailyDetailStats`, and `summarizeDetailStats` helpers in `playStats.ts`.
 - Tile count achievements should use stored `tileCounts` when available. Legacy records without tile counts must not be guessed into retroactive tile-pattern unlocks.
 
-## Profile Transfer
+## Profile backup
 
 - `src/lib/profileTransfer.ts` owns the public backup format for browser-to-browser record/profile transfer.
 - Export strings use `WCD1:<base64url(json)>` with `schemaVersion: 1`. Treat this as a compatibility contract once released.
