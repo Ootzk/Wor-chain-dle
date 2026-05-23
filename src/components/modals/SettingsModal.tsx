@@ -360,90 +360,109 @@ export const SettingsModal = ({
           <SettingsGroupTitle separated>
             {t('profileTransferSettingsGroup')}
           </SettingsGroupTitle>
-          <div className="space-y-3 py-3 text-left">
-            <p className="text-xs leading-4 text-gray-500">
-              {t('profileTransferDescription')}
-            </p>
-
-            <button
-              type="button"
-              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              onClick={handleProfileExport}
-            >
-              {t('profileExportButton')}
-            </button>
-
-            <textarea
-              className="h-20 w-full resize-none rounded border border-gray-300 p-2 text-xs text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              value={profileImport}
-              onChange={(event) => updateProfileImport(event.target.value)}
-              placeholder={t('profileImportPlaceholder')}
-              aria-label={t('profileImportLabel')}
-            />
-
-            {profilePreview && (
-              <div className="rounded border border-gray-200 bg-gray-50 p-2 text-xs leading-5 text-gray-600">
-                <div className="font-semibold text-gray-800">
-                  {t('profilePreviewTitle')}
+          <div className="space-y-4 py-3 text-left">
+            <div className="flex flex-col gap-3">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                  {t('profileExportTitle')}
                 </div>
-                <div>
-                  {t('profilePreviewVersion')}: {profilePreview.appVersion}
-                </div>
-                <div>
-                  {t('profilePreviewExportedAt')}:{' '}
-                  {profilePreview.exportedAt.replace('T', ' ').slice(0, 16)}
-                </div>
-                <div>
-                  {t('profilePreviewDaily')}: {profilePreview.dailyResults}
-                </div>
-                <div>
-                  {t('profilePreviewEvent')}: {profilePreview.eventResults}
-                </div>
-                <div>
-                  {t('profilePreviewAchievements')}:{' '}
-                  {profilePreview.achievements}
-                </div>
+                <p className="mt-1 text-xs leading-4 text-gray-500">
+                  {t('profileExportDescription')}
+                </p>
               </div>
-            )}
 
-            <button
-              type="button"
-              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-white disabled:shadow-none disabled:hover:bg-gray-300"
-              disabled={!profilePreview}
-              onClick={handleProfileImport}
-            >
-              {t('profileImportButton')}
-            </button>
-
-            {profileMessage && (
-              <div className="text-xs font-medium text-green-600">
-                {profileMessage}
-              </div>
-            )}
-            {profileError && (
-              <div className="text-xs font-medium text-purple-600">
-                {profileError}
-              </div>
-            )}
-            {profileImported && (
               <button
                 type="button"
-                className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50"
-                onClick={() => window.location.reload()}
+                className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                onClick={handleProfileExport}
               >
-                {t('profileReloadButton')}
+                {t('profileExportButton')}
               </button>
-            )}
-          </div>
 
-          <div className="mt-4 border-t border-gray-200 pt-3">
-            <button
-              type="button"
-              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              onClick={onResetSettings}
-            >
-              {t('resetSettingsToDefault')}
-            </button>
+              {profileMessage && (
+                <div className="text-xs font-medium text-green-500">
+                  {profileMessage}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-gray-200 pt-4">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                  {t('profileImportTitle')}
+                </div>
+                <p className="mt-1 text-xs leading-4 text-gray-500">
+                  {t('profileImportDescription')}
+                </p>
+              </div>
+
+              <textarea
+                className="h-20 w-full resize-none rounded-md border border-gray-300 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-indigo-500"
+                value={profileImport}
+                onChange={(event) => updateProfileImport(event.target.value)}
+                placeholder={t('profileImportPlaceholder')}
+                aria-label={t('profileImportLabel')}
+              />
+
+              {profilePreview && (
+                <div className="rounded border border-gray-200 bg-gray-50 p-2 text-xs leading-5 text-gray-600">
+                  <div className="font-semibold text-gray-800">
+                    {t('profilePreviewTitle')}
+                  </div>
+                  <div>
+                    {t('profilePreviewVersion')}: {profilePreview.appVersion}
+                  </div>
+                  <div>
+                    {t('profilePreviewExportedAt')}:{' '}
+                    {profilePreview.exportedAt.replace('T', ' ').slice(0, 16)}
+                  </div>
+                  <div>
+                    {t('profilePreviewDaily')}: {profilePreview.dailyResults}
+                  </div>
+                  <div>
+                    {t('profilePreviewEvent')}: {profilePreview.eventResults}
+                  </div>
+                  <div>
+                    {t('profilePreviewAchievements')}:{' '}
+                    {profilePreview.achievements}
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="button"
+                className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-white disabled:shadow-none disabled:hover:bg-gray-300"
+                disabled={!profilePreview}
+                onClick={handleProfileImport}
+              >
+                {t('profileImportButton')}
+              </button>
+
+              {profileError && (
+                <div className="text-xs font-medium text-purple-600">
+                  {profileError}
+                </div>
+              )}
+              {profileImported && (
+                <button
+                  type="button"
+                  className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50"
+                  onClick={() => window.location.reload()}
+                >
+                  {t('profileReloadButton')}
+                </button>
+              )}
+            </div>
+
+            <div className="border-t border-gray-200 pt-3">
+              <button
+                type="button"
+                className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                onClick={onResetSettings}
+              >
+                {t('resetSettingsToDefault')}
+              </button>
+            </div>
           </div>
         </div>
       </BaseModal>
