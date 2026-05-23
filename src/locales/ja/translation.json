@@ -677,5 +677,14 @@
   "profileExportTitle": "エクスポート",
   "profileImportTitle": "インポート",
   "profileExportDescription": "記録、実績、コスメ、設定のバックアップをコピーします。",
-  "profileImportDescription": "プロフィールバックアップを貼り付けてプレビューし、このブラウザへインポートします。インポート時は記録をマージし、先に現在のプロフィールのバックアップを作成します。"
+  "profileImportDescription": "プロフィールバックアップを貼り付けてプレビューし、このブラウザへインポートします。インポート時は記録をマージし、先に現在のプロフィールのバックアップを作成します。",
+  "dangerZoneSettingsGroup": "⚠️ Danger Zone",
+  "formatProfileButton": "⚠️ Format",
+  "formatConfirmTitle": "プロフィールをフォーマットしますか？",
+  "formatConfirmDescription": "このブラウザに保存された記録、実績、コスメ、設定など、すべてのローカルデータを削除します。この操作は元に戻せません。",
+  "formatConfirmCancel": "No",
+  "formatConfirmConfirm": "Format",
+  "resetCosmeticsSuccess": "コスメをデフォルトに戻しました。",
+  "resetSettingsSuccess": "設定をデフォルトに戻しました。",
+  "dangerZoneDescription": "このブラウザに保存されたプロフィールデータを変更または削除する操作です。"
 }

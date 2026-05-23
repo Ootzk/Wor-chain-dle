@@ -22,6 +22,7 @@ import { DonateModal } from '../modals/DonateModal'
 import { RewardsModal } from '../modals/RewardsModal'
 import { CONFIG } from '../../constants/config'
 import { ModeBadge } from '../modes/ModeBadge'
+import { resetCosmeticState } from '../../lib/cosmetics'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
 
@@ -361,6 +362,7 @@ export const CreatePuzzlePage = () => {
           setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
           setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
         }}
+        onResetCosmetics={() => resetCosmeticState()}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

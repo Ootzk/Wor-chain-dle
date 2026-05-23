@@ -677,5 +677,14 @@
   "profileExportTitle": "Exportar",
   "profileImportTitle": "Importar",
   "profileExportDescription": "Copia una copia de tus registros, logros, cosméticos y ajustes.",
-  "profileImportDescription": "Pega una copia de perfil para previsualizarla y luego importarla en este navegador. Al importar se fusionan los registros y antes se crea una copia del perfil actual."
+  "profileImportDescription": "Pega una copia de perfil para previsualizarla y luego importarla en este navegador. Al importar se fusionan los registros y antes se crea una copia del perfil actual.",
+  "dangerZoneSettingsGroup": "⚠️ Danger Zone",
+  "formatProfileButton": "⚠️ Format",
+  "formatConfirmTitle": "¿Formatear perfil?",
+  "formatConfirmDescription": "Esto eliminará todos los datos locales de este navegador, incluidos registros, logros, cosméticos y ajustes. Esta acción no se puede deshacer.",
+  "formatConfirmCancel": "No",
+  "formatConfirmConfirm": "Format",
+  "resetCosmeticsSuccess": "Cosméticos restablecidos.",
+  "resetSettingsSuccess": "Ajustes restablecidos.",
+  "dangerZoneDescription": "Estas acciones cambian o borran los datos del perfil guardados en este navegador."
 }

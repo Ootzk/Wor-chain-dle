@@ -45,6 +45,7 @@ import {
 import {
   getEquippedAlertMessageKeys,
   resolveCosmeticOverrides,
+  resetCosmeticState,
 } from './lib/cosmetics'
 import { GameMode } from './lib/gameMode'
 import { EventDefinition } from './lib/events'
@@ -1153,6 +1154,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
           setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
           setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
         }}
+        onResetCosmetics={() => resetCosmeticState()}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

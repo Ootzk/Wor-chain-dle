@@ -677,5 +677,14 @@
   "profileExportTitle": "Export",
   "profileImportTitle": "Import",
   "profileExportDescription": "Kopiere ein Backup deiner Rekorde, Achievements, Cosmetics und Einstellungen.",
-  "profileImportDescription": "Füge ein Profil-Backup ein, um es vorzusehen und dann in diesen Browser zu importieren. Beim Import werden Rekorde zusammengeführt und zuerst ein Backup des aktuellen Profils erstellt."
+  "profileImportDescription": "Füge ein Profil-Backup ein, um es vorzusehen und dann in diesen Browser zu importieren. Beim Import werden Rekorde zusammengeführt und zuerst ein Backup des aktuellen Profils erstellt.",
+  "dangerZoneSettingsGroup": "⚠️ Danger Zone",
+  "formatProfileButton": "⚠️ Format",
+  "formatConfirmTitle": "Profil formatieren?",
+  "formatConfirmDescription": "Dies löscht alle lokalen Daten in diesem Browser, einschließlich Rekorde, Achievements, Cosmetics und Einstellungen. Diese Aktion kann nicht rückgängig gemacht werden.",
+  "formatConfirmCancel": "No",
+  "formatConfirmConfirm": "Format",
+  "resetCosmeticsSuccess": "Cosmetics auf Standard zurückgesetzt.",
+  "resetSettingsSuccess": "Einstellungen auf Standard zurückgesetzt.",
+  "dangerZoneDescription": "Diese Aktionen ändern oder löschen Profildaten, die in diesem Browser gespeichert sind."
 }

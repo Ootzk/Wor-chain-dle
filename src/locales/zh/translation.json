@@ -670,5 +670,14 @@
   "profileExportTitle": "导出",
   "profileImportTitle": "导入",
   "profileExportDescription": "复制你的记录、成就、装饰和设置备份。",
-  "profileImportDescription": "粘贴档案备份以预览，然后导入到此浏览器。导入会合并记录，并先为当前档案生成一份备份。"
+  "profileImportDescription": "粘贴档案备份以预览，然后导入到此浏览器。导入会合并记录，并先为当前档案生成一份备份。",
+  "dangerZoneSettingsGroup": "⚠️ Danger Zone",
+  "formatProfileButton": "⚠️ Format",
+  "formatConfirmTitle": "要格式化档案吗？",
+  "formatConfirmDescription": "这将删除此浏览器中的所有本地数据，包括记录、成就、装饰和设置。此操作无法撤销。",
+  "formatConfirmCancel": "No",
+  "formatConfirmConfirm": "Format",
+  "resetCosmeticsSuccess": "装饰已重置为默认值。",
+  "resetSettingsSuccess": "设置已重置为默认值。",
+  "dangerZoneDescription": "这些操作会更改或删除此浏览器中保存的档案数据。"
 }

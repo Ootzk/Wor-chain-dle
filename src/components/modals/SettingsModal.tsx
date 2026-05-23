@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BaseModal } from './BaseModal'
 import { CheckIcon, ChevronDownIcon, CogIcon } from '@heroicons/react/outline'
@@ -36,6 +36,7 @@ type Props = {
   enterValidationHint: boolean
   onToggleEnterValidationHint: () => void
   onResetSettings: () => void
+  onResetCosmetics: () => void
 }
 
 const Toggle = ({
@@ -126,6 +127,7 @@ export const SettingsModal = ({
   enterValidationHint,
   onToggleEnterValidationHint,
   onResetSettings,
+  onResetCosmetics,
 }: Props) => {
   const { t, i18n } = useTranslation()
   const [isLangOpen, setIsLangOpen] = useState(false)
@@ -135,6 +137,9 @@ export const SettingsModal = ({
   const [profileMessage, setProfileMessage] = useState('')
   const [profileError, setProfileError] = useState('')
   const [profileImported, setProfileImported] = useState(false)
+  const [isFormatConfirmOpen, setIsFormatConfirmOpen] = useState(false)
+  const [resetCosmeticsMessage, setResetCosmeticsMessage] = useState('')
+  const [resetSettingsMessage, setResetSettingsMessage] = useState('')
   const closeSettings = () => {
     setIsLangOpen(false)
     handleClose()
@@ -212,6 +217,30 @@ export const SettingsModal = ({
       setProfileError(getProfileErrorMessage(error))
     }
   }
+  const handleResetCosmetics = () => {
+    onResetCosmetics()
+    setResetCosmeticsMessage(t('resetCosmeticsSuccess'))
+  }
+  const handleResetSettings = () => {
+    onResetSettings()
+    setResetSettingsMessage(t('resetSettingsSuccess'))
+  }
+  const handleFormatProfile = () => {
+    localStorage.clear()
+    window.location.reload()
+  }
+  useEffect(() => {
+    if (!resetCosmeticsMessage) return undefined
+    const timer = window.setTimeout(() => setResetCosmeticsMessage(''), 2500)
+    return () => window.clearTimeout(timer)
+  }, [resetCosmeticsMessage])
+
+  useEffect(() => {
+    if (!resetSettingsMessage) return undefined
+    const timer = window.setTimeout(() => setResetSettingsMessage(''), 2500)
+    return () => window.clearTimeout(timer)
+  }, [resetSettingsMessage])
+
   const languagePicker =
     isOpen && isLangOpen
       ? createPortal(
@@ -453,20 +482,77 @@ export const SettingsModal = ({
                 </button>
               )}
             </div>
+          </div>
 
-            <div className="border-t border-gray-200 pt-3">
-              <button
-                type="button"
-                className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                onClick={onResetSettings}
-              >
-                {t('resetSettingsToDefault')}
-              </button>
-            </div>
+          <SettingsGroupTitle separated>
+            {t('dangerZoneSettingsGroup')}
+          </SettingsGroupTitle>
+          <div className="space-y-3 py-3 text-left">
+            <p className="text-xs leading-4 text-gray-500">
+              {t('dangerZoneDescription')}
+            </p>
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              onClick={handleResetCosmetics}
+            >
+              {t('resetCosmeticsToDefault')}
+            </button>
+            {resetCosmeticsMessage && (
+              <div className="text-xs font-medium text-green-500">
+                {resetCosmeticsMessage}
+              </div>
+            )}
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              onClick={handleResetSettings}
+            >
+              {t('resetSettingsToDefault')}
+            </button>
+            {resetSettingsMessage && (
+              <div className="text-xs font-medium text-green-500">
+                {resetSettingsMessage}
+              </div>
+            )}
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              onClick={() => setIsFormatConfirmOpen(true)}
+            >
+              {t('formatProfileButton')}
+            </button>
           </div>
         </div>
       </BaseModal>
       {languagePicker}
+      <BaseModal
+        title={t('formatConfirmTitle')}
+        isOpen={isFormatConfirmOpen}
+        handleClose={() => setIsFormatConfirmOpen(false)}
+      >
+        <div className="space-y-4 text-left">
+          <p className="text-sm leading-5 text-gray-600">
+            {t('formatConfirmDescription')}
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-600 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              onClick={() => setIsFormatConfirmOpen(false)}
+            >
+              {t('formatConfirmCancel')}
+            </button>
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              onClick={handleFormatProfile}
+            >
+              {t('formatConfirmConfirm')}
+            </button>
+          </div>
+        </div>
+      </BaseModal>
     </>
   )
 }

@@ -670,5 +670,14 @@
   "profileExportTitle": "내보내기",
   "profileImportTitle": "가져오기",
   "profileExportDescription": "전적, 업적, 치장품, 설정 백업을 클립보드에 복사합니다.",
-  "profileImportDescription": "프로필 백업을 붙여넣어 미리 확인한 뒤 이 브라우저로 가져옵니다. 가져오기는 기록을 병합하며, 적용 전에 현재 프로필 백업을 먼저 생성합니다."
+  "profileImportDescription": "프로필 백업을 붙여넣어 미리 확인한 뒤 이 브라우저로 가져옵니다. 가져오기는 기록을 병합하며, 적용 전에 현재 프로필 백업을 먼저 생성합니다.",
+  "dangerZoneSettingsGroup": "⚠️ Danger Zone",
+  "formatProfileButton": "⚠️ Format",
+  "formatConfirmTitle": "프로필을 포맷할까요?",
+  "formatConfirmDescription": "이 브라우저에 저장된 전적, 업적, 치장품, 설정 등 모든 로컬 데이터를 삭제합니다. 이 작업은 되돌릴 수 없습니다.",
+  "formatConfirmCancel": "No",
+  "formatConfirmConfirm": "Format",
+  "resetCosmeticsSuccess": "치장품을 기본값으로 리셋했습니다.",
+  "resetSettingsSuccess": "설정을 기본값으로 리셋했습니다.",
+  "dangerZoneDescription": "이 브라우저에 저장된 프로필 데이터를 변경하거나 삭제하는 작업입니다."
 }

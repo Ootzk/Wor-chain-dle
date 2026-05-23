@@ -677,5 +677,14 @@
   "profileExportTitle": "Export",
   "profileImportTitle": "Import",
   "profileExportDescription": "Copy a backup of your records, achievements, cosmetics, and settings.",
-  "profileImportDescription": "Paste a profile backup to preview it, then import it into this browser. Importing merges records and creates a fresh backup of your current profile first."
+  "profileImportDescription": "Paste a profile backup to preview it, then import it into this browser. Importing merges records and creates a fresh backup of your current profile first.",
+  "dangerZoneSettingsGroup": "⚠️ Danger Zone",
+  "formatProfileButton": "⚠️ Format",
+  "formatConfirmTitle": "Format profile?",
+  "formatConfirmDescription": "This will delete all local data in this browser, including records, achievements, cosmetics, and settings. This cannot be undone.",
+  "formatConfirmCancel": "No",
+  "formatConfirmConfirm": "Format",
+  "resetCosmeticsSuccess": "Cosmetics reset to default.",
+  "resetSettingsSuccess": "Settings reset to default.",
+  "dangerZoneDescription": "These actions change or erase profile data stored in this browser."
 }
