@@ -416,7 +416,7 @@ export const SettingsModal = ({
           <div className="space-y-4 py-3 text-left">
             <div className="flex flex-col gap-3">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                <div className="text-sm font-medium text-gray-900">
                   {t('profileExportTitle')}
                 </div>
                 <p className="mt-1 text-xs leading-4 text-gray-500">
@@ -441,7 +441,7 @@ export const SettingsModal = ({
 
             <div className="flex flex-col gap-3 border-t border-gray-200 pt-4">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                <div className="text-sm font-medium text-gray-900">
                   {t('profileImportTitle')}
                 </div>
                 <p className="mt-1 text-xs leading-4 text-gray-500">
