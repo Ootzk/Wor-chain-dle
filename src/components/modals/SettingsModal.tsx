@@ -35,6 +35,8 @@ type Props = {
   onToggleExcludeUrl: () => void
   enterValidationHint: boolean
   onToggleEnterValidationHint: () => void
+  controllerEnabled: boolean
+  onToggleControllerEnabled: () => void
   onResetSettings: () => void
   onResetCosmetics: () => void
 }
@@ -66,12 +68,14 @@ const Toggle = ({
 const SettingRow = ({
   label,
   description,
+  details,
   caution,
   secondaryCaution,
   children,
 }: {
   label: string
   description?: string
+  details?: string[]
   caution?: string
   secondaryCaution?: string
   children: ReactNode
@@ -84,6 +88,11 @@ const SettingRow = ({
           {description}
         </div>
       )}
+      {details?.map((detail) => (
+        <div key={detail} className="mt-1 text-xs leading-4 text-gray-500">
+          {detail}
+        </div>
+      ))}
       {caution && (
         <div className="mt-1 text-xs leading-4 text-purple-600">{caution}</div>
       )}
@@ -126,6 +135,8 @@ export const SettingsModal = ({
   onToggleExcludeUrl,
   enterValidationHint,
   onToggleEnterValidationHint,
+  controllerEnabled,
+  onToggleControllerEnabled,
   onResetSettings,
   onResetCosmetics,
 }: Props) => {
@@ -357,10 +368,6 @@ export const SettingsModal = ({
           >
             <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
           </SettingRow>
-
-          <SettingsGroupTitle separated>
-            {t('calendarSettingsGroup')}
-          </SettingsGroupTitle>
           <SettingRow
             label={t('weekStartLabel')}
             description={t('weekStartDescription')}
@@ -385,6 +392,19 @@ export const SettingsModal = ({
               onClick={onToggleEnterValidationHint}
             />
           </SettingRow>
+          <SettingRow
+            label={t('controllerEnabledLabel')}
+            description={t('controllerEnabledDescription')}
+            details={[
+              t('controllerEnabledLettersDescription'),
+              t('controllerEnabledLiveDescription'),
+            ]}
+          >
+            <Toggle
+              checked={controllerEnabled}
+              onClick={onToggleControllerEnabled}
+            />
+          </SettingRow>
 
           <SettingsGroupTitle separated>
             {t('profileTransferSettingsGroup')}
@@ -392,7 +412,7 @@ export const SettingsModal = ({
           <div className="space-y-4 py-3 text-left">
             <div className="flex flex-col gap-3">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                <div className="text-sm font-medium text-gray-900">
                   {t('profileExportTitle')}
                 </div>
                 <p className="mt-1 text-xs leading-4 text-gray-500">
@@ -417,7 +437,7 @@ export const SettingsModal = ({
 
             <div className="flex flex-col gap-3 border-t border-gray-200 pt-4">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                <div className="text-sm font-medium text-gray-900">
                   {t('profileImportTitle')}
                 </div>
                 <p className="mt-1 text-xs leading-4 text-gray-500">
