@@ -368,10 +368,6 @@ export const SettingsModal = ({
           >
             <Toggle checked={excludeUrl} onClick={onToggleExcludeUrl} />
           </SettingRow>
-
-          <SettingsGroupTitle separated>
-            {t('calendarSettingsGroup')}
-          </SettingsGroupTitle>
           <SettingRow
             label={t('weekStartLabel')}
             description={t('weekStartDescription')}

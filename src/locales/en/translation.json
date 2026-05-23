@@ -197,7 +197,7 @@
   "uppercaseDescription": "Show board letters and keyboard labels in uppercase.",
   "darkModeLabel": "Dark Mode",
   "darkModeDescription": "Use a darker interface for the game, records, rewards, and settings.",
-  "weekStartLabel": "Start Week on Monday",
+  "weekStartLabel": "Start Calendar Week on Monday",
   "weekStartDescription": "Use Monday as the first day in the calendar.",
   "excludeUrlLabel": "Exclude URL when Sharing",
   "excludeUrlShortLabel": "Exclude URL",
