@@ -666,5 +666,6 @@
   "achievement_practice_win_100_desc": "Shinda michezo 100 ya Mazoezi",
   "achievement_custom_win_10_title": "Mpinzani rafiki",
   "achievement_custom_win_10_desc": "Shinda michezo 10 ya Maalum",
-  "resetToDefault": "Reset to default"
+  "resetSettingsToDefault": "Reset settings to default",
+  "resetCosmeticsToDefault": "Reset cosmetics to default"
 }

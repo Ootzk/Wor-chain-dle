@@ -666,5 +666,6 @@
   "achievement_practice_win_100_desc": "100회 승리하세요",
   "achievement_custom_win_10_title": "친선 라이벌",
   "achievement_custom_win_10_desc": "10회 승리하세요",
-  "resetToDefault": "기본값으로 리셋"
+  "resetSettingsToDefault": "설정을 기본값으로 리셋",
+  "resetCosmeticsToDefault": "치장품을 기본값으로 리셋"
 }

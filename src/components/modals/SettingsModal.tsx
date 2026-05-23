@@ -381,15 +381,6 @@ export const SettingsModal = ({
               aria-label={t('profileImportLabel')}
             />
 
-            <button
-              type="button"
-              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-white disabled:shadow-none disabled:hover:bg-gray-300"
-              disabled={!profilePreview}
-              onClick={handleProfileImport}
-            >
-              {t('profileImportButton')}
-            </button>
-
             {profilePreview && (
               <div className="rounded border border-gray-200 bg-gray-50 p-2 text-xs leading-5 text-gray-600">
                 <div className="font-semibold text-gray-800">
@@ -415,6 +406,15 @@ export const SettingsModal = ({
               </div>
             )}
 
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-white disabled:shadow-none disabled:hover:bg-gray-300"
+              disabled={!profilePreview}
+              onClick={handleProfileImport}
+            >
+              {t('profileImportButton')}
+            </button>
+
             {profileMessage && (
               <div className="text-xs font-medium text-green-600">
                 {profileMessage}
@@ -436,13 +436,15 @@ export const SettingsModal = ({
             )}
           </div>
 
-          <button
-            type="button"
-            className="mt-3 w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={onResetSettings}
-          >
-            {t('resetToDefault')}
-          </button>
+          <div className="mt-4 border-t border-gray-200 pt-3">
+            <button
+              type="button"
+              className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              onClick={onResetSettings}
+            >
+              {t('resetSettingsToDefault')}
+            </button>
+          </div>
         </div>
       </BaseModal>
       {languagePicker}

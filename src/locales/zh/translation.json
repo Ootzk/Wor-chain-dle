@@ -666,5 +666,6 @@
   "achievement_practice_win_100_desc": "赢得100局",
   "achievement_custom_win_10_title": "友好对手",
   "achievement_custom_win_10_desc": "赢得10局",
-  "resetToDefault": "重置为默认值"
+  "resetSettingsToDefault": "将设置重置为默认值",
+  "resetCosmeticsToDefault": "将装饰重置为默认值"
 }

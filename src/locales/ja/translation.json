@@ -673,5 +673,6 @@
   "achievement_practice_win_100_desc": "100回勝利する",
   "achievement_custom_win_10_title": "友だちライバル",
   "achievement_custom_win_10_desc": "10回勝利する",
-  "resetToDefault": "デフォルトに戻す"
+  "resetSettingsToDefault": "設定をデフォルトに戻す",
+  "resetCosmeticsToDefault": "コスメをデフォルトに戻す"
 }

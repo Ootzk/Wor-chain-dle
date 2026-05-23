@@ -673,5 +673,6 @@
   "achievement_practice_win_100_desc": "Ganar 100 partidas",
   "achievement_custom_win_10_title": "Rival amistoso",
   "achievement_custom_win_10_desc": "Ganar 10 partidas",
-  "resetToDefault": "Restablecer valores predeterminados"
+  "resetSettingsToDefault": "Restablecer ajustes predeterminados",
+  "resetCosmeticsToDefault": "Restablecer cosméticos predeterminados"
 }

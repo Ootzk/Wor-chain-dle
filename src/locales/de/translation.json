@@ -673,5 +673,6 @@
   "achievement_practice_win_100_desc": "Gewinne 100 Spiele",
   "achievement_custom_win_10_title": "Freundlicher Rivale",
   "achievement_custom_win_10_desc": "Gewinne 10 Spiele",
-  "resetToDefault": "Auf Standard zurücksetzen"
+  "resetSettingsToDefault": "Einstellungen auf Standard zurücksetzen",
+  "resetCosmeticsToDefault": "Cosmetics auf Standard zurücksetzen"
 }

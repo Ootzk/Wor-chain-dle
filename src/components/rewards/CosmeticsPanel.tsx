@@ -854,13 +854,15 @@ export const CosmeticsPanel = ({
         )
       })}
 
-      <button
-        type="button"
-        className="my-3 w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        onClick={() => setEquipped(resetCosmeticState().equipped)}
-      >
-        {t('resetToDefault')}
-      </button>
+      <div className="my-3 border-t border-gray-200 pt-3">
+        <button
+          type="button"
+          className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          onClick={() => setEquipped(resetCosmeticState().equipped)}
+        >
+          {t('resetCosmeticsToDefault')}
+        </button>
+      </div>
     </div>
   )
 }
