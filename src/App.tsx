@@ -25,6 +25,7 @@ import {
   clearEventGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
   saveEventGameStateToLocalStorage,
+  DEFAULT_SETTINGS,
   loadSettings,
   saveSettings,
   loadSeenPatchNotesVersion,
@@ -44,6 +45,7 @@ import {
 import {
   getEquippedAlertMessageKeys,
   resolveCosmeticOverrides,
+  resetCosmeticState,
 } from './lib/cosmetics'
 import { GameMode } from './lib/gameMode'
 import { EventDefinition } from './lib/events'
@@ -1145,6 +1147,14 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
         }
+        onResetSettings={() => {
+          setIsUppercase(DEFAULT_SETTINGS.isUppercase)
+          setIsDarkMode(DEFAULT_SETTINGS.isDarkMode)
+          setWeekStartsOnMonday(DEFAULT_SETTINGS.weekStartsOnMonday)
+          setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
+          setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
+        }}
+        onResetCosmetics={() => resetCosmeticState()}
       />
       <DonateModal
         isOpen={isDonateModalOpen}

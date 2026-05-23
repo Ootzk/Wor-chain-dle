@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Temporal } from 'temporal-polyfill'
 import {
@@ -18,6 +18,7 @@ import {
   equipCosmetic,
   loadCosmeticState,
   MSG_THEME_EMOJI,
+  resetCosmeticState,
 } from '../../lib/cosmetics'
 import {
   ACHIEVEMENTS,
@@ -754,6 +755,7 @@ export const CosmeticsPanel = ({
 }) => {
   const { t } = useTranslation()
   const [equipped, setEquipped] = useState(() => loadCosmeticState().equipped)
+  const [resetMessage, setResetMessage] = useState('')
   const achievementState = loadAchievementState()
 
   const sampleSolution = 'chain'
@@ -765,6 +767,16 @@ export const CosmeticsPanel = ({
   const isOptionUnlocked = (option: CosmeticOption) =>
     !option.requiresAchievement ||
     !!achievementState.unlocked[option.requiresAchievement]
+  const handleResetCosmetics = () => {
+    setEquipped(resetCosmeticState().equipped)
+    setResetMessage(t('resetCosmeticsSuccess'))
+  }
+
+  useEffect(() => {
+    if (!resetMessage) return undefined
+    const timer = window.setTimeout(() => setResetMessage(''), 2500)
+    return () => window.clearTimeout(timer)
+  }, [resetMessage])
 
   return (
     <div className="h-full overflow-y-auto pr-1">
@@ -852,6 +864,21 @@ export const CosmeticsPanel = ({
           />
         )
       })}
+
+      <div className="my-3 border-t border-gray-200 pt-3">
+        <button
+          type="button"
+          className="w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+          onClick={handleResetCosmetics}
+        >
+          {t('resetCosmeticsToDefault')}
+        </button>
+        {resetMessage && (
+          <div className="mt-2 text-left text-xs font-medium text-green-500">
+            {resetMessage}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

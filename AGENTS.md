@@ -40,6 +40,7 @@ src/
     dailyResults.ts               canonical Daily per-date results, loss reasons, and migration
     dailyHistory.ts               legacy Daily history migration and attendance helpers
     playStats.ts                  in-game detail stats, tile counts, and summaries
+    profileTransfer.ts            WCD1 profile export/import public schema
     resultStats.ts                shared result-to-summary aggregation helpers
     customPuzzle.ts               Custom puzzle URL-safe Base64 codec
     tokenizer.ts                  orthography-aware tokenization
@@ -223,6 +224,18 @@ When referring to versions in prose, use the full semver form with the `v` prefi
 - Detail stats live on `DailyResult.playStats` and are accessed through the `loadDailyDetailStats*`, `saveDailyDetailStats`, and `summarizeDetailStats` helpers in `playStats.ts`.
 - Tile count achievements should use stored `tileCounts` when available. Legacy records without tile counts must not be guessed into retroactive tile-pattern unlocks.
 
+## Profile backup
+
+- `src/lib/profileTransfer.ts` owns the public backup format for browser-to-browser record/profile transfer.
+- Export strings use `WCD1:<base64url(json)>` with `schemaVersion: 1`. Treat this as a compatibility contract once released.
+- Keep the technical `WCD1` prefix out of normal user-facing labels and placeholder/error copy. It is an implementation detail, not product wording.
+- Use an explicit allowlist. Include records, aggregate stats, achievement state/progress, cosmetic equipment, and settings; do not export raw localStorage.
+- Exclude in-progress game state, patch-note seen state, device/browser metadata, and any private implementation-only keys.
+- Imports should be conservative: merge Daily/Event records by date, union known achievement unlocks, use max counters for achievement progress, ignore unknown achievement/cosmetic ids, and avoid summing aggregate stats across devices. The Settings UI imports cosmetic equipment and settings by default; reset-to-default actions are separate from import.
+- `SettingsModal` presents this as Profile Management with Export and Import subsections. Export copies directly to the clipboard; Import previews automatically as the user pastes.
+- Danger Zone actions live at the bottom of Settings. Reset actions provide inline success feedback. Format must require a confirmation modal before clearing localStorage.
+- If profile schema changes, add migration/compatibility handling instead of silently changing the meaning of existing `WCD1` payloads.
+
 ## Calendar History Policy
 
 - Calendar history markers are user-facing record context, not a developer timeline. Prefer markers that help players understand what happened to the game or why old records may look different.
@@ -253,7 +266,7 @@ Translations live in `src/locales/{lang}/translation.json` and are bundled throu
   - localStorage keys: Daily aggregate stats use `gameStats`; Daily date-level records use `dailyResults`; Event records use `eventResults`; Custom uses `customGameStats`.
 - `RewardsModal` owns Achievements and Cosmetics. Rewards must remain reachable outside Daily because some achievements and cosmetics can target non-Daily modes.
 - Event Rewards opens on Achievements with the active Event version pre-filtered, but users can adjust the filter view without persisting those Event-specific filter choices.
-- `SettingsModal` is a single-scroll layout with grouped settings, language selection popup, uppercase/share URL toggles, week-start setting, and Enter hint setting. Do not put reward selection controls back into Settings unless the product direction changes.
+- `SettingsModal` is a single-scroll layout with grouped settings, language selection popup, uppercase/share URL toggles, week-start setting, Enter hint setting, Profile Management, and Danger Zone. Do not put reward selection controls back into Settings unless the product direction changes.
 
 Header icons by mode:
 

@@ -489,6 +489,10 @@ const defaultState: CosmeticState = {
   },
 }
 
+export const getDefaultCosmeticState = (): CosmeticState => ({
+  equipped: { ...defaultState.equipped },
+})
+
 const legacyOptionIds: Record<string, string> = {
   badge_none: 'badge_chain',
 }
@@ -523,11 +527,17 @@ export const loadCosmeticState = (): CosmeticState => {
           (JSON.parse(data) as Partial<CosmeticState>).equipped ?? {}
         ),
       }
-    : { ...defaultState }
+    : getDefaultCosmeticState()
 }
 
 export const saveCosmeticState = (state: CosmeticState): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+}
+
+export const resetCosmeticState = (): CosmeticState => {
+  const state = getDefaultCosmeticState()
+  saveCosmeticState(state)
+  return state
 }
 
 export const equipCosmetic = (
