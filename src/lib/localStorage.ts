@@ -69,6 +69,7 @@ export type Settings = {
   weekStartsOnMonday: boolean
   excludeUrl: boolean
   enterValidationHint: boolean
+  controllerEnabled: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -77,6 +78,7 @@ export const DEFAULT_SETTINGS: Settings = {
   weekStartsOnMonday: false,
   excludeUrl: false,
   enterValidationHint: false,
+  controllerEnabled: false,
 }
 
 export const saveSettings = (settings: Settings) => {

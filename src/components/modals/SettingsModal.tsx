@@ -35,6 +35,8 @@ type Props = {
   onToggleExcludeUrl: () => void
   enterValidationHint: boolean
   onToggleEnterValidationHint: () => void
+  controllerEnabled: boolean
+  onToggleControllerEnabled: () => void
   onResetSettings: () => void
   onResetCosmetics: () => void
 }
@@ -66,12 +68,14 @@ const Toggle = ({
 const SettingRow = ({
   label,
   description,
+  details,
   caution,
   secondaryCaution,
   children,
 }: {
   label: string
   description?: string
+  details?: string[]
   caution?: string
   secondaryCaution?: string
   children: ReactNode
@@ -84,6 +88,11 @@ const SettingRow = ({
           {description}
         </div>
       )}
+      {details?.map((detail) => (
+        <div key={detail} className="mt-1 text-xs leading-4 text-gray-500">
+          {detail}
+        </div>
+      ))}
       {caution && (
         <div className="mt-1 text-xs leading-4 text-purple-600">{caution}</div>
       )}
@@ -126,6 +135,8 @@ export const SettingsModal = ({
   onToggleExcludeUrl,
   enterValidationHint,
   onToggleEnterValidationHint,
+  controllerEnabled,
+  onToggleControllerEnabled,
   onResetSettings,
   onResetCosmetics,
 }: Props) => {
@@ -383,6 +394,19 @@ export const SettingsModal = ({
             <Toggle
               checked={enterValidationHint}
               onClick={onToggleEnterValidationHint}
+            />
+          </SettingRow>
+          <SettingRow
+            label={t('controllerEnabledLabel')}
+            description={t('controllerEnabledDescription')}
+            details={[
+              t('controllerEnabledLettersDescription'),
+              t('controllerEnabledLiveDescription'),
+            ]}
+          >
+            <Toggle
+              checked={controllerEnabled}
+              onClick={onToggleControllerEnabled}
             />
           </SettingRow>
 

@@ -184,6 +184,9 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
+  const [controllerEnabled, setControllerEnabled] = useState(
+    () => loadSettings().controllerEnabled
+  )
   const effectiveIsUppercase = settingOverrides?.isUppercase ?? isUppercase
   const effectiveExcludeUrl = settingOverrides?.excludeUrl ?? excludeUrl
   const effectiveEnterValidationHint =
@@ -193,8 +196,10 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     completedEventResult ? !completedEventResult.won : false
   )
   const canChangeLettersVisibility =
+    controllerEnabled &&
     settingOverrides?.gridViewOptions?.lettersHidden === undefined
   const canChangeLiveEffects =
+    controllerEnabled &&
     isEvent &&
     (isGameWon || isGameLost) &&
     settingOverrides?.gridViewOptions?.liveEffectsEnabled === undefined
@@ -443,6 +448,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
       weekStartsOnMonday,
       excludeUrl,
       enterValidationHint,
+      controllerEnabled,
     })
   }, [
     isUppercase,
@@ -450,6 +456,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     weekStartsOnMonday,
     excludeUrl,
     enterValidationHint,
+    controllerEnabled,
   ])
 
   useEffect(() => {
@@ -1147,12 +1154,17 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
         }
+        controllerEnabled={controllerEnabled}
+        onToggleControllerEnabled={() =>
+          setControllerEnabled(!controllerEnabled)
+        }
         onResetSettings={() => {
           setIsUppercase(DEFAULT_SETTINGS.isUppercase)
           setIsDarkMode(DEFAULT_SETTINGS.isDarkMode)
           setWeekStartsOnMonday(DEFAULT_SETTINGS.weekStartsOnMonday)
           setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
           setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
+          setControllerEnabled(DEFAULT_SETTINGS.controllerEnabled)
         }}
         onResetCosmetics={() => resetCosmeticState()}
       />

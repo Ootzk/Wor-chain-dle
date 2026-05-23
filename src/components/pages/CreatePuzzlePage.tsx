@@ -45,6 +45,9 @@ export const CreatePuzzlePage = () => {
   const [enterValidationHint, setEnterValidationHint] = useState(
     () => loadSettings().enterValidationHint
   )
+  const [controllerEnabled, setControllerEnabled] = useState(
+    () => loadSettings().controllerEnabled
+  )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
   const [infoInitialSection, setInfoInitialSection] = useState<
@@ -61,6 +64,7 @@ export const CreatePuzzlePage = () => {
       weekStartsOnMonday,
       excludeUrl,
       enterValidationHint,
+      controllerEnabled,
     })
   }, [
     isUppercase,
@@ -68,6 +72,7 @@ export const CreatePuzzlePage = () => {
     weekStartsOnMonday,
     excludeUrl,
     enterValidationHint,
+    controllerEnabled,
   ])
 
   useEffect(() => {
@@ -355,12 +360,17 @@ export const CreatePuzzlePage = () => {
         onToggleEnterValidationHint={() =>
           setEnterValidationHint(!enterValidationHint)
         }
+        controllerEnabled={controllerEnabled}
+        onToggleControllerEnabled={() =>
+          setControllerEnabled(!controllerEnabled)
+        }
         onResetSettings={() => {
           setIsUppercase(DEFAULT_SETTINGS.isUppercase)
           setIsDarkMode(DEFAULT_SETTINGS.isDarkMode)
           setWeekStartsOnMonday(DEFAULT_SETTINGS.weekStartsOnMonday)
           setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
           setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
+          setControllerEnabled(DEFAULT_SETTINGS.controllerEnabled)
         }}
         onResetCosmetics={() => resetCosmeticState()}
       />

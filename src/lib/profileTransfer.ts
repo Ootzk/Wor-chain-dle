@@ -300,6 +300,10 @@ const normalizeSettings = (value: unknown): Settings | undefined => {
       typeof value.enterValidationHint === 'boolean'
         ? value.enterValidationHint
         : defaults.enterValidationHint,
+    controllerEnabled:
+      typeof value.controllerEnabled === 'boolean'
+        ? value.controllerEnabled
+        : defaults.controllerEnabled,
   }
 }
 
