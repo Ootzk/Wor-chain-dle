@@ -17,7 +17,7 @@ describe('patch notes metadata', () => {
       expect.arrayContaining([
         expect.objectContaining({
           version: '1.7.0',
-          releasedAt: '2026-05-27',
+          releasedAt: '2026-06-01',
         }),
         expect.objectContaining({
           version: '1.6.0',

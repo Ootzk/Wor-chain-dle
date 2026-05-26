@@ -27,18 +27,12 @@ describe('calendar milestones', () => {
           date: '2026-03-07',
           version: 'v1.3.0',
         }),
+        expect.objectContaining({
+          id: 'detail-stats-release',
+          date: '2026-06-01',
+          version: 'v1.7.0',
+        }),
       ])
     )
-  })
-
-  it('does not show behavior stats before the release date is known', () => {
-    const milestones = getCalendarMilestones({
-      year: 2026,
-      calendarStartDate: '2026-03-06',
-    })
-
-    expect(
-      milestones.some((milestone) => milestone.id === 'detail-stats-release')
-    ).toBe(false)
   })
 })
