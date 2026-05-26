@@ -14,7 +14,7 @@ Always pass `--repo Ootzk/Wor-chain-dle` to GitHub CLI commands that can infer a
 - `feature/*` or any non-`main`, non-`release/*` branch: create a feature PR into the target release branch.
 - `release/*`: create a release PR into `main`.
 - `main`: stop and tell the developer that PRs are not created directly from `main`.
-- Use full semantic versions in branch names and text. Write the full form such as `v1.6.0`; do not omit the patch component.
+- Use full semantic versions in branch names and text. Write the full form such as `v1.7.0`; do not omit the patch component.
 
 ## Preflight
 
@@ -42,7 +42,7 @@ Always pass `--repo Ootzk/Wor-chain-dle` to GitHub CLI commands that can infer a
 
 ## Feature PR Metadata
 
-- Base: target release branch, for example `release/v1.6.0`.
+- Base: target release branch, for example `release/v1.7.0`.
 - Title: concise, 70 characters or less, with a conventional commit prefix such as `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `ci:`, or `chore:`.
 - Draft: create feature PRs as draft unless the developer explicitly asks for ready-for-review.
 - Feature PRs are squash-merged. Prefer adding follow-up commits instead of amending existing commits, except for truly tiny local-only fixes before review.
@@ -62,7 +62,7 @@ Always pass `--repo Ootzk/Wor-chain-dle` to GitHub CLI commands that can infer a
   - `browser: chrome`, `browser: safari`: browser-specific change.
   - `platform: PC`, `platform: mobile`: platform-specific change.
 - Use new labels for new and ongoing work only. Do not retroactively label already-completed historical issues or PRs unless the developer explicitly asks. The `development:*` label taxonomy migration was a one-time exception.
-- Milestone: target release version, for example `v1.6.0`. Create it first if missing.
+- Milestone: target release version, for example `v1.7.0`. Create it first if missing.
 - Assignee: `Ootzk`.
 - Body: include related issues with `Closes #issue` as a reference, plus Summary and Test plan.
 
@@ -71,7 +71,7 @@ Feature PRs target release branches, so GitHub may not auto-close issues or popu
 ## Release PR Metadata
 
 - Base: `main`.
-- Title: exactly `Release v{version}`, for example `Release v1.6.0`.
+- Title: exactly `Release v{version}`, for example `Release v1.7.0`.
 - Label: `🔖 versioning` is required. Add other labels only when useful.
 - Milestone: release version.
 - Assignee: `Ootzk`.
