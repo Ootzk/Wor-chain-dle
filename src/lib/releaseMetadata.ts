@@ -35,6 +35,7 @@ export const RELEASE_METADATA: Record<string, ReleaseMetadata> = {
   },
   '1.7.0': {
     version: '1.7.0',
+    releasedAt: '2026-06-01',
     theme: 'summer garden',
   },
 }

@@ -16,6 +16,10 @@ describe('patch notes metadata', () => {
     expect(getPatchNoteVersions()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
+          version: '1.7.0',
+          releasedAt: '2026-06-01',
+        }),
+        expect.objectContaining({
           version: '1.6.0',
           releasedAt: '2026-05-10',
         }),

@@ -8,13 +8,18 @@ import {
 } from '../../lib/patchNotes'
 import type { PatchNoteFeature } from '../../lib/patchNotes'
 import { useTranslation } from 'react-i18next'
+import { EventGuide } from '../events/EventGuide'
 
 const patchNoteVersions = getPatchNoteVersions()
 const currentPatchNotes = getCurrentPatchNotes(PATCH_NOTES_VERSION)
 
 const PatchNoteFeatureCard = ({ feature }: { feature: PatchNoteFeature }) => {
   const { t } = useTranslation()
-  const { icon, titleKey, descKey, sub } = feature
+  const { icon, titleKey, descKey, sub, eventGuideVersion } = feature
+
+  if (eventGuideVersion) {
+    return <EventGuide version={eventGuideVersion} />
+  }
 
   return (
     <div key={titleKey} className="rounded-lg border border-gray-200 p-3">

@@ -1,7 +1,7 @@
 ---
 name: bump-version
 description: 프로젝트 내 모든 버전 정보를 일괄 업데이트합니다.
-argument-hint: <version> (e.g. 1.6.0)
+argument-hint: <version> (e.g. 1.7.0)
 ---
 
 # Version Bump
