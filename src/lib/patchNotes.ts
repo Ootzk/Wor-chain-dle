@@ -4,6 +4,7 @@ export type PatchNoteFeature = {
   icon: string
   titleKey: string
   descKey: string
+  eventGuideVersion?: string
   sub?: readonly PatchNoteFeature[]
 }
 
@@ -21,14 +22,15 @@ export const PATCH_NOTES: readonly PatchNote[] = [
     version: '1.7.0',
     features: [
       {
-        icon: '🍀',
-        titleKey: 'patchNote_summerGarden_title',
-        descKey: 'patchNote_summerGarden_desc',
+        icon: '🎪',
+        titleKey: 'patchNote_eventMode_title',
+        descKey: 'patchNote_eventMode_desc',
       },
       {
-        icon: '🏆',
-        titleKey: 'patchNote_rewardsHub_title',
-        descKey: 'patchNote_rewardsHub_desc',
+        icon: '',
+        titleKey: 'eventSummerGardenInfoTitle',
+        descKey: 'eventSummerGardenStoryQuote',
+        eventGuideVersion: 'v1.7.0',
       },
       {
         icon: '📊',
@@ -36,14 +38,14 @@ export const PATCH_NOTES: readonly PatchNote[] = [
         descKey: 'patchNote_recordsDashboard_desc',
       },
       {
+        icon: '🏆',
+        titleKey: 'patchNote_rewardsHub_title',
+        descKey: 'patchNote_rewardsHub_desc',
+      },
+      {
         icon: '🔁',
         titleKey: 'patchNote_profileManagement_title',
         descKey: 'patchNote_profileManagement_desc',
-      },
-      {
-        icon: '✨',
-        titleKey: 'patchNote_v17Polish_title',
-        descKey: 'patchNote_v17Polish_desc',
       },
     ],
   },
