@@ -121,6 +121,20 @@ Done with today's word? Tap "Practice" at the bottom to play unlimited games wit
   <img src="assets/practice-mode.png" alt="Practice Mode" width="300" />
 </p>
 
+### Event Mode
+
+Event mode introduces seasonal puzzles with special rules, related rewards, and a separate answer and record from Daily. Each season can also preview the cosmetics introduced for that event while you play.
+
+The current season is **Summer Garden**, where a rabbit moves along the chain path after your first guess and hides the cells it has visited. Collect four-leaf clovers before it reaches an unsubmitted row.
+
+Read the full season guide: [Summer Garden](docs/events/summer-garden.md).
+
+<p align="center">
+  <img src="assets/event-mode.png" alt="Event Mode" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/event-guide.png" alt="Summer Garden event guide" width="300" />
+</p>
+
 ### Multi-Language Support
 
 Available in 7 languages. Change the language from the popup in Settings.
