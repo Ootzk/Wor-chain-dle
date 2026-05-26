@@ -52,11 +52,15 @@ test.describe('Share — Exclude URL setting', () => {
       .locator('svg.h-6.w-6.cursor-pointer')
       .nth(settingsIndex)
       .click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
-    // Exclude URL is the 3rd toggle (0:uppercase, 1:weekStart, 2:excludeUrl)
-    await gamePage.locator('button[role="switch"]').nth(2).click()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
+    // Exclude URL is the 2nd toggle (0:uppercase, 1:excludeUrl)
+    await gamePage.locator('button[role="switch"]').nth(1).click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
-    await expect(gamePage.locator('text=Settings')).not.toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).not.toBeVisible()
   }
 
   test('default (excludeUrl off): shared text includes URL', async ({
@@ -105,9 +109,11 @@ test.describe('Share — Exclude URL setting', () => {
       .locator('svg.h-6.w-6.cursor-pointer')
       .nth(SETTINGS_ICON_DAILY)
       .click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
-    // Exclude URL is the 3rd toggle (0:uppercase, 1:weekStart, 2:excludeUrl)
-    const excludeToggle = gamePage.locator('button[role="switch"]').nth(2)
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
+    // Exclude URL is the 2nd toggle (0:uppercase, 1:excludeUrl)
+    const excludeToggle = gamePage.locator('button[role="switch"]').nth(1)
     await expect(excludeToggle).toHaveAttribute('aria-checked', 'false')
     await excludeToggle.click()
     await expect(excludeToggle).toHaveAttribute('aria-checked', 'true')
@@ -123,8 +129,10 @@ test.describe('Share — Exclude URL setting', () => {
       .locator('svg.h-6.w-6.cursor-pointer')
       .nth(SETTINGS_ICON_DAILY)
       .click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
-    const toggleAfter = gamePage.locator('button[role="switch"]').nth(2)
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
+    const toggleAfter = gamePage.locator('button[role="switch"]').nth(1)
     await expect(toggleAfter).toHaveAttribute('aria-checked', 'true')
     await screenshot(gamePage, '02-exclude-url-persisted-after-reload')
   })

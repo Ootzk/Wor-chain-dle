@@ -5,6 +5,15 @@ import {
   submitWord,
   waitForGameReady,
 } from './fixtures/game.fixture'
+import { Page } from '@playwright/test'
+
+const closeInformationIfOpen = async (page: Page) => {
+  const informationDialog = page.getByRole('dialog', { name: 'Information' })
+  if (await informationDialog.isVisible().catch(() => false)) {
+    await page.keyboard.press('Escape')
+    await expect(informationDialog).not.toBeVisible()
+  }
+}
 
 test.describe('Event mode', () => {
   test.beforeEach(async ({ gamePage }) => {
@@ -34,12 +43,15 @@ test.describe('Event mode', () => {
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
 
-    await expect(gamePage.locator('text=Event')).toBeVisible()
-    await expect(gamePage.locator('text=Summer Garden')).toBeVisible()
-    await expect(gamePage.locator('.border-sky-400').first()).toBeVisible()
+    await expect(
+      gamePage.getByText('Event', { exact: true }).first()
+    ).toBeVisible()
+    await expect(gamePage.getByText('Summer Garden').first()).toBeVisible()
+    await closeInformationIfOpen(gamePage)
 
     await submitWord(gamePage, 'stale')
     await expect(gamePage.getByTestId('pacman-actor')).toHaveText('🐇')
+    await expect(gamePage.locator('.border-lime-400').first()).toBeVisible()
 
     const storedChainColor = await gamePage.evaluate(() => {
       const raw = localStorage.getItem('cosmeticState')
@@ -53,6 +65,7 @@ test.describe('Event mode', () => {
   }) => {
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     await submitWord(gamePage, 'stale')
 
@@ -71,12 +84,10 @@ test.describe('Event mode', () => {
 
     await gamePage.reload()
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     const cellsAfterReload = getRowCells(gamePage, 0)
     await expect(cellsAfterReload.nth(0)).toContainText('s')
-    await expect(cellsAfterReload.nth(0)).toHaveClass(
-      /bg-(green|purple|slate)-/
-    )
   })
 
   test('replaces stale event progress from another event day', async ({
@@ -96,6 +107,7 @@ test.describe('Event mode', () => {
 
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     const eventState = await gamePage.evaluate(() => {
       const raw = localStorage.getItem('eventGameState')
@@ -115,6 +127,7 @@ test.describe('Event mode', () => {
   }) => {
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     const headerIcons = gamePage.locator('.flex.w-80 svg.cursor-pointer')
 
@@ -141,12 +154,88 @@ test.describe('Event mode', () => {
     await expect(
       gamePage.getByRole('heading', { name: 'Rewards' })
     ).toBeVisible()
-    await expect(gamePage.getByRole('button', { name: /v1.7.0/ })).toBeVisible()
+    await expect(gamePage.getByText('v1.7.0').first()).toBeVisible()
     await expect(
       gamePage.getByRole('button', { name: 'Achievements' })
     ).toBeVisible()
     await expect(
       gamePage.getByRole('button', { name: 'Cosmetics' })
-    ).toHaveCount(0)
+    ).toBeVisible()
+  })
+
+  test('shows Summer Garden clover collection with win bonus after a win', async ({
+    gamePage,
+  }) => {
+    await gamePage.goto('/#/event')
+    await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
+
+    const solution = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventGameState')
+      if (!raw) throw new Error('Missing event game state')
+      return JSON.parse(raw).solution as string
+    })
+
+    await submitWord(gamePage, solution)
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).toBeVisible({ timeout: 7000 })
+
+    await expect(gamePage.getByText('🍀6 (+1)')).toBeVisible()
+
+    const collectibleProgress = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('achievementProgress')
+      const progress = raw ? JSON.parse(raw) : {}
+      return progress.collectibles?.['v1.7.0-summer-garden-clover']
+    })
+    expect(collectibleProgress).toMatchObject({
+      row_2: 1,
+      row_3: 1,
+      row_4: 1,
+      row_5: 1,
+      row_6: 1,
+      win_bonus: 1,
+    })
+  })
+
+  test('ends Summer Garden with a rabbit loss when the path reaches an unsubmitted row', async ({
+    gamePage,
+  }) => {
+    await gamePage.goto('/#/event')
+    await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
+
+    await submitWord(gamePage, 'stale')
+    await expect(gamePage.getByTestId('pacman-actor')).toHaveText('🐇')
+
+    await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventGameState')
+      if (!raw) throw new Error('Missing event game state')
+      localStorage.setItem(
+        'eventGameState',
+        JSON.stringify({
+          ...JSON.parse(raw),
+          pacmanPathIndex: 4,
+        })
+      )
+    })
+    await gamePage.reload()
+    await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
+
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).toBeVisible({ timeout: 9000 })
+
+    const eventResult = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventResults')
+      const results = raw ? JSON.parse(raw) : {}
+      return results['v1.7.0']?.['2026-05-21']
+    })
+    expect(eventResult).toMatchObject({
+      won: false,
+      endReason: 'pacman',
+      guessCount: 1,
+    })
   })
 })

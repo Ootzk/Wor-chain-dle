@@ -60,14 +60,10 @@ test.describe('Calendar', () => {
   test('calendar tab opens and shows current month', async ({ gamePage }) => {
     await openCalendarTab(gamePage)
 
-    // Current month label (e.g. "March 2026") — uses local time
+    // Current month label (yyyy-mm) uses local time.
     const today = Temporal.Now.plainDateISO()
-    const firstOfMonth = today.with({ day: 1 })
-    const monthLabel = firstOfMonth.toLocaleString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    })
-    await expect(gamePage.locator(`text=${monthLabel}`)).toBeVisible()
+    const monthLabel = `${today.year}-${String(today.month).padStart(2, '0')}`
+    await expect(gamePage.getByText(monthLabel, { exact: true })).toBeVisible()
 
     // Weekday header — Sunday start by default
     const weekdayHeaders = gamePage.locator(
@@ -77,12 +73,12 @@ test.describe('Calendar', () => {
     await expect(weekdayHeaders.first()).toHaveText('Su')
     await expect(weekdayHeaders.last()).toHaveText('Sa')
 
-    // Streak display
-    await expect(gamePage.locator('text=🔥')).toBeVisible()
+    // Monthly attendance summary
+    await expect(gamePage.locator('text=Success')).toBeVisible()
 
     // Share month button
     await expect(
-      gamePage.locator('button', { hasText: 'Share month' })
+      gamePage.getByRole('button', { name: 'Share', exact: true })
     ).toBeVisible()
 
     await screenshot(gamePage, '01-calendar-tab')
@@ -122,12 +118,10 @@ test.describe('Calendar', () => {
     await openCalendarTab(gamePage)
 
     const today = Temporal.Now.plainDateISO()
-    const firstOfMonth = today.with({ day: 1 })
-    const currentLabel = firstOfMonth.toLocaleString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    })
-    await expect(gamePage.locator(`text=${currentLabel}`)).toBeVisible()
+    const currentLabel = `${today.year}-${String(today.month).padStart(2, '0')}`
+    await expect(
+      gamePage.getByText(currentLabel, { exact: true })
+    ).toBeVisible()
 
     // Today button disabled on current month
     const todayBtn = gamePage.locator('button[title="Today"]')
@@ -135,13 +129,17 @@ test.describe('Calendar', () => {
 
     // Navigate back (ChevronLeftIcon = first h-5 w-5 svg)
     await gamePage.locator('svg.h-5.w-5').first().click()
-    await expect(gamePage.locator(`text=${currentLabel}`)).not.toBeVisible()
+    await expect(
+      gamePage.getByText(currentLabel, { exact: true })
+    ).not.toBeVisible()
     await expect(todayBtn).toBeEnabled()
     await screenshot(gamePage, '01-prev-month')
 
     // Click Today to return
     await todayBtn.click()
-    await expect(gamePage.locator(`text=${currentLabel}`)).toBeVisible()
+    await expect(
+      gamePage.getByText(currentLabel, { exact: true })
+    ).toBeVisible()
     await expect(todayBtn).toBeDisabled()
     await screenshot(gamePage, '02-back-to-current')
   })
@@ -153,10 +151,14 @@ test.describe('Calendar', () => {
       .locator('svg.h-6.w-6.cursor-pointer')
       .nth(SETTINGS_ICON)
       .click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
-    await expect(gamePage.locator('text=Start Week on Monday')).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
+    await expect(
+      gamePage.locator('text=Start Calendar Week on Monday')
+    ).toBeVisible()
 
-    const weekStartToggle = gamePage.locator('button[role="switch"]').nth(1)
+    const weekStartToggle = gamePage.locator('button[role="switch"]').nth(2)
     await expect(weekStartToggle).toHaveAttribute('aria-checked', 'false')
     await weekStartToggle.click()
     await expect(weekStartToggle).toHaveAttribute('aria-checked', 'true')
@@ -182,7 +184,10 @@ test.describe('Calendar', () => {
     gamePage,
   }) => {
     await openCalendarTab(gamePage)
-    const shareBtn = gamePage.locator('button', { hasText: 'Share month' })
+    const shareBtn = gamePage.getByRole('button', {
+      name: 'Share',
+      exact: true,
+    })
 
     // No data → disabled
     await expect(shareBtn).toBeDisabled()

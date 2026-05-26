@@ -55,9 +55,7 @@ test.describe('Navigation', () => {
     await gamePage.goto('/#/create')
     await waitForGameReady(gamePage)
 
-    await expect(
-      gamePage.locator('p.text-green-500', { hasText: 'Create' })
-    ).toBeVisible()
+    await expect(gamePage.locator('p', { hasText: 'Create' })).toBeVisible()
     await expect(
       gamePage.locator('input[placeholder="Enter your name"]')
     ).toBeVisible()

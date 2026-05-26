@@ -30,8 +30,10 @@ test.describe('Modals', () => {
 
     // Tab 3: Patch Notes
     await gamePage.locator('button', { hasText: 'Patch Notes' }).click()
-    await expect(gamePage.getByText('Patch Notes in Information')).toBeVisible()
-    await gamePage.locator('button', { hasText: 'v1.4.0' }).click()
+    await expect(
+      gamePage.getByText('Event Mode', { exact: true })
+    ).toBeVisible()
+    await gamePage.getByRole('button', { name: /v1\.4\.0/ }).click()
     await expect(gamePage.getByText('Local Timezone Reset')).toBeVisible()
     await screenshot(gamePage, '03-daily-tab-patch-notes')
 
@@ -144,6 +146,8 @@ test.describe('Modals', () => {
     await expect(
       gamePage.getByRole('heading', { name: 'Records' })
     ).toBeVisible()
+    await expect(gamePage.locator('text=Dashboard')).toBeVisible()
+    await gamePage.getByRole('button', { name: 'Summary' }).click()
     await expect(gamePage.locator('text=Total tries')).toBeVisible()
     await expect(gamePage.locator('text=Success rate')).toBeVisible()
     await screenshot(gamePage, '01-stats-modal-open')
@@ -179,7 +183,9 @@ test.describe('Modals', () => {
     // Click settings icon (CogIcon) — 4th icon (0:info, 1:stats, 2:rewards, 3:settings)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
 
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
     await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
     await screenshot(gamePage, '01-settings-modal-open')
 
@@ -301,7 +307,9 @@ test.describe('Modals', () => {
   test('language selector in settings modal', async ({ gamePage }) => {
     // Open settings (0:info, 1:stats, 2:rewards, 3:settings)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
 
     // Language picker button should be visible with English
     await expect(gamePage.locator('button:has-text("English")')).toBeVisible()

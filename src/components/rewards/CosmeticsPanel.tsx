@@ -566,7 +566,9 @@ const CosmeticPicker = ({
                   />
                   <span className="w-5 text-center flex-shrink-0">
                     {!unlocked && (
-                      <LockClosedIcon className="mx-auto h-5 w-5" />
+                      <span role="img" aria-label={t('locked')}>
+                        <LockClosedIcon className="mx-auto h-5 w-5" />
+                      </span>
                     )}
                     {selected && unlocked && (
                       <CheckIcon className="mx-auto h-5 w-5 text-indigo-600" />

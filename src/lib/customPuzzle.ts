@@ -13,10 +13,7 @@ function fromUrlSafeBase64(urlSafe: string): string {
   return base64
 }
 
-export function encodeCustomPuzzle(
-  word: string,
-  questioner: string
-): string {
+export function encodeCustomPuzzle(word: string, questioner: string): string {
   const utf8 = new TextEncoder().encode(`${word}_${questioner}`)
   const binary = Array.from(utf8, (b) => String.fromCharCode(b)).join('')
   return toUrlSafeBase64(btoa(binary))
