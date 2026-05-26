@@ -10,7 +10,10 @@ import {
   CosmeticOverrides,
   getRewardsForAchievement,
 } from '../../lib/cosmetics'
-import { CollectedRowsByCollectible } from '../../lib/eventCollectibles'
+import {
+  CollectedRowsByCollectible,
+  formatCollectibleDashboardCount,
+} from '../../lib/eventCollectibles'
 import { Cell } from '../grid/Cell'
 import { ShareOptionsRow } from '../stats/ShareOptionsRow'
 import { AchievementList } from '../achievements/AchievementList'
@@ -124,10 +127,12 @@ export const EventRecordsPanel = ({
   const todayFastWin = todayWon && todayGuessTimeMs <= ONE_MINUTE_MS
   const todayCollectedRows =
     collectible && isCurrentEvent ? collectedRows[collectible.id] ?? [] : []
-  const todayCloverDisplay =
-    todayCollectedRows.length > 0
-      ? collectible?.emoji.repeat(todayCollectedRows.length)
-      : EMPTY_VALUE
+  const todayCloverBonus = todayWon ? 1 : 0
+  const todayCloverDisplay = formatCollectibleDashboardCount({
+    emoji: collectible?.emoji ?? '🍀',
+    count: todayCollectedRows.length,
+    winBonusCount: todayCloverBonus,
+  })
   const completedCurrentEvent = isCurrentEvent && (isGameWon || isGameLost)
   const grasslandTrailReward = getRewardsForAchievement('grassland_trail')[0]
   const grassDietReward = getRewardsForAchievement('grass_diet')[0]

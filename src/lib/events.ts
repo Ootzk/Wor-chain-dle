@@ -7,6 +7,7 @@ import {
   EventCollectibleConfig,
   SUMMER_GARDEN_CLOVER_COLLECTION_ID,
   SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+  SUMMER_GARDEN_CLOVER_WIN_BONUS_ITEM_ID,
 } from './eventCollectibles'
 import { PacmanConfig } from './pacman'
 
@@ -77,6 +78,7 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       emoji: '🍀',
       targetRows: [1, 2, 3, 4, 5],
       progressTargets: SUMMER_GARDEN_CLOVER_ROW_TARGETS,
+      winBonusItemId: SUMMER_GARDEN_CLOVER_WIN_BONUS_ITEM_ID,
       collectStatus: 'correct',
       autoCollectRemainingOnWin: true,
     },

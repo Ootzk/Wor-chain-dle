@@ -86,7 +86,7 @@ import {
   collectEventTargetsForSubmission,
   CollectedRowsByCollectible,
   getCollectibleCellEffects,
-  getCollectibleProgressItemId,
+  getCollectibleProgressItemIds,
   getCollectibleRowEffects,
   getEventCollectibleTargets,
   mergeCollectedRows,
@@ -735,16 +735,23 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
         won,
         collectedRows: nextCollectedRows,
       })
-      if (rowIndexes.length === 0) return
+      const progressItemIds = getCollectibleProgressItemIds({
+        rowIndexes,
+        won,
+        winBonusItemId: collectible.winBonusItemId,
+      })
+      if (progressItemIds.length === 0) return
 
-      nextCollectedRows = mergeCollectedRows(
-        nextCollectedRows,
-        collectible.id,
-        rowIndexes
-      )
+      if (rowIndexes.length > 0) {
+        nextCollectedRows = mergeCollectedRows(
+          nextCollectedRows,
+          collectible.id,
+          rowIndexes
+        )
+      }
       progressItemIdsByCollection[collectible.collectionId] = [
         ...(progressItemIdsByCollection[collectible.collectionId] ?? []),
-        ...rowIndexes.map(getCollectibleProgressItemId),
+        ...progressItemIds,
       ]
     })
 

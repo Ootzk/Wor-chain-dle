@@ -8,6 +8,7 @@ export type EventCollectibleConfig = {
   emoji: string
   targetRows: number[]
   progressTargets?: Record<string, number>
+  winBonusItemId?: string
   collectStatus: 'correct'
   autoCollectRemainingOnWin: boolean
 }
@@ -23,6 +24,7 @@ export type EventCollectibleTarget = {
 export type CollectedRowsByCollectible = Record<string, number[]>
 
 export const SUMMER_GARDEN_CLOVER_COLLECTION_ID = 'v1.7.0-summer-garden-clover'
+export const SUMMER_GARDEN_CLOVER_WIN_BONUS_ITEM_ID = 'win_bonus'
 
 export const SUMMER_GARDEN_CLOVER_ROW_TARGETS: Record<string, number> = {
   row_2: 3,
@@ -131,6 +133,33 @@ export const getCollectibleRowEffects = ({
 
 export const getCollectibleProgressItemId = (rowIndex: number) =>
   `row_${rowIndex + 1}`
+
+export const getCollectibleProgressItemIds = ({
+  rowIndexes,
+  won,
+  winBonusItemId,
+}: {
+  rowIndexes: number[]
+  won: boolean
+  winBonusItemId?: string
+}): string[] => [
+  ...rowIndexes.map(getCollectibleProgressItemId),
+  ...(won && winBonusItemId ? [winBonusItemId] : []),
+]
+
+export const formatCollectibleDashboardCount = ({
+  emoji,
+  count,
+  winBonusCount,
+}: {
+  emoji: string
+  count: number
+  winBonusCount: number
+}): string => {
+  const total = count + winBonusCount
+
+  return `${emoji}${total}${winBonusCount > 0 ? ` (+${winBonusCount})` : ''}`
+}
 
 export const collectEventTargetsForSubmission = ({
   config,
