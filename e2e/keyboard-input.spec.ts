@@ -26,7 +26,33 @@ test.describe('Keyboard Input', () => {
     await screenshot(gamePage, '01-physical-keyboard-typed-house')
   })
 
-  test('physical keyboard backspace removes last letter', async ({ gamePage }) => {
+  test('typing in rewards search does not type into the game grid', async ({
+    gamePage,
+  }) => {
+    // Custom mode header icons: info(0), rewards(1), settings(2), donate(3)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Rewards' })
+    ).toBeVisible()
+
+    await gamePage
+      .getByRole('button', { name: 'Expand filters' })
+      .first()
+      .click()
+    await gamePage.getByPlaceholder('Search achievements & cosmetics').click()
+    await gamePage.keyboard.type('clover')
+
+    const cells = getRowCells(gamePage, 0)
+    await expect(cells.nth(0)).toHaveText('')
+    await expect(cells.nth(1)).toHaveText('')
+    await expect(cells.nth(2)).toHaveText('')
+    await expect(cells.nth(3)).toHaveText('')
+    await expect(cells.nth(4)).toHaveText('')
+  })
+
+  test('physical keyboard backspace removes last letter', async ({
+    gamePage,
+  }) => {
     await typeWord(gamePage, 'hou')
     await screenshot(gamePage, '01-before-backspace')
     await gamePage.keyboard.press('Backspace')

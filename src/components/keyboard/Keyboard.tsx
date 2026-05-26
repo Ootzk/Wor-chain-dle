@@ -10,6 +10,12 @@ const KEYBOARD_ROWS = [
   ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
 ]
 
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false
+
+  return !!target.closest('input, textarea, select, [contenteditable="true"]')
+}
+
 type Props = {
   onChar: (value: string) => void
   onDelete: () => void
@@ -42,6 +48,8 @@ export const Keyboard = ({
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || isEditableTarget(e.target)) return
+
       if (e.code === 'Enter') {
         onEnter()
       } else if (e.code === 'Backspace') {
