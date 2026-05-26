@@ -4,6 +4,7 @@ import { RELEASE_METADATA } from './releaseMetadata'
 import {
   filterRewardsByMetadata,
   getRewardMetadataLabel,
+  sortRewardVersionsDesc,
 } from './rewardMetadata'
 
 describe('reward metadata', () => {
@@ -73,5 +74,11 @@ describe('reward metadata', () => {
     expect(getRewardMetadataLabel({ introducedInVersion: '1.3.0' })).toBe(
       'v1.3.0'
     )
+  })
+
+  it('sorts reward versions by semantic version descending', () => {
+    expect(
+      sortRewardVersionsDesc(['1.7.0', '1.10.0', '1.6.0', 'v2.0.0'])
+    ).toEqual(['v2.0.0', '1.10.0', '1.7.0', '1.6.0'])
   })
 })

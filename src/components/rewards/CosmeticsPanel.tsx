@@ -26,7 +26,10 @@ import {
   loadAchievementState,
 } from '../../lib/achievements'
 import { generateShareText } from '../../lib/share'
-import { getRewardMetadataLabel } from '../../lib/rewardMetadata'
+import {
+  getRewardMetadataLabel,
+  sortRewardVersionsDesc,
+} from '../../lib/rewardMetadata'
 import { ChainBridge } from '../grid/ChainBridge'
 import { CompletedRow } from '../grid/CompletedRow'
 import { CosmeticPreview } from '../cosmetics/CosmeticPreview'
@@ -270,6 +273,12 @@ const sortCosmeticOptions = (
           ? PRIORITY_FILTER_OPTIONS
           : filterKey === 'status'
           ? STATUS_FILTER_OPTIONS
+          : filterKey === 'version'
+          ? sortRewardVersionsDesc(
+              uniqueSorted(
+                options.flatMap((option) => getSortValues(option, filterKey))
+              )
+            )
           : uniqueSorted(
               options.flatMap((option) => getSortValues(option, filterKey))
             )
