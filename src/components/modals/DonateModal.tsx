@@ -29,7 +29,12 @@ export const DonateModal = ({ isOpen, handleClose }: Props) => {
   const [activeTab, setActiveTab] = useState(TABS[0].id)
 
   return (
-    <BaseModal title={t('donate')} icon={<CurrencyDollarIcon />} isOpen={isOpen} handleClose={handleClose}>
+    <BaseModal
+      title={t('donate')}
+      icon={<CurrencyDollarIcon />}
+      isOpen={isOpen}
+      handleClose={handleClose}
+    >
       {TABS.length > 1 && (
         <div className="flex border-b border-gray-200 mb-4">
           {TABS.map((tab) => (

@@ -55,7 +55,7 @@ test.describe('Achievements & Cosmetics', () => {
 
     // Getting Started should have green border (unlocked)
     const card = gamePage.locator('[data-achievement-id="play_10"]')
-    await expect(card).toHaveClass(/border-green-400/)
+    await expect(card).toHaveClass(/border-green-500/)
     await screenshot(gamePage, '01-achievement-unlocked')
   })
 
@@ -90,9 +90,9 @@ test.describe('Achievements & Cosmetics', () => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
     const play10 = gamePage.locator('[data-achievement-id="play_10"]')
-    await expect(play10).toHaveClass(/border-green-400/)
+    await expect(play10).toHaveClass(/border-green-500/)
     const streak3 = gamePage.locator('[data-achievement-id="streak_3"]')
-    await expect(streak3).toHaveClass(/border-green-400/)
+    await expect(streak3).toHaveClass(/border-green-500/)
     await screenshot(gamePage, '01-retro-unlock')
   })
 
@@ -186,7 +186,9 @@ test.describe('Achievements & Cosmetics', () => {
     await gamePage.locator('button:has-text("Square")').click()
 
     // Circle and Heart should show lock (not unlocked)
-    await expect(gamePage.locator('text=\uD83D\uDD12').first()).toBeVisible()
+    await expect(
+      gamePage.getByRole('img', { name: 'Locked' }).first()
+    ).toBeVisible()
     await screenshot(gamePage, '01-locked-cosmetics')
   })
 })

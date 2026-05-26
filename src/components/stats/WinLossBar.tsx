@@ -39,7 +39,9 @@ export const WinLossBar = ({ gameStats }: Props) => {
                   wins > 0 ? 'rounded-r-full' : 'rounded-full'
                 }`}
                 style={{ flexBasis: `${lossPercent}%` }}
-                title={`${t('playStatsResultLose')}: ${losses} (${lossPercent}%)`}
+                title={`${t(
+                  'playStatsResultLose'
+                )}: ${losses} (${lossPercent}%)`}
               >
                 {lossPercent >= 18 ? `${lossPercent}%` : ''}
               </div>

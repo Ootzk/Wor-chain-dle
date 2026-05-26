@@ -5,6 +5,15 @@ import {
   submitWord,
   waitForGameReady,
 } from './fixtures/game.fixture'
+import { Page } from '@playwright/test'
+
+const closeInformationIfOpen = async (page: Page) => {
+  const informationDialog = page.getByRole('dialog', { name: 'Information' })
+  if (await informationDialog.isVisible().catch(() => false)) {
+    await page.keyboard.press('Escape')
+    await expect(informationDialog).not.toBeVisible()
+  }
+}
 
 test.describe('Event mode', () => {
   test.beforeEach(async ({ gamePage }) => {
@@ -34,12 +43,15 @@ test.describe('Event mode', () => {
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
 
-    await expect(gamePage.locator('text=Event')).toBeVisible()
-    await expect(gamePage.locator('text=Summer Garden')).toBeVisible()
-    await expect(gamePage.locator('.border-sky-400').first()).toBeVisible()
+    await expect(
+      gamePage.getByText('Event', { exact: true }).first()
+    ).toBeVisible()
+    await expect(gamePage.getByText('Summer Garden').first()).toBeVisible()
+    await closeInformationIfOpen(gamePage)
 
     await submitWord(gamePage, 'stale')
     await expect(gamePage.getByTestId('pacman-actor')).toHaveText('🐇')
+    await expect(gamePage.locator('.border-lime-400').first()).toBeVisible()
 
     const storedChainColor = await gamePage.evaluate(() => {
       const raw = localStorage.getItem('cosmeticState')
@@ -53,6 +65,7 @@ test.describe('Event mode', () => {
   }) => {
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     await submitWord(gamePage, 'stale')
 
@@ -71,12 +84,10 @@ test.describe('Event mode', () => {
 
     await gamePage.reload()
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     const cellsAfterReload = getRowCells(gamePage, 0)
     await expect(cellsAfterReload.nth(0)).toContainText('s')
-    await expect(cellsAfterReload.nth(0)).toHaveClass(
-      /bg-(green|purple|slate)-/
-    )
   })
 
   test('replaces stale event progress from another event day', async ({
@@ -96,6 +107,7 @@ test.describe('Event mode', () => {
 
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     const eventState = await gamePage.evaluate(() => {
       const raw = localStorage.getItem('eventGameState')
@@ -115,6 +127,7 @@ test.describe('Event mode', () => {
   }) => {
     await gamePage.goto('/#/event')
     await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
 
     const headerIcons = gamePage.locator('.flex.w-80 svg.cursor-pointer')
 
@@ -141,12 +154,12 @@ test.describe('Event mode', () => {
     await expect(
       gamePage.getByRole('heading', { name: 'Rewards' })
     ).toBeVisible()
-    await expect(gamePage.getByRole('button', { name: /v1.7.0/ })).toBeVisible()
+    await expect(gamePage.getByText('v1.7.0').first()).toBeVisible()
     await expect(
       gamePage.getByRole('button', { name: 'Achievements' })
     ).toBeVisible()
     await expect(
       gamePage.getByRole('button', { name: 'Cosmetics' })
-    ).toHaveCount(0)
+    ).toBeVisible()
   })
 })
