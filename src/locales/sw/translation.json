@@ -418,7 +418,7 @@
   "eventSummerGardenRuleTiming": "Muda wa kusimama: visanduku vya kijani humshikilia sekunde 5; vya zambarau, kijivu, na default humshikilia sekunde 3.",
   "eventSummerGardenRuleHide": "Visanduku vilivyoliwa: herufi na rangi hufichwa baada ya sungura kupita.",
   "eventSummerGardenRuleGameOver": "Mwisho wa mchezo: sungura akifika kwenye kisanduku cha row ambayo bado hujawasilisha, unashindwa mara moja.",
-  "eventSummerGardenRuleClover": "Majani ya clover yenye majani manne: pata rangi ya kijani kwenye visanduku vya clover katika mistari 2-5 ili kuyakusanya. Kushinda mapema hukusanya pia mistari iliyobaki.",
+  "eventSummerGardenRuleClover": "Majani ya clover yenye majani manne: pata rangi ya kijani kwenye visanduku vya clover katika mistari 2-6 ili kuyakusanya. Kushinda mapema hukusanya pia mistari iliyobaki.",
   "eventSummerGardenRuleRabbit": "Beji ya sungura: ushindi ndani ya dakika 1 huhesabiwa kwenye maendeleo ya Rabbit Dash.",
   "eventRecordsVersion": "Toleo",
   "eventRecordsEmpty": "Bado hakuna rekodi za tukio.",

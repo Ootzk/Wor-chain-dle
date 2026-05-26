@@ -12,7 +12,7 @@ const cloverConfig: EventCollectibleConfig = {
   id: 'clover',
   collectionId: 'v1.7.0-summer-garden-clover',
   emoji: '🍀',
-  targetRows: [1, 2, 3, 4],
+  targetRows: [1, 2, 3, 4, 5],
   collectStatus: 'correct',
   autoCollectRemainingOnWin: true,
 }
@@ -25,9 +25,9 @@ describe('event collectibles', () => {
       collectibles: [cloverConfig],
     })
 
-    expect(targets).toHaveLength(4)
-    expect(targets.map((target) => target.rowIndex)).toEqual([1, 2, 3, 4])
-    expect(new Set(targets.map((target) => target.colIndex)).size).toBe(4)
+    expect(targets).toHaveLength(5)
+    expect(targets.map((target) => target.rowIndex)).toEqual([1, 2, 3, 4, 5])
+    expect(new Set(targets.map((target) => target.colIndex)).size).toBe(5)
     expect(targets).toEqual(
       getEventCollectibleTargets({
         eventId: 'v1.7.0-event',
@@ -110,7 +110,7 @@ describe('event collectibles', () => {
   })
 
   it('auto-collects remaining target rows on early win', () => {
-    const targets = [1, 2, 3, 4].map((rowIndex) => ({
+    const targets = [1, 2, 3, 4, 5].map((rowIndex) => ({
       collectibleId: 'clover',
       collectionId: cloverConfig.collectionId,
       emoji: '🍀',
@@ -128,7 +128,7 @@ describe('event collectibles', () => {
         won: true,
         collectedRows: {},
       })
-    ).toEqual([1, 2, 3, 4])
+    ).toEqual([1, 2, 3, 4, 5])
   })
 
   it('merges collected rows and maps them to progress item ids', () => {

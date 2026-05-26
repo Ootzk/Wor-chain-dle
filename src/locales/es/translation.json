@@ -425,7 +425,7 @@
   "eventSummerGardenRuleTiming": "Tiempo de espera: las celdas verdes lo retienen 5 segundos; las moradas, grises y predeterminadas lo retienen 3 segundos.",
   "eventSummerGardenRuleHide": "Celdas mordisqueadas: las letras y los colores se ocultan después de que pasa el conejo.",
   "eventSummerGardenRuleGameOver": "Fin de la partida: si el conejo llega a una celda de una fila que aún no has enviado, pierdes de inmediato.",
-  "eventSummerGardenRuleClover": "Tréboles de cuatro hojas: acierta en verde las celdas con trébol de las filas 2-5 para recogerlos. Ganar temprano también recoge las filas restantes.",
+  "eventSummerGardenRuleClover": "Tréboles de cuatro hojas: acierta en verde las celdas con trébol de las filas 2-6 para recogerlos. Ganar temprano también recoge las filas restantes.",
   "eventSummerGardenRuleRabbit": "Insignia de conejo: las victorias en menos de 1 minuto cuentan para el progreso de Rabbit Dash.",
   "eventRecordsVersion": "Versión",
   "eventRecordsEmpty": "Aún no hay registros de evento.",

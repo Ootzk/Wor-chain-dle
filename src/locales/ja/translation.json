@@ -425,7 +425,7 @@
   "eventSummerGardenRuleTiming": "滞在時間: 緑のマスは5秒、紫・灰色・デフォルトのマスは3秒うさぎを引き止めます。",
   "eventSummerGardenRuleHide": "食べたあと: うさぎが通ったマスは文字も色も隠れます。",
   "eventSummerGardenRuleGameOver": "ゲームオーバー: うさぎがまだ提出していない行のマスに到達すると即失敗です。",
-  "eventSummerGardenRuleClover": "四つ葉のクローバー: 2〜5行目のクローバーマスを緑で当てると集められます。早く正解すると残りの行のクローバーも回収できます。",
+  "eventSummerGardenRuleClover": "四つ葉のクローバー: 2〜6行目のクローバーマスを緑で当てると集められます。早く正解すると残りの行のクローバーも回収できます。",
   "eventSummerGardenRuleRabbit": "うさぎバッジ: 1分以内の勝利はRabbit Dashの進行度に記録されます。",
   "eventRecordsVersion": "バージョン",
   "eventRecordsEmpty": "イベント記録はまだありません。",

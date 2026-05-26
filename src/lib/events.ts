@@ -75,7 +75,7 @@ const SUMMER_GARDEN_EVENT: EventDefinition = {
       id: 'clover',
       collectionId: SUMMER_GARDEN_CLOVER_COLLECTION_ID,
       emoji: '🍀',
-      targetRows: [1, 2, 3, 4],
+      targetRows: [1, 2, 3, 4, 5],
       progressTargets: SUMMER_GARDEN_CLOVER_ROW_TARGETS,
       collectStatus: 'correct',
       autoCollectRemainingOnWin: true,

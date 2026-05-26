@@ -418,7 +418,7 @@
   "eventSummerGardenRuleTiming": "停留时间：绿色格子会拖住兔子5秒；紫色、灰色和默认格子会拖住它3秒。",
   "eventSummerGardenRuleHide": "啃过的格子：兔子经过后，字母和颜色都会被隐藏。",
   "eventSummerGardenRuleGameOver": "游戏结束：如果兔子到达你尚未提交的行中的格子，你会立即失败。",
-  "eventSummerGardenRuleClover": "四叶草：在第2-5行的四叶草格子打出绿色即可收集。提前获胜也会收集剩余行的四叶草。",
+  "eventSummerGardenRuleClover": "四叶草：在第2-6行的四叶草格子打出绿色即可收集。提前获胜也会收集剩余行的四叶草。",
   "eventSummerGardenRuleRabbit": "兔子徽章：1分钟内获胜会计入 Rabbit Dash 进度。",
   "eventRecordsVersion": "版本",
   "eventRecordsEmpty": "还没有活动记录。",

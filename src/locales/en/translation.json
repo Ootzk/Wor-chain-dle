@@ -425,7 +425,7 @@
   "eventSummerGardenRuleTiming": "Stay time: green cells hold it for 5 seconds, while purple, gray, and fallback cells hold it for 3 seconds.",
   "eventSummerGardenRuleHide": "Nibbled cells: letters and colors are hidden after the rabbit passes.",
   "eventSummerGardenRuleGameOver": "Game over: if the rabbit reaches a cell in a row you have not submitted yet, you fail immediately.",
-  "eventSummerGardenRuleClover": "Four-leaf clovers: hit clover cells in rows 2-5 with green results to collect them. Winning early also collects the remaining rows.",
+  "eventSummerGardenRuleClover": "Four-leaf clovers: hit clover cells in rows 2-6 with green results to collect them. Winning early also collects the remaining rows.",
   "eventSummerGardenRuleRabbit": "Rabbit badge: wins within 1 minute count toward Rabbit Dash progress.",
   "eventRecordsVersion": "Version",
   "eventRecordsEmpty": "No event records yet.",
