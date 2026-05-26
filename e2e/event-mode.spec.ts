@@ -162,4 +162,80 @@ test.describe('Event mode', () => {
       gamePage.getByRole('button', { name: 'Cosmetics' })
     ).toBeVisible()
   })
+
+  test('shows Summer Garden clover collection with win bonus after a win', async ({
+    gamePage,
+  }) => {
+    await gamePage.goto('/#/event')
+    await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
+
+    const solution = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventGameState')
+      if (!raw) throw new Error('Missing event game state')
+      return JSON.parse(raw).solution as string
+    })
+
+    await submitWord(gamePage, solution)
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).toBeVisible({ timeout: 7000 })
+
+    await expect(gamePage.getByText('🍀6 (+1)')).toBeVisible()
+
+    const collectibleProgress = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('achievementProgress')
+      const progress = raw ? JSON.parse(raw) : {}
+      return progress.collectibles?.['v1.7.0-summer-garden-clover']
+    })
+    expect(collectibleProgress).toMatchObject({
+      row_2: 1,
+      row_3: 1,
+      row_4: 1,
+      row_5: 1,
+      row_6: 1,
+      win_bonus: 1,
+    })
+  })
+
+  test('ends Summer Garden with a rabbit loss when the path reaches an unsubmitted row', async ({
+    gamePage,
+  }) => {
+    await gamePage.goto('/#/event')
+    await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
+
+    await submitWord(gamePage, 'stale')
+    await expect(gamePage.getByTestId('pacman-actor')).toHaveText('🐇')
+
+    await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventGameState')
+      if (!raw) throw new Error('Missing event game state')
+      localStorage.setItem(
+        'eventGameState',
+        JSON.stringify({
+          ...JSON.parse(raw),
+          pacmanPathIndex: 4,
+        })
+      )
+    })
+    await gamePage.reload()
+    await waitForGameReady(gamePage)
+    await closeInformationIfOpen(gamePage)
+
+    await expect(
+      gamePage.getByRole('heading', { name: 'Records' })
+    ).toBeVisible({ timeout: 9000 })
+
+    const eventResult = await gamePage.evaluate(() => {
+      const raw = localStorage.getItem('eventResults')
+      const results = raw ? JSON.parse(raw) : {}
+      return results['v1.7.0']?.['2026-05-21']
+    })
+    expect(eventResult).toMatchObject({
+      won: false,
+      endReason: 'pacman',
+      guessCount: 1,
+    })
+  })
 })

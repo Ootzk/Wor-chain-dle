@@ -191,4 +191,38 @@ test.describe('Achievements & Cosmetics', () => {
     ).toBeVisible()
     await screenshot(gamePage, '01-locked-cosmetics')
   })
+
+  test('cosmetic picker keeps version-desc sorting while showing all options', async ({
+    gamePage,
+  }) => {
+    await gamePage.evaluate(() => {
+      localStorage.setItem(
+        'achievementFilterPreferences:v1.7.0',
+        JSON.stringify({
+          filterOrder: [
+            'version',
+            'priority',
+            'status',
+            'achievementType',
+            'cosmeticCategory',
+            'gameMode',
+          ],
+          optionOrders: {},
+        })
+      )
+    })
+    await gamePage.reload()
+    await waitForGameReady(gamePage)
+
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    await gamePage.locator('button', { hasText: 'Cosmetics' }).click()
+    await gamePage.locator('button:has-text("Square")').click()
+
+    const popup = gamePage.locator('.z-\\[60\\]')
+    const options = popup.locator('.border-b.border-gray-50.cursor-pointer')
+
+    await expect(options.first()).toContainText('Garden')
+    await expect(options.nth(1)).toContainText('Bibimbap')
+    await expect(options.nth(2)).toContainText('Yogurt')
+  })
 })
