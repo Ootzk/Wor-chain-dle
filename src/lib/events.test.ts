@@ -52,7 +52,8 @@ test('defines cosmetic overrides for the active event theme', () => {
     expect.objectContaining({
       id: 'clover',
       emoji: '🍀',
-      targetRows: [1, 2, 3, 4],
+      targetRows: [1, 2, 3, 4, 5],
+      winBonusItemId: 'win_bonus',
     }),
   ])
   expect(event.cosmeticOverrides).toMatchObject({

@@ -52,6 +52,7 @@ import {
   getRewardMetadataLabel,
   matchesRewardMetadata,
   RewardMetadataFilter,
+  sortRewardVersionsDesc,
 } from '../../lib/rewardMetadata'
 import { RELEASE_METADATA } from '../../lib/releaseMetadata'
 import { getModeBadgeItems, ModeBadge } from '../modes/ModeBadge'
@@ -1201,11 +1202,13 @@ export const AchievementList = ({
     ...(achievementIds ? [] : createDefaultRewardItems(metadataFilter)),
   ]
   const versionOptions = mergeOptionOrder(
-    uniqueSorted(
-      scopedItems
-        .map((item) => item.metadata?.introducedInVersion)
-        .filter((version): version is string => !!version)
-    ).reverse(),
+    sortRewardVersionsDesc(
+      uniqueSorted(
+        scopedItems
+          .map((item) => item.metadata?.introducedInVersion)
+          .filter((version): version is string => !!version)
+      )
+    ),
     optionOrders.version
   )
   const achievementTypeOptions = mergeOptionOrder(

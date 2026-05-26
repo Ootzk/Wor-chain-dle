@@ -1,7 +1,9 @@
 import {
   collectEventTargetsForSubmission,
+  formatCollectibleDashboardCount,
   getCollectibleCellEffects,
   getCollectibleProgressItemId,
+  getCollectibleProgressItemIds,
   getCollectibleRowEffects,
   getEventCollectibleTargets,
   mergeCollectedRows,
@@ -12,7 +14,8 @@ const cloverConfig: EventCollectibleConfig = {
   id: 'clover',
   collectionId: 'v1.7.0-summer-garden-clover',
   emoji: '🍀',
-  targetRows: [1, 2, 3, 4],
+  targetRows: [1, 2, 3, 4, 5],
+  winBonusItemId: 'win_bonus',
   collectStatus: 'correct',
   autoCollectRemainingOnWin: true,
 }
@@ -25,9 +28,9 @@ describe('event collectibles', () => {
       collectibles: [cloverConfig],
     })
 
-    expect(targets).toHaveLength(4)
-    expect(targets.map((target) => target.rowIndex)).toEqual([1, 2, 3, 4])
-    expect(new Set(targets.map((target) => target.colIndex)).size).toBe(4)
+    expect(targets).toHaveLength(5)
+    expect(targets.map((target) => target.rowIndex)).toEqual([1, 2, 3, 4, 5])
+    expect(new Set(targets.map((target) => target.colIndex)).size).toBe(5)
     expect(targets).toEqual(
       getEventCollectibleTargets({
         eventId: 'v1.7.0-event',
@@ -110,7 +113,7 @@ describe('event collectibles', () => {
   })
 
   it('auto-collects remaining target rows on early win', () => {
-    const targets = [1, 2, 3, 4].map((rowIndex) => ({
+    const targets = [1, 2, 3, 4, 5].map((rowIndex) => ({
       collectibleId: 'clover',
       collectionId: cloverConfig.collectionId,
       emoji: '🍀',
@@ -128,7 +131,7 @@ describe('event collectibles', () => {
         won: true,
         collectedRows: {},
       })
-    ).toEqual([1, 2, 3, 4])
+    ).toEqual([1, 2, 3, 4, 5])
   })
 
   it('merges collected rows and maps them to progress item ids', () => {
@@ -136,5 +139,53 @@ describe('event collectibles', () => {
       clover: [1, 3],
     })
     expect(getCollectibleProgressItemId(1)).toBe('row_2')
+  })
+
+  it('adds a win bonus progress item without requiring a collected row', () => {
+    expect(
+      getCollectibleProgressItemIds({
+        rowIndexes: [],
+        won: true,
+        winBonusItemId: 'win_bonus',
+      })
+    ).toEqual(['win_bonus'])
+    expect(
+      getCollectibleProgressItemIds({
+        rowIndexes: [1, 3],
+        won: true,
+        winBonusItemId: 'win_bonus',
+      })
+    ).toEqual(['row_2', 'row_4', 'win_bonus'])
+    expect(
+      getCollectibleProgressItemIds({
+        rowIndexes: [1],
+        won: false,
+        winBonusItemId: 'win_bonus',
+      })
+    ).toEqual(['row_2'])
+  })
+
+  it('formats collectible dashboard counts with a separate win bonus marker', () => {
+    expect(
+      formatCollectibleDashboardCount({
+        emoji: '🍀',
+        count: 4,
+        winBonusCount: 0,
+      })
+    ).toBe('🍀4')
+    expect(
+      formatCollectibleDashboardCount({
+        emoji: '🍀',
+        count: 4,
+        winBonusCount: 1,
+      })
+    ).toBe('🍀5 (+1)')
+    expect(
+      formatCollectibleDashboardCount({
+        emoji: '🍀',
+        count: 0,
+        winBonusCount: 0,
+      })
+    ).toBe('🍀0')
   })
 })
