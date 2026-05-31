@@ -1,12 +1,18 @@
-# Version Bump Workflow
+---
+name: bump-version
+description: 프로젝트 내 모든 버전 정보를 일괄 업데이트합니다.
+argument-hint: <version> (e.g. 1.7.0)
+---
+
+# Version Bump
 
 Use this workflow to update project version metadata before a release PR.
 
 ## Inputs
 
-- Target version, for example `1.6.0`.
+- Target version, for example `1.7.0`.
 
-Use full semantic versions. In code/config use the bare form such as `1.6.0`; in release labels, branch names, issue/PR text, and docs use the `v`-prefixed form such as `v1.6.0`. Do not omit the patch component.
+Use full semantic versions. In code/config use the bare form such as `1.7.0`; in release labels, branch names, issue/PR text, and docs use the `v`-prefixed form such as `v1.7.0`. Do not omit the patch component.
 
 ## Files To Update
 

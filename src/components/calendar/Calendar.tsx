@@ -1,30 +1,240 @@
 import { Temporal } from 'temporal-polyfill'
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '@heroicons/react/outline'
+import {
+  CalendarIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  RefreshIcon,
+} from '@heroicons/react/outline'
 import { useTranslation } from 'react-i18next'
 import { CalendarDay } from './CalendarDay'
 import { GameStats } from '../../lib/localStorage'
+import { dateToKey } from '../../lib/dailyHistory'
 import {
-  DayResult,
-  loadDailyHistory,
-  dateToKey,
-  getMonthResults,
-  getDailyHistoryStartDate,
-} from '../../lib/dailyHistory'
+  getDailyResultsStartDate,
+  loadDailyResults,
+} from '../../lib/dailyResults'
 import { shareCalendar } from '../../lib/share'
 import { CONFIG } from '../../constants/config'
+import { ShareOptionsRow } from '../stats/ShareOptionsRow'
+import { CosmeticOverrides } from '../../lib/cosmetics'
+import {
+  CalendarMilestone,
+  getCalendarMilestones,
+} from '../../lib/calendarMilestones'
+import { getPatchNoteVersions, PatchNoteVersion } from '../../lib/patchNotes'
 
 const WEEKDAYS_SUN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const WEEKDAYS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 type Props = {
   gameStats: GameStats
+  results?: Record<string, { won: boolean; guessCount: number }>
+  calendarStartDate?: string | null
   handleShare: () => void
   weekStartsOnMonday: boolean
+  onToggleWeekStartsOnMonday: () => void
   excludeUrl: boolean
+  onToggleExcludeUrl: () => void
+  onOpenCosmetics: () => void
+  onOpenPatchNotesVersion?: (version: string) => void
+  hasNewRewards?: boolean
+  cosmeticOverrides?: CosmeticOverrides
+  shareContextLabel?: string
 }
 
-export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUrl }: Props) => {
+const MiniToggle = ({
+  checked,
+  onClick,
+}: {
+  checked: boolean
+  onClick: () => void
+}) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+      checked ? 'bg-green-500' : 'bg-gray-300'
+    }`}
+    onClick={onClick}
+  >
+    <span
+      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+        checked ? 'translate-x-5' : 'translate-x-1'
+      }`}
+    />
+  </button>
+)
+
+const MonthlyOverview = ({
+  success,
+  failure,
+  absence,
+}: {
+  success: number
+  failure: number
+  absence: number
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex justify-center pl-8 text-base leading-normal">
+      <div className="grid grid-cols-[max-content_auto_auto] gap-x-1">
+        <span className="text-right text-green-500">
+          {t('calendarSuccess')}
+        </span>
+        <span className="text-green-500">:</span>
+        <span className="text-left tabular-nums text-green-500">{success}</span>
+        <span className="text-right text-purple-500">
+          {t('calendarFailure')}
+        </span>
+        <span className="text-purple-500">:</span>
+        <span className="text-left tabular-nums text-purple-500">
+          {failure}
+        </span>
+        <span className="text-right text-gray-500">{t('calendarAbsence')}</span>
+        <span className="text-gray-500">:</span>
+        <span className="text-left tabular-nums text-gray-500">{absence}</span>
+      </div>
+    </div>
+  )
+}
+
+const MonthMilestonesButton = ({
+  milestones,
+  monthLabel,
+  patchNoteVersions,
+  onOpenPatchNotesVersion,
+}: {
+  milestones: CalendarMilestone[]
+  monthLabel: string
+  patchNoteVersions: PatchNoteVersion[]
+  onOpenPatchNotesVersion?: (version: string) => void
+}) => {
+  const { t } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const getReleaseSummary = (milestone: CalendarMilestone): string => {
+    if (milestone.kind !== 'release' || !milestone.version) {
+      return t(milestone.descriptionKey, {
+        version: milestone.version,
+      })
+    }
+
+    const version = milestone.version.replace(/^v/, '')
+    const patchNotes = patchNoteVersions.find(
+      (patchNote) => patchNote.version === version
+    )
+    if (!patchNotes) {
+      return t(milestone.descriptionKey, {
+        version: milestone.version,
+      })
+    }
+
+    return patchNotes.features.map((feature) => t(feature.titleKey)).join(' · ')
+  }
+
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        className={`inline-flex shrink-0 items-center justify-center rounded p-1 focus:outline-none focus:ring-1 focus:ring-gray-400 ${
+          milestones.length > 0
+            ? 'text-gray-700 hover:bg-gray-100'
+            : 'text-gray-300'
+        }`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={t('calendarMonthEventsTitle', { month: monthLabel })}
+        title={t('calendarMonthEventsTitle', { month: monthLabel })}
+      >
+        <CalendarIcon className="h-5 w-5" />
+      </button>
+      {isOpen && (
+        <div className="absolute left-0 top-7 z-30 max-h-72 w-72 overflow-y-auto rounded border border-gray-200 bg-white p-3 text-left text-xs font-normal normal-case leading-4 tracking-normal text-gray-600 shadow-lg">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="font-semibold text-gray-900">
+              {t('calendarMonthEventsTitle', { month: monthLabel })}
+            </div>
+            <button
+              type="button"
+              className="shrink-0 font-semibold text-gray-400 hover:text-gray-700"
+              onClick={() => setIsOpen(false)}
+              aria-label={t('calendarMonthEventsClose')}
+            >
+              ×
+            </button>
+          </div>
+          {milestones.length === 0 ? (
+            <p>{t('calendarMonthEventsEmpty')}</p>
+          ) : (
+            <ul className="space-y-2">
+              {milestones.map((milestone) => (
+                <li key={milestone.id} className="flex gap-2">
+                  <span className="w-5 shrink-0 text-center">
+                    {milestone.icon}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="font-medium text-gray-800">
+                      {milestone.date.slice(5)}
+                    </span>
+                    <span className="text-gray-400"> · </span>
+                    {milestone.kind === 'release' &&
+                    milestone.version &&
+                    onOpenPatchNotesVersion ? (
+                      <>
+                        <button
+                          type="button"
+                          className="font-semibold text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-800"
+                          onClick={() => {
+                            setIsOpen(false)
+                            onOpenPatchNotesVersion(milestone.version as string)
+                          }}
+                        >
+                          {milestone.version}
+                        </button>
+                        <span className="text-gray-500">
+                          {' '}
+                          {t('calendarReleaseSuffix')}
+                        </span>
+                      </>
+                    ) : (
+                      <span>
+                        {t(milestone.titleKey, {
+                          version: milestone.version,
+                        })}
+                      </span>
+                    )}
+                    <br />
+                    <span className="text-gray-500">
+                      {getReleaseSummary(milestone)}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </span>
+  )
+}
+
+export const Calendar = ({
+  gameStats,
+  results,
+  calendarStartDate,
+  handleShare,
+  weekStartsOnMonday,
+  onToggleWeekStartsOnMonday,
+  excludeUrl,
+  onToggleExcludeUrl,
+  onOpenCosmetics,
+  onOpenPatchNotesVersion,
+  hasNewRewards = false,
+  cosmeticOverrides,
+  shareContextLabel,
+}: Props) => {
   const { t } = useTranslation()
   const today = Temporal.Now.plainDateISO()
 
@@ -56,8 +266,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
     }
   }
 
-  const monthResults = getMonthResults(year, month)
-  const history = loadDailyHistory()
+  const storedResults = results ?? loadDailyResults()
 
   // Build calendar grid
   const firstDay = Temporal.PlainDate.from({
@@ -70,18 +279,43 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   const firstDayOfWeek = weekStartsOnMonday
     ? (sundayBasedDow + 6) % 7 // Mon=0, Tue=1, ..., Sun=6
     : sundayBasedDow
-  const daysInMonth = monthResults.length
+  const daysInMonth = firstDay.daysInMonth
+  const monthResults = Array.from({ length: daysInMonth }, (_, dayIndex) => {
+    const dateKey = dateToKey(firstDay.with({ day: dayIndex + 1 }))
+    return storedResults[dateKey] ?? null
+  })
+  const monthlyPlayedCount = monthResults.filter(Boolean).length
+  const monthlyWinCount = monthResults.filter((result) => result?.won).length
+  const monthlyLossCount = monthlyPlayedCount - monthlyWinCount
+  const monthlyAbsenceCount = daysInMonth - monthlyPlayedCount
 
-  const calendarStartDate = getDailyHistoryStartDate()
+  const effectiveCalendarStartDate =
+    calendarStartDate === undefined
+      ? getDailyResultsStartDate()
+      : calendarStartDate
+  const calendarMilestones = getCalendarMilestones({
+    year,
+    calendarStartDate: effectiveCalendarStartDate,
+  })
+  const patchNoteVersions = getPatchNoteVersions()
+  const visibleMonthKey = `${year}-${String(month + 1).padStart(2, '0')}`
+  const monthlyMilestones = calendarMilestones
+    .filter((milestone) => milestone.date.startsWith(visibleMonthKey))
+    .sort((a, b) => a.date.localeCompare(b.date))
+  const milestonesByDate = calendarMilestones.reduce<
+    Record<string, CalendarMilestone[]>
+  >((grouped, milestone) => {
+    grouped[milestone.date] = [...(grouped[milestone.date] ?? []), milestone]
+    return grouped
+  }, {})
 
   type CellData = {
     day: number | null
-    result?: DayResult | null
+    result?: { won: boolean; guessCount: number } | null
     isToday: boolean
     isFuture: boolean
     isBeforeEpoch: boolean
-    isBirthday: boolean
-    isCalendarEpoch: boolean
+    milestones: CalendarMilestone[]
   }
 
   const cells: CellData[] = []
@@ -93,8 +327,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
       isToday: false,
       isFuture: false,
       isBeforeEpoch: false,
-      isBirthday: false,
-      isCalendarEpoch: false,
+      milestones: [],
     })
   }
 
@@ -104,9 +337,9 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
     const key = dateToKey(date)
     const isToday = Temporal.PlainDate.compare(date, today) === 0
     const isFuture = Temporal.PlainDate.compare(date, today) > 0
-    const isBeforeEpoch = Temporal.PlainDate.compare(date, epoch) < 0 ||
-      (calendarStartDate !== null && key < calendarStartDate)
-    const isCalendarEpoch = calendarStartDate === key
+    const isBeforeEpoch =
+      Temporal.PlainDate.compare(date, epoch) < 0 ||
+      (effectiveCalendarStartDate !== null && key < effectiveCalendarStartDate)
 
     cells.push({
       day: d,
@@ -114,8 +347,7 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
       isToday,
       isFuture,
       isBeforeEpoch,
-      isBirthday: month === 1 && d === 16, // Feb 16 — Wor-chain-dle birthday
-      isCalendarEpoch,
+      milestones: milestonesByDate[key] ?? [],
     })
   }
 
@@ -126,15 +358,14 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
       isToday: false,
       isFuture: false,
       isBeforeEpoch: false,
-      isBirthday: false,
-      isCalendarEpoch: false,
+      milestones: [],
     })
   }
 
-  const monthLabel = firstDay.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
-  })
+  const monthLabel = `${firstDay.year}-${String(firstDay.month).padStart(
+    2,
+    '0'
+  )}`
 
   const fallbackWeekdays = weekStartsOnMonday ? WEEKDAYS_MON : WEEKDAYS_SUN
   const weekdayKeys = t('weekdays', { returnObjects: true }) as string[]
@@ -152,35 +383,62 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
   )
 
   return (
-    <div className="flex flex-col items-center justify-between h-full">
+    <div className="relative flex h-full flex-col items-center pb-20">
       {/* Month navigation */}
-      <div className="flex items-center w-full mb-3">
+      <div className="relative mb-2 flex h-7 w-full items-center justify-center">
         <button
           onClick={goBack}
-          className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+          type="button"
+          className="absolute left-0 p-1 rounded hover:bg-gray-100 cursor-pointer"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        <span className="flex-1 text-center text-base font-semibold text-gray-900 -mr-7">
+        <div className="absolute left-8 top-0">
+          <MonthMilestonesButton
+            milestones={monthlyMilestones}
+            monthLabel={monthLabel}
+            patchNoteVersions={patchNoteVersions}
+            onOpenPatchNotesVersion={onOpenPatchNotesVersion}
+          />
+        </div>
+        <span className="whitespace-nowrap text-center text-base font-semibold text-gray-900">
           {monthLabel}
         </span>
-        <button
-          onClick={() => {
-            setYear(today.year)
-            setMonth(today.month - 1)
-          }}
-          disabled={year === today.year && month === today.month - 1}
-          className={`p-1 rounded ${year === today.year && month === today.month - 1 ? 'opacity-30 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}`}
-          title="Today"
-        >
-          <RefreshIcon className="h-5 w-5" />
-        </button>
-        <button
-          onClick={goForward}
-          className="p-1 rounded hover:bg-gray-100 cursor-pointer"
-        >
-          <ChevronRightIcon className="h-5 w-5" />
-        </button>
+        <div className="absolute right-0 flex items-center gap-1">
+          <div
+            className="flex items-center gap-1 text-[0.625rem] font-medium text-gray-400"
+            title={t('weekStartLabel')}
+          >
+            <span>{t('mondayStartShortLabel')}</span>
+            <MiniToggle
+              checked={weekStartsOnMonday}
+              onClick={onToggleWeekStartsOnMonday}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setYear(today.year)
+              setMonth(today.month - 1)
+            }}
+            disabled={year === today.year && month === today.month - 1}
+            className={`p-1 rounded ${
+              year === today.year && month === today.month - 1
+                ? 'opacity-30 cursor-default'
+                : 'hover:bg-gray-100 cursor-pointer'
+            }`}
+            title="Today"
+          >
+            <RefreshIcon className="h-5 w-5" />
+          </button>
+          <button
+            onClick={goForward}
+            type="button"
+            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Weekday header + Day grid */}
@@ -204,32 +462,52 @@ export const Calendar = ({ gameStats, handleShare, weekStartsOnMonday, excludeUr
               isToday={cell.isToday}
               isFuture={cell.isFuture}
               isBeforeEpoch={cell.isBeforeEpoch}
-              isBirthday={cell.isBirthday}
-              isCalendarEpoch={cell.isCalendarEpoch}
+              milestones={cell.milestones}
             />
           ))}
         </div>
       </div>
 
-      {/* Streak + Share button */}
-      <div className="columns-2 w-full">
-        <div>
-          <h5>{t('currentStreak')}</h5>
-          <span className="text-lg font-semibold text-gray-900">
-            🔥 {gameStats.currentStreak}
-          </span>
+      {/* Monthly attendance + Share button */}
+      <div className="absolute -bottom-2 left-0 grid w-full grid-cols-2 items-center gap-3">
+        <MonthlyOverview
+          success={monthlyWinCount}
+          failure={monthlyLossCount}
+          absence={monthlyAbsenceCount}
+        />
+        <div className="space-y-2">
+          <button
+            type="button"
+            disabled={!hasAnyData}
+            className={`w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${
+              hasAnyData
+                ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'
+                : 'bg-gray-300 cursor-default'
+            }`}
+            onClick={() => {
+              shareCalendar(
+                year,
+                month,
+                storedResults,
+                gameStats.currentStreak,
+                weekStartsOnMonday,
+                excludeUrl,
+                effectiveCalendarStartDate,
+                cosmeticOverrides,
+                shareContextLabel
+              )
+              handleShare()
+            }}
+          >
+            {t('share')}
+          </button>
+          <ShareOptionsRow
+            excludeUrl={excludeUrl}
+            onToggleExcludeUrl={onToggleExcludeUrl}
+            onOpenCosmetics={onOpenCosmetics}
+            hasNewRewards={hasNewRewards}
+          />
         </div>
-        <button
-          type="button"
-          disabled={!hasAnyData}
-          className={`mt-2 w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm ${hasAnyData ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'bg-gray-300 cursor-default'}`}
-          onClick={() => {
-            shareCalendar(year, month, history, gameStats.currentStreak, weekStartsOnMonday, excludeUrl)
-            handleShare()
-          }}
-        >
-          {t('shareMonth')}
-        </button>
       </div>
     </div>
   )

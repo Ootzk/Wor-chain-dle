@@ -6,10 +6,10 @@ Claude Code reads `CLAUDE.md` automatically, while other coding agents may read 
 
 ## Claude Code Skills
 
-Claude-specific slash-command skills remain in `.claude/skills/` and wrap the shared workflow docs in `docs/agent-workflows/`:
+Claude-specific slash-command skills remain in `.claude/skills/` and wrap the repository skills in `.agents/skills/`:
 
-- `/bump-version`: follows `docs/agent-workflows/bump-version.md`.
-- `/pr`: follows `docs/agent-workflows/pr.md`.
-- `/cleanup`: follows `docs/agent-workflows/cleanup.md`.
+- `/bump-version`: follows `.agents/skills/bump-version/SKILL.md`.
+- `/pr`: follows `.agents/skills/pr/SKILL.md`.
+- `/cleanup`: follows `.agents/skills/cleanup/SKILL.md`.
 
-These skills are Claude Code entrypoints, not general project structure. Keep shared workflow details in `docs/agent-workflows/` and keep `.claude/skills/` as Claude wrappers.
+These skills are Claude Code entrypoints, not general project structure. Keep shared workflow details in `.agents/skills/` and keep `.claude/skills/` as Claude wrappers.

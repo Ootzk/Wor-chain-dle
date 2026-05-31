@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Cell } from '../grid/Cell'
 import { ChainBridge } from '../grid/ChainBridge'
 import { BaseModal } from './BaseModal'
@@ -7,34 +7,47 @@ import { CONFIG } from '../../constants/config'
 import { Trans, useTranslation } from 'react-i18next'
 import 'i18next'
 import { PatchNotesContent } from './PatchNotesContent'
+import { GameMode } from '../../lib/gameMode'
+import { EventDefinition } from '../../lib/events'
+import { EventGuide } from '../events/EventGuide'
 
-type GameMode = 'daily' | 'practice' | 'custom' | 'create'
+type InfoMode = GameMode | 'create'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
-  mode: GameMode
+  mode: InfoMode
   questioner?: string
+  event?: EventDefinition
+  initialTab?: InfoTab
+  initialSection?: InfoSection
+  initialPatchVersion?: string
 }
+
+export type InfoTab = 'mode' | 'howToPlay' | 'patchNotes' | 'about'
+export type InfoSection = 'deadEnd'
 
 interface Letter {
   letter: string
   highlight: boolean
 }
 
-const MODE_TITLE_KEY: Record<GameMode, string> = {
+const MODE_TITLE_KEY: Record<InfoMode, string> = {
   daily: 'dailyModeTitle',
   practice: 'practiceModeTitle',
   custom: 'customModeTitle',
+  event: 'eventModeTitle',
   create: 'howToCreate',
 }
 
 const ModeContent = ({
   mode,
   questioner,
+  event,
 }: {
-  mode: GameMode
+  mode: InfoMode
   questioner?: string
+  event?: EventDefinition
 }) => {
   const { t } = useTranslation()
 
@@ -67,6 +80,17 @@ const ModeContent = ({
     )
   }
 
+  if (mode === 'event') {
+    return (
+      <>
+        <p className="text-sm text-gray-500 whitespace-pre-line">
+          {event ? t(event.descriptionKey) : t('eventModeDesc')}
+        </p>
+        <EventGuide event={event} />
+      </>
+    )
+  }
+
   // custom
   return (
     <p className="text-sm text-gray-500 whitespace-pre-line">
@@ -75,8 +99,9 @@ const ModeContent = ({
   )
 }
 
-const HowToPlayContent = () => {
+const HowToPlayContent = ({ focusSection }: { focusSection?: InfoSection }) => {
   const { t } = useTranslation()
+  const deadEndRef = useRef<HTMLHeadingElement>(null)
   const firstExampleWord: Letter[] = t('firstExampleWord', {
     returnObjects: true,
   })
@@ -87,8 +112,24 @@ const HowToPlayContent = () => {
     returnObjects: true,
   })
 
+  useEffect(() => {
+    if (focusSection === 'deadEnd' && deadEndRef.current) {
+      setTimeout(
+        () =>
+          deadEndRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          }),
+        100
+      )
+    }
+  }, [focusSection])
+
   return (
     <>
+      <h4 className="text-md font-bold text-gray-900 mb-2">
+        {t('basicWordleRuleTitle')}
+      </h4>
       <p className="text-sm text-gray-500">
         {t('instructions', { tries: CONFIG.tries })}
       </p>
@@ -161,69 +202,106 @@ const HowToPlayContent = () => {
       <p className="text-sm text-gray-500 mt-2">
         {t('chainPatternInstructions')}
       </p>
-      <p className="text-sm text-gray-500 mt-2">
-        ⚠️ {t('chainDeadEndInstructions')}
-      </p>
+
+      <hr className="my-4 border-gray-300" />
+
+      <div
+        ref={deadEndRef}
+        data-info-section="dead-end"
+        className={`rounded-lg p-3 transition-colors ${
+          focusSection === 'deadEnd'
+            ? 'border-2 border-indigo-500 shadow-md bg-indigo-50'
+            : 'border border-transparent'
+        }`}
+      >
+        <h4 className="text-md font-bold text-gray-900 mb-2">
+          ⚠️ {t('deadEndRuleTitle')}
+        </h4>
+        <p className="text-sm text-gray-500 mt-2">
+          {t('chainDeadEndInstructions')}
+        </p>
+      </div>
     </>
   )
 }
 
 const AboutContent = () => {
   return (
-    <p className="text-sm text-gray-500">
-      <Trans
-        i18nKey="aboutAuthorSentence"
-        values={{ language: CONFIG.language, author: CONFIG.author }}
-      >
-        This is an open source word guessing game adapted to
-        {CONFIG.language} by
-        <a href={CONFIG.authorWebsite} className="underline font-bold">
-          {CONFIG.author}
-        </a>{' '}
-      </Trans>
-      <Trans i18nKey="aboutCodeSentence">
-        Have a look at
-        <a
-          href="https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game"
-          className="underline font-bold"
+    <div className="space-y-3 text-sm text-gray-500">
+      <p>
+        <Trans
+          i18nKey="aboutAuthorSentence"
+          values={{ language: CONFIG.language, author: CONFIG.author }}
         >
-          Aidan Pine's fork
-        </a>
-        and customize it for another language!
-      </Trans>
-      <Trans
-        i18nKey="aboutDataSentence"
-        values={{ wordListSource: CONFIG.wordListSource }}
-      >
-        The words for this game were sourced from
-        <a href={CONFIG.wordListSourceLink} className="underline font-bold">
-          {CONFIG.wordListSource}
-        </a>
-        .
-      </Trans>
-      <Trans i18nKey="aboutOriginalSentence">
-        You can also
-        <a
-          href="https://www.powerlanguage.co.uk/wordle/"
-          className="underline font-bold"
+          This is an open source word guessing game adapted to
+          {CONFIG.language} by
+          <a href={CONFIG.authorWebsite} className="underline font-bold">
+            {CONFIG.author}
+          </a>{' '}
+        </Trans>
+        <Trans i18nKey="aboutCodeSentence">
+          Have a look at
+          <a
+            href="https://github.com/roedoejet/AnyLanguage-Word-Guessing-Game"
+            className="underline font-bold"
+          >
+            Aidan Pine's fork
+          </a>
+          and customize it for another language!
+        </Trans>
+        <Trans
+          i18nKey="aboutDataSentence"
+          values={{ wordListSource: CONFIG.wordListSource }}
         >
-          play the original here
-        </a>
-      </Trans>
-    </p>
+          The words for this game were sourced from
+          <a href={CONFIG.wordListSourceLink} className="underline font-bold">
+            {CONFIG.wordListSource}
+          </a>
+          .
+        </Trans>
+        <Trans i18nKey="aboutOriginalSentence">
+          You can also
+          <a
+            href="https://www.powerlanguage.co.uk/wordle/"
+            className="underline font-bold"
+          >
+            play the original here
+          </a>
+        </Trans>
+      </p>
+      <p>
+        <Trans i18nKey="aboutAiCreditSentence">
+          Development was assisted by <strong>Claude Code</strong> through
+          v1.6.0 and by <strong>Codex</strong> from v1.7.0 onward.
+        </Trans>
+      </p>
+    </div>
   )
 }
 
-export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
+export const InfoModal = ({
+  isOpen,
+  handleClose,
+  mode,
+  questioner,
+  event,
+  initialTab = 'mode',
+  initialSection,
+  initialPatchVersion,
+}: Props) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState('mode')
+  const [activeTab, setActiveTab] = useState<InfoTab>('mode')
 
   const tabs = [
-    { id: 'mode', label: t(MODE_TITLE_KEY[mode]) },
-    { id: 'howToPlay', label: t('howToPlay') },
-    { id: 'patchNotes', label: t('patchNotes') },
-    { id: 'about', label: t('about') },
+    { id: 'mode' as const, label: t(MODE_TITLE_KEY[mode]) },
+    { id: 'howToPlay' as const, label: t('howToPlay') },
+    { id: 'patchNotes' as const, label: t('patchNotes') },
+    { id: 'about' as const, label: t('about') },
   ]
+
+  useEffect(() => {
+    if (isOpen) setActiveTab(initialTab)
+  }, [isOpen, initialTab])
 
   return (
     <BaseModal
@@ -249,12 +327,19 @@ export const InfoModal = ({ isOpen, handleClose, mode, questioner }: Props) => {
       </div>
 
       {activeTab === 'mode' && (
-        <ModeContent mode={mode} questioner={questioner} />
+        <ModeContent mode={mode} questioner={questioner} event={event} />
       )}
 
-      {activeTab === 'howToPlay' && <HowToPlayContent />}
+      {activeTab === 'howToPlay' && (
+        <HowToPlayContent focusSection={initialSection} />
+      )}
 
-      {activeTab === 'patchNotes' && <PatchNotesContent variant="history" />}
+      {activeTab === 'patchNotes' && (
+        <PatchNotesContent
+          variant="history"
+          initialVersion={initialPatchVersion}
+        />
+      )}
 
       {activeTab === 'about' && <AboutContent />}
     </BaseModal>

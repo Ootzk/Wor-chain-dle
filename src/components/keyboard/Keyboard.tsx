@@ -1,6 +1,6 @@
 import { KeyValue } from '../../lib/keyboard'
 import { getStatuses } from '../../lib/statuses'
-import { Key } from './Key'
+import { Key, KeyVariant } from './Key'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,12 +10,19 @@ const KEYBOARD_ROWS = [
   ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
 ]
 
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false
+
+  return !!target.closest('input, textarea, select, [contenteditable="true"]')
+}
+
 type Props = {
   onChar: (value: string) => void
   onDelete: () => void
   onEnter: () => void
   guesses: string[][]
   solution: string
+  enterHint?: KeyVariant
 }
 
 export const Keyboard = ({
@@ -24,6 +31,7 @@ export const Keyboard = ({
   onEnter,
   guesses,
   solution,
+  enterHint,
 }: Props) => {
   const { t } = useTranslation()
   const charStatuses = getStatuses(guesses, solution)
@@ -40,6 +48,8 @@ export const Keyboard = ({
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || isEditableTarget(e.target)) return
+
       if (e.code === 'Enter') {
         onEnter()
       } else if (e.code === 'Backspace') {
@@ -78,7 +88,13 @@ export const Keyboard = ({
         ))}
       </div>
       <div className="flex justify-center">
-        <Key key="enterKey" width={65.4} value="ENTER" onClick={onClick}>
+        <Key
+          key="enterKey"
+          width={65.4}
+          value="ENTER"
+          onClick={onClick}
+          variant={enterHint}
+        >
           {t('enterKey')}
         </Key>
         {KEYBOARD_ROWS[2].map((char) => (

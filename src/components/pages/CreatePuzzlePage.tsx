@@ -5,16 +5,24 @@ import {
   InformationCircleIcon,
   CogIcon,
   CurrencyDollarIcon,
+  SparklesIcon,
 } from '@heroicons/react/outline'
 import classnames from 'classnames'
 import { isWordInWordList } from '../../lib/words'
 import { encodeCustomPuzzle } from '../../lib/customPuzzle'
-import { loadSettings, saveSettings } from '../../lib/localStorage'
+import {
+  DEFAULT_SETTINGS,
+  loadSettings,
+  saveSettings,
+} from '../../lib/localStorage'
 import { Keyboard } from '../keyboard/Keyboard'
-import { InfoModal } from '../modals/InfoModal'
+import { InfoModal, InfoSection, InfoTab } from '../modals/InfoModal'
 import { SettingsModal } from '../modals/SettingsModal'
 import { DonateModal } from '../modals/DonateModal'
+import { RewardsModal } from '../modals/RewardsModal'
 import { CONFIG } from '../../constants/config'
+import { ModeBadge } from '../modes/ModeBadge'
+import { resetCosmeticState } from '../../lib/cosmetics'
 
 const emptyLetters = () => Array.from({ length: CONFIG.wordLength }, () => '')
 
@@ -26,17 +34,50 @@ export const CreatePuzzlePage = () => {
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState('')
-  const [isUppercase, setIsUppercase] = useState(() => loadSettings().isUppercase)
-  const [weekStartsOnMonday] = useState(() => loadSettings().weekStartsOnMonday)
+  const [isUppercase, setIsUppercase] = useState(
+    () => loadSettings().isUppercase
+  )
+  const [isDarkMode, setIsDarkMode] = useState(() => loadSettings().isDarkMode)
+  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(
+    () => loadSettings().weekStartsOnMonday
+  )
   const [excludeUrl, setExcludeUrl] = useState(() => loadSettings().excludeUrl)
+  const [enterValidationHint, setEnterValidationHint] = useState(
+    () => loadSettings().enterValidationHint
+  )
+  const [controllerEnabled, setControllerEnabled] = useState(
+    () => loadSettings().controllerEnabled
+  )
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
+  const [infoInitialTab, setInfoInitialTab] = useState<InfoTab>('mode')
+  const [infoInitialSection, setInfoInitialSection] = useState<
+    InfoSection | undefined
+  >(undefined)
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false)
 
+  useEffect(() => {
+    saveSettings({
+      isUppercase,
+      isDarkMode,
+      weekStartsOnMonday,
+      excludeUrl,
+      enterValidationHint,
+      controllerEnabled,
+    })
+  }, [
+    isUppercase,
+    isDarkMode,
+    weekStartsOnMonday,
+    excludeUrl,
+    enterValidationHint,
+    controllerEnabled,
+  ])
 
   useEffect(() => {
-    saveSettings({ isUppercase, weekStartsOnMonday, excludeUrl })
-  }, [isUppercase, weekStartsOnMonday, excludeUrl])
+    document.documentElement.classList.toggle('theme-dark', isDarkMode)
+  }, [isDarkMode])
 
   const fallbackCopy = (text: string) => {
     const textarea = document.createElement('textarea')
@@ -63,9 +104,7 @@ export const CreatePuzzlePage = () => {
       return
     }
     if (!isFilled) {
-      setError(
-        t('createPuzzleErrorWordLength', { length: CONFIG.wordLength })
-      )
+      setError(t('createPuzzleErrorWordLength', { length: CONFIG.wordLength }))
       return
     }
     const word = getWord().toLowerCase()
@@ -96,8 +135,7 @@ export const CreatePuzzlePage = () => {
     }
   }, [questioner, isFilled, getWord, t])
 
-  const isInputFocused = () =>
-    document.activeElement === nameInputRef.current
+  const isInputFocused = () => document.activeElement === nameInputRef.current
 
   const onChar = useCallback(
     (value: string) => {
@@ -144,16 +182,35 @@ export const CreatePuzzlePage = () => {
     handleCreate()
   }, [handleCreate])
 
+  const enterHint = (() => {
+    if (!enterValidationHint || copied) return undefined
+    if (!questioner.trim() || !isFilled) return 'incomplete'
+
+    const word = getWord().toLowerCase()
+    if (!isWordInWordList(word)) return 'invalid'
+    return 'valid'
+  })()
+
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-      <div className="flex w-80 mx-auto items-center mb-8">
+      <div className="flex h-12 w-80 mx-auto items-center mb-8">
         <div className="grow">
           <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
-          <p className="text-sm text-green-500">{t('createPuzzle')}</p>
+          <p className="text-sm text-gray-500">
+            <ModeBadge mode="create" />
+          </p>
         </div>
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
-          onClick={() => setIsInfoModalOpen(true)}
+          onClick={() => {
+            setInfoInitialTab('mode')
+            setInfoInitialSection(undefined)
+            setIsInfoModalOpen(true)
+          }}
+        />
+        <SparklesIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsRewardsModalOpen(true)}
         />
         <CogIcon
           className="h-6 w-6 cursor-pointer"
@@ -213,7 +270,7 @@ export const CreatePuzzlePage = () => {
                     className={classnames(
                       'w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded text-center outline-none',
                       {
-                        'uppercase': isUppercase,
+                        uppercase: isUppercase,
                         'bg-green-500 text-white border-green-500':
                           copied && letter,
                         'bg-white border-black': !copied && letter,
@@ -235,21 +292,20 @@ export const CreatePuzzlePage = () => {
                 }
               )}
             >
-              {error
-                ? error
-                : copied
-                  ? <>
-                      {t('createPuzzleCopied')}{' '}
-                      <a
-                        href={copiedUrl}
-                        className="underline"
-                      >
-                        ({t('createPuzzleTryIt')})
-                      </a>
-                    </>
-                  : isFilled
-                    ? t('createPuzzleReady')
-                    : t('createPuzzleHint')}
+              {error ? (
+                error
+              ) : copied ? (
+                <>
+                  {t('createPuzzleCopied')}{' '}
+                  <a href={copiedUrl} className="underline">
+                    ({t('createPuzzleTryIt')})
+                  </a>
+                </>
+              ) : isFilled ? (
+                t('createPuzzleReady')
+              ) : (
+                t('createPuzzleHint')
+              )}
             </div>
           </div>
         </div>
@@ -257,37 +313,78 @@ export const CreatePuzzlePage = () => {
           onChar={onChar}
           onDelete={onDelete}
           onEnter={onEnter}
-          guesses={
-            copied ? [getWord().toLowerCase().split('')] : []
-          }
+          guesses={copied ? [getWord().toLowerCase().split('')] : []}
           solution={copied ? getWord().toLowerCase() : ''}
+          enterHint={enterHint}
         />
       </div>
 
       <InfoModal
         isOpen={isInfoModalOpen}
-        handleClose={() => setIsInfoModalOpen(false)}
+        handleClose={() => {
+          setIsInfoModalOpen(false)
+          setInfoInitialSection(undefined)
+        }}
         mode="create"
+        initialTab={infoInitialTab}
+        initialSection={infoInitialSection}
+      />
+      <RewardsModal
+        isOpen={isRewardsModalOpen}
+        handleClose={() => setIsRewardsModalOpen(false)}
+        isUppercase={isUppercase}
+        onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        excludeUrl={excludeUrl}
+        onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
+        onOpenDeadEndHelp={() => {
+          setIsRewardsModalOpen(false)
+          setInfoInitialTab('howToPlay')
+          setInfoInitialSection('deadEnd')
+          setTimeout(() => setIsInfoModalOpen(true), 300)
+        }}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
         handleClose={() => setIsSettingsModalOpen(false)}
         isUppercase={isUppercase}
         onToggleUppercase={() => setIsUppercase(!isUppercase)}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        weekStartsOnMonday={weekStartsOnMonday}
+        onToggleWeekStartsOnMonday={() =>
+          setWeekStartsOnMonday(!weekStartsOnMonday)
+        }
         excludeUrl={excludeUrl}
         onToggleExcludeUrl={() => setExcludeUrl(!excludeUrl)}
+        enterValidationHint={enterValidationHint}
+        onToggleEnterValidationHint={() =>
+          setEnterValidationHint(!enterValidationHint)
+        }
+        controllerEnabled={controllerEnabled}
+        onToggleControllerEnabled={() =>
+          setControllerEnabled(!controllerEnabled)
+        }
+        onResetSettings={() => {
+          setIsUppercase(DEFAULT_SETTINGS.isUppercase)
+          setIsDarkMode(DEFAULT_SETTINGS.isDarkMode)
+          setWeekStartsOnMonday(DEFAULT_SETTINGS.weekStartsOnMonday)
+          setExcludeUrl(DEFAULT_SETTINGS.excludeUrl)
+          setEnterValidationHint(DEFAULT_SETTINGS.enterValidationHint)
+          setControllerEnabled(DEFAULT_SETTINGS.controllerEnabled)
+        }}
+        onResetCosmetics={() => resetCosmeticState()}
       />
       <DonateModal
         isOpen={isDonateModalOpen}
         handleClose={() => setIsDonateModalOpen(false)}
       />
 
-      <div className="mx-auto mt-4 flex items-center justify-center gap-2">
+      <div className="mx-auto mt-8 flex items-center justify-center gap-2">
         <Link
           to="/"
-          className="flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+          className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
         >
-          {t('daily')}
+          <ModeBadge mode="daily" />
         </Link>
       </div>
     </div>

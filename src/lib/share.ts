@@ -1,20 +1,30 @@
 import { Temporal } from 'temporal-polyfill'
 import { getGuessStatuses } from './statuses'
 import { CONFIG } from '../constants/config'
+import { dateToKey } from './dailyHistory'
+import { getDailyResultsStartDate } from './dailyResults'
 import {
-  DailyHistory,
-  dateToKey,
-  getDailyHistoryStartDate,
-} from './dailyHistory'
-import { getEquippedShareBadge, getEquippedShareEmoji } from './cosmetics'
+  getEquippedShareBadge,
+  getEquippedShareEmoji,
+  CosmeticOverrides,
+} from './cosmetics'
 
-const formatShareTitle = (suffix?: string): string => {
-  const badge = getEquippedShareBadge()
+const formatShareTitle = (
+  suffix?: string,
+  cosmeticOverrides?: CosmeticOverrides
+): string => {
+  const badge = getEquippedShareBadge(cosmeticOverrides)
   return [`Wor${badge}dle`, suffix].filter(Boolean).join(' ')
 }
 
-const formatShareHeader = (suffix: string, result: string): string => {
-  return [formatShareTitle(suffix), result].filter(Boolean).join(' ')
+const formatShareHeader = (
+  suffix: string,
+  result: string,
+  cosmeticOverrides?: CosmeticOverrides
+): string => {
+  return [formatShareTitle(suffix, cosmeticOverrides), result]
+    .filter(Boolean)
+    .join(' ')
 }
 
 export const shareCustomStatus = (
@@ -22,15 +32,17 @@ export const shareCustomStatus = (
   lost: boolean,
   solution: string,
   questioner: string,
-  excludeUrl: boolean = false
+  excludeUrl: boolean = false,
+  cosmeticOverrides?: CosmeticOverrides
 ) => {
   const shareText =
     formatShareHeader(
       `Custom/${questioner}`,
-      `${lost ? 'X' : guesses.length}/${CONFIG.tries.toString()}`
+      `${lost ? 'X' : guesses.length}/${CONFIG.tries.toString()}`,
+      cosmeticOverrides
     ) +
     '\n\n' +
-    generateEmojiGrid(guesses, solution) +
+    generateEmojiGrid(guesses, solution, cosmeticOverrides) +
     (excludeUrl
       ? ''
       : '\n\n' +
@@ -46,15 +58,19 @@ export const generateShareText = (
   tries: number,
   dateLabel: string,
   excludeUrl: boolean = false,
-  urlOverride?: string
+  urlOverride?: string,
+  cosmeticOverrides?: CosmeticOverrides,
+  contextLabel?: string
 ): string => {
   return (
     formatShareHeader(
       dateLabel,
-      `${lost ? 'X' : guesses.length}/${tries.toString()}`
+      `${lost ? 'X' : guesses.length}/${tries.toString()}`,
+      cosmeticOverrides
     ) +
+    (contextLabel ? `\n${contextLabel}` : '') +
     '\n\n' +
-    generateEmojiGrid(guesses, solution) +
+    generateEmojiGrid(guesses, solution, cosmeticOverrides) +
     (excludeUrl
       ? ''
       : '\n\n' +
@@ -69,7 +85,9 @@ export const shareStatus = (
   guesses: string[][],
   lost: boolean,
   solution: string,
-  excludeUrl: boolean = false
+  excludeUrl: boolean = false,
+  cosmeticOverrides?: CosmeticOverrides,
+  contextLabel?: string
 ) => {
   const today = Temporal.Now.plainDateISO()
   const shareText = generateShareText(
@@ -78,7 +96,10 @@ export const shareStatus = (
     solution,
     CONFIG.tries,
     today.toString(),
-    excludeUrl
+    excludeUrl,
+    undefined,
+    cosmeticOverrides,
+    contextLabel
   )
   navigator.clipboard.writeText(shareText)
 }
@@ -89,16 +110,17 @@ const WEEKDAY_LABELS_MON = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 export const shareCalendar = (
   year: number,
   month: number, // 0-indexed
-  dailyHistory: DailyHistory,
+  dailyResults: Record<string, { won: boolean; guessCount: number }>,
   streak: number,
   weekStartsOnMonday: boolean = false,
-  excludeUrl: boolean = false
+  excludeUrl: boolean = false,
+  startDate: string | null = getDailyResultsStartDate(),
+  cosmeticOverrides?: CosmeticOverrides,
+  contextLabel?: string
 ) => {
   const mm = String(month + 1).padStart(2, '0')
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
   const today = Temporal.Now.plainDateISO()
-  const startDate = getDailyHistoryStartDate()
-
   const firstDay = Temporal.PlainDate.from({
     year,
     month: month + 1,
@@ -110,9 +132,13 @@ export const shareCalendar = (
 
   const lines: string[] = []
   const header = formatShareTitle(
-    isCurrentMonth ? `${year}-${mm} (\u{1F525} ${streak})` : `${year}-${mm}`
+    isCurrentMonth ? `${year}-${mm} (\u{1F525} ${streak})` : `${year}-${mm}`,
+    cosmeticOverrides
   )
   lines.push(header)
+  if (contextLabel) {
+    lines.push(contextLabel)
+  }
   lines.push('')
   lines.push(
     (weekStartsOnMonday ? WEEKDAY_LABELS_MON : WEEKDAY_LABELS_SUN).join(' ')
@@ -128,11 +154,11 @@ export const shareCalendar = (
     const isBeforeEpoch = Temporal.PlainDate.compare(date, epoch) < 0
     const isPreCalendarEpoch = startDate !== null && key < startDate
 
-    const emoji = getEquippedShareEmoji()
+    const emoji = getEquippedShareEmoji(cosmeticOverrides)
     if (isFuture || isBeforeEpoch || isPreCalendarEpoch) {
       row.push('\u26AA') // inactive (future / before epoch / pre-calendar)
     } else {
-      const result = dailyHistory[key]
+      const result = dailyResults[key]
       if (!result) {
         row.push(emoji.absent) // not played
       } else if (result.won) {
@@ -165,8 +191,12 @@ export const shareCalendar = (
   navigator.clipboard.writeText(lines.join('\n'))
 }
 
-export const generateEmojiGrid = (guesses: string[][], solution: string) => {
-  const emoji = getEquippedShareEmoji()
+export const generateEmojiGrid = (
+  guesses: string[][],
+  solution: string,
+  cosmeticOverrides?: CosmeticOverrides
+) => {
+  const emoji = getEquippedShareEmoji(cosmeticOverrides)
   return guesses
     .map((guess, gi) => {
       const status = getGuessStatuses(guess, solution)

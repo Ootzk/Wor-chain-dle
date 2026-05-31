@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const port = process.env.PLAYWRIGHT_PORT || '4173'
+const baseURL = `http://localhost:${port}`
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -10,7 +13,7 @@ export default defineConfig({
   timeout: 30_000,
 
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -36,9 +39,9 @@ export default defineConfig({
 
   webServer: {
     command: process.env.CI
-      ? 'npx serve -s build -l 3000'
-      : 'npm run build && npx serve -s build -l 3000',
-    url: 'http://localhost:3000',
+      ? `npx serve -s build -l ${port}`
+      : `PUBLIC_URL=/ npm run build && npx serve -s build -l ${port}`,
+    url: baseURL,
     reuseExistingServer: true,
     timeout: 120_000,
   },

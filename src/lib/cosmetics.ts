@@ -1,3 +1,5 @@
+import { REWARD_METADATA, RewardMetadata } from './rewardMetadata'
+
 // --- Type Definitions ---
 
 export type CosmeticCategory =
@@ -20,11 +22,17 @@ export type CosmeticOption = {
   category: CosmeticCategory
   titleKey: string
   requiresAchievement?: string
+  metadata?: RewardMetadata
 }
 
 type CosmeticState = {
   equipped: Record<CosmeticCategory, string>
 }
+
+export type CosmeticOverrides = Partial<Record<CosmeticCategory, string>>
+export type CosmeticOverrideConfig = Partial<
+  Record<CosmeticCategory, string | string[]>
+>
 
 // --- Share Emoji Options ---
 
@@ -54,6 +62,11 @@ const SHARE_EMOJI_SETS: Record<string, ShareEmojiSet> = {
     present: '\uD83C\uDF47',
     absent: '\uD83E\uDD5B',
   },
+  emoji_garden: {
+    correct: '\uD83C\uDF40',
+    present: '\uD83E\uDEBB',
+    absent: '\uD83D\uDC07',
+  },
 }
 
 // --- Share Badge Options ---
@@ -69,6 +82,13 @@ const SHARE_BADGES: Record<string, string> = {
   badge_star: '\u2B50',
   badge_hundred: '\uD83D\uDCAF',
   badge_wrestle: '\uD83E\uDD3C',
+  badge_apple: '\uD83C\uDF4F',
+  badge_grape: '\uD83C\uDF47',
+  badge_milk: '\uD83E\uDD5B',
+  badge_grass: '\uD83D\uDC9A',
+  badge_clover: '\uD83C\uDF40',
+  badge_hyacinth: '\uD83E\uDEBB',
+  badge_rabbit: '\uD83D\uDC07',
 }
 
 // --- Cell Font Options ---
@@ -85,6 +105,7 @@ export const CELL_COLOR_STYLES: Record<string, string> = {
   color_default: '',
   color_gold: 'text-yellow-300',
   color_black: 'text-black',
+  color_grass: 'text-lime-300',
 }
 
 // --- Chain Style Options ---
@@ -124,6 +145,7 @@ export const CHAIN_COLOR_STYLES: Record<string, string> = {
   chaincolor_black: 'border-black',
   chaincolor_silver: 'border-gray-400',
   chaincolor_gold: 'border-yellow-500',
+  chaincolor_grass: 'border-lime-400',
 }
 
 // --- Alert Message Theme Emoji ---
@@ -157,30 +179,42 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'emoji_default',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'emoji_circle',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_circle',
     requiresAchievement: 'play_10',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'emoji_heart',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_heart',
     requiresAchievement: 'win_in_3',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'emoji_bibimbap',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_bibimbap',
     requiresAchievement: 'bibimbap_balance',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'emoji_yogurt',
     category: 'shareEmoji',
     titleKey: 'cosmetic_emoji_yogurt',
     requiresAchievement: 'yogurt_recipe',
+    metadata: REWARD_METADATA.v1_6_0,
+  },
+  {
+    id: 'emoji_garden',
+    category: 'shareEmoji',
+    titleKey: 'cosmetic_emoji_garden',
+    requiresAchievement: 'garden_set',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Share Badge
@@ -188,54 +222,112 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'badge_chain',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_chain',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'badge_fire',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_fire',
     requiresAchievement: 'streak_14',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_calendar',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_calendar',
     requiresAchievement: 'monthly_attendance',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_lizard',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_lizard',
     requiresAchievement: 'dead_end_tail',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_six',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_six',
     requiresAchievement: 'played_v1_6_0_5',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_skull',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_skull',
     requiresAchievement: 'fail_100',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_star',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_star',
     requiresAchievement: 'play_150',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_hundred',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_hundred',
     requiresAchievement: 'practice_win_100',
+    metadata: REWARD_METADATA.v1_6_0,
   },
   {
     id: 'badge_wrestle',
     category: 'shareBadge',
     titleKey: 'cosmetic_badge_wrestle',
     requiresAchievement: 'custom_win_10',
+    metadata: REWARD_METADATA.v1_6_0,
+  },
+  {
+    id: 'badge_apple',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_apple',
+    requiresAchievement: 'no_present_game',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_grape',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_grape',
+    requiresAchievement: 'no_correct_game',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_milk',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_milk',
+    requiresAchievement: 'win_in_6_20',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_grass',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_grass',
+    requiresAchievement: 'played_v1_7_0_5',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_clover',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_clover',
+    requiresAchievement: 'clover_collector',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_hyacinth',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_hyacinth',
+    requiresAchievement: 'practice_win_10',
+    metadata: REWARD_METADATA.v1_7_0,
+  },
+  {
+    id: 'badge_rabbit',
+    category: 'shareBadge',
+    titleKey: 'cosmetic_badge_rabbit',
+    requiresAchievement: 'rabbit_speed',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Cell Font
@@ -243,18 +335,21 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'font_default',
     category: 'cellFont',
     titleKey: 'cosmetic_font_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'font_pixel',
     category: 'cellFont',
     titleKey: 'cosmetic_font_pixel',
     requiresAchievement: 'win_in_4',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'font_marker',
     category: 'cellFont',
     titleKey: 'cosmetic_font_marker',
     requiresAchievement: 'play_50',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 
   // Cell Color
@@ -262,18 +357,28 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'color_default',
     category: 'cellColor',
     titleKey: 'cosmetic_color_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'color_gold',
     category: 'cellColor',
     titleKey: 'cosmetic_color_gold',
     requiresAchievement: 'win_in_2',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'color_black',
     category: 'cellColor',
     titleKey: 'cosmetic_color_black',
     requiresAchievement: 'win_in_5',
+    metadata: REWARD_METADATA.v1_5_0,
+  },
+  {
+    id: 'color_grass',
+    category: 'cellColor',
+    titleKey: 'cosmetic_color_grass',
+    requiresAchievement: 'grass_diet',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Chain Style
@@ -281,18 +386,21 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chain_default',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_default',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chain_dashed',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_dashed',
     requiresAchievement: 'streak_3',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chain_thick',
     category: 'chainStyle',
     titleKey: 'cosmetic_chain_thick',
     requiresAchievement: 'streak_7',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 
   // Chain Color
@@ -300,18 +408,28 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'chaincolor_black',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_black',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chaincolor_silver',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_silver',
     requiresAchievement: 'play_100',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'chaincolor_gold',
     category: 'chainColor',
     titleKey: 'cosmetic_chaincolor_gold',
     requiresAchievement: 'win_in_1',
+    metadata: REWARD_METADATA.v1_5_0,
+  },
+  {
+    id: 'chaincolor_grass',
+    category: 'chainColor',
+    titleKey: 'cosmetic_chaincolor_grass',
+    requiresAchievement: 'grassland_trail',
+    metadata: REWARD_METADATA.v1_7_0,
   },
 
   // Alert Message
@@ -319,12 +437,14 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     id: 'msg_classic',
     category: 'endMessage',
     titleKey: 'cosmetic_msg_classic',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   {
     id: 'msg_phrase',
     category: 'endMessage',
     titleKey: 'cosmetic_msg_phrase',
     requiresAchievement: 'win_in_6',
+    metadata: REWARD_METADATA.v1_5_0,
   },
   // {
   //   id: 'msg_chill',
@@ -349,6 +469,7 @@ export const COSMETIC_OPTIONS: CosmeticOption[] = [
     category: 'endMessage',
     titleKey: 'cosmetic_msg_emoji',
     requiresAchievement: 'streak_30',
+    metadata: REWARD_METADATA.v1_5_0,
   },
 ]
 
@@ -367,6 +488,10 @@ const defaultState: CosmeticState = {
     endMessage: 'msg_classic',
   },
 }
+
+export const getDefaultCosmeticState = (): CosmeticState => ({
+  equipped: { ...defaultState.equipped },
+})
 
 const legacyOptionIds: Record<string, string> = {
   badge_none: 'badge_chain',
@@ -402,11 +527,17 @@ export const loadCosmeticState = (): CosmeticState => {
           (JSON.parse(data) as Partial<CosmeticState>).equipped ?? {}
         ),
       }
-    : { ...defaultState }
+    : getDefaultCosmeticState()
 }
 
 export const saveCosmeticState = (state: CosmeticState): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+}
+
+export const resetCosmeticState = (): CosmeticState => {
+  const state = getDefaultCosmeticState()
+  saveCosmeticState(state)
+  return state
 }
 
 export const equipCosmetic = (
@@ -420,9 +551,39 @@ export const equipCosmetic = (
 
 // --- Getters ---
 
-export const getEquippedShareEmoji = (): ShareEmojiSet => {
+export const resolveCosmeticOverrides = (
+  overrides?: CosmeticOverrideConfig
+): CosmeticOverrides | undefined => {
+  if (!overrides) return undefined
+
+  return Object.entries(overrides).reduce<CosmeticOverrides>(
+    (resolved, [category, value]) => {
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          const index = Math.floor(Math.random() * value.length)
+          resolved[category as CosmeticCategory] = value[index]
+        }
+      } else if (value) {
+        resolved[category as CosmeticCategory] = value
+      }
+      return resolved
+    },
+    {}
+  )
+}
+
+const getEquippedOptionId = (
+  category: CosmeticCategory,
+  overrides?: CosmeticOverrides
+): string => {
   const state = loadCosmeticState()
-  const optionId = state.equipped.shareEmoji
+  return normalizeOptionId(overrides?.[category] ?? state.equipped[category])
+}
+
+export const getEquippedShareEmoji = (
+  overrides?: CosmeticOverrides
+): ShareEmojiSet => {
+  const optionId = getEquippedOptionId('shareEmoji', overrides)
   return SHARE_EMOJI_SETS[optionId] ?? SHARE_EMOJI_SETS['emoji_default']
 }
 
@@ -430,9 +591,11 @@ export const getShareEmojiSet = (optionId: string): ShareEmojiSet => {
   return SHARE_EMOJI_SETS[optionId] ?? SHARE_EMOJI_SETS['emoji_default']
 }
 
-export const getEquippedShareBadge = (): string => {
-  const state = loadCosmeticState()
-  return SHARE_BADGES[state.equipped.shareBadge] ?? SHARE_BADGES['badge_chain']
+export const getEquippedShareBadge = (
+  overrides?: CosmeticOverrides
+): string => {
+  const optionId = getEquippedOptionId('shareBadge', overrides)
+  return SHARE_BADGES[optionId] ?? SHARE_BADGES['badge_chain']
 }
 
 export const getShareBadge = (optionId: string): string => {
@@ -441,45 +604,43 @@ export const getShareBadge = (optionId: string): string => {
   )
 }
 
-export const getEquippedCellFont = (): string => {
-  const state = loadCosmeticState()
-  return CELL_FONT_STYLES[state.equipped.cellFont] ?? ''
+export const getEquippedCellFont = (overrides?: CosmeticOverrides): string => {
+  const optionId = getEquippedOptionId('cellFont', overrides)
+  return CELL_FONT_STYLES[optionId] ?? ''
 }
 
-export const getEquippedCellColor = (): string => {
-  const state = loadCosmeticState()
-  return CELL_COLOR_STYLES[state.equipped.cellColor] ?? ''
+export const getEquippedCellColor = (overrides?: CosmeticOverrides): string => {
+  const optionId = getEquippedOptionId('cellColor', overrides)
+  return CELL_COLOR_STYLES[optionId] ?? ''
 }
 
-export const getEquippedChainStyle = (): {
+export const getEquippedChainStyle = (
+  overrides?: CosmeticOverrides
+): {
   className: string
   height: string
   borderWidth: string
   borderStyle: string
 } => {
-  const state = loadCosmeticState()
-  return (
-    CHAIN_STYLES[state.equipped.chainStyle] ?? CHAIN_STYLES['chain_default']
-  )
+  const optionId = getEquippedOptionId('chainStyle', overrides)
+  return CHAIN_STYLES[optionId] ?? CHAIN_STYLES['chain_default']
 }
 
-export const getEquippedChainColor = (): string => {
-  const state = loadCosmeticState()
-  return (
-    CHAIN_COLOR_STYLES[state.equipped.chainColor] ??
-    CHAIN_COLOR_STYLES['chaincolor_black']
-  )
+export const getEquippedChainColor = (
+  overrides?: CosmeticOverrides
+): string => {
+  const optionId = getEquippedOptionId('chainColor', overrides)
+  return CHAIN_COLOR_STYLES[optionId] ?? CHAIN_COLOR_STYLES['chaincolor_black']
 }
 
-export const getEquippedAlertMessageKeys = (): {
+export const getEquippedAlertMessageKeys = (
+  overrides?: CosmeticOverrides
+): {
   win: string
   loss: string
 } => {
-  const state = loadCosmeticState()
-  return (
-    ALERT_MESSAGE_KEYS[state.equipped.endMessage] ??
-    ALERT_MESSAGE_KEYS['msg_classic']
-  )
+  const optionId = getEquippedOptionId('endMessage', overrides)
+  return ALERT_MESSAGE_KEYS[optionId] ?? ALERT_MESSAGE_KEYS['msg_classic']
 }
 
 export const getRewardsForAchievement = (

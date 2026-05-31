@@ -24,6 +24,15 @@ async function save(page: Page, name: string) {
   await page.screenshot({ path: path.join(ASSETS, `${name}.png`) })
 }
 
+async function scrollToTop(page: Page) {
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+    document
+      .querySelectorAll('[class*="overflow-y-auto"]')
+      .forEach((el) => el.scrollTo(0, 0))
+  })
+}
+
 async function initPage(page: Page) {
   await page.clock.setFixedTime(HYDRO_DATE)
   await page.addInitScript((version) => {
@@ -104,9 +113,9 @@ test('daily statistics modal', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Stats modal auto-opens (completed game detected)
+  // Records modal auto-opens (completed game detected)
   await page
-    .locator('text=Statistics')
+    .getByRole('heading', { name: 'Records' })
     .waitFor({ state: 'visible', timeout: 8000 })
   await page.waitForTimeout(500)
   await save(page, 'statistics')
@@ -189,10 +198,17 @@ test('monthly calendar with history', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open Stats modal (icon index 1), then click Calendar tab
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-  await page.locator('text=Statistics').waitFor({ state: 'visible' })
-  await page.locator('text=Calendar').click()
+  // Open Records modal (icon index 1), then click Calendar tab
+  await page
+    .locator('svg.h-6.w-6.cursor-pointer')
+    .nth(1)
+    .evaluate((el) => {
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+  await page.getByRole('heading', { name: 'Records' }).waitFor({
+    state: 'visible',
+  })
+  await page.getByRole('button', { name: 'Calendar' }).click()
   await page.waitForTimeout(500)
   await save(page, 'calendar')
 })
@@ -240,8 +256,8 @@ test('settings with language selector (Korean)', async ({ page }) => {
   await page.goto('/')
   await page.locator('button:text-is("q")').waitFor({ state: 'visible' })
 
-  // Open Settings modal (icon index 2)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  // Open Settings modal (icon index 3)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
   await page.waitForTimeout(500)
   await save(page, 'settings-kor')
 })
@@ -258,6 +274,7 @@ test('patch notes modal', async ({ page }) => {
   await page
     .getByRole('heading', { name: "What's New" })
     .waitFor({ state: 'visible', timeout: 5000 })
+  await scrollToTop(page)
   await page.waitForTimeout(500)
   await save(page, 'patch-note')
 })
@@ -281,14 +298,52 @@ test('practice mode', async ({ page }) => {
   await save(page, 'practice-mode')
 })
 
+test('event mode', async ({ page }) => {
+  await initPage(page)
+  await page.goto('/#/event')
+  await waitForGameReady(page)
+  await page.getByRole('heading', { name: 'Information' }).waitFor({
+    state: 'visible',
+  })
+  await page.keyboard.press('Escape')
+  await page.getByRole('heading', { name: 'Information' }).waitFor({
+    state: 'hidden',
+  })
+  await page.waitForTimeout(500)
+  await save(page, 'event-mode')
+})
+
+test('event guide', async ({ page }) => {
+  await initPage(page)
+  await page.goto('/#/event')
+  await waitForGameReady(page)
+
+  await page.getByRole('heading', { name: 'Information' }).waitFor({
+    state: 'visible',
+  })
+  await page.getByRole('heading', { name: '🍀🐇 Summer Garden' }).waitFor({
+    state: 'visible',
+  })
+  await scrollToTop(page)
+  await page.waitForTimeout(500)
+  await save(page, 'event-guide')
+})
+
 test('settings modal with all toggles', async ({ page }) => {
   await initPage(page)
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings (Daily mode: icon index 2)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  // Open settings (Daily mode: icon index 3)
+  await page
+    .locator('svg.h-6.w-6.cursor-pointer')
+    .nth(3)
+    .evaluate((el) => {
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+  await page.getByRole('heading', { name: 'Settings' }).waitFor({
+    state: 'visible',
+  })
   await page.waitForTimeout(300)
   await save(page, 'settings')
 })
@@ -298,8 +353,8 @@ test('donate modal', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Click donate icon (Daily mode: icon index 3)
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+  // Click donate icon (Daily mode: icon index 4)
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
   await page.locator('h3:has-text("Donate")').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'donation')
@@ -393,15 +448,14 @@ test('achievements tab with unlocked and locked', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open Stats → Achievements tab
-  await page.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
-  await page.locator('text=Statistics').waitFor({ state: 'visible' })
-  await page.locator('text=Achievements').click()
+  // Open Rewards → Achievements tab
+  await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
   await page.waitForTimeout(500)
   await save(page, 'achievements')
 })
 
-test('settings with cosmetics and sample view', async ({ page }) => {
+test('rewards with cosmetics and sample view', async ({ page }) => {
   await initPage(page)
 
   // Unlock some achievements for cosmetic options
@@ -442,9 +496,10 @@ test('settings with cosmetics and sample view', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings
+  // Open rewards
   await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
+  await page.locator('text=Cosmetics').click()
   await page.waitForTimeout(300)
   await save(page, 'settings-cosmetics')
 })
@@ -473,9 +528,10 @@ test('cosmetic picker popup', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings → click Share Emoji picker
+  // Open rewards → click Share Emoji picker
   await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
+  await page.locator('text=Cosmetics').click()
   await page.locator('text=Share Emoji').locator('..').locator('button').click()
   await page.waitForTimeout(300)
   await save(page, 'cosmetic-picker')
@@ -502,9 +558,10 @@ test('alert message theme picker', async ({ page }) => {
   await page.goto('/')
   await waitForGameReady(page)
 
-  // Open settings → click Alert Message picker
+  // Open rewards → click Alert Message picker
   await page.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-  await page.locator('text=Settings').waitFor({ state: 'visible' })
+  await page.locator('text=Rewards').waitFor({ state: 'visible' })
+  await page.locator('text=Cosmetics').click()
   await page.locator('text=Win Message').locator('..').locator('button').click()
   await page.waitForTimeout(300)
   await save(page, 'alert-message-picker')

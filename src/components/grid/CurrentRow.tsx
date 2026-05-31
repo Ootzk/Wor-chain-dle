@@ -2,6 +2,8 @@ import { Cell } from './Cell'
 import { CONFIG } from '../../constants/config'
 import { getChainInfo } from '../../lib/chain'
 import { CharStatus, getGuessStatuses } from '../../lib/statuses'
+import { CosmeticOverrides } from '../../lib/cosmetics'
+import { GridCellEffect } from '../../lib/gridEffects'
 
 type Props = {
   guess: string[]
@@ -9,6 +11,9 @@ type Props = {
   solution: string
   chainTopIndex?: number
   chainBottomIndex?: number
+  hideLetters?: boolean
+  cellEffects?: Record<number, GridCellEffect>
+  cosmeticOverrides?: CosmeticOverrides
 }
 
 export const CurrentRow = ({
@@ -17,6 +22,9 @@ export const CurrentRow = ({
   solution,
   chainTopIndex,
   chainBottomIndex,
+  hideLetters,
+  cellEffects,
+  cosmeticOverrides,
 }: Props) => {
   const chainInfo = getChainInfo(guesses)
 
@@ -24,8 +32,7 @@ export const CurrentRow = ({
   if (chainInfo) {
     const prev = guesses[guesses.length - 1]
     const prevStatuses = getGuessStatuses(prev, solution)
-    const chainPos =
-      chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
+    const chainPos = chainInfo.position === 'first' ? 0 : CONFIG.wordLength - 1
     chainStatus = prevStatuses[chainPos]
   }
 
@@ -49,6 +56,15 @@ export const CurrentRow = ({
     cells.push({ value: chainInfo.letter, isLocked: true, status: chainStatus })
   }
 
+  const cursorIndex = (() => {
+    if (!hideLetters) return undefined
+    if (!chainInfo) return Math.min(guess.length, CONFIG.wordLength - 1)
+    if (chainInfo.position === 'first') {
+      return Math.min(guess.length + 1, CONFIG.wordLength - 1)
+    }
+    return Math.min(guess.length, CONFIG.wordLength - 2)
+  })()
+
   return (
     <div className="flex justify-center mb-1">
       {cells.map((cell, i) => (
@@ -59,6 +75,10 @@ export const CurrentRow = ({
           isLocked={cell.isLocked}
           chainTop={i === chainTopIndex}
           chainBottom={i === chainBottomIndex}
+          hideLetter={hideLetters}
+          showCursor={i === cursorIndex}
+          cellEffect={cellEffects?.[i]}
+          cosmeticOverrides={cosmeticOverrides}
         />
       ))}
     </div>

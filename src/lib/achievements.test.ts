@@ -1,20 +1,35 @@
 import {
   ACHIEVEMENTS,
   AchievementDef,
+  countStatusesForGame,
   evaluateAchievementDefinitions,
   evaluateAchievements,
   getAchievementModes,
+  getTilePatternProgress,
   loadAchievementState,
   retroUnlockAchievements,
 } from './achievements'
 import { DailyHistory } from './dailyHistory'
 import { GameStats } from './localStorage'
 import {
+  CHAIN_COLOR_STYLES,
+  CELL_COLOR_STYLES,
   getRewardsForAchievement,
   getShareBadge,
   getShareEmojiSet,
 } from './cosmetics'
-import { createDefaultAchievementTrackingState } from './achievementProgress'
+import {
+  createDefaultAchievementTrackingState,
+  recordCompletedGameProgress,
+} from './achievementProgress'
+import {
+  CompletedPlayStats,
+  DailyDetailStatsHistory,
+  completePlayStats,
+  createPlayStats,
+  recordEnterAttempt,
+} from './playStats'
+import { saveEventResult } from './eventResults'
 
 const stats: GameStats = {
   winDistribution: [0, 0, 0, 0, 0, 0],
@@ -36,13 +51,40 @@ const createAchievement = (
   overrides: Partial<AchievementDef>
 ): AchievementDef => ({
   id: 'test_achievement',
-  category: 'milestone',
+  achievementType: 'milestone',
   difficulty: 1,
   progress: alwaysComplete,
   titleKey: 'test_title',
   descriptionKey: 'test_desc',
   ...overrides,
 })
+
+const createFastEventWinStats = (
+  dateKey: string,
+  guessTimeMs: number
+): CompletedPlayStats =>
+  completePlayStats({
+    stats: recordEnterAttempt(
+      createPlayStats({
+        mode: 'event',
+        solution: 'chain',
+        dateKey,
+        enterValidationHint: false,
+        now: 0,
+      }),
+      'valid',
+      guessTimeMs
+    ),
+    won: true,
+    guessCount: 1,
+    tileCounts: {
+      correct: 5,
+      present: 0,
+      absent: 0,
+      unrevealed: 25,
+    },
+    now: guessTimeMs,
+  })
 
 describe('achievement mode availability', () => {
   beforeEach(() => {
@@ -121,17 +163,24 @@ describe('share badge achievements', () => {
   it('unlocks stats-based share badge achievements in daily mode', () => {
     const badgeStats: GameStats = {
       ...stats,
+      winDistribution: [0, 0, 0, 0, 0, 20],
       totalGames: 150,
       gamesFailed: 100,
       bestStreak: 14,
     }
 
     expect(evaluateAchievements(badgeStats, dailyHistory)).toEqual(
-      expect.arrayContaining(['play_150', 'fail_100', 'streak_14'])
+      expect.arrayContaining([
+        'play_150',
+        'fail_100',
+        'streak_14',
+        'win_in_6_20',
+      ])
     )
     expect(loadAchievementState().unlocked.play_150).toBeTruthy()
     expect(loadAchievementState().unlocked.fail_100).toBeTruthy()
     expect(loadAchievementState().unlocked.streak_14).toBeTruthy()
+    expect(loadAchievementState().unlocked.win_in_6_20).toBeTruthy()
   })
 
   it('connects stats-based achievements to share badge rewards', () => {
@@ -145,6 +194,15 @@ describe('share badge achievements', () => {
     expect(getShareBadge('badge_star')).toBe('\u2B50')
     expect(getShareBadge('badge_hundred')).toBe('\uD83D\uDCAF')
     expect(getShareBadge('badge_wrestle')).toBe('\uD83E\uDD3C')
+    expect(getShareBadge('badge_apple')).toBe('\uD83C\uDF4F')
+    expect(getShareBadge('badge_grape')).toBe('\uD83C\uDF47')
+    expect(getShareBadge('badge_milk')).toBe('\uD83E\uDD5B')
+    expect(getShareBadge('badge_grass')).toBe('\uD83D\uDC9A')
+    expect(getShareBadge('badge_clover')).toBe('\uD83C\uDF40')
+    expect(getShareBadge('badge_hyacinth')).toBe('\uD83E\uDEBB')
+    expect(getShareBadge('badge_rabbit')).toBe('\uD83D\uDC07')
+    expect(CHAIN_COLOR_STYLES.chaincolor_grass).toBe('border-lime-400')
+    expect(CELL_COLOR_STYLES.color_grass).toBe('text-lime-300')
     expect(getRewardsForAchievement('streak_14').map((r) => r.id)).toContain(
       'badge_fire'
     )
@@ -169,6 +227,123 @@ describe('share badge achievements', () => {
     expect(
       getRewardsForAchievement('custom_win_10').map((r) => r.id)
     ).toContain('badge_wrestle')
+    expect(
+      getRewardsForAchievement('no_present_game').map((r) => r.id)
+    ).toContain('badge_apple')
+    expect(
+      getRewardsForAchievement('no_correct_game').map((r) => r.id)
+    ).toContain('badge_grape')
+    expect(getRewardsForAchievement('win_in_6_20').map((r) => r.id)).toContain(
+      'badge_milk'
+    )
+    expect(
+      getRewardsForAchievement('played_v1_7_0_5').map((r) => r.id)
+    ).toContain('badge_grass')
+    expect(
+      getRewardsForAchievement('clover_collector').map((r) => r.id)
+    ).toContain('badge_clover')
+    expect(
+      getRewardsForAchievement('practice_win_10').map((r) => r.id)
+    ).toContain('badge_hyacinth')
+    expect(getRewardsForAchievement('rabbit_speed').map((r) => r.id)).toContain(
+      'badge_rabbit'
+    )
+    expect(
+      getRewardsForAchievement('grassland_trail').map((r) => r.id)
+    ).toContain('chaincolor_grass')
+    expect(getRewardsForAchievement('grass_diet').map((r) => r.id)).toContain(
+      'color_grass'
+    )
+  })
+
+  it('unlocks the clover badge after collecting 37 clovers total', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
+      win_bonus: 2,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.7.0',
+        progress,
+      })
+    ).toContain('clover_collector')
+  })
+
+  it('does not unlock the clover badge while evaluating another event version', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
+      win_bonus: 1,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.8.0',
+        progress,
+      })
+    ).not.toContain('clover_collector')
+  })
+
+  it('unlocks the rabbit badge after 7 fast Summer Garden wins', () => {
+    for (let day = 1; day <= 6; day += 1) {
+      const dateKey = `2026-05-${String(day).padStart(2, '0')}`
+      saveEventResult('v1.7.0', {
+        dateKey,
+        solution: 'chain',
+        won: true,
+        guessCount: 1,
+        endReason: 'win',
+        playStats: createFastEventWinStats(dateKey, 45_000),
+      })
+    }
+
+    const currentStats = createFastEventWinStats('2026-05-07', 60_000)
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        game: {
+          dateKey: '2026-05-07',
+          eventVersion: 'v1.7.0',
+          guesses: [['c', 'h', 'a', 'i', 'n']],
+          solution: 'chain',
+          won: true,
+          lost: false,
+          guessCount: 1,
+          endReason: 'win',
+          playStats: currentStats,
+        },
+      })
+    ).toContain('rabbit_speed')
+  })
+
+  it('does not unlock the clover badge below the total clover target', () => {
+    const progress = createDefaultAchievementTrackingState()
+    progress.collectibles['v1.7.0-summer-garden-clover'] = {
+      row_2: 3,
+      row_3: 7,
+      row_4: 10,
+      row_5: 15,
+      win_bonus: 1,
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.7.0',
+        progress,
+      })
+    ).not.toContain('clover_collector')
   })
 
   it('connects game-event achievements to share emoji rewards', () => {
@@ -182,16 +357,118 @@ describe('share badge achievements', () => {
       present: '\uD83C\uDF47',
       absent: '\uD83E\uDD5B',
     })
+    expect(getShareEmojiSet('emoji_garden')).toEqual({
+      correct: '\uD83C\uDF40',
+      present: '\uD83E\uDEBB',
+      absent: '\uD83D\uDC07',
+    })
     expect(
       getRewardsForAchievement('bibimbap_balance').map((r) => r.id)
     ).toContain('emoji_bibimbap')
     expect(
       getRewardsForAchievement('yogurt_recipe').map((r) => r.id)
     ).toContain('emoji_yogurt')
+    expect(getRewardsForAchievement('garden_set').map((r) => r.id)).toContain(
+      'emoji_garden'
+    )
+  })
+
+  it('unlocks the garden share emoji set from component reward achievements', () => {
+    localStorage.setItem(
+      'achievementState',
+      JSON.stringify({
+        version: 'v1.7.0',
+        retroCompleted: true,
+        unlocked: {
+          clover_collector: { unlockedAt: 1 },
+          practice_win_10: { unlockedAt: 2 },
+          rabbit_speed: { unlockedAt: 3 },
+        },
+      })
+    )
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+      })
+    ).toContain('garden_set')
+  })
+
+  it('unlocks the grass letter color from a GREEN and GRASS Summer Garden win', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        eventVersion: 'v1.7.0',
+        game: {
+          eventVersion: 'v1.7.0',
+          guesses: [
+            ['g', 'r', 'e', 'e', 'n'],
+            ['g', 'r', 'a', 's', 's'],
+          ],
+          solution: 'grass',
+          won: true,
+          lost: false,
+          guessCount: 2,
+          endReason: 'win',
+        },
+      })
+    ).toContain('grass_diet')
+  })
+
+  it('unlocks the grass chain color after completing 5 event games', () => {
+    for (let day = 1; day <= 4; day += 1) {
+      const dateKey = `2026-05-${String(day).padStart(2, '0')}`
+      saveEventResult('v1.7.0', {
+        dateKey,
+        solution: 'chain',
+        won: false,
+        guessCount: 2,
+        endReason: 'pacman',
+        playStats: createFastEventWinStats(dateKey, 30_000),
+      })
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'event',
+        game: {
+          dateKey: '2026-05-05',
+          eventVersion: 'v1.7.0',
+          guesses: [
+            ['c', 'h', 'a', 'i', 'n'],
+            ['n', 'e', 'v', 'e', 'r'],
+          ],
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
+      })
+    ).toContain('grassland_trail')
+  })
+
+  it('records unique words from completed wins for word achievements', () => {
+    const progress = recordCompletedGameProgress({
+      mode: 'daily',
+      appVersion: '1.7.0',
+      won: true,
+      wonWords: ['GREEN', 'crane', 'green'],
+    })
+
+    expect(progress.words.green.gamesWon).toBe(1)
+    expect(progress.words.crane.gamesWon).toBe(1)
   })
 
   it('keeps new share badge achievements daily-only', () => {
-    for (const id of ['play_150', 'fail_100', 'streak_14']) {
+    for (const id of [
+      'play_150',
+      'fail_100',
+      'streak_14',
+      'win_in_6_20',
+      'no_present_game',
+      'no_correct_game',
+    ]) {
       const achievement = ACHIEVEMENTS.find((a) => a.id === id)
       expect(achievement).toBeTruthy()
       expect(getAchievementModes(achievement!)).toEqual(['daily'])
@@ -218,15 +495,21 @@ describe('share badge achievements', () => {
 
     const badgeStats: GameStats = {
       ...stats,
+      winDistribution: [0, 0, 0, 0, 0, 20],
       totalGames: 150,
       gamesFailed: 100,
       bestStreak: 14,
     }
 
     expect(retroUnlockAchievements(badgeStats, dailyHistory)).toEqual(
-      expect.arrayContaining(['play_150', 'fail_100', 'streak_14'])
+      expect.arrayContaining([
+        'play_150',
+        'fail_100',
+        'streak_14',
+        'win_in_6_20',
+      ])
     )
-    expect(loadAchievementState().version).toBe(2)
+    expect(loadAchievementState().version).toBe('v1.7.0')
     expect(loadAchievementState().retroCompleted).toBe(true)
   })
 
@@ -262,6 +545,7 @@ describe('share badge achievements', () => {
       monthlyAttendance!.progress({
         stats,
         dailyHistory: partialMonth,
+        dailyDetailStatsHistory: {},
         mode: 'daily',
         progress: createDefaultAchievementTrackingState(),
       })
@@ -299,6 +583,7 @@ describe('share badge achievements', () => {
   it('unlocks version and mode-count badges from tracked progress', () => {
     const progress = createDefaultAchievementTrackingState()
     progress.versions['1.6.0'] = { gamesCompleted: 5 }
+    progress.versions['1.7.0'] = { gamesCompleted: 5 }
     progress.modes.practice.gamesWon = 100
     progress.modes.custom.gamesWon = 10
 
@@ -307,7 +592,14 @@ describe('share badge achievements', () => {
         mode: 'practice',
         progress,
       })
-    ).toEqual(expect.arrayContaining(['played_v1_6_0_5', 'practice_win_100']))
+    ).toEqual(
+      expect.arrayContaining([
+        'played_v1_6_0_5',
+        'played_v1_7_0_5',
+        'practice_win_10',
+        'practice_win_100',
+      ])
+    )
 
     expect(
       evaluateAchievements(stats, dailyHistory, {
@@ -340,6 +632,68 @@ describe('share badge achievements', () => {
     ).toContain('bibimbap_balance')
   })
 
+  it('unlocks bibimbap from stored tile counts in daily detail stats', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: true,
+        guessCount: 6,
+        tileCounts: {
+          correct: 10,
+          present: 10,
+          absent: 10,
+          unrevealed: 6,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('bibimbap_balance')
+  })
+
+  it('does not unlock bibimbap from stored balanced tiles without a 6-guess win', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 6,
+        tileCounts: {
+          correct: 10,
+          present: 10,
+          absent: 10,
+          unrevealed: 6,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).not.toContain('bibimbap_balance')
+  })
+
   it('unlocks yogurt from using apple grape and milks in one game', () => {
     expect(
       evaluateAchievements(stats, dailyHistory, {
@@ -358,5 +712,191 @@ describe('share badge achievements', () => {
         },
       })
     ).toContain('yogurt_recipe')
+  })
+
+  it('unlocks apple from a completed daily game with no present tiles', () => {
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        game: {
+          guesses: [
+            ['x', 'x', 'x', 'x', 'x'],
+            ['c', 'x', 'x', 'x', 'x'],
+          ],
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
+      })
+    ).toContain('no_present_game')
+  })
+
+  it('unlocks apple from stored tile counts in daily detail stats', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 4,
+          present: 0,
+          absent: 21,
+          unrevealed: 11,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('no_present_game')
+  })
+
+  it('unlocks grape from a completed daily game with no correct tiles', () => {
+    const guesses = [
+      ['h', 'x', 'x', 'x', 'x'],
+      ['x', 'c', 'x', 'x', 'x'],
+    ]
+
+    expect(countStatusesForGame(guesses, 'chain').correct).toBe(0)
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        game: {
+          guesses,
+          solution: 'chain',
+          won: false,
+          lost: true,
+          guessCount: 2,
+          endReason: 'fail',
+        },
+      })
+    ).toContain('no_correct_game')
+  })
+
+  it('unlocks grape from stored tile counts in daily detail stats', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 0,
+          present: 7,
+          absent: 18,
+          unrevealed: 11,
+        },
+      },
+    }
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('no_correct_game')
+  })
+
+  it('does not treat legacy detail stats without tile counts as a tile pattern match', () => {
+    const legacyDailyDetailStatsHistory = {
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+      },
+    } as DailyDetailStatsHistory
+
+    expect(
+      evaluateAchievements(stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory: legacyDailyDetailStatsHistory,
+      })
+    ).not.toEqual(
+      expect.arrayContaining(['no_present_game', 'no_correct_game'])
+    )
+  })
+
+  it('counts stored tile pattern matches toward multi-game targets', () => {
+    const dailyDetailStatsHistory: DailyDetailStatsHistory = {
+      '2026-05-19': {
+        mode: 'daily',
+        dateKey: '2026-05-19',
+        solution: 'chain',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: false,
+        guessCount: 5,
+        tileCounts: {
+          correct: 0,
+          present: 4,
+          absent: 21,
+          unrevealed: 11,
+        },
+      },
+      '2026-05-20': {
+        mode: 'daily',
+        dateKey: '2026-05-20',
+        solution: 'crane',
+        startedAt: 0,
+        completedAt: 1,
+        lastActivityAt: 1,
+        longestPauseMs: 0,
+        guessStats: [],
+        assistFlags: { enterValidationHint: false },
+        won: true,
+        guessCount: 4,
+        tileCounts: {
+          correct: 0,
+          present: 7,
+          absent: 13,
+          unrevealed: 16,
+        },
+      },
+    }
+    const achievement = createAchievement({
+      id: 'two_no_correct_games',
+      progress: (ctx) =>
+        getTilePatternProgress(ctx, (counts) => counts.correct === 0, 2),
+    })
+
+    expect(
+      evaluateAchievementDefinitions([achievement], stats, dailyHistory, {
+        mode: 'daily',
+        dailyDetailStatsHistory,
+      })
+    ).toContain('two_no_correct_games')
   })
 })

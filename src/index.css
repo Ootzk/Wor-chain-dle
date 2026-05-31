@@ -9,6 +9,78 @@ div {
   font-family: 'BCSans', 'Noto Sans', sans-serif;
 }
 
+html.theme-dark,
+html.theme-dark body {
+  background: #0f172a;
+  color: #e5e7eb;
+  color-scheme: dark;
+}
+
+html.theme-dark .bg-white {
+  background-color: #111827 !important;
+}
+
+html.theme-dark [role='switch'] .bg-white {
+  background-color: #ffffff !important;
+}
+
+html.theme-dark .bg-gray-50,
+html.theme-dark .bg-gray-100,
+html.theme-dark .bg-slate-100 {
+  background-color: #1f2937 !important;
+}
+
+html.theme-dark .bg-gray-200,
+html.theme-dark .bg-slate-200 {
+  background-color: #374151 !important;
+}
+
+html.theme-dark .bg-gray-300 {
+  background-color: #4b5563 !important;
+}
+
+html.theme-dark .border-gray-50,
+html.theme-dark .border-gray-100,
+html.theme-dark .border-gray-200,
+html.theme-dark .border-gray-300,
+html.theme-dark .border-slate-200,
+html.theme-dark .border-gray-400 {
+  border-color: #374151 !important;
+}
+
+html.theme-dark .border-black {
+  border-color: #d1d5db !important;
+}
+
+html.theme-dark .text-black,
+html.theme-dark .text-gray-900,
+html.theme-dark .text-gray-800 {
+  color: #f9fafb !important;
+}
+
+html.theme-dark .text-gray-700,
+html.theme-dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+html.theme-dark .text-gray-500,
+html.theme-dark .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+html.theme-dark input,
+html.theme-dark textarea,
+html.theme-dark select {
+  background-color: #111827;
+  color: #f9fafb;
+  border-color: #374151;
+}
+
+html.theme-dark input::placeholder,
+html.theme-dark textarea::placeholder {
+  color: #6b7280;
+}
+
 .cell-animation {
   animation: revealCharCell linear;
   animation-duration: 0.15s;

@@ -2,9 +2,9 @@
 
 [![Release](https://img.shields.io/github/v/release/Ootzk/Wor-chain-dle?label=release&logo=github)](https://github.com/Ootzk/Wor-chain-dle/releases)
 
-**Wordle meets word chain** — guess the word while chaining letters in a snake pattern.
+**Wordle meets word chain.** Guess the hidden word while chaining letters through a snake-shaped board.
 
-A new word every day at [ootzk.github.io/Wor-chain-dle](https://ootzk.github.io/Wor-chain-dle).
+Play at [ootzk.github.io/Wor-chain-dle](https://ootzk.github.io/Wor-chain-dle).
 
 <p align="center">
   <img src="assets/empty-board.png" alt="Wor-chain-dle game board" width="300" />
@@ -16,9 +16,9 @@ A new word every day at [ootzk.github.io/Wor-chain-dle](https://ootzk.github.io/
 
 Guess the hidden 5-letter word in 6 tries. After each guess, tiles change color to show how close you were:
 
-- **Green** — Correct letter, correct spot.
-- **Purple** — Correct letter, wrong spot.
-- **Gray** — Letter not in the word.
+- **Green**: correct letter, correct spot.
+- **Purple**: correct letter, wrong spot.
+- **Gray**: letter not in the word.
 
 <p align="center">
   <img src="assets/how-to-play.png" alt="How to Play modal" width="300" />
@@ -26,50 +26,44 @@ Guess the hidden 5-letter word in 6 tries. After each guess, tiles change color 
 
 ## The Chain Rule
 
-Here's the twist. Starting from your **2nd guess**, a letter **chains** from your previous word. The chained letter is auto-filled and locked — you can't change it.
+Starting from your **2nd guess**, a letter chains from your previous word. The chained letter is auto-filled and locked, so your next word has to work around it.
 
-Your first guess is free. Let's say you start with **SHAKE**:
+Your first guess is free. If you start with **SHAKE**, the final **E** chains down to the next row:
 
 <p align="center">
   <img src="assets/first-guess.png" alt="First guess: SHAKE" width="300" />
 </p>
 
-The last letter **E** chains down to your second guess. It's already locked in — your next word must end with that letter. You enter **LANCE**:
+Then **LANCE** continues the chain from that locked **E**:
 
 <p align="center">
   <img src="assets/second-guess.png" alt="Second guess: LANCE chains from E" width="300" />
 </p>
 
-The chain alternates sides like a snake:
+The chain alternates sides as the board descends:
 
-```
-Guess 1 → 2:  last letter chains   (right side)
-Guess 2 → 3:  first letter chains  (left side)
-Guess 3 → 4:  last letter chains   (right side)
-Guess 4 → 5:  first letter chains  (left side)
-Guess 5 → 6:  last letter chains   (right side)
+```text
+Guess 1 -> 2: last letter chains
+Guess 2 -> 3: first letter chains
+Guess 3 -> 4: last letter chains
+Guess 4 -> 5: first letter chains
+Guess 5 -> 6: last letter chains
 ```
 
 ## Dead Ends
 
-&#x26A0;&#xFE0F; Watch out — if the chained letter doesn't match the answer's position, the game ends early. Plan your guesses carefully!
+If the chained letter cannot match the answer at that locked position, the game can end early. Plan your guesses carefully.
 
 <p align="center">
   <img src="assets/dead-end.png" alt="Dead end: chain letter mismatch" width="300" />
 </p>
 
-## Victory
+## Victory and Sharing
 
-Solve the chain and you'll be rewarded:
+Solve the chain to finish the puzzle, unlock rewards, and share your result.
 
 <p align="center">
   <img src="assets/success.png" alt="Victory!" width="300" />
-</p>
-
-Track your stats and share your results with friends:
-
-<p align="center">
-  <img src="assets/statistics.png" alt="Statistics and Share" width="300" />
 </p>
 
 <pre>
@@ -87,53 +81,60 @@ ootzk.github.io/Wor-chain-dle
 
 ---
 
-## Features
+## Game Modes
 
-### Patch Notes & Update History
+Wor-chain-dle has four ways to play:
 
-New features are introduced through a one-time "What's New" popup on your first visit after an update. The Information modal also includes a Patch Notes tab, so you can browse previous updates by version and release date.
-
-<p align="center">
-  <img src="assets/patch-note.png" alt="What's New in v1.6.0" width="300" />
-  &nbsp;&nbsp;
-  <img src="assets/patch-notes-history.png" alt="Patch Notes history" width="300" />
-</p>
-
-### Create & Share Custom Puzzles
-
-Create your own puzzle and challenge your friends! Tap "Create" at the bottom, enter your name and a 5-letter word, then press Enter to copy a shareable link.
-
-<p align="center">
-  <img src="assets/create-puzzle.png" alt="Create Puzzle — URL copied" width="300" />
-</p>
-
-Your friend opens the link and plays your custom puzzle with the full chain rule:
-
-<p align="center">
-  <img src="assets/custom-puzzle.png" alt="Playing a custom puzzle" width="300" />
-</p>
+| Mode         | What it is                                                  | Records          |
+| ------------ | ----------------------------------------------------------- | ---------------- |
+| **Daily**    | One shared puzzle every day, reset at local midnight.       | Daily records    |
+| **Practice** | Unlimited random puzzles after finishing or skipping Daily. | No records       |
+| **Event**    | Seasonal puzzles with special rules and related rewards.    | Event records    |
+| **Custom**   | Share a puzzle made from your own word.                     | Custom win count |
 
 ### Practice Mode
 
-Done with today's word? Tap "Practice" at the bottom to play unlimited games with random words — no waiting until tomorrow.
+Done with today's word? Practice mode lets you keep playing with random words.
 
 <p align="center">
   <img src="assets/practice-mode.png" alt="Practice Mode" width="300" />
 </p>
 
-### Multi-Language Support
+### Event Mode
 
-Available in 7 languages. Change the language from the popup in Settings.
+Event mode introduces seasonal puzzles with special rules, related rewards, and cosmetics you can preview during that season. Event has a separate answer and record from Daily, so it feels like one more puzzle for the day rather than a replacement.
+
+The current season is **Summer Garden**. A rabbit moves along the chain path after your first guess and hides the cells it has visited. Collect four-leaf clovers before it reaches an unsubmitted row.
+
+Read the full season guide: [Summer Garden](docs/events/summer-garden.md).
 
 <p align="center">
-  <img src="assets/settings-kor.png" alt="Language selection in Settings" width="300" />
+  <img src="assets/event-mode.png" alt="Event Mode" width="300" />
   &nbsp;&nbsp;
-  <img src="assets/how-to-play-kor.png" alt="How to Play in Korean" width="300" />
+  <img src="assets/event-guide.png" alt="Summer Garden event guide" width="300" />
 </p>
 
-### Monthly Calendar
+### Custom Puzzles
 
-Track your daily results on a monthly calendar. Open the Stats modal and switch to the Calendar tab (Daily mode only) to see your history at a glance — green cells for wins, purple for losses. Navigate between months, check your current streak, and share your monthly results as an emoji grid.
+Create your own puzzle and challenge your friends. Enter your name and a 5-letter word, copy the link, and your friend can play it with the full chain rule.
+
+<p align="center">
+  <img src="assets/create-puzzle.png" alt="Create Puzzle URL copied" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/custom-puzzle.png" alt="Playing a custom puzzle" width="300" />
+</p>
+
+---
+
+## Records
+
+Daily and Event each keep their own Records view. Today shows your current result, share button, streak, guess count, achievement count, and detailed behavior stats such as timing, submitted actions, failed attempts, deletes, and tile totals.
+
+<p align="center">
+  <img src="assets/statistics.png" alt="Records dashboard and share controls" width="300" />
+</p>
+
+The Calendar tab shows your day-by-day history. Daily and Event calendars are tracked separately, so seasonal events can have their own timeline.
 
 <p align="center">
   <img src="assets/calendar.png" alt="Monthly Calendar" width="300" />
@@ -152,53 +153,79 @@ Su Mo Tu We Th Fr Sa
 ootzk.github.io/Wor-chain-dle
 </pre>
 
-### Achievements
+---
 
-Earn achievements by reaching milestones, winning streaks, mastering guess counts, or triggering special puzzle events. Each card shows which mode can unlock it: Daily, Practice, Custom, or All. Newly unlocked achievements are highlighted with a "NEW!" tag, and each achievement unlocks a cosmetic reward.
+## Rewards
+
+Rewards brings Achievements and Cosmetics into one place. Achievements unlock cosmetic items, and filters help you browse by reward type, release, mode, and unlock state.
 
 <p align="center">
-  <img src="assets/achievements.png" alt="Achievements" width="300" />
+  <img src="assets/achievements.png" alt="Rewards achievements tab" width="300" />
 </p>
 
-### Cosmetics
+Cosmetics let you customize the board and shared results:
 
-Customize your game's look with unlocked cosmetic items:
+- **Share Badge** changes the title symbol in shared results.
+- **Share Emoji** changes the emoji set used in share text.
+- **Cell Font** changes the letter style on the board.
+- **Letter Color** changes tile text color.
+- **Chain Style** changes the chain line shape.
+- **Chain Color** changes the chain line color.
+- **Win Message** changes the result message shown after a game.
 
-- **Share Badge** — Replace the title symbol in shared results (Wor🔗dle → Wor🔥dle, Wor🦎dle, Wor💯dle)
-- **Share Emoji** — Change the emoji set used in share text (🟩🟪⬜ → 🟢🟣⚪, 💚💜🤍, 🥬🍆🍚, or 🍏🍇🥛)
-- **Cell Font** — Switch between Sans-serif, Pixel, or Marker fonts
-- **Letter Color** — White, Gold, or Black text on tiles
-- **Chain Style** — Solid, Dashed, or Thick chain lines
-- **Chain Color** — Black, Silver, or Gold chain color
-- **Alert Message** — 6 themes with guess-count-based messages (Classic, Phrase, Chill, Epic, Slang, Emoji)
-
-The Settings modal includes a live sample view showing all cosmetic changes in real time.
+The Cosmetics tab includes a live preview and picker popups, so you can compare unlocked options before equipping them.
 
 <p align="center">
-  <img src="assets/settings-cosmetics.png" alt="Settings with Cosmetics" width="300" />
+  <img src="assets/settings-cosmetics.png" alt="Rewards cosmetics tab with live preview" width="300" />
   &nbsp;&nbsp;
-  <img src="assets/cosmetic-picker.png" alt="Cosmetic Picker Popup" width="300" />
+  <img src="assets/cosmetic-picker.png" alt="Cosmetic picker popup" width="300" />
 </p>
 
 <p align="center">
-  <img src="assets/alert-message-picker.png" alt="Alert Message Theme Picker" width="300" />
+  <img src="assets/alert-message-picker.png" alt="Win message theme picker" width="300" />
 </p>
 
-### Settings
+---
 
-Customize your experience:
+## Profile and Settings
 
-- **Uppercase Letters** — Display letters in uppercase.
-- **Exclude URL when Sharing** — Omit the game URL from share text.
-- **Language** — Switch between 7 languages.
+Settings includes language, display, sharing, and gameplay options. You can also export and import your profile to move records, achievements, cosmetics, and preferences between browsers.
+
+- **Profile Management** exports and imports your player profile.
+- **Language** switches between 7 bundled languages.
+- **Display in Uppercase** changes board and keyboard labels.
+- **Exclude URL when Sharing** omits the game URL from share text.
+- **Start Calendar Week on Monday** changes Calendar layout.
+- **Enable Enter Hints** colors the Enter key when a word can be submitted.
+- **Enable Controller** supports controller-style play.
 
 <p align="center">
   <img src="assets/settings.png" alt="Settings" width="300" />
 </p>
 
-### Support the Developer
+Wor-chain-dle is available in English, Korean, Japanese, Spanish, Swahili, Chinese, and German.
 
-If you enjoy the game, consider buying the developer a drink!
+<p align="center">
+  <img src="assets/settings-kor.png" alt="Language selection in Settings" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/how-to-play-kor.png" alt="How to Play in Korean" width="300" />
+</p>
+
+---
+
+## Updates
+
+New releases are introduced through a one-time "What's New" popup. The Information modal also includes a Patch Notes tab where you can browse previous versions by release date.
+
+<p align="center">
+  <img src="assets/patch-note.png" alt="What's New in v1.7.0" width="300" />
+  &nbsp;&nbsp;
+  <img src="assets/patch-notes-history.png" alt="Patch Notes history" width="300" />
+</p>
+
+## Support
+
+If you enjoy the game, consider buying the developer a drink.
 
 <p align="center">
   <img src="assets/donation.png" alt="Donate" width="300" />
@@ -210,9 +237,15 @@ If you enjoy the game, consider buying the developer a drink!
 
 ```bash
 npm install
-npm start          # dev server (http://localhost:3000)
-npm run build      # production build
-npm test           # run tests
+PUBLIC_URL=/ npm start
+PUBLIC_URL=/ npm run build
+npm test
+```
+
+README screenshots are generated with:
+
+```bash
+npm run readme:screenshots
 ```
 
 Coding agents should read [`AGENTS.md`](AGENTS.md) before making changes. Claude Code also has a compatibility wrapper in [`CLAUDE.md`](CLAUDE.md).

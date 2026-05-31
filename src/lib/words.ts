@@ -18,18 +18,18 @@ export const getRandomWord = () => {
 export const getWordOfDay = () => {
   const epoch = Temporal.PlainDate.from(CONFIG.startDate)
   const today = Temporal.Now.plainDateISO()
+  const dateKey = today.toString()
   const index = today.since(epoch).days
 
   const tz = Temporal.Now.timeZoneId()
-  const tomorrow = today
-    .add({ days: 1 })
-    .toZonedDateTime(tz).epochMilliseconds
+  const tomorrow = today.add({ days: 1 }).toZonedDateTime(tz).epochMilliseconds
 
   return {
     solution: WORDS[index % WORDS.length],
     solutionIndex: index,
+    dateKey,
     tomorrow,
   }
 }
 
-export const { solution, solutionIndex, tomorrow } = getWordOfDay()
+export const { solution, solutionIndex, dateKey, tomorrow } = getWordOfDay()

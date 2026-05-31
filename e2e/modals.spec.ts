@@ -30,8 +30,10 @@ test.describe('Modals', () => {
 
     // Tab 3: Patch Notes
     await gamePage.locator('button', { hasText: 'Patch Notes' }).click()
-    await expect(gamePage.getByText('Patch Notes in Information')).toBeVisible()
-    await gamePage.locator('button', { hasText: 'v1.4.0' }).click()
+    await expect(
+      gamePage.getByText('Event Mode', { exact: true })
+    ).toBeVisible()
+    await gamePage.getByRole('button', { name: /v1\.4\.0/ }).click()
     await expect(gamePage.getByText('Local Timezone Reset')).toBeVisible()
     await screenshot(gamePage, '03-daily-tab-patch-notes')
 
@@ -112,7 +114,7 @@ test.describe('Modals', () => {
       .locator('button', { hasText: 'Enter' })
       .waitFor({ state: 'visible' })
 
-    // Create page icons: info(0), settings(1), donate(2)
+    // Create page icons: info(0), rewards(1), settings(2), donate(3)
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(0).click()
     await expect(
       gamePage.getByRole('heading', { name: 'Information' })
@@ -144,6 +146,8 @@ test.describe('Modals', () => {
     await expect(
       gamePage.getByRole('heading', { name: 'Records' })
     ).toBeVisible()
+    await expect(gamePage.locator('text=Dashboard')).toBeVisible()
+    await gamePage.getByRole('button', { name: 'Summary' }).click()
     await expect(gamePage.locator('text=Total tries')).toBeVisible()
     await expect(gamePage.locator('text=Success rate')).toBeVisible()
     await screenshot(gamePage, '01-stats-modal-open')
@@ -155,15 +159,37 @@ test.describe('Modals', () => {
     ).not.toBeVisible()
   })
 
-  test('settings modal with uppercase toggle', async ({ gamePage }) => {
-    // Click settings icon (CogIcon) — 3rd icon (0:info, 1:stats, 2:settings)
+  test('dead end achievement help opens the chain rule explanation', async ({
+    gamePage,
+  }) => {
     await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
 
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
+    await gamePage.locator('button', { hasText: 'dead end' }).click()
+
+    await expect(
+      gamePage.getByRole('heading', { name: 'Rewards' })
+    ).not.toBeVisible({ timeout: 1000 })
+    await expect(
+      gamePage.getByRole('heading', { name: 'Information' })
+    ).toBeVisible({ timeout: 5000 })
+    await expect(gamePage.locator('text=Chain Rule')).toBeVisible()
+    await expect(
+      gamePage.locator('text=no remaining guess can become the correct word')
+    ).toBeVisible()
+    await screenshot(gamePage, '01-dead-end-achievement-help')
+  })
+
+  test('settings modal with uppercase toggle', async ({ gamePage }) => {
+    // Click settings icon (CogIcon) — 4th icon (0:info, 1:stats, 2:rewards, 3:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
     await expect(gamePage.locator('text=Display in Uppercase')).toBeVisible()
     await screenshot(gamePage, '01-settings-modal-open')
 
-    // Toggle uppercase on (first switch = uppercase, second = exclude URL)
+    // Toggle uppercase on (first switch = uppercase)
     const toggle = gamePage.locator('button[role="switch"]').first()
     await toggle.click()
     await screenshot(gamePage, '02-uppercase-toggle-on')
@@ -176,7 +202,7 @@ test.describe('Modals', () => {
     await screenshot(gamePage, '03-uppercase-applied-to-page')
 
     // Reopen settings and toggle off
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await screenshot(gamePage, '04-uppercase-toggle-off')
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
@@ -189,8 +215,8 @@ test.describe('Modals', () => {
   test('uppercase setting persists across page navigation', async ({
     gamePage,
   }) => {
-    // Daily: enable uppercase via settings (settings = 3rd icon)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
+    // Daily: enable uppercase via settings (settings = 4th icon)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
@@ -216,8 +242,8 @@ test.describe('Modals', () => {
     await expect(gamePage.locator('div.uppercase').first()).toBeVisible()
     await screenshot(gamePage, '04-create-uppercase-persisted')
 
-    // Toggle off on Create page (settings = 2nd icon: info, settings)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(1).click()
+    // Toggle off on Create page (settings = 3rd icon: info, rewards, settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
     await gamePage.locator('button[role="switch"]').first().click()
     await gamePage.locator('svg.h-6.w-6.cursor-pointer >> nth=-1').click()
     await expect(gamePage.locator('div.uppercase').first()).not.toBeVisible()
@@ -237,8 +263,8 @@ test.describe('Modals', () => {
   })
 
   test('donate modal opens and closes', async ({ gamePage }) => {
-    // Click donate icon (CurrencyDollarIcon) — 4th icon (0:info, 1:stats, 2:settings, 3:donate)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    // Click donate icon (CurrencyDollarIcon) — 5th icon (0:info, 1:stats, 2:rewards, 3:settings, 4:donate)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(4).click()
 
     await expect(gamePage.locator('h3:has-text("Donate")')).toBeVisible()
 
@@ -279,9 +305,11 @@ test.describe('Modals', () => {
   })
 
   test('language selector in settings modal', async ({ gamePage }) => {
-    // Open settings (0:info, 1:stats, 2:settings)
-    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(2).click()
-    await expect(gamePage.locator('text=Settings')).toBeVisible()
+    // Open settings (0:info, 1:stats, 2:rewards, 3:settings)
+    await gamePage.locator('svg.h-6.w-6.cursor-pointer').nth(3).click()
+    await expect(
+      gamePage.getByRole('heading', { name: 'Settings' })
+    ).toBeVisible()
 
     // Language picker button should be visible with English
     await expect(gamePage.locator('button:has-text("English")')).toBeVisible()

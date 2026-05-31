@@ -5,6 +5,13 @@ type StoredGameState = {
   solution: string
 }
 
+type StoredEventGameState = StoredGameState & {
+  version: string
+  dateKey: string
+  pacmanPathIndex?: number
+  collectedRows?: Record<string, number[]>
+}
+
 export const saveGameStateToLocalStorage = (gameState: StoredGameState) => {
   localStorage.setItem(gameStateKey, JSON.stringify(gameState))
 }
@@ -12,6 +19,23 @@ export const saveGameStateToLocalStorage = (gameState: StoredGameState) => {
 export const loadGameStateFromLocalStorage = () => {
   const state = localStorage.getItem(gameStateKey)
   return state ? (JSON.parse(state) as StoredGameState) : null
+}
+
+const eventGameStateKey = 'eventGameState'
+
+export const saveEventGameStateToLocalStorage = (
+  gameState: StoredEventGameState
+) => {
+  localStorage.setItem(eventGameStateKey, JSON.stringify(gameState))
+}
+
+export const loadEventGameStateFromLocalStorage = () => {
+  const state = localStorage.getItem(eventGameStateKey)
+  return state ? (JSON.parse(state) as StoredEventGameState) : null
+}
+
+export const clearEventGameStateFromLocalStorage = () => {
+  localStorage.removeItem(eventGameStateKey)
 }
 
 const gameStatKey = 'gameStats'
@@ -41,8 +65,20 @@ const settingsKey = 'settings'
 
 export type Settings = {
   isUppercase: boolean
+  isDarkMode: boolean
   weekStartsOnMonday: boolean
   excludeUrl: boolean
+  enterValidationHint: boolean
+  controllerEnabled: boolean
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  isUppercase: false,
+  isDarkMode: false,
+  weekStartsOnMonday: false,
+  excludeUrl: false,
+  enterValidationHint: false,
+  controllerEnabled: false,
 }
 
 export const saveSettings = (settings: Settings) => {
@@ -52,8 +88,8 @@ export const saveSettings = (settings: Settings) => {
 export const loadSettings = (): Settings => {
   const settings = localStorage.getItem(settingsKey)
   return settings
-    ? { isUppercase: false, weekStartsOnMonday: false, excludeUrl: false, ...(JSON.parse(settings) as Partial<Settings>) }
-    : { isUppercase: false, weekStartsOnMonday: false, excludeUrl: false }
+    ? { ...DEFAULT_SETTINGS, ...(JSON.parse(settings) as Partial<Settings>) }
+    : DEFAULT_SETTINGS
 }
 
 const seenPatchNotesVersionKey = 'seenPatchNotesVersion'
