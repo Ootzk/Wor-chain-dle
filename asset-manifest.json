@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/Wor-chain-dle/static/css/main.70262c91.css",
-    "main.js": "/Wor-chain-dle/static/js/main.dc38ce8c.js",
+    "main.css": "/Wor-chain-dle/static/css/main.da244987.css",
+    "main.js": "/Wor-chain-dle/static/js/main.e395e08f.js",
     "static/js/27.abab6b99.chunk.js": "/Wor-chain-dle/static/js/27.abab6b99.chunk.js",
     "static/media/BCSans-Bold.woff": "/Wor-chain-dle/static/media/BCSans-Bold.252ecf87ea37c93b293c.woff",
     "static/media/BCSans-BoldItalic.woff": "/Wor-chain-dle/static/media/BCSans-BoldItalic.73ed5137b2c4a42b754f.woff",
@@ -10,7 +10,7 @@
     "index.html": "/Wor-chain-dle/index.html"
   },
   "entrypoints": [
-    "static/css/main.70262c91.css",
-    "static/js/main.dc38ce8c.js"
+    "static/css/main.da244987.css",
+    "static/js/main.e395e08f.js"
   ]
 }
