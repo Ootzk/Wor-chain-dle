@@ -52,6 +52,15 @@ ReactDOM.render(
   <React.StrictMode>
     <HashRouter>
       <Switch>
+        {process.env.REACT_APP_ARTWORK === '1' && (
+          <Route
+            exact
+            path="/artwork/organization"
+            component={
+              require('./artwork/OrganizationAvatar').OrganizationAvatar
+            }
+          />
+        )}
         <Route exact path="/" component={DailyPage} />
         <Route path="/practice" component={PracticePage} />
         <Route path="/event" component={EventPage} />
