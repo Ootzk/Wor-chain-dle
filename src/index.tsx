@@ -61,6 +61,13 @@ ReactDOM.render(
             }
           />
         )}
+        {process.env.REACT_APP_ARTWORK === '1' && (
+          <Route
+            exact
+            path="/artwork/social-preview"
+            component={require('./artwork/SocialPreview').SocialPreview}
+          />
+        )}
         <Route exact path="/" component={DailyPage} />
         <Route path="/practice" component={PracticePage} />
         <Route path="/event" component={EventPage} />

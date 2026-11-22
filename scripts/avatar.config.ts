@@ -3,7 +3,10 @@ import path from 'path'
 
 export default defineConfig({
   testDir: '.',
-  testMatch: 'generate-organization-avatar.spec.ts',
+  testMatch: [
+    'generate-organization-avatar.spec.ts',
+    'generate-social-preview.spec.ts',
+  ],
   workers: 1,
   retries: 0,
   use: {
