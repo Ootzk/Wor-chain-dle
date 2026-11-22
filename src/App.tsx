@@ -17,6 +17,7 @@ import { RewardsModal } from './components/modals/RewardsModal'
 import { ModeBadge } from './components/modes/ModeBadge'
 import { Temporal } from 'temporal-polyfill'
 import { isWordInWordList, isWinningWord } from './lib/words'
+import { GameTitle } from './components/GameTitle'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import { initDailyHistoryStartDate, dateToKey } from './lib/dailyHistory'
 import {
@@ -950,7 +951,7 @@ const App: React.FC<WithTranslation & AppOwnProps> = ({
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div className="flex h-12 w-80 mx-auto items-center mb-8">
         <div className="grow">
-          <h1 className="text-xl font-bold">Wor&#x1F517;dle</h1>
+          <GameTitle />
           <p className="relative text-sm text-gray-500">
             {isDaily ? (
               <span className="inline-flex items-center gap-1.5">
