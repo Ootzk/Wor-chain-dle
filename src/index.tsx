@@ -55,10 +55,8 @@ ReactDOM.render(
         {process.env.REACT_APP_ARTWORK === '1' && (
           <Route
             exact
-            path="/artwork/organization"
-            component={
-              require('./artwork/OrganizationAvatar').OrganizationAvatar
-            }
+            path="/artwork/thumbnail"
+            component={require('./artwork/Thumbnail').Thumbnail}
           />
         )}
         {process.env.REACT_APP_ARTWORK === '1' && (

@@ -2,10 +2,10 @@ import { Cell } from '../components/grid/Cell'
 
 // Render the real game cells; keep their status colors, borders, and typography.
 // This page is available only with REACT_APP_ARTWORK=1.
-export const OrganizationAvatar = () => (
+export const Thumbnail = () => (
   <main
-    data-testid="organization-avatar"
-    aria-label="Wor🔗dle organization avatar"
+    data-testid="thumbnail"
+    aria-label="Wor🔗dle organization thumbnail"
     style={{
       width: 500,
       height: 500,

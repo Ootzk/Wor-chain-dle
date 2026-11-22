@@ -1,13 +1,13 @@
 # Wor🔗dle artwork
 
-`organization-avatar.png` is a 500×500 px organization avatar rendered from the
+`thumbnail.png` is a 500×500 px organization thumbnail rendered from the
 actual game `Cell` component: purple W / empty input cell with 🔗 above gray R /
-green D. Edit `src/artwork/OrganizationAvatar.tsx` to change the layout.
+green D. Edit `src/artwork/Thumbnail.tsx` to change the layout.
 
 ```bash
 npm ci
 npx playwright install chromium
-npx playwright test --config scripts/avatar.config.ts
+npx playwright test --config scripts/thumbnail.config.ts
 ```
 
 The generator starts the app on port 3108 with `REACT_APP_ARTWORK=1`, captures the
@@ -28,7 +28,7 @@ board. Edit its composition in `src/artwork/SocialPreview.tsx`.
 The command above generates both images. To regenerate just this image:
 
 ```bash
-npx playwright test --config scripts/avatar.config.ts --grep 'social preview'
+npx playwright test --config scripts/thumbnail.config.ts --grep 'social preview'
 ```
 
 GitHub recommends [1280×640 px and under 1 MB](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).
